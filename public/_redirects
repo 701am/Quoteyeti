@@ -1,0 +1,21 @@
+# Map old WordPress paths to new Astro routes.
+# Astro uses build.format='directory' so /brands/bmw/ → /brands/bmw/index.html naturally.
+# Add additional mappings below as you migrate content.
+
+# WP admin → CMS
+/wp-admin/*       /admin/                 301
+/wp-login.php     /admin/                 301
+
+# WP feeds → Astro RSS
+/feed/            /rss.xml                301
+/comments/feed/   /rss.xml                301
+
+# WP search → site search (if added later)
+# /?s=:term       /search/?q=:term        301
+
+# Common WP attachment redirects (uploads now live at /assets/...)
+# Keep these dynamic — adjust per audit
+# /wp-content/uploads/*  /assets/uploads/:splat  301
+
+# Catch-all 404
+/*  /404  404

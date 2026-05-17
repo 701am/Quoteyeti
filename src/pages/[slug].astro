@@ -1,0 +1,43 @@
+---
+import BaseLayout from "~/layouts/BaseLayout.astro";
+import { getCollection, render } from "astro:content";
+
+export async function getStaticPaths() {
+  const pages = await getCollection("pages");
+  return pages.map((entry) => ({
+    params: { slug: entry.data.slug },
+    props: { entry },
+  }));
+}
+
+const { entry } = Astro.props;
+const { Content } = await render(entry);
+---
+
+<BaseLayout
+  title={entry.data.seo.metaTitle ?? entry.data.title}
+  description={entry.data.seo.metaDescription}
+  noindex={entry.data.seo.noindex}
+>
+  <article class="page">
+    <header class="page__hero">
+      <div class="container">
+        <h1>{entry.data.title}</h1>
+      </div>
+    </header>
+    <div class="container page__body prose">
+      <Content />
+    </div>
+  </article>
+
+  <style>
+    .page__hero { padding-block: var(--space-16); background: var(--color-alice); }
+    .page__body { padding-block: var(--space-16); max-width: 760px; }
+    .prose :global(h2) { margin-top: var(--space-12); }
+    .prose :global(h3) { margin-top: var(--space-10); }
+    .prose :global(p) { margin-block: 0 var(--space-5); line-height: 1.7; }
+    .prose :global(ul), .prose :global(ol) { margin-block: 0 var(--space-5); padding-left: 1.5em; }
+    .prose :global(li) { margin-bottom: var(--space-2); }
+    .prose :global(a) { text-decoration: underline; }
+  </style>
+</BaseLayout>

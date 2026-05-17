@@ -1,0 +1,119 @@
+---
+import BaseLayout from "~/layouts/BaseLayout.astro";
+import ZipForm from "~/components/ZipForm.astro";
+import { getCollection, render } from "astro:content";
+
+export async function getStaticPaths() {
+  const reviews = await getCollection("reviews");
+  return reviews.map((entry) => ({
+    params: { slug: entry.data.slug },
+    props: { entry },
+  }));
+}
+
+const { entry } = Astro.props;
+const { Content } = await render(entry);
+---
+
+<BaseLayout
+  title={entry.data.seo.metaTitle ?? entry.data.title}
+  description={entry.data.seo.metaDescription}
+  ogImage={entry.data.seo.ogImage}
+  noindex={entry.data.seo.noindex}
+>
+  <article class="single">
+    <header class="single__hero">
+      <div class="container single__hero-inner">
+        <p class="single__overline">Provider Review</p>
+        <h1>{entry.data.providerName} <span class="highlight">review</span></h1>
+        {entry.data.rating !== undefined && (
+          <p class="single__rating">
+            <span class="single__rating-stars" aria-hidden="true">★★★★★</span>
+            <strong>{entry.data.rating.toFixed(1)}</strong> / 5.0
+          </p>
+        )}
+      </div>
+    </header>
+
+    <div class="container single__layout">
+      <div class="single__body prose">
+        {(entry.data.pros.length > 0 || entry.data.cons.length > 0) && (
+          <div class="proscons">
+            {entry.data.pros.length > 0 && (
+              <div class="proscons__col proscons__col--pros">
+                <h3 class="h4">Pros</h3>
+                <ul>{entry.data.pros.map((p: string) => <li>{p}</li>)}</ul>
+              </div>
+            )}
+            {entry.data.cons.length > 0 && (
+              <div class="proscons__col proscons__col--cons">
+                <h3 class="h4">Cons</h3>
+                <ul>{entry.data.cons.map((c: string) => <li>{c}</li>)}</ul>
+              </div>
+            )}
+          </div>
+        )}
+        <Content />
+      </div>
+      <aside class="single__aside">
+        <div class="card">
+          <h3 class="h5">Compare quotes</h3>
+          <ZipForm variant="inline" ctaLabel="Get Quotes" />
+        </div>
+      </aside>
+    </div>
+  </article>
+
+  <style>
+    .single__hero { padding-block: var(--space-16); background: var(--color-alice); }
+    .single__overline {
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      font-size: 0.875rem;
+      color: var(--color-ship-cove);
+      margin-bottom: var(--space-2);
+    }
+    .single__rating { margin-top: var(--space-5); font-size: 1.125rem; }
+    .single__rating-stars { color: var(--color-orange); margin-right: var(--space-2); }
+    .single__layout {
+      display: grid;
+      grid-template-columns: minmax(0,1fr) 320px;
+      gap: var(--space-12);
+      padding-block: var(--space-16);
+    }
+    .single__aside { display: flex; flex-direction: column; gap: var(--space-6); }
+    .card {
+      padding: var(--space-6);
+      background: var(--color-white);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-lg);
+    }
+
+    .proscons {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--space-6);
+      margin-bottom: var(--space-10);
+    }
+    .proscons__col {
+      padding: var(--space-6);
+      border-radius: var(--radius);
+    }
+    .proscons__col--pros { background: #E9FBE5; }
+    .proscons__col--cons { background: #FCF0EF; }
+    .proscons__col ul { margin: 0; padding-left: 1.25em; }
+    .proscons__col li { margin-bottom: var(--space-2); }
+
+    .prose :global(h2) { margin-top: var(--space-12); }
+    .prose :global(h3) { margin-top: var(--space-10); }
+    .prose :global(p) { margin-block: 0 var(--space-5); line-height: 1.7; }
+    .prose :global(ul), .prose :global(ol) { margin-block: 0 var(--space-5); padding-left: 1.5em; }
+    .prose :global(li) { margin-bottom: var(--space-2); }
+    .prose :global(a) { text-decoration: underline; }
+
+    @media (max-width: 950px) {
+      .single__layout { grid-template-columns: 1fr; }
+      .proscons { grid-template-columns: 1fr; }
+    }
+  </style>
+</BaseLayout>

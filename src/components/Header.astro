@@ -1,0 +1,209 @@
+---
+// Replicates the original QuoteYeti header: logo + 4 dropdown menus + Start for Free CTA
+const navItems = [
+  {
+    label: "Top Brands",
+    children: [
+      { label: "All Brands", href: "/brands/" },
+      { label: "Mazda", href: "/brands/mazda-insurance-rates/" },
+      { label: "BMW", href: "/brands/bmw/" },
+      { label: "Subaru", href: "/brands/subaru-insurance-rates/" },
+      { label: "Porsche", href: "/brands/porsche-insurance-rates/" },
+      { label: "Honda", href: "/brands/honda-insurance-rates/" },
+      { label: "Lexus", href: "/brands/lexus-insurance-rates/" },
+      { label: "Toyota", href: "/brands/toyota-insurance-rates/" },
+      { label: "Chrysler", href: "/brands/chrysler/" },
+      { label: "Buick", href: "/brands/buick/" },
+      { label: "Hyundai", href: "/brands/hyundai-insurance-rates/" },
+      { label: "Audi", href: "/brands/audi/" },
+      { label: "Infiniti", href: "/brands/infiniti-car-insurance/" },
+    ],
+  },
+  {
+    label: "Top Reviews",
+    children: [
+      { label: "All Reviews", href: "/reviews/" },
+      { label: "State Farm", href: "/reviews/state-farm-insurance/" },
+      { label: "Allstate", href: "/reviews/allstate-insurance/" },
+      { label: "Progressive", href: "/reviews/progressive-insurance/" },
+      { label: "GEICO", href: "/reviews/geico-insurance/" },
+      { label: "USAA", href: "/reviews/usaa-insurance/" },
+      { label: "Liberty Mutual", href: "/reviews/liberty-mutual-insurance/" },
+      { label: "Farmers", href: "/reviews/farmers-insurance/" },
+      { label: "Travelers", href: "/reviews/travelers-insurance/" },
+      { label: "American Family", href: "/reviews/american-family-insurance/" },
+      { label: "Nationwide", href: "/reviews/nationwide-insurance/" },
+      { label: "Chubb", href: "/reviews/chubb-auto-insurance/" },
+      { label: "Kemper", href: "/reviews/kemper-auto-insurance/" },
+    ],
+  },
+  {
+    label: "Resources",
+    children: [
+      { label: "Best Car Insurance for Military", href: "/best-car-insurance/best-car-insurance-for-military/" },
+      { label: "Insurance Statistics", href: "/resources/car-insurance-statistics/" },
+      { label: "FAQs", href: "/faqs/" },
+      { label: "Car Insurance Glossary", href: "/glossary/" },
+    ],
+  },
+  {
+    label: "Company",
+    children: [
+      { label: "About QuoteYeti", href: "/about/" },
+      { label: "Contact", href: "/contact/" },
+    ],
+  },
+];
+---
+
+<header class="site-header">
+  <div class="container site-header__inner">
+    <a href="/" class="site-header__logo" aria-label="QuoteYeti home">
+      <span class="logo-mark" aria-hidden="true">
+        <!-- Inline yeti footprint as logo placeholder -->
+        <img src="/assets/images/footprint.svg" alt="" width="32" height="32" />
+      </span>
+      <span class="logo-text">QuoteYeti</span>
+    </a>
+
+    <nav class="site-nav" aria-label="Primary">
+      <ul class="site-nav__list">
+        {navItems.map((item) => (
+          <li class="site-nav__item">
+            <button class="site-nav__top" aria-expanded="false" aria-haspopup="true">
+              {item.label}
+              <svg width="10" height="6" viewBox="0 0 10 6" aria-hidden="true">
+                <path d="M1 1l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+              </svg>
+            </button>
+            <ul class="site-nav__sub">
+              {item.children.map((c) => (
+                <li><a href={c.href}>{c.label}</a></li>
+              ))}
+            </ul>
+          </li>
+        ))}
+      </ul>
+    </nav>
+
+    <a href="#start-for-free" class="btn btn-primary site-header__cta">Start for free</a>
+
+    <button class="site-header__menu-btn" aria-label="Open menu" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</header>
+
+<style>
+  .site-header {
+    background: var(--color-white);
+    border-bottom: 1px solid var(--color-border);
+    position: sticky;
+    top: 0;
+    z-index: 50;
+  }
+  .site-header__inner {
+    display: flex;
+    align-items: center;
+    gap: var(--space-8);
+    padding-block: var(--space-4);
+  }
+  .site-header__logo {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 1.25rem;
+    color: var(--color-resolution);
+    text-decoration: none;
+  }
+  .logo-mark img { display: block; }
+
+  .site-nav { flex: 1; }
+  .site-nav__list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    gap: var(--space-6);
+  }
+  .site-nav__item { position: relative; }
+  .site-nav__top {
+    background: none;
+    border: 0;
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 1rem;
+    color: var(--color-resolution);
+    padding: var(--space-3) 0;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+  }
+  .site-nav__top:hover { color: var(--color-malibu); }
+  .site-nav__sub {
+    list-style: none;
+    margin: 0;
+    padding: var(--space-3) 0;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    min-width: 220px;
+    background: var(--color-white);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-4px);
+    transition: all var(--transition);
+  }
+  .site-nav__item:hover .site-nav__sub,
+  .site-nav__item:focus-within .site-nav__sub {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+  }
+  .site-nav__sub a {
+    display: block;
+    padding: var(--space-2) var(--space-5);
+    color: var(--color-text);
+    font-size: 0.95rem;
+  }
+  .site-nav__sub a:hover {
+    background: var(--color-alice);
+    color: var(--color-resolution);
+  }
+
+  .site-header__menu-btn {
+    display: none;
+    background: none;
+    border: 0;
+    padding: var(--space-2);
+    flex-direction: column;
+    gap: 5px;
+    cursor: pointer;
+  }
+  .site-header__menu-btn span {
+    display: block;
+    width: 24px;
+    height: 2px;
+    background: var(--color-resolution);
+  }
+
+  @media (max-width: 950px) {
+    .site-nav, .site-header__cta { display: none; }
+    .site-header__menu-btn { display: flex; }
+  }
+</style>
+
+<script>
+  // Mobile menu toggle (deferred until full mobile nav drawer is built)
+  const btn = document.querySelector<HTMLButtonElement>(".site-header__menu-btn");
+  btn?.addEventListener("click", () => {
+    const open = btn.getAttribute("aria-expanded") === "true";
+    btn.setAttribute("aria-expanded", String(!open));
+  });
+</script>

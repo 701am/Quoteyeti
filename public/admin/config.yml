@@ -1,0 +1,150 @@
+backend:
+  name: git-gateway
+  branch: main
+  # Auth via Netlify Identity → Git Gateway. Enable both in Netlify dashboard.
+
+# Editorial workflow: edits go through PRs rather than direct commits.
+# Strongly recommended for any site with more than one editor.
+publish_mode: editorial_workflow
+
+media_folder: "public/uploads"
+public_folder: "/uploads"
+
+site_url: https://www.quoteyeti.com
+display_url: https://www.quoteyeti.com
+logo_url: /uploads/quote-yeti-logo-light.svg
+
+# Shared field group for SEO — reused across all collections
+# (Decap doesn't have true "partials" but we define it inline per collection)
+
+collections:
+  - name: "brands"
+    label: "Brands"
+    label_singular: "Brand"
+    folder: "src/content/brands"
+    create: true
+    slug: "{{slug}}"
+    preview_path: "brands/{{slug}}"
+    summary: "{{brandName}} — updated {{updatedAt | date('YYYY-MM-DD')}}"
+    fields:
+      - { name: "title", label: "Title", widget: "string" }
+      - { name: "slug", label: "Slug", widget: "string", hint: "URL segment. Matches WP slug exactly for redirect mapping." }
+      - { name: "brandName", label: "Brand Name", widget: "string" }
+      - { name: "logo", label: "Brand Logo", widget: "image", required: false }
+      - { name: "heroImage", label: "Hero Image", widget: "image", required: false }
+      - { name: "publishedAt", label: "Published", widget: "datetime" }
+      - { name: "updatedAt", label: "Updated", widget: "datetime", required: false }
+      - { name: "averageRate", label: "Average Insurance Rate", widget: "string", required: false }
+      - name: "popularModels"
+        label: "Popular Models"
+        widget: "list"
+        required: false
+        field: { name: "model", label: "Model", widget: "string" }
+      - name: "relatedReviews"
+        label: "Related Provider Reviews"
+        widget: "list"
+        required: false
+        field: { name: "review", label: "Review slug", widget: "string" }
+      - name: "seo"
+        label: "SEO"
+        widget: "object"
+        collapsed: true
+        fields:
+          - { name: "metaTitle", label: "Meta Title", widget: "string", required: false }
+          - { name: "metaDescription", label: "Meta Description", widget: "text", required: false }
+          - { name: "ogImage", label: "OG Image", widget: "image", required: false }
+          - { name: "canonical", label: "Canonical URL", widget: "string", required: false }
+          - { name: "noindex", label: "No-index", widget: "boolean", default: false }
+      - { name: "body", label: "Body", widget: "markdown" }
+
+  - name: "reviews"
+    label: "Provider Reviews"
+    label_singular: "Review"
+    folder: "src/content/reviews"
+    create: true
+    slug: "{{slug}}"
+    preview_path: "reviews/{{slug}}"
+    summary: "{{providerName}} — {{rating}}★"
+    fields:
+      - { name: "title", label: "Title", widget: "string" }
+      - { name: "slug", label: "Slug", widget: "string" }
+      - { name: "providerName", label: "Provider Name", widget: "string" }
+      - { name: "logo", label: "Provider Logo", widget: "image", required: false }
+      - { name: "rating", label: "Rating (0–5)", widget: "number", required: false, value_type: "float", min: 0, max: 5, step: 0.1 }
+      - name: "pros"
+        label: "Pros"
+        widget: "list"
+        required: false
+        field: { name: "pro", label: "Pro", widget: "string" }
+      - name: "cons"
+        label: "Cons"
+        widget: "list"
+        required: false
+        field: { name: "con", label: "Con", widget: "string" }
+      - { name: "publishedAt", label: "Published", widget: "datetime" }
+      - { name: "updatedAt", label: "Updated", widget: "datetime", required: false }
+      - name: "seo"
+        label: "SEO"
+        widget: "object"
+        collapsed: true
+        fields:
+          - { name: "metaTitle", label: "Meta Title", widget: "string", required: false }
+          - { name: "metaDescription", label: "Meta Description", widget: "text", required: false }
+          - { name: "ogImage", label: "OG Image", widget: "image", required: false }
+          - { name: "canonical", label: "Canonical URL", widget: "string", required: false }
+          - { name: "noindex", label: "No-index", widget: "boolean", default: false }
+      - { name: "body", label: "Body", widget: "markdown" }
+
+  - name: "bestOf"
+    label: "Best-Of Articles"
+    label_singular: "Best-Of Article"
+    folder: "src/content/bestOf"
+    create: true
+    slug: "{{slug}}"
+    preview_path: "best-car-insurance/{{slug}}"
+    fields:
+      - { name: "title", label: "Title", widget: "string" }
+      - { name: "slug", label: "Slug", widget: "string" }
+      - { name: "heroImage", label: "Hero Image", widget: "image", required: false }
+      - { name: "publishedAt", label: "Published", widget: "datetime" }
+      - { name: "updatedAt", label: "Updated", widget: "datetime", required: false }
+      - name: "seo"
+        label: "SEO"
+        widget: "object"
+        collapsed: true
+        fields:
+          - { name: "metaTitle", label: "Meta Title", widget: "string", required: false }
+          - { name: "metaDescription", label: "Meta Description", widget: "text", required: false }
+          - { name: "ogImage", label: "OG Image", widget: "image", required: false }
+          - { name: "canonical", label: "Canonical URL", widget: "string", required: false }
+          - { name: "noindex", label: "No-index", widget: "boolean", default: false }
+      - { name: "body", label: "Body", widget: "markdown" }
+
+  - name: "pages"
+    label: "Pages"
+    label_singular: "Page"
+    folder: "src/content/pages"
+    create: true
+    slug: "{{slug}}"
+    preview_path: "{{slug}}"
+    fields:
+      - { name: "title", label: "Title", widget: "string" }
+      - { name: "slug", label: "Slug", widget: "string" }
+      - name: "template"
+        label: "Template"
+        widget: "select"
+        options: ["default", "faq", "glossary", "contact"]
+        default: "default"
+      - { name: "publishedAt", label: "Published", widget: "datetime" }
+      - { name: "updatedAt", label: "Updated", widget: "datetime", required: false }
+      - name: "seo"
+        label: "SEO"
+        widget: "object"
+        collapsed: true
+        fields:
+          - { name: "metaTitle", label: "Meta Title", widget: "string", required: false }
+          - { name: "metaDescription", label: "Meta Description", widget: "text", required: false }
+          - { name: "ogImage", label: "OG Image", widget: "image", required: false }
+          - { name: "canonical", label: "Canonical URL", widget: "string", required: false }
+          - { name: "noindex", label: "No-index", widget: "boolean", default: false }
+      - { name: "body", label: "Body", widget: "markdown" }

@@ -1,0 +1,29 @@
+---
+import BaseLayout from "~/layouts/BaseLayout.astro";
+---
+
+<BaseLayout title="Page not found - QuoteYeti" noindex={true}>
+  <section class="notfound container">
+    <h1>Lost in the snow?</h1>
+    <p>The page you're looking for doesn't exist — but we can help you find what you need.</p>
+    <div class="notfound__links">
+      <a href="/" class="btn btn-primary">Back home</a>
+      <a href="/brands/" class="btn btn-secondary">Browse brands</a>
+      <a href="/reviews/" class="btn btn-secondary">Browse reviews</a>
+    </div>
+  </section>
+
+  <style>
+    .notfound {
+      text-align: center;
+      padding-block: var(--space-32) var(--space-24);
+    }
+    .notfound p { font-size: 1.125rem; margin-bottom: var(--space-10); }
+    .notfound__links {
+      display: flex;
+      gap: var(--space-4);
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+  </style>
+</BaseLayout>

@@ -1,0 +1,78 @@
+---
+interface Props {
+  variant?: "header" | "inline" | "modal";
+  heading?: string;
+  ctaLabel?: string;
+}
+const { variant = "inline", heading, ctaLabel = "Get Quotes" } = Astro.props;
+---
+
+<form class={`zipform zipform--${variant}`} action="/quotes/" method="get" novalidate>
+  {heading && <h3 class="zipform__heading h5">{heading}</h3>}
+  <div class="zipform__row">
+    <label class="sr-only" for={`zip-${variant}`}>ZIP code</label>
+    <input
+      id={`zip-${variant}`}
+      name="zip"
+      type="text"
+      inputmode="numeric"
+      pattern="[0-9]{5}"
+      maxlength="5"
+      placeholder="ZIP code"
+      required
+      class="zipform__input"
+    />
+    <button type="submit" class="btn btn-primary zipform__submit">{ctaLabel}</button>
+  </div>
+  <p class="zipform__legal">
+    By submitting this form, you agree to our <a href="/privacy-policy/">privacy policy</a>.
+  </p>
+</form>
+
+<style>
+  .zipform {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+  .zipform__heading {
+    margin: 0 0 var(--space-2);
+  }
+  .zipform__row {
+    display: flex;
+    gap: var(--space-3);
+    align-items: stretch;
+  }
+  .zipform__input {
+    flex: 1;
+    font-family: var(--font-body);
+    font-size: 1rem;
+    padding: 0.875rem 1.25rem;
+    border: 2px solid var(--color-border);
+    border-radius: var(--radius);
+    background: var(--color-white);
+    color: var(--color-text-strong);
+    transition: border-color var(--transition);
+    min-width: 0;
+  }
+  .zipform__input:focus {
+    outline: none;
+    border-color: var(--color-malibu);
+  }
+  .zipform__submit {
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .zipform__legal {
+    font-size: 0.8125rem;
+    color: var(--color-text-muted);
+    margin: 0;
+  }
+  .zipform--header { max-width: 440px; }
+  .zipform--inline { max-width: 520px; }
+  .zipform--modal { width: 100%; }
+
+  @media (max-width: 520px) {
+    .zipform__row { flex-direction: column; }
+  }
+</style>
