@@ -188,8 +188,8 @@ const autoFaqs = defineCollection({
 function verticalGuides(slug: string) {
   return defineCollection({
     loader: glob({
-      pattern: ["**/*.{md,mdx}", "!reviews/**"],
-      base: `./src/content/${slug}`,
+      pattern: "**/*.{md,mdx}",
+      base: `./src/content/${slug}/guides`,
     }),
     schema: baseEntry.extend({
       vertical: z.string().optional(),

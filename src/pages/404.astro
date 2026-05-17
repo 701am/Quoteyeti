@@ -1,34 +1,47 @@
 ---
 import BaseLayout from "~/layouts/BaseLayout.astro";
+import { VERTICAL_LIST } from "~/data/verticals";
 ---
 
-<BaseLayout title="Page Not Found - QuoteYeti" description="The page you're looking for doesn't exist." noindex={true}>
+<BaseLayout title="Off the Trail - QuoteYeti" description="The page you're looking for doesn't exist." noindex={true}>
   <section class="four-oh-four">
-    <div class="container">
-      <p class="four-oh-four__eyebrow">Error 404</p>
-      <h1>Even the Yeti can't find this page</h1>
-      <p class="four-oh-four__lede">
-        The page you're looking for might've moved, been renamed, or never existed in the first place.
-      </p>
+    <div class="four-oh-four__topo" aria-hidden="true"></div>
 
+    <div class="container four-oh-four__inner">
       <div class="four-oh-four__art" aria-hidden="true">
         <img src="/assets/images/yeti-hero.svg" alt="" />
+        <div class="four-oh-four__number"><span>4</span><em>0</em><span>4</span></div>
       </div>
+
+      <p class="four-oh-four__eyebrow">Off the trail</p>
+      <h1>
+        You've wandered into
+        <span class="serif-italic">uncharted territory</span>.
+      </h1>
+      <p class="four-oh-four__lede">
+        This page doesn't exist — maybe it moved, maybe it was never here, maybe the Yeti's been redrawing the map again. Pick a trail back below.
+      </p>
 
       <div class="four-oh-four__actions">
-        <a href="/" class="btn btn-primary">Back to home</a>
-        <a href="/auto/" class="btn btn-secondary">Browse auto insurance</a>
+        <a href="/" class="btn btn-accent btn-primary">
+          <span>Back to base camp</span>
+          <svg width="16" height="14" viewBox="0 0 16 14" fill="none" aria-hidden="true">
+            <path d="M9 1l6 6-6 6M1 7h14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </a>
       </div>
 
-      <nav class="four-oh-four__shortcuts" aria-label="Quick links">
-        <p>Try one of these instead:</p>
+      <nav class="trail-markers" aria-label="Quick links to insurance categories">
+        <p class="trail-markers__label">Or pick a category and start over</p>
         <ul>
-          <li><a href="/auto/">Auto Insurance</a></li>
-          <li><a href="/home-insurance/">Home Insurance</a></li>
-          <li><a href="/life-insurance/">Life Insurance</a></li>
-          <li><a href="/business-insurance/">Business Insurance</a></li>
-          <li><a href="/auto/glossary/">Insurance Glossary</a></li>
-          <li><a href="/blog/">The Dispatch</a></li>
+          {VERTICAL_LIST.map((v) => (
+            <li>
+              <a href={v.path} class="trail-marker" style={`--marker-accent: ${v.accent}; --marker-accent-soft: ${v.accentSoft};`}>
+                <img src={v.icon} alt="" />
+                <span>{v.short}</span>
+              </a>
+            </li>
+          ))}
         </ul>
       </nav>
     </div>
@@ -36,27 +49,132 @@ import BaseLayout from "~/layouts/BaseLayout.astro";
 
   <style>
     .four-oh-four {
-      text-align: center;
+      position: relative;
       padding-block: var(--space-20);
       background: linear-gradient(180deg, var(--color-alice) 0%, var(--color-white) 100%);
+      text-align: center;
+      overflow: hidden;
     }
+    .four-oh-four__topo {
+      position: absolute; inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='800' height='800' viewBox='0 0 800 800'%3E%3Cg fill='none' stroke='%232C4577' stroke-width='0.5' stroke-opacity='0.06'%3E%3Cpath d='M0,400 Q200,300 400,400 T800,400'/%3E%3Cpath d='M0,360 Q200,260 400,360 T800,360'/%3E%3Cpath d='M0,440 Q200,340 400,440 T800,440'/%3E%3Cpath d='M0,320 Q200,220 400,320 T800,320'/%3E%3Cpath d='M0,480 Q200,380 400,480 T800,480'/%3E%3Cpath d='M0,280 Q200,180 400,280 T800,280'/%3E%3Cpath d='M0,520 Q200,420 400,520 T800,520'/%3E%3Cpath d='M0,240 Q200,140 400,240 T800,240'/%3E%3Cpath d='M0,560 Q200,460 400,560 T800,560'/%3E%3C/g%3E%3C/svg%3E");
+      pointer-events: none;
+    }
+    .four-oh-four__inner { position: relative; max-width: 720px; }
+
+    .four-oh-four__art {
+      position: relative;
+      max-width: 280px;
+      margin: 0 auto var(--space-6);
+    }
+    .four-oh-four__art img {
+      width: 100%;
+      filter: drop-shadow(0 8px 24px rgba(44, 69, 119, 0.12));
+    }
+    .four-oh-four__number {
+      position: absolute;
+      top: -10%;
+      left: 50%;
+      transform: translateX(-50%);
+      font-family: var(--font-serif, "Plantin", Georgia, serif);
+      font-style: italic;
+      font-weight: 500;
+      font-size: 7rem;
+      line-height: 1;
+      color: var(--color-resolution);
+      opacity: 0.08;
+      letter-spacing: -0.04em;
+      pointer-events: none;
+      z-index: -1;
+      white-space: nowrap;
+    }
+    .four-oh-four__number em {
+      font-style: italic;
+      color: var(--color-ship-cove);
+      opacity: 0.6;
+    }
+
     .four-oh-four__eyebrow {
-      font-family: var(--font-display); font-size: 0.875rem; font-weight: 600;
-      text-transform: uppercase; letter-spacing: 0.12em;
-      color: var(--color-orange);
+      font-family: var(--font-display);
+      font-size: 0.75rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.16em;
+      color: var(--color-ship-cove);
       margin: 0 0 var(--space-4);
     }
-    .four-oh-four h1 { max-width: 700px; margin-inline: auto; }
-    .four-oh-four__lede { font-size: 1.25rem; max-width: 540px; margin: var(--space-4) auto var(--space-10); }
-    .four-oh-four__art { max-width: 240px; margin: var(--space-8) auto; }
-    .four-oh-four__art img { width: 100%; }
-    .four-oh-four__actions { display: flex; gap: var(--space-3); justify-content: center; flex-wrap: wrap; margin-bottom: var(--space-16); }
-    .four-oh-four__shortcuts { max-width: 700px; margin: var(--space-12) auto 0; }
-    .four-oh-four__shortcuts p { font-family: var(--font-display); font-weight: 600; color: var(--color-resolution); }
-    .four-oh-four__shortcuts ul {
-      list-style: none; margin: var(--space-5) 0 0; padding: 0;
-      display: flex; flex-wrap: wrap; justify-content: center; gap: var(--space-3) var(--space-5);
+    .four-oh-four h1 {
+      font-size: clamp(2.25rem, 5vw, 3.5rem);
+      max-width: 640px;
+      margin-inline: auto;
+      letter-spacing: -0.025em;
+      line-height: 1.1;
     }
-    .four-oh-four__shortcuts a { color: var(--color-malibu); font-weight: 600; }
+    .serif-italic {
+      font-family: var(--font-serif, "Plantin", Georgia, serif);
+      font-style: italic;
+      font-weight: 500;
+      color: var(--color-ship-cove);
+    }
+    .four-oh-four__lede {
+      font-size: 1.125rem;
+      max-width: 540px;
+      margin: var(--space-5) auto var(--space-10);
+      line-height: 1.6;
+      color: var(--color-text-strong);
+    }
+
+    .btn-primary {
+      display: inline-flex; align-items: center; gap: var(--space-3);
+      padding: var(--space-4) var(--space-7);
+      font-family: var(--font-display); font-weight: 700;
+      font-size: 0.9375rem;
+      border-radius: 100px;
+      transition: all 0.2s ease;
+    }
+    .btn-primary svg { transition: transform 0.2s; }
+    .btn-primary:hover svg { transform: translateX(4px); }
+
+    .four-oh-four__actions {
+      display: flex; gap: var(--space-3); justify-content: center; flex-wrap: wrap;
+      margin-bottom: var(--space-16);
+    }
+
+    /* Trail-marker shortcuts */
+    .trail-markers { margin-top: var(--space-8); }
+    .trail-markers__label {
+      font-family: var(--font-display);
+      font-size: 0.75rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.14em;
+      color: var(--color-text-muted);
+      margin: 0 0 var(--space-5);
+    }
+    .trail-markers ul {
+      list-style: none; margin: 0; padding: 0;
+      display: flex; flex-wrap: wrap; justify-content: center;
+      gap: var(--space-3);
+    }
+    .trail-marker {
+      display: inline-flex; align-items: center; gap: var(--space-3);
+      padding: var(--space-3) var(--space-5);
+      background: var(--color-white);
+      border: 1px solid var(--color-border);
+      border-radius: 100px;
+      text-decoration: none;
+      font-family: var(--font-display); font-weight: 600;
+      font-size: 0.875rem;
+      color: var(--color-resolution);
+      transition: all 0.2s ease;
+    }
+    .trail-marker img { width: 18px; height: 18px; }
+    .trail-marker:hover {
+      border-color: var(--marker-accent);
+      background: var(--marker-accent-soft);
+      color: var(--marker-accent);
+      transform: translateY(-2px);
+    }
+
+    @media (max-width: 600px) {
+      .four-oh-four__art { max-width: 200px; }
+      .four-oh-four__number { font-size: 4.5rem; }
+    }
   </style>
 </BaseLayout>

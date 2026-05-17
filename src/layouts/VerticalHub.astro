@@ -34,36 +34,49 @@ const { vertical, hero, pillars, calculators = [], subtopics = [], faqs = [] } =
     </div>
     <div class="container vhero__inner">
       <p class="vhero__eyebrow">
-        <img src={vertical.icon} alt="" width="20" height="20" />
+        <img src={vertical.icon} alt="" width="18" height="18" />
         {vertical.label}
       </p>
       <h1>
-        {hero.headline} <span class="highlight underline-accent">{vertical.short.toLowerCase()}</span>.
+        {hero.headline}
+        <span class="serif-italic">{vertical.short.toLowerCase()}</span>.
       </h1>
       <p class="vhero__lede">{hero.lede}</p>
       <div class="vhero__ctas">
-        <a href={hero.ctaHref ?? `${vertical.path}quotes/`} class="btn btn-accent">
-          {hero.ctaLabel ?? `Get ${vertical.short.toLowerCase()} quotes`}
+        <a href={hero.ctaHref ?? `${vertical.path}quotes/`} class="btn btn-accent btn-primary">
+          <span>{hero.ctaLabel ?? `Get ${vertical.short.toLowerCase()} quotes`}</span>
+          <svg width="16" height="14" viewBox="0 0 16 14" fill="none" aria-hidden="true">
+            <path d="M9 1l6 6-6 6M1 7h14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
         </a>
-        {calculators.length > 0 && (
-          <a href={calculators[0].href} class="btn btn-secondary">
-            Try the {vertical.short.toLowerCase()} calculator
-          </a>
-        )}
+        <a href={`${vertical.path}best/`} class="btn-tertiary">
+          Or see the best {vertical.short.toLowerCase()} carriers →
+        </a>
       </div>
     </div>
   </section>
 
   <!-- ============== THREE PILLARS ============== -->
   {pillars.length > 0 && (
-    <section class="vpillars container">
+    <section class="vpillars container reveal">
+      <header class="vpillars__header">
+        <p class="eyebrow">Where to start</p>
+        <h2>
+          Three paths through
+          <span class="serif-italic">{vertical.short.toLowerCase()}</span>
+        </h2>
+      </header>
       <div class="vpillars__grid">
-        {pillars.map((pillar) => (
+        {pillars.map((pillar, i) => (
           <article class="vpillar">
-            <h2 class="vpillar__title">{pillar.title}</h2>
+            <span class="vpillar__num">{String(i + 1).padStart(2, "0")}</span>
+            <h3 class="vpillar__title">{pillar.title}</h3>
             <p class="vpillar__body">{pillar.body}</p>
             <a href={pillar.href} class="vpillar__cta">
-              {pillar.cta} <span aria-hidden="true">→</span>
+              <span>{pillar.cta}</span>
+              <svg width="14" height="12" viewBox="0 0 14 12" fill="none" aria-hidden="true">
+                <path d="M8 1l5 5-5 5M1 6h12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
             </a>
           </article>
         ))}
@@ -73,11 +86,14 @@ const { vertical, hero, pillars, calculators = [], subtopics = [], faqs = [] } =
 
   <!-- ============== SUBTOPICS GRID ============== -->
   {subtopics.length > 0 && (
-    <section class="vsubtopics">
+    <section class="vsubtopics reveal">
       <div class="container">
         <header class="vsubtopics__header">
           <p class="eyebrow">Explore {vertical.short.toLowerCase()} guides</p>
-          <h2>Everything you need to choose well</h2>
+          <h2>
+            Everything you need
+            <span class="serif-italic">to choose well</span>
+          </h2>
         </header>
         <div class="vsubtopics__grid">
           {subtopics.map((topic) => (
@@ -94,16 +110,20 @@ const { vertical, hero, pillars, calculators = [], subtopics = [], faqs = [] } =
 
   <!-- ============== CALCULATORS ============== -->
   {calculators.length > 0 && (
-    <section class="vcalc container">
+    <section class="vcalc container reveal">
       <header class="vcalc__header">
         <p class="eyebrow">Free calculators</p>
-        <h2>Do the math <span class="highlight">before</span> the sales call</h2>
+        <h2>
+          Do the math
+          <span class="serif-italic">before</span>
+          the sales call
+        </h2>
       </header>
       <div class="vcalc__grid">
         {calculators.map((calc) => (
           <a href={calc.href} class="vcalc-tile">
-            <img src={vertical.icon} alt="" width="32" height="32" class="vcalc-tile__icon" />
-            <span>{calc.label}</span>
+            <img src={vertical.icon} alt="" width="28" height="28" class="vcalc-tile__icon" />
+            <span class="vcalc-tile__label">{calc.label}</span>
             <span class="vcalc-tile__arrow" aria-hidden="true">→</span>
           </a>
         ))}
@@ -113,17 +133,29 @@ const { vertical, hero, pillars, calculators = [], subtopics = [], faqs = [] } =
 
   <!-- ============== FAQ ============== -->
   {faqs.length > 0 && (
-    <section class="vfaq">
+    <section class="vfaq reveal">
       <div class="container-narrow">
         <header class="vfaq__header">
           <p class="eyebrow">Frequently asked</p>
-          <h2>{vertical.short} insurance, demystified</h2>
+          <h2>
+            {vertical.short} insurance,
+            <span class="serif-italic">demystified</span>
+          </h2>
         </header>
         <div class="vfaq__list">
           {faqs.map((faq) => (
-            <details class="vfaq__item">
-              <summary>{faq.q}</summary>
-              <p>{faq.a}</p>
+            <details class="faq-item">
+              <summary class="faq-item__summary">
+                <span class="faq-item__q">{faq.q}</span>
+                <span class="faq-item__icon" aria-hidden="true">
+                  <svg viewBox="0 0 14 14" width="14" height="14">
+                    <path d="M7 1v12M1 7h12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                  </svg>
+                </span>
+              </summary>
+              <div class="faq-item__answer">
+                <p>{faq.a}</p>
+              </div>
             </details>
           ))}
         </div>
@@ -132,7 +164,34 @@ const { vertical, hero, pillars, calculators = [], subtopics = [], faqs = [] } =
   )}
 
   <style>
-    /* ---------- Hero ---------- */
+    .serif-italic {
+      font-family: var(--font-serif, "Plantin", Georgia, serif);
+      font-style: italic;
+      font-weight: 500;
+      color: var(--section-accent);
+      letter-spacing: -0.01em;
+    }
+
+    .eyebrow {
+      display: inline-block;
+      font-family: var(--font-display); font-size: 0.75rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.16em;
+      color: var(--section-accent);
+      margin: 0 0 var(--space-4);
+    }
+
+    .reveal {
+      opacity: 0; transform: translateY(12px);
+      transition: opacity 0.6s ease, transform 0.6s ease;
+    }
+    .reveal.is-visible { opacity: 1; transform: translateY(0); }
+    @media (prefers-reduced-motion: reduce) {
+      .reveal { opacity: 1; transform: none; transition: none; }
+    }
+
+    /* ============================================
+       Hero
+    ============================================ */
     .vhero {
       position: relative;
       padding-block: var(--space-24);
@@ -140,180 +199,274 @@ const { vertical, hero, pillars, calculators = [], subtopics = [], faqs = [] } =
       background: linear-gradient(180deg, var(--section-accent-soft) 0%, var(--color-white) 100%);
     }
     .vhero__art { position: absolute; inset: 0; pointer-events: none; z-index: 0; }
-    .vhero__clouds {
-      position: absolute;
-      top: 8%;
-      left: -10%;
-      width: 50%;
-      opacity: 0.5;
-    }
-    .vhero__peaks {
-      position: absolute;
-      bottom: -20px; left: 0;
-      width: 100%;
-      opacity: 0.95;
-    }
-    .vhero__yeti {
-      position: absolute;
-      right: -40px; bottom: 0;
-      width: 32%;
-      max-width: 420px;
-    }
+    .vhero__clouds { position: absolute; top: 8%; left: -10%; width: 50%; opacity: 0.5; }
+    .vhero__peaks { position: absolute; bottom: -20px; left: 0; width: 100%; opacity: 0.9; }
+    .vhero__yeti { position: absolute; right: -40px; bottom: 0; width: 30%; max-width: 380px; }
     .vhero__inner { position: relative; z-index: 1; max-width: 720px; }
     .vhero__eyebrow {
-      display: inline-flex;
-      align-items: center;
-      gap: var(--space-2);
-      font-family: var(--font-display);
-      font-size: 0.875rem;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.12em;
+      display: inline-flex; align-items: center; gap: var(--space-2);
+      font-family: var(--font-display); font-size: 0.75rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.14em;
       color: var(--section-accent);
       background: var(--color-white);
       padding: var(--space-2) var(--space-4);
       border-radius: 100px;
-      border: 1px solid var(--section-accent-soft);
+      margin: 0 0 var(--space-5);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    }
+    .vhero h1 {
+      font-size: clamp(2.5rem, 5vw, 3.75rem);
+      line-height: 1.05;
+      letter-spacing: -0.025em;
       margin-bottom: var(--space-6);
     }
     .vhero__lede {
-      font-size: 1.25rem;
-      color: var(--color-text-strong);
+      font-size: 1.25rem; color: var(--color-text-strong);
       margin-bottom: var(--space-8);
-      max-width: 580px;
+      max-width: 600px;
+      line-height: 1.55;
     }
-    .vhero__ctas { display: flex; gap: var(--space-3); flex-wrap: wrap; }
+    .vhero__ctas { display: flex; gap: var(--space-5); align-items: center; flex-wrap: wrap; }
 
-    /* ---------- Pillars ---------- */
+    .btn-primary {
+      display: inline-flex; align-items: center; gap: var(--space-3);
+      padding: var(--space-4) var(--space-7);
+      font-family: var(--font-display); font-weight: 700;
+      font-size: 0.9375rem;
+      border-radius: 100px;
+      transition: all 0.2s ease;
+      letter-spacing: 0.01em;
+    }
+    .btn-primary svg { transition: transform 0.2s; }
+    .btn-primary:hover svg { transform: translateX(4px); }
+    .btn-tertiary {
+      font-family: var(--font-display); font-weight: 600;
+      font-size: 0.9375rem;
+      color: var(--color-text-strong);
+      text-decoration: none;
+      border-bottom: 1px solid var(--color-border);
+      padding-bottom: 2px;
+      transition: all 0.2s;
+    }
+    .btn-tertiary:hover { color: var(--section-accent); border-bottom-color: var(--section-accent); }
+
+    /* ============================================
+       Pillars — numbered editorial
+    ============================================ */
     .vpillars { padding-block: var(--space-20); }
+    .vpillars__header { text-align: center; max-width: 640px; margin: 0 auto var(--space-12); }
+    .vpillars__header h2 {
+      font-size: clamp(2rem, 3.5vw, 2.75rem);
+      letter-spacing: -0.02em;
+    }
     .vpillars__grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: var(--space-8);
+      display: grid; grid-template-columns: repeat(3, 1fr);
+      gap: var(--space-6);
     }
     .vpillar {
-      padding: var(--space-8);
+      padding: var(--space-7);
       background: var(--color-white);
       border: 1px solid var(--color-border);
       border-radius: var(--radius-lg);
-      border-top: 4px solid var(--section-accent);
-      transition: transform var(--transition), box-shadow var(--transition);
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
     }
-    .vpillar:hover { transform: translateY(-4px); box-shadow: var(--shadow); }
-    .vpillar__title { font-size: 1.5rem; margin-bottom: var(--space-3); }
-    .vpillar__body { color: var(--color-text); margin-bottom: var(--space-5); }
-    .vpillar__cta {
-      font-family: var(--font-display); font-weight: 600;
+    .vpillar::before {
+      content: "";
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 4px;
+      background: var(--section-accent);
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform 0.4s ease;
+    }
+    .vpillar:hover {
+      transform: translateY(-4px);
+      border-color: var(--section-accent);
+      box-shadow: 0 16px 32px rgba(0,0,0,0.06);
+    }
+    .vpillar:hover::before { transform: scaleX(1); }
+    .vpillar__num {
+      display: inline-block;
+      font-family: var(--font-serif, "Plantin", Georgia, serif);
+      font-style: italic; font-weight: 500;
+      font-size: 2.5rem;
+      line-height: 1;
       color: var(--section-accent);
+      margin-bottom: var(--space-4);
+      letter-spacing: -0.03em;
     }
-    .vpillar__cta:hover { color: var(--color-resolution); }
+    .vpillar__title {
+      font-size: 1.375rem;
+      margin: 0 0 var(--space-3);
+      letter-spacing: -0.01em;
+    }
+    .vpillar__body { line-height: 1.65; margin-bottom: var(--space-5); }
+    .vpillar__cta {
+      display: inline-flex; align-items: center; gap: var(--space-2);
+      font-family: var(--font-display); font-weight: 700;
+      font-size: 0.8125rem;
+      color: var(--section-accent);
+      text-transform: uppercase; letter-spacing: 0.08em;
+      text-decoration: none;
+    }
+    .vpillar__cta svg { transition: transform 0.2s; }
+    .vpillar__cta:hover svg { transform: translateX(4px); }
 
-    /* ---------- Subtopics ---------- */
-    .vsubtopics {
-      background: var(--color-alice);
-      padding-block: var(--space-20);
+    /* ============================================
+       Subtopics
+    ============================================ */
+    .vsubtopics { padding-block: var(--space-20); background: var(--color-alice); }
+    .vsubtopics__header { text-align: center; max-width: 640px; margin: 0 auto var(--space-12); }
+    .vsubtopics__header h2 {
+      font-size: clamp(2rem, 3.5vw, 2.5rem);
+      letter-spacing: -0.02em;
     }
-    .vsubtopics__header { text-align: center; margin-bottom: var(--space-12); max-width: 640px; margin-inline: auto; }
     .vsubtopics__grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
+      display: grid; grid-template-columns: repeat(3, 1fr);
       gap: var(--space-5);
     }
     .vsubtopic-card {
       display: block;
       padding: var(--space-6);
       background: var(--color-white);
-      border-radius: var(--radius-lg);
-      border: 1px solid transparent;
-      transition: all var(--transition);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius);
+      text-decoration: none; color: inherit;
+      transition: all 0.2s ease;
       position: relative;
     }
     .vsubtopic-card:hover {
-      transform: translateY(-2px);
-      box-shadow: var(--shadow);
+      transform: translateY(-3px);
       border-color: var(--section-accent);
+      box-shadow: 0 12px 24px rgba(0,0,0,0.06);
     }
-    .vsubtopic-card__title { font-size: 1.125rem; margin-bottom: var(--space-2); }
-    .vsubtopic-card__desc { font-size: 0.9375rem; color: var(--color-text); margin: 0; }
+    .vsubtopic-card__title {
+      font-size: 1.125rem;
+      margin: 0 0 var(--space-2);
+      letter-spacing: -0.005em;
+    }
+    .vsubtopic-card__desc { font-size: 0.9375rem; line-height: 1.55; color: var(--color-text); margin: 0 0 var(--space-4); }
     .vsubtopic-card__arrow {
-      position: absolute; right: var(--space-5); top: var(--space-5);
+      font-family: var(--font-display); font-weight: 700;
       color: var(--section-accent);
-      transition: transform var(--transition);
     }
-    .vsubtopic-card:hover .vsubtopic-card__arrow { transform: translateX(4px); }
 
-    /* ---------- Calculators ---------- */
+    /* ============================================
+       Calculators
+    ============================================ */
     .vcalc { padding-block: var(--space-20); }
-    .vcalc__header { text-align: center; margin-bottom: var(--space-12); }
+    .vcalc__header { text-align: center; max-width: 640px; margin: 0 auto var(--space-12); }
+    .vcalc__header h2 {
+      font-size: clamp(2rem, 3.5vw, 2.5rem);
+      letter-spacing: -0.02em;
+    }
     .vcalc__grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
+      display: grid; grid-template-columns: repeat(3, 1fr);
       gap: var(--space-4);
     }
     .vcalc-tile {
-      display: flex;
-      align-items: center;
-      gap: var(--space-4);
+      display: flex; align-items: center; gap: var(--space-4);
       padding: var(--space-5) var(--space-6);
-      background: var(--section-accent-soft);
+      background: var(--color-white);
+      border: 1px solid var(--color-border);
       border-radius: var(--radius);
-      color: var(--color-resolution);
-      font-family: var(--font-display);
-      font-weight: 600;
-      transition: all var(--transition);
+      text-decoration: none; color: inherit;
+      transition: all 0.2s;
     }
     .vcalc-tile:hover {
-      background: var(--section-accent);
-      color: var(--section-text-on-accent);
+      border-color: var(--section-accent);
+      background: var(--section-accent-soft);
     }
     .vcalc-tile__icon { flex-shrink: 0; }
-    .vcalc-tile__arrow { margin-left: auto; }
+    .vcalc-tile__label {
+      flex: 1;
+      font-family: var(--font-display); font-weight: 600;
+      font-size: 0.9375rem;
+      color: var(--color-resolution);
+    }
+    .vcalc-tile__arrow {
+      font-family: var(--font-display); font-weight: 700;
+      color: var(--section-accent);
+    }
 
-    /* ---------- FAQ ---------- */
-    .vfaq {
-      padding-block: var(--space-20);
-      background: var(--color-alice);
-    }
+    /* ============================================
+       FAQ
+    ============================================ */
+    .vfaq { padding-block: var(--space-20); background: var(--color-alice); }
     .vfaq__header { text-align: center; margin-bottom: var(--space-10); }
-    .vfaq__list { display: flex; flex-direction: column; gap: var(--space-3); }
-    .vfaq__item {
-      background: var(--color-white);
-      border-radius: var(--radius);
-      border: 1px solid var(--color-border);
-      transition: border-color var(--transition);
+    .vfaq__header h2 {
+      font-size: clamp(2rem, 3.5vw, 2.5rem);
+      letter-spacing: -0.02em;
     }
-    .vfaq__item:hover { border-color: var(--section-accent); }
-    .vfaq__item summary {
+
+    .faq-item {
+      background: var(--color-white);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius);
+      margin-bottom: var(--space-3);
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .faq-item[open],
+    .faq-item:hover { border-color: var(--section-accent); }
+    .faq-item[open] { box-shadow: 0 4px 12px rgba(0,0,0,0.04); }
+    .faq-item__summary {
       cursor: pointer;
       padding: var(--space-5) var(--space-6);
-      font-family: var(--font-display);
-      font-weight: 600;
+      list-style: none;
+      display: flex; justify-content: space-between; align-items: center; gap: var(--space-5);
+    }
+    .faq-item__summary::-webkit-details-marker { display: none; }
+    .faq-item__q {
+      font-family: var(--font-display); font-weight: 600;
       font-size: 1.0625rem;
       color: var(--color-resolution);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      list-style: none;
+      line-height: 1.4;
     }
-    .vfaq__item summary::-webkit-details-marker { display: none; }
-    .vfaq__item summary::after {
-      content: "+";
-      font-size: 1.5rem;
+    .faq-item__icon {
+      flex-shrink: 0;
+      width: 32px; height: 32px;
+      background: var(--section-accent-soft);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
       color: var(--section-accent);
-      transition: transform var(--transition);
+      transition: transform 0.3s ease;
     }
-    .vfaq__item[open] summary::after { content: "−"; }
-    .vfaq__item p {
+    .faq-item[open] .faq-item__icon { transform: rotate(45deg); }
+    .faq-item__answer {
       padding: 0 var(--space-6) var(--space-5);
-      margin: 0;
-      color: var(--color-text);
-      line-height: 1.6;
+      animation: faq-open 0.3s ease-out;
+    }
+    .faq-item__answer p { margin: 0; color: var(--color-text); line-height: 1.65; }
+    @keyframes faq-open {
+      from { opacity: 0; transform: translateY(-4px); }
+      to { opacity: 1; transform: translateY(0); }
     }
 
-    /* ---------- Responsive ---------- */
-    @media (max-width: 950px) {
+    @media (max-width: 1000px) {
+      .vpillars__grid, .vsubtopics__grid, .vcalc__grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 640px) {
       .vpillars__grid, .vsubtopics__grid, .vcalc__grid { grid-template-columns: 1fr; }
-      .vhero__yeti { width: 40%; opacity: 0.5; }
+      .vhero h1 { font-size: 2rem; }
+      .vhero__ctas { flex-direction: column; align-items: flex-start; }
     }
   </style>
+
+  <script>
+    const revealObserver = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((e) => {
+          if (e.isIntersecting) {
+            e.target.classList.add("is-visible");
+            revealObserver.unobserve(e.target);
+          }
+        });
+      },
+      { threshold: 0.1, rootMargin: "0px 0px -50px 0px" }
+    );
+    document.querySelectorAll(".reveal").forEach((el) => revealObserver.observe(el));
+  </script>
 </BaseLayout>

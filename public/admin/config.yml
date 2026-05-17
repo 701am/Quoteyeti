@@ -19,32 +19,217 @@ media_folder: "public/assets/uploads"
 public_folder: "/assets/uploads"
 site_url: "https://www.quoteyeti.com"
 display_url: "https://www.quoteyeti.com"
-logo_url: "/assets/images/footprint.svg"
+logo_url: "/assets/images/quoteyeti-logo.svg"
 
-# Common reusable field groups
-shared_fields: &shared_fields
-  - { label: "Title", name: "title", widget: "string" }
-  - { label: "Description", name: "description", widget: "string", required: false }
-  - { label: "Publish date", name: "publishDate", widget: "datetime", required: false }
-  - { label: "Updated date", name: "updatedDate", widget: "datetime", required: false }
-  - { label: "Draft", name: "draft", widget: "boolean", default: false, required: false }
-  - { label: "Author", name: "author", widget: "string", required: false }
-  - label: "SEO"
-    name: "seo"
+# =================================================================
+# REUSABLE FIELD GROUPS
+# YAML anchors keep the config readable.
+# =================================================================
+
+# SEO object — shared across most collections
+seo_fields: &seo_fields
+  label: "SEO"
+  name: "seo"
+  widget: "object"
+  collapsed: true
+  required: false
+  fields:
+    - { label: "SEO title", name: "seoTitle", widget: "string", required: false }
+    - { label: "SEO description", name: "seoDescription", widget: "text", required: false }
+    - { label: "Canonical URL", name: "canonical", widget: "string", required: false }
+    - { label: "OpenGraph image", name: "ogImage", widget: "image", required: false }
+    - { label: "No-index this page", name: "noindex", widget: "boolean", default: false, required: false }
+
+# Rich review fields — used by all 8 vertical review collections.
+# Mirror reviewSchema in src/content.config.ts and ReviewLayout.astro props.
+review_fields: &review_fields
+  - { label: "Title (page title)", name: "title", widget: "string" }
+  - { label: "Description (used in indexes & SEO)", name: "description", widget: "string", required: false }
+
+  - label: "Carrier info"
+    name: "carrierInfo"
+    widget: "object"
+    collapsed: false
+    fields:
+      - { label: "Company name", name: "company", widget: "string" }
+      - { label: "Company logo", name: "companyLogo", widget: "image", required: false }
+      - { label: "Founded year", name: "foundedYear", widget: "number", required: false }
+      - { label: "Website URL", name: "websiteUrl", widget: "string", required: false }
+      - { label: "Phone number", name: "phoneNumber", widget: "string", required: false }
+      - { label: "Address", name: "address", widget: "string", required: false }
+
+  - { label: "Positioning statement (hero subhead)", name: "positioning", widget: "text", hint: "One-sentence summary that appears in the page hero. Example: 'GEICO is the fourth-best car insurance company in the nation due to its affordable rates.'" }
+
+  - { label: "Star rating shown on listing pages (0-5)", name: "starRating", widget: "number", min: 0, max: 5, step: 0.01, required: false }
+
+  - label: "Key takeaways"
+    name: "takeaways"
+    widget: "list"
+    hint: "3-5 bullet points shown at the top of the review with check icons."
+    field: { label: "Takeaway", name: "takeaway", widget: "text" }
+
+  - label: "Ratings"
+    name: "ratingsBlock"
+    widget: "object"
+    collapsed: false
+    fields:
+      - { label: "Overall score (0-5)", name: "overallScore", widget: "number", min: 0, max: 5, step: 0.01 }
+      - { label: "Overall national rank (optional)", name: "overallRank", widget: "number", required: false }
+      - label: "Score breakdown"
+        name: "ratings"
+        widget: "list"
+        fields:
+          - { label: "Category (e.g. 'Customer experience')", name: "category", widget: "string" }
+          - { label: "Score (0-5)", name: "score", widget: "number", min: 0, max: 5, step: 0.01 }
+          - { label: "Rank (optional)", name: "rank", widget: "number", required: false }
+
+  - label: "Cost section"
+    name: "costBlock"
     widget: "object"
     collapsed: true
     required: false
     fields:
-      - { label: "SEO title", name: "seoTitle", widget: "string", required: false }
-      - { label: "SEO description", name: "seoDescription", widget: "text", required: false }
-      - { label: "Canonical URL", name: "canonical", widget: "string", required: false }
-      - { label: "OpenGraph image", name: "ogImage", widget: "image", required: false }
-      - { label: "No-index this page", name: "noindex", widget: "boolean", default: false, required: false }
+      - { label: "Cost summary (intro paragraph)", name: "costSummary", widget: "text", required: false }
+      - { label: "Avg monthly premium (display string)", name: "avgMonthly", widget: "string", required: false, hint: "e.g. '$286'" }
+      - { label: "Avg annual premium (display string)", name: "avgAnnual", widget: "string", required: false, hint: "e.g. '$3,434'" }
+      - { label: "Difference from national average", name: "differenceFromAvg", widget: "string", required: false, hint: "e.g. '-17%'" }
+      - label: "Cost by driver/buyer category"
+        name: "costByCategory"
+        widget: "list"
+        required: false
+        fields:
+          - { label: "Category (e.g. 'Adult drivers')", name: "category", widget: "string" }
+          - { label: "Minimum coverage rate", name: "minimum", widget: "string" }
+          - { label: "Full coverage rate", name: "full", widget: "string" }
+          - { label: "Rank (optional)", name: "rank", widget: "number", required: false }
+
+  - label: "Customer experience"
+    name: "cxBlock"
+    widget: "object"
+    collapsed: true
+    required: false
+    fields:
+      - { label: "Customer experience summary", name: "cxSummary", widget: "text", required: false }
+      - { label: "Buying process", name: "cxBuying", widget: "text", required: false }
+      - { label: "Policy management", name: "cxPolicyManagement", widget: "text", required: false }
+      - { label: "Claims experience", name: "cxClaims", widget: "text", required: false }
+
+  - label: "Industry ratings"
+    name: "industryRatings"
+    widget: "list"
+    required: false
+    hint: "AM Best, S&P, Moody's, J.D. Power, NAIC, etc."
+    fields:
+      - { label: "Source", name: "source", widget: "string" }
+      - { label: "Score", name: "score", widget: "string" }
+      - { label: "Overview", name: "overview", widget: "text" }
+
+  - label: "Discounts (mostly auto)"
+    name: "discounts"
+    widget: "list"
+    required: false
+    fields:
+      - { label: "Discount type", name: "type", widget: "string" }
+      - { label: "Average savings", name: "amount", widget: "string" }
+      - { label: "Eligibility", name: "eligibility", widget: "text" }
+
+  - label: "Coverage"
+    name: "coverageBlock"
+    widget: "object"
+    collapsed: true
+    required: false
+    fields:
+      - { label: "Coverage summary (intro paragraph)", name: "coverageSummary", widget: "text", required: false }
+      - label: "Coverage add-ons"
+        name: "coverageAddOns"
+        widget: "list"
+        required: false
+        fields:
+          - { label: "Add-on name", name: "name", widget: "string" }
+          - { label: "What it covers", name: "covers", widget: "text" }
+          - { label: "Key features (optional)", name: "features", widget: "text", required: false }
+
+  - label: "Pros"
+    name: "pros"
+    widget: "list"
+    field: { label: "Pro", name: "pro", widget: "string" }
+
+  - label: "Cons"
+    name: "cons"
+    widget: "list"
+    field: { label: "Con", name: "con", widget: "string" }
+
+  - { label: "Bottom line (HTML allowed)", name: "bottomLine", widget: "text", required: false, hint: "Closing summary. You can include <p> tags." }
+
+  - label: "FAQs"
+    name: "faqs"
+    widget: "list"
+    required: false
+    fields:
+      - { label: "Question", name: "q", widget: "string" }
+      - { label: "Answer", name: "a", widget: "text" }
+
+  - label: "Methodology"
+    name: "methodologyBlock"
+    widget: "object"
+    collapsed: true
+    required: false
+    fields:
+      - { label: "Methodology intro", name: "methodologyIntro", widget: "text", required: false }
+      - label: "Weighting factors"
+        name: "methodologyFactors"
+        widget: "list"
+        required: false
+        hint: "3 factors typical. Each weight is shown as a large number (e.g. '60%')."
+        fields:
+          - { label: "Label (e.g. 'Cost')", name: "label", widget: "string" }
+          - { label: "Weight (e.g. '60%')", name: "weight", widget: "string" }
+          - { label: "Description", name: "description", widget: "text" }
+
+  - { label: "Author bio (overrides default)", name: "authorBio", widget: "text", required: false }
+  - { label: "Author byline", name: "author", widget: "string", required: false }
+  - { label: "Editor", name: "editor", widget: "string", required: false }
+  - { label: "Publish date", name: "publishDate", widget: "datetime", required: false }
+  - { label: "Updated date", name: "updatedDate", widget: "datetime", required: false }
+  - { label: "Draft", name: "draft", widget: "boolean", default: false, required: false }
+  - *seo_fields
+  - { label: "Body (supplemental editorial content below structured sections)", name: "body", widget: "markdown" }
+
+# Generic vertical-guide fields
+guide_fields: &guide_fields
+  - { label: "Title", name: "title", widget: "string" }
+  - { label: "Description", name: "description", widget: "string", required: false }
+  - { label: "Subcategory", name: "subcategory", widget: "string", required: false }
+  - { label: "Hero image", name: "heroImage", widget: "image", required: false }
+  - { label: "Publish date", name: "publishDate", widget: "datetime", required: false }
+  - { label: "Draft", name: "draft", widget: "boolean", default: false, required: false }
+  - *seo_fields
   - { label: "Body", name: "body", widget: "markdown" }
+
+# =================================================================
+# COLLECTIONS
+# =================================================================
 
 collections:
 
-  # ========== Auto vertical (existing QuoteYeti content) ==========
+  # ========== Vertical landing-page metadata ==========
+  - name: "verticals"
+    label: "Vertical Landing Pages"
+    label_singular: "Vertical page"
+    folder: "src/content/verticals"
+    create: false  # Already-existing files; edit only
+    slug: "{{slug}}"
+    extension: "md"
+    fields:
+      - { label: "Title", name: "title", widget: "string" }
+      - label: "Vertical key"
+        name: "verticalKey"
+        widget: "select"
+        options: ["auto", "home", "life", "business", "health", "renters", "pet", "travel"]
+      - { label: "Hero headline", name: "heroHeadline", widget: "string", required: false }
+      - { label: "Hero lede", name: "heroLede", widget: "text", required: false }
+
+  # ========== Auto vertical ==========
 
   - name: "auto-brands"
     label: "Auto · Brand Pages"
@@ -58,6 +243,7 @@ collections:
       - { label: "Brand", name: "brand", widget: "string", required: false }
       - { label: "Model", name: "model", widget: "string", required: false }
       - { label: "Body type", name: "bodyType", widget: "string", required: false }
+      - { label: "Year", name: "year", widget: "number", required: false }
       - { label: "Average rate ($/yr)", name: "averageRate", widget: "number", required: false }
       - { label: "Min rate ($/yr)", name: "minRate", widget: "number", required: false }
       - { label: "Max rate ($/yr)", name: "maxRate", widget: "number", required: false }
@@ -66,51 +252,17 @@ collections:
       - { label: "Tags", name: "tags", widget: "list", required: false }
       - { label: "Publish date", name: "publishDate", widget: "datetime", required: false }
       - { label: "Draft", name: "draft", widget: "boolean", default: false, required: false }
-      - label: "SEO"
-        name: "seo"
-        widget: "object"
-        collapsed: true
-        required: false
-        fields:
-          - { label: "SEO title", name: "seoTitle", widget: "string", required: false }
-          - { label: "SEO description", name: "seoDescription", widget: "text", required: false }
-          - { label: "Canonical URL", name: "canonical", widget: "string", required: false }
-          - { label: "No-index", name: "noindex", widget: "boolean", default: false, required: false }
+      - *seo_fields
       - { label: "Body", name: "body", widget: "markdown" }
 
   - name: "auto-reviews"
     label: "Auto · Carrier Reviews"
-    label_singular: "Review"
+    label_singular: "Auto review"
     folder: "src/content/auto/reviews"
     create: true
     slug: "{{slug}}"
     extension: "md"
-    fields:
-      - { label: "Title", name: "title", widget: "string" }
-      - { label: "Company name", name: "company", widget: "string", required: false }
-      - { label: "Company logo", name: "companyLogo", widget: "image", required: false }
-      - { label: "Star rating (0-5)", name: "starRating", widget: "number", min: 0, max: 5, step: 0.1, required: false }
-      - { label: "Website URL", name: "websiteUrl", widget: "string", required: false }
-      - { label: "Phone number", name: "phoneNumber", widget: "string", required: false }
-      - { label: "Address", name: "address", widget: "string", required: false }
-      - { label: "Number of offices", name: "officesCount", widget: "number", required: false }
-      - { label: "Founded year", name: "foundedYear", widget: "number", required: false }
-      - { label: "Pros", name: "pros", widget: "list", required: false }
-      - { label: "Cons", name: "cons", widget: "list", required: false }
-      - { label: "MediaAlpha placeholder", name: "mediaAlphaResult", widget: "string", required: false }
-      - { label: "Description", name: "description", widget: "string", required: false }
-      - { label: "Publish date", name: "publishDate", widget: "datetime", required: false }
-      - { label: "Draft", name: "draft", widget: "boolean", default: false, required: false }
-      - label: "SEO"
-        name: "seo"
-        widget: "object"
-        collapsed: true
-        required: false
-        fields:
-          - { label: "SEO title", name: "seoTitle", widget: "string", required: false }
-          - { label: "SEO description", name: "seoDescription", widget: "text", required: false }
-          - { label: "No-index", name: "noindex", widget: "boolean", default: false, required: false }
-      - { label: "Body", name: "body", widget: "markdown" }
+    fields: *review_fields
 
   - name: "auto-locations"
     label: "Auto · State & City Pages"
@@ -130,11 +282,12 @@ collections:
       - { label: "Description", name: "description", widget: "string", required: false }
       - { label: "Publish date", name: "publishDate", widget: "datetime", required: false }
       - { label: "Draft", name: "draft", widget: "boolean", default: false, required: false }
+      - *seo_fields
       - { label: "Body", name: "body", widget: "markdown" }
 
   - name: "auto-glossary"
     label: "Auto · Glossary"
-    label_singular: "Glossary Term"
+    label_singular: "Glossary term"
     folder: "src/content/auto/glossary"
     create: true
     slug: "{{slug}}"
@@ -164,119 +317,135 @@ collections:
       - { label: "Draft", name: "draft", widget: "boolean", default: false, required: false }
       - { label: "Full answer (body)", name: "body", widget: "markdown" }
 
-  # ========== Other verticals (each gets a generic guides collection) ==========
+  # ========== Reviews for each non-auto vertical ==========
+
+  - name: "home-reviews"
+    label: "Home · Carrier Reviews"
+    label_singular: "Home review"
+    folder: "src/content/home/reviews"
+    create: true
+    slug: "{{slug}}"
+    extension: "md"
+    fields: *review_fields
+
+  - name: "life-reviews"
+    label: "Life · Carrier Reviews"
+    label_singular: "Life review"
+    folder: "src/content/life/reviews"
+    create: true
+    slug: "{{slug}}"
+    extension: "md"
+    fields: *review_fields
+
+  - name: "business-reviews"
+    label: "Business · Carrier Reviews"
+    label_singular: "Business review"
+    folder: "src/content/business/reviews"
+    create: true
+    slug: "{{slug}}"
+    extension: "md"
+    fields: *review_fields
+
+  - name: "health-reviews"
+    label: "Health · Carrier Reviews"
+    label_singular: "Health review"
+    folder: "src/content/health/reviews"
+    create: true
+    slug: "{{slug}}"
+    extension: "md"
+    fields: *review_fields
+
+  - name: "renters-reviews"
+    label: "Renters · Carrier Reviews"
+    label_singular: "Renters review"
+    folder: "src/content/renters/reviews"
+    create: true
+    slug: "{{slug}}"
+    extension: "md"
+    fields: *review_fields
+
+  - name: "pet-reviews"
+    label: "Pet · Carrier Reviews"
+    label_singular: "Pet review"
+    folder: "src/content/pet/reviews"
+    create: true
+    slug: "{{slug}}"
+    extension: "md"
+    fields: *review_fields
+
+  - name: "travel-reviews"
+    label: "Travel · Carrier Reviews"
+    label_singular: "Travel review"
+    folder: "src/content/travel/reviews"
+    create: true
+    slug: "{{slug}}"
+    extension: "md"
+    fields: *review_fields
+
+  # ========== Generic vertical guides ==========
 
   - name: "home"
-    label: "Home Insurance"
+    label: "Home Insurance · Guides"
     label_singular: "Home insurance guide"
-    folder: "src/content/home"
+    folder: "src/content/home/guides"
     create: true
     slug: "{{slug}}"
     extension: "md"
-    fields:
-      - { label: "Title", name: "title", widget: "string" }
-      - { label: "Description", name: "description", widget: "string", required: false }
-      - { label: "Subcategory", name: "subcategory", widget: "string", required: false }
-      - { label: "Hero image", name: "heroImage", widget: "image", required: false }
-      - { label: "Publish date", name: "publishDate", widget: "datetime", required: false }
-      - { label: "Draft", name: "draft", widget: "boolean", default: false, required: false }
-      - { label: "Body", name: "body", widget: "markdown" }
+    fields: *guide_fields
 
   - name: "life"
-    label: "Life Insurance"
+    label: "Life Insurance · Guides"
     label_singular: "Life insurance guide"
-    folder: "src/content/life"
+    folder: "src/content/life/guides"
     create: true
     slug: "{{slug}}"
     extension: "md"
-    fields:
-      - { label: "Title", name: "title", widget: "string" }
-      - { label: "Description", name: "description", widget: "string", required: false }
-      - { label: "Subcategory", name: "subcategory", widget: "string", required: false }
-      - { label: "Hero image", name: "heroImage", widget: "image", required: false }
-      - { label: "Publish date", name: "publishDate", widget: "datetime", required: false }
-      - { label: "Draft", name: "draft", widget: "boolean", default: false, required: false }
-      - { label: "Body", name: "body", widget: "markdown" }
+    fields: *guide_fields
 
   - name: "business"
-    label: "Business Insurance"
+    label: "Business Insurance · Guides"
     label_singular: "Business insurance guide"
-    folder: "src/content/business"
+    folder: "src/content/business/guides"
     create: true
     slug: "{{slug}}"
     extension: "md"
-    fields:
-      - { label: "Title", name: "title", widget: "string" }
-      - { label: "Description", name: "description", widget: "string", required: false }
-      - { label: "Subcategory", name: "subcategory", widget: "string", required: false }
-      - { label: "Hero image", name: "heroImage", widget: "image", required: false }
-      - { label: "Publish date", name: "publishDate", widget: "datetime", required: false }
-      - { label: "Draft", name: "draft", widget: "boolean", default: false, required: false }
-      - { label: "Body", name: "body", widget: "markdown" }
+    fields: *guide_fields
 
   - name: "health"
-    label: "Health Insurance"
+    label: "Health Insurance · Guides"
     label_singular: "Health insurance guide"
-    folder: "src/content/health"
+    folder: "src/content/health/guides"
     create: true
     slug: "{{slug}}"
     extension: "md"
-    fields:
-      - { label: "Title", name: "title", widget: "string" }
-      - { label: "Description", name: "description", widget: "string", required: false }
-      - { label: "Subcategory", name: "subcategory", widget: "string", required: false }
-      - { label: "Hero image", name: "heroImage", widget: "image", required: false }
-      - { label: "Publish date", name: "publishDate", widget: "datetime", required: false }
-      - { label: "Draft", name: "draft", widget: "boolean", default: false, required: false }
-      - { label: "Body", name: "body", widget: "markdown" }
+    fields: *guide_fields
 
   - name: "renters"
-    label: "Renters Insurance"
+    label: "Renters Insurance · Guides"
     label_singular: "Renters insurance guide"
-    folder: "src/content/renters"
+    folder: "src/content/renters/guides"
     create: true
     slug: "{{slug}}"
     extension: "md"
-    fields:
-      - { label: "Title", name: "title", widget: "string" }
-      - { label: "Description", name: "description", widget: "string", required: false }
-      - { label: "Subcategory", name: "subcategory", widget: "string", required: false }
-      - { label: "Hero image", name: "heroImage", widget: "image", required: false }
-      - { label: "Publish date", name: "publishDate", widget: "datetime", required: false }
-      - { label: "Draft", name: "draft", widget: "boolean", default: false, required: false }
-      - { label: "Body", name: "body", widget: "markdown" }
+    fields: *guide_fields
 
   - name: "pet"
-    label: "Pet Insurance"
+    label: "Pet Insurance · Guides"
     label_singular: "Pet insurance guide"
-    folder: "src/content/pet"
+    folder: "src/content/pet/guides"
     create: true
     slug: "{{slug}}"
     extension: "md"
-    fields:
-      - { label: "Title", name: "title", widget: "string" }
-      - { label: "Description", name: "description", widget: "string", required: false }
-      - { label: "Subcategory", name: "subcategory", widget: "string", required: false }
-      - { label: "Hero image", name: "heroImage", widget: "image", required: false }
-      - { label: "Publish date", name: "publishDate", widget: "datetime", required: false }
-      - { label: "Draft", name: "draft", widget: "boolean", default: false, required: false }
-      - { label: "Body", name: "body", widget: "markdown" }
+    fields: *guide_fields
 
   - name: "travel"
-    label: "Travel Insurance"
+    label: "Travel Insurance · Guides"
     label_singular: "Travel insurance guide"
-    folder: "src/content/travel"
+    folder: "src/content/travel/guides"
     create: true
     slug: "{{slug}}"
     extension: "md"
-    fields:
-      - { label: "Title", name: "title", widget: "string" }
-      - { label: "Description", name: "description", widget: "string", required: false }
-      - { label: "Subcategory", name: "subcategory", widget: "string", required: false }
-      - { label: "Hero image", name: "heroImage", widget: "image", required: false }
-      - { label: "Publish date", name: "publishDate", widget: "datetime", required: false }
-      - { label: "Draft", name: "draft", widget: "boolean", default: false, required: false }
-      - { label: "Body", name: "body", widget: "markdown" }
+    fields: *guide_fields
 
   # ========== Cross-cutting collections ==========
 
@@ -297,6 +466,7 @@ collections:
       - { label: "Author", name: "author", widget: "string", required: false }
       - { label: "Publish date", name: "publishDate", widget: "datetime", required: true }
       - { label: "Draft", name: "draft", widget: "boolean", default: false, required: false }
+      - *seo_fields
       - { label: "Body", name: "body", widget: "markdown" }
 
   - name: "pages"
@@ -312,4 +482,5 @@ collections:
       - { label: "Layout", name: "layout", widget: "select", options: ["default", "narrow", "wide"], default: "default", required: false }
       - { label: "Publish date", name: "publishDate", widget: "datetime", required: false }
       - { label: "Draft", name: "draft", widget: "boolean", default: false, required: false }
+      - *seo_fields
       - { label: "Body", name: "body", widget: "markdown" }
