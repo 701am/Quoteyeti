@@ -758,13 +758,22 @@ const totalLinks = VERTICAL_LIST.reduce((sum, v) => {
       .sm-bonus__grid { grid-template-columns: 1fr; gap: var(--space-6); }
       .sm-hero__stats { gap: var(--space-6); }
       .sm-hero__stat-num { font-size: 2.25rem; }
+      .sm-vertical, .sm-bonus { padding-block: var(--space-14); }
     }
     @media (max-width: 600px) {
+      .sm-hero { padding-block: var(--space-12) var(--space-10); }
+      .sm-hero h1 { font-size: 2.5rem; }
+      .sm-hero__lede { font-size: 1.0625rem; }
       .sm-vertical__grid { grid-template-columns: 1fr; gap: var(--space-6); }
       .sm-vertical__heading-line { grid-template-columns: 1fr; gap: var(--space-3); }
       .sm-vertical__num { font-size: 3.5rem; }
+      .sm-vertical h2 { font-size: 1.75rem; }
       .sm-bonus__header { grid-template-columns: 1fr; }
       .sm-bonus__num { font-size: 3.5rem; }
+      .sm-bonus h2 { font-size: 1.75rem; }
+      .sm-vertical, .sm-bonus { padding-block: var(--space-10); }
+      .sm-final { padding-block: var(--space-14); }
+      .sm-final h2 { font-size: 1.875rem; }
     }
   </style>
 </BaseLayout>

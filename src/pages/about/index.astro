@@ -1086,11 +1086,21 @@ const team = [
       .location__art { order: -1; }
       .location__compass { width: 200px; height: 200px; }
     }
+    @media (max-width: 768px) {
+      .about-hero { padding-block: var(--space-12) var(--space-10); }
+      .about-hero h1 { font-size: clamp(2rem, 6vw, 2.75rem); }
+      .principles, .numbers-section, .team, .money, .location, .methodology { padding-block: var(--space-14); }
+    }
     @media (max-width: 600px) {
       .numbers__grid { grid-template-columns: 1fr; }
       .method-step { grid-template-columns: 56px 1fr; gap: var(--space-4); }
       .method-step__num { width: 44px; height: 44px; font-size: 1.25rem; }
       .about-hero__ctas { flex-direction: column; align-items: flex-start; }
+      .about-hero h1 { font-size: 1.875rem; }
+      .principles, .numbers-section, .team, .money, .location, .methodology { padding-block: var(--space-10); }
+      .principles__header h2,
+      .team__header h2,
+      .money__header h2 { font-size: 1.75rem; }
     }
   </style>
 </BaseLayout>

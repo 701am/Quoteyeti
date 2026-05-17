@@ -783,21 +783,37 @@ const inputId = `zip-${variant}-${vertical}-${Math.random().toString(36).slice(2
   /* ============================================
      Responsive
   ============================================ */
+  @media (max-width: 900px) {
+    .zipcta--banner { padding: var(--space-12) var(--space-6); }
+    .zipcta__banner-heading { font-size: 1.875rem; }
+    .zipcta__banner-lede { font-size: 1rem; }
+  }
   @media (max-width: 768px) {
-    .zipcta__heading { font-size: 2.25rem; }
-    .zipcta__form { flex-direction: column; border-radius: 16px; padding: 8px; }
+    .zipcta__heading { font-size: 2rem; }
+    .zipcta__lede { font-size: 1rem; }
+    .zipcta__form { flex-direction: column; border-radius: 16px; padding: 8px; max-width: 100%; }
+    .zipcta__input-group { padding: 0 var(--space-3); }
     .zipcta__btn { width: 100%; justify-content: center; padding: 14px; }
-    .zipcta--band { grid-template-columns: 1fr; padding: var(--space-7); }
+    .zipcta__trust { gap: var(--space-3) var(--space-4); }
+    .zipcta--band { grid-template-columns: 1fr; padding: var(--space-7) var(--space-6); gap: var(--space-6); margin-block: var(--space-8); }
+    .zipcta__band-heading { font-size: 1.5rem; }
     .zipcta__band-form { flex-direction: column; border-radius: 16px; padding: 8px; }
-    .zipcta__band-form button { width: 100%; justify-content: center; }
+    .zipcta__band-form button { width: 100%; justify-content: center; padding: 14px; }
+    .zipcta--banner { padding: var(--space-10) var(--space-5); }
+    .zipcta__banner-heading { font-size: 1.625rem; }
+    .zipcta__banner-lede { font-size: 0.9375rem; }
     .zipcta__banner-form { flex-direction: column; border-radius: 16px; padding: 8px; }
     .zipcta__banner-form button { width: 100%; justify-content: center; padding: 14px; }
+    .zipcta--picker { padding: var(--space-6); }
+    .zipcta__picker-heading { font-size: 1.25rem; }
     .zipcta__picker-grid { grid-template-columns: repeat(4, 1fr); }
     .zipcta__picker-form { flex-direction: column; border-radius: 12px; padding: 6px; }
     .zipcta__picker-form button { width: 100%; justify-content: center; padding: 11px; }
   }
   @media (max-width: 480px) {
     .zipcta__picker-grid { grid-template-columns: repeat(2, 1fr); }
+    .zipcta__picker-btn { padding: 12px 6px; font-size: 0.6875rem; }
+    .zipcta__banner-tag { font-size: 0.625rem; padding: 5px 12px; }
   }
 </style>
 

@@ -1229,6 +1229,23 @@ const remainingTakeaways = takeaways.slice(1);
       .takeaways-list li { grid-template-columns: 44px 1fr; gap: var(--space-3); }
       .takeaways-list__num { font-size: 2rem; }
     }
+    @media (max-width: 640px) {
+      .review-hero { padding-block: var(--space-10) var(--space-8); }
+      .review-hero__h1 { font-size: 1.5rem; line-height: 1.15; }
+      .review-content { font-size: 0.9375rem; }
+      .review-content h2 { font-size: 1.625rem; }
+      .key-takeaways { padding: var(--space-6); }
+      .key-takeaways h2 { font-size: 1.5rem; }
+      .data-table { font-size: 0.8125rem; }
+      .data-table th, .data-table td { padding: var(--space-2); }
+      .editors-note { padding: var(--space-5); }
+      .editors-note p { font-size: 1rem; }
+      .pull-quote { padding: var(--space-5); }
+      .pull-quote p { font-size: 1.0625rem; }
+      .takeaways-list li { grid-template-columns: 36px 1fr; gap: var(--space-3); }
+      .takeaways-list__num { font-size: 1.625rem; }
+      .toc, .review-sidebar > :global(.zipcta) { font-size: 0.875rem; }
+    }
   </style>
 
   <!-- Scroll reveal + active-TOC observers -->

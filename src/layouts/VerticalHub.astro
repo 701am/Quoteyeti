@@ -504,12 +504,24 @@ const { vertical, hero, pillars, calculators = [], subtopics = [], faqs = [] } =
       to { opacity: 1; transform: translateY(0); }
     }
 
-    @media (max-width: 1000px) {
+    @media (max-width: 1100px) {
+      .vhero__yeti { width: 22%; opacity: 0.85; }
       .vpillars__grid, .vsubtopics__grid, .vcalc__grid { grid-template-columns: repeat(2, 1fr); }
     }
+    @media (max-width: 900px) {
+      .vhero { padding-block: var(--space-16); }
+      .vhero__yeti { display: none; }
+      .vhero h1 { font-size: clamp(2rem, 5vw, 2.75rem); }
+      .vhero__lede { font-size: 1.0625rem; margin-bottom: var(--space-6); }
+    }
     @media (max-width: 640px) {
+      .vhero { padding-block: var(--space-12) var(--space-10); }
+      .vhero h1 { font-size: 1.875rem; }
+      .vhero__lede { font-size: 1rem; }
+      .vhero__eyebrow { font-size: 0.6875rem; padding: 6px 12px; }
+      .vpillars, .vsubtopics, .vcalc { padding-block: var(--space-12); }
+      .vfaq { padding-block: var(--space-12); }
       .vpillars__grid, .vsubtopics__grid, .vcalc__grid { grid-template-columns: 1fr; }
-      .vhero h1 { font-size: 2rem; }
       .vhero__alt-link { font-size: 0.875rem; }
     }
   </style>
