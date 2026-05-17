@@ -1,0 +1,770 @@
+---
+import BaseLayout from "~/layouts/BaseLayout.astro";
+import { getCollection } from "astro:content";
+import { VERTICAL_LIST, type Vertical } from "~/data/verticals";
+
+// Pull every review for every vertical so we can list real carriers
+const reviewCollections: Record<string, any[]> = {
+  auto: await getCollection("auto-reviews", ({ data }) => !data.draft),
+  home: await getCollection("home-reviews", ({ data }) => !data.draft),
+  life: await getCollection("life-reviews", ({ data }) => !data.draft),
+  business: await getCollection("business-reviews", ({ data }) => !data.draft),
+  health: await getCollection("health-reviews", ({ data }) => !data.draft),
+  renters: await getCollection("renters-reviews", ({ data }) => !data.draft),
+  pet: await getCollection("pet-reviews", ({ data }) => !data.draft),
+  travel: await getCollection("travel-reviews", ({ data }) => !data.draft),
+};
+
+// Sort each by carrier name
+for (const key of Object.keys(reviewCollections)) {
+  reviewCollections[key].sort((a, b) => {
+    const aN = (a.data.company ?? a.data.title ?? "").toString();
+    const bN = (b.data.company ?? b.data.title ?? "").toString();
+    return aN.localeCompare(bN);
+  });
+}
+
+// For each vertical, build a tidy column tree
+interface SectionColumn {
+  title: string;
+  links: { label: string; href: string }[];
+}
+
+function columnsFor(v: Vertical): SectionColumn[] {
+  const reviews = reviewCollections[v.key] ?? [];
+  const cols: SectionColumn[] = [
+    {
+      title: "Compare & rank",
+      links: [
+        { label: `${v.short} insurance overview`, href: v.path },
+        { label: `Best ${v.short.toLowerCase()} insurance`, href: `${v.path}best/` },
+        { label: `Cheapest ${v.short.toLowerCase()} insurance`, href: `${v.path}cheapest/` },
+        { label: `${v.short} insurance by state`, href: `${v.path}by-state/` },
+        { label: `Get ${v.short.toLowerCase()} quotes`, href: `${v.path}quotes/` },
+      ],
+    },
+    {
+      title: "Tools",
+      links: [
+        { label: `${v.short} insurance calculator`, href: `${v.path}calculator/` },
+        { label: "How much do I need?", href: `${v.path}how-much-do-i-need/` },
+        { label: "Coverage estimator", href: `${v.path}coverage-estimator/` },
+      ],
+    },
+    {
+      title: "Coverage 101",
+      links: [
+        { label: "How it works", href: `${v.path}how-it-works/` },
+        { label: "Types of coverage", href: `${v.path}coverage-types/` },
+        { label: "Common discounts", href: `${v.path}discounts/` },
+        { label: "Frequently asked questions", href: `${v.path}faqs/` },
+      ],
+    },
+  ];
+
+  // Carrier reviews column
+  const reviewLinks = reviews.length > 0
+    ? [
+        { label: `All ${v.short.toLowerCase()} reviews`, href: `${v.path}reviews/` },
+        ...reviews.map((r: any) => ({
+          label: `${r.data.company ?? r.data.title} review`,
+          href: `${v.path}reviews/${r.id}/`,
+        })),
+      ]
+    : [{ label: `${v.short} carrier reviews`, href: `${v.path}reviews/` }];
+
+  cols.push({
+    title: "Carrier reviews",
+    links: reviewLinks,
+  });
+
+  return cols;
+}
+
+// Resources & Company link groups for the bottom section
+const resourceGroups = [
+  {
+    title: "Insurance basics",
+    links: [
+      { label: "Insurance 101", href: "/insurance/" },
+      { label: "Glossary", href: "/glossary/" },
+      { label: "All FAQs", href: "/faqs/" },
+      { label: "Insurance statistics", href: "/resources/statistics/" },
+    ],
+  },
+  {
+    title: "Tools & calculators",
+    links: [
+      { label: "All calculators", href: "/calculators/" },
+      { label: "Compare carriers head-to-head", href: "/compare/" },
+      { label: "Best by state", href: "/best-by-state/" },
+    ],
+  },
+  {
+    title: "Editorial",
+    links: [
+      { label: "The Dispatch (blog)", href: "/blog/" },
+      { label: "The YetiLetter (newsletter)", href: "/newsletter/" },
+      { label: "Editorial standards", href: "/editorial/" },
+      { label: "Press room", href: "/press/" },
+    ],
+  },
+];
+
+const companyGroups = [
+  {
+    title: "About QuoteYeti",
+    links: [
+      { label: "About us", href: "/about/" },
+      { label: "Editorial standards", href: "/editorial/" },
+      { label: "Press room", href: "/press/" },
+    ],
+  },
+  {
+    title: "Talk to us",
+    links: [
+      { label: "Contact", href: "/contact/" },
+      { label: "Partner with us", href: "/partners/" },
+      { label: "Careers", href: "/careers/" },
+    ],
+  },
+  {
+    title: "Legal",
+    links: [
+      { label: "Privacy policy", href: "/privacy-policy/" },
+      { label: "Terms of use", href: "/terms/" },
+      { label: "Accessibility", href: "/accessibility/" },
+      { label: "Sitemap", href: "/sitemap/" },
+    ],
+  },
+];
+
+// Total link count for the hero stat
+const totalLinks = VERTICAL_LIST.reduce((sum, v) => {
+  return sum + columnsFor(v).reduce((s, c) => s + c.links.length, 0);
+}, 0)
+  + resourceGroups.reduce((s, g) => s + g.links.length, 0)
+  + companyGroups.reduce((s, g) => s + g.links.length, 0);
+---
+
+<BaseLayout
+  title="Sitemap — Every QuoteYeti page, organized"
+  description="Browse every page on QuoteYeti — eight insurance verticals, carrier reviews, calculators, guides, and resources."
+>
+
+  <!-- ============== HERO ============== -->
+  <section class="sm-hero">
+    <div class="sm-hero__topo" aria-hidden="true"></div>
+    <div class="container">
+      <nav class="breadcrumbs" aria-label="Breadcrumb">
+        <a href="/">Home</a>
+        <span class="breadcrumbs__sep" aria-hidden="true">›</span>
+        <span aria-current="page">Sitemap</span>
+      </nav>
+      <p class="eyebrow">Every QuoteYeti page</p>
+      <h1>
+        The full
+        <span class="serif-italic">map</span>.
+      </h1>
+      <p class="sm-hero__lede">
+        Eight insurance verticals. Every guide, calculator, review, and resource — organized by category. Click anywhere to dive in.
+      </p>
+
+      <div class="sm-hero__stats">
+        <div class="sm-hero__stat">
+          <span class="sm-hero__stat-num">{VERTICAL_LIST.length}</span>
+          <span class="sm-hero__stat-label">Verticals</span>
+        </div>
+        <div class="sm-hero__stat">
+          <span class="sm-hero__stat-num">{totalLinks}+</span>
+          <span class="sm-hero__stat-label">Pages</span>
+        </div>
+        <div class="sm-hero__stat">
+          <span class="sm-hero__stat-num">{Object.values(reviewCollections).flat().length}</span>
+          <span class="sm-hero__stat-label">Carrier reviews</span>
+        </div>
+      </div>
+
+      <nav class="sm-hero__chips" aria-label="Jump to vertical">
+        {VERTICAL_LIST.map((v) => (
+          <a href={`#${v.key}`} class="sm-chip" style={`--chip-accent: ${v.accent}; --chip-accent-soft: ${v.accentSoft};`}>
+            <span class="sm-chip__dot"></span>
+            <span>{v.short}</span>
+          </a>
+        ))}
+        <a href="#resources" class="sm-chip sm-chip--neutral">
+          <span class="sm-chip__dot"></span>
+          <span>Resources</span>
+        </a>
+        <a href="#company" class="sm-chip sm-chip--neutral">
+          <span class="sm-chip__dot"></span>
+          <span>Company</span>
+        </a>
+      </nav>
+    </div>
+  </section>
+
+  <!-- ============== VERTICAL SECTIONS ============== -->
+  {VERTICAL_LIST.map((v, idx) => {
+    const cols = columnsFor(v);
+    const isAlt = idx % 2 === 1;
+    return (
+      <section
+        id={v.key}
+        class={`sm-vertical ${isAlt ? "sm-vertical--alt" : ""}`}
+        style={`--v-accent: ${v.accent}; --v-accent-soft: ${v.accentSoft};`}
+      >
+        <div class="container">
+          <header class="sm-vertical__header">
+            <div class="sm-vertical__heading-line">
+              <span class="sm-vertical__num">{String(idx + 1).padStart(2, "0")}</span>
+              <div class="sm-vertical__heading-text">
+                <p class="sm-vertical__eyebrow">
+                  <img src={v.icon} alt="" width="14" height="14" />
+                  Section {idx + 1} of {VERTICAL_LIST.length}
+                </p>
+                <h2>
+                  {v.label}
+                  <span class="serif-italic"> · {v.short.toLowerCase()}</span>
+                </h2>
+              </div>
+              <a href={v.path} class="sm-vertical__cta">
+                <span>Visit {v.short.toLowerCase()} hub</span>
+                <svg width="14" height="12" viewBox="0 0 14 12" fill="none" aria-hidden="true">
+                  <path d="M8 1l5 5-5 5M1 6h12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </a>
+            </div>
+            <p class="sm-vertical__tagline">{v.tagline}</p>
+          </header>
+
+          <div class="sm-vertical__grid">
+            {cols.map((col) => (
+              <div class="sm-column">
+                <h3 class="sm-column__title">{col.title}</h3>
+                <ul>
+                  {col.links.map((link) => (
+                    <li>
+                      <a href={link.href}>
+                        <span>{link.label}</span>
+                        <svg class="sm-column__arrow" width="10" height="8" viewBox="0 0 10 8" fill="none" aria-hidden="true">
+                          <path d="M6 1l3 3-3 3M1 4h8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+    );
+  })}
+
+  <!-- ============== RESOURCES ============== -->
+  <section id="resources" class="sm-bonus">
+    <div class="container">
+      <header class="sm-bonus__header">
+        <span class="sm-bonus__num">09</span>
+        <div>
+          <p class="sm-bonus__eyebrow">Cross-category</p>
+          <h2>
+            Resources &
+            <span class="serif-italic">reading</span>
+          </h2>
+        </div>
+      </header>
+      <div class="sm-bonus__grid">
+        {resourceGroups.map((group) => (
+          <div class="sm-column">
+            <h3 class="sm-column__title">{group.title}</h3>
+            <ul>
+              {group.links.map((link) => (
+                <li>
+                  <a href={link.href}>
+                    <span>{link.label}</span>
+                    <svg class="sm-column__arrow" width="10" height="8" viewBox="0 0 10 8" fill="none" aria-hidden="true">
+                      <path d="M6 1l3 3-3 3M1 4h8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- ============== COMPANY ============== -->
+  <section id="company" class="sm-bonus sm-bonus--dark">
+    <div class="sm-bonus__topo" aria-hidden="true"></div>
+    <div class="container">
+      <header class="sm-bonus__header">
+        <span class="sm-bonus__num">10</span>
+        <div>
+          <p class="sm-bonus__eyebrow">Behind the scenes</p>
+          <h2>
+            About
+            <span class="serif-italic">QuoteYeti</span>
+          </h2>
+        </div>
+      </header>
+      <div class="sm-bonus__grid">
+        {companyGroups.map((group) => (
+          <div class="sm-column sm-column--dark">
+            <h3 class="sm-column__title">{group.title}</h3>
+            <ul>
+              {group.links.map((link) => (
+                <li>
+                  <a href={link.href}>
+                    <span>{link.label}</span>
+                    <svg class="sm-column__arrow" width="10" height="8" viewBox="0 0 10 8" fill="none" aria-hidden="true">
+                      <path d="M6 1l3 3-3 3M1 4h8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- ============== FINAL CTA ============== -->
+  <section class="sm-final">
+    <div class="container sm-final__inner">
+      <p class="eyebrow">Need something specific?</p>
+      <h2>
+        Can't find what you're
+        <span class="serif-italic">looking for?</span>
+      </h2>
+      <p class="sm-final__lede">
+        Try our search, or drop us a line at <a href="mailto:hello@quoteyeti.com">hello@quoteyeti.com</a>.
+      </p>
+      <a href="/" class="btn-pill btn-pill--navy">
+        <span>Back to home</span>
+        <svg width="16" height="14" viewBox="0 0 16 14" fill="none" aria-hidden="true">
+          <path d="M9 1l6 6-6 6M1 7h14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </a>
+    </div>
+  </section>
+
+  <style>
+    /* ============================================
+       Shared
+    ============================================ */
+    .serif-italic {
+      font-family: var(--font-serif, "Plantin", Georgia, serif);
+      font-style: italic;
+      font-weight: 500;
+      letter-spacing: -0.01em;
+    }
+    .eyebrow {
+      display: inline-block;
+      font-family: var(--font-display);
+      font-size: 0.75rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.18em;
+      color: var(--color-malibu);
+      margin: 0 0 var(--space-4);
+    }
+
+    /* ============================================
+       Hero
+    ============================================ */
+    .sm-hero {
+      position: relative;
+      padding-block: var(--space-20) var(--space-16);
+      background: linear-gradient(180deg, var(--color-alice) 0%, var(--color-white) 100%);
+      overflow: hidden;
+    }
+    .sm-hero__topo {
+      position: absolute; inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1200' height='800' viewBox='0 0 1200 800'%3E%3Cg fill='none' stroke='%232C4577' stroke-width='0.5' stroke-opacity='0.05'%3E%3Cpath d='M0,400 Q300,300 600,400 T1200,400'/%3E%3Cpath d='M0,360 Q300,260 600,360 T1200,360'/%3E%3Cpath d='M0,440 Q300,340 600,440 T1200,440'/%3E%3Cpath d='M0,320 Q300,220 600,320 T1200,320'/%3E%3Cpath d='M0,480 Q300,380 600,480 T1200,480'/%3E%3C/g%3E%3C/svg%3E");
+      pointer-events: none;
+    }
+    .sm-hero .container { position: relative; }
+    .breadcrumbs {
+      font-size: 0.8125rem;
+      color: var(--color-text-muted);
+      margin-bottom: var(--space-5);
+      display: flex; align-items: center; gap: var(--space-2);
+      flex-wrap: wrap;
+    }
+    .breadcrumbs a {
+      color: var(--color-text-muted);
+      text-decoration: none;
+      transition: color 0.15s;
+    }
+    .breadcrumbs a:hover { color: var(--color-malibu); }
+    .breadcrumbs__sep { opacity: 0.4; }
+
+    .sm-hero h1 {
+      font-size: clamp(3rem, 7vw, 5.5rem);
+      letter-spacing: -0.035em;
+      line-height: 0.98;
+      margin-bottom: var(--space-6);
+      color: var(--color-resolution);
+    }
+    .sm-hero h1 .serif-italic { color: var(--color-malibu); }
+    .sm-hero__lede {
+      font-size: 1.25rem;
+      color: var(--color-text-strong);
+      line-height: 1.55;
+      max-width: 620px;
+      margin-bottom: var(--space-10);
+    }
+
+    /* Hero stats row */
+    .sm-hero__stats {
+      display: flex;
+      gap: var(--space-10);
+      margin-bottom: var(--space-10);
+      padding-bottom: var(--space-8);
+      border-bottom: 1px solid var(--color-border);
+      flex-wrap: wrap;
+    }
+    .sm-hero__stat { display: flex; flex-direction: column; gap: 4px; }
+    .sm-hero__stat-num {
+      font-family: var(--font-serif, "Plantin", Georgia, serif);
+      font-style: italic;
+      font-weight: 500;
+      font-size: 3rem;
+      line-height: 1;
+      color: var(--color-resolution);
+      letter-spacing: -0.04em;
+    }
+    .sm-hero__stat-label {
+      font-family: var(--font-display);
+      font-size: 0.75rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.14em;
+      color: var(--color-text-muted);
+    }
+
+    /* Jump-to chips */
+    .sm-hero__chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-2);
+    }
+    .sm-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-2);
+      padding: 0.625rem 1.25rem;
+      background: var(--color-white);
+      border: 1px solid var(--color-border);
+      border-radius: 100px;
+      text-decoration: none;
+      font-family: var(--font-display);
+      font-weight: 600;
+      font-size: 0.875rem;
+      color: var(--color-resolution);
+      transition: all 0.2s ease;
+    }
+    .sm-chip__dot {
+      width: 8px; height: 8px;
+      background: var(--chip-accent, var(--color-malibu));
+      border-radius: 50%;
+      transition: transform 0.2s ease;
+    }
+    .sm-chip:hover {
+      background: var(--chip-accent, var(--color-malibu));
+      border-color: var(--chip-accent, var(--color-malibu));
+      color: var(--color-white);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(44, 69, 119, 0.10);
+    }
+    .sm-chip:hover .sm-chip__dot { background: var(--color-white); transform: scale(1.3); }
+    .sm-chip--neutral { --chip-accent: var(--color-resolution); }
+
+    /* ============================================
+       Vertical sections
+    ============================================ */
+    .sm-vertical {
+      padding-block: var(--space-20);
+      background: var(--color-white);
+      position: relative;
+      scroll-margin-top: 80px;
+    }
+    .sm-vertical--alt {
+      background: var(--color-alice);
+    }
+    .sm-vertical::before {
+      content: "";
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 1px;
+      background: linear-gradient(90deg,
+        transparent 0%,
+        var(--v-accent) 20%,
+        var(--v-accent) 80%,
+        transparent 100%);
+      opacity: 0.4;
+    }
+
+    .sm-vertical__header {
+      margin-bottom: var(--space-12);
+      padding-bottom: var(--space-8);
+      border-bottom: 1px solid var(--color-border);
+    }
+    .sm-vertical__heading-line {
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      gap: var(--space-6);
+      align-items: center;
+    }
+    .sm-vertical__num {
+      font-family: var(--font-serif, "Plantin", Georgia, serif);
+      font-style: italic;
+      font-weight: 500;
+      font-size: 5rem;
+      line-height: 0.9;
+      color: var(--v-accent);
+      letter-spacing: -0.04em;
+      opacity: 0.6;
+    }
+    .sm-vertical__heading-text { min-width: 0; }
+    .sm-vertical__eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-2);
+      font-family: var(--font-display);
+      font-size: 0.6875rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.18em;
+      color: var(--v-accent);
+      margin: 0 0 var(--space-2);
+    }
+    .sm-vertical h2 {
+      font-size: clamp(2rem, 3.5vw, 2.75rem);
+      letter-spacing: -0.025em;
+      line-height: 1.05;
+      margin: 0;
+      color: var(--color-resolution);
+    }
+    .sm-vertical h2 .serif-italic { color: var(--v-accent); }
+    .sm-vertical__tagline {
+      font-family: var(--font-serif, "Plantin", Georgia, serif);
+      font-style: italic;
+      font-size: 1.125rem;
+      color: var(--color-text-muted);
+      margin: var(--space-5) 0 0;
+      max-width: 540px;
+    }
+    .sm-vertical__cta {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-2);
+      padding: 0.75rem 1.25rem;
+      background: var(--v-accent);
+      color: var(--color-white);
+      border-radius: 100px;
+      text-decoration: none;
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 0.8125rem;
+      letter-spacing: 0.02em;
+      box-shadow: 0 4px 12px color-mix(in srgb, var(--v-accent) 30%, transparent);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      white-space: nowrap;
+    }
+    .sm-vertical__cta:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px color-mix(in srgb, var(--v-accent) 40%, transparent);
+    }
+    .sm-vertical__cta svg { transition: transform 0.2s ease; }
+    .sm-vertical__cta:hover svg { transform: translateX(3px); }
+
+    /* Vertical's 4-column link tree */
+    .sm-vertical__grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: var(--space-8);
+    }
+
+    /* ============================================
+       Column (reusable for vertical + bonus sections)
+    ============================================ */
+    .sm-column { min-width: 0; }
+    .sm-column__title {
+      font-family: var(--font-display);
+      font-size: 0.6875rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.18em;
+      color: var(--color-resolution);
+      margin: 0 0 var(--space-5);
+      padding-bottom: var(--space-3);
+      border-bottom: 2px solid var(--v-accent, var(--color-malibu));
+      display: inline-block;
+      min-width: 70%;
+    }
+    .sm-column ul {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .sm-column li a {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--space-3);
+      padding: var(--space-2) 0;
+      color: var(--color-text);
+      text-decoration: none;
+      font-size: 0.9375rem;
+      line-height: 1.4;
+      transition: color 0.15s, padding 0.15s;
+      border-bottom: 1px solid transparent;
+    }
+    .sm-column li a:hover {
+      color: var(--v-accent, var(--color-malibu));
+      padding-left: 4px;
+    }
+    .sm-column__arrow {
+      flex-shrink: 0;
+      opacity: 0;
+      transform: translateX(-4px);
+      transition: opacity 0.2s, transform 0.2s;
+    }
+    .sm-column li a:hover .sm-column__arrow {
+      opacity: 1;
+      transform: translateX(0);
+    }
+
+    /* ============================================
+       Bonus sections (Resources, Company)
+    ============================================ */
+    .sm-bonus {
+      padding-block: var(--space-20);
+      background: var(--color-white);
+      position: relative;
+      scroll-margin-top: 80px;
+    }
+    .sm-bonus__header {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: var(--space-6);
+      align-items: center;
+      margin-bottom: var(--space-12);
+      padding-bottom: var(--space-8);
+      border-bottom: 1px solid var(--color-border);
+    }
+    .sm-bonus__num {
+      font-family: var(--font-serif, "Plantin", Georgia, serif);
+      font-style: italic;
+      font-weight: 500;
+      font-size: 5rem;
+      line-height: 0.9;
+      color: var(--color-malibu);
+      letter-spacing: -0.04em;
+      opacity: 0.6;
+    }
+    .sm-bonus__eyebrow {
+      font-family: var(--font-display);
+      font-size: 0.6875rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.18em;
+      color: var(--color-malibu);
+      margin: 0 0 var(--space-2);
+    }
+    .sm-bonus h2 {
+      font-size: clamp(2rem, 3.5vw, 2.75rem);
+      letter-spacing: -0.025em;
+      line-height: 1.05;
+      margin: 0;
+      color: var(--color-resolution);
+    }
+    .sm-bonus h2 .serif-italic { color: var(--color-malibu); }
+    .sm-bonus__grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: var(--space-8);
+    }
+
+    /* Dark variant for Company section */
+    .sm-bonus--dark {
+      background: linear-gradient(135deg, var(--color-resolution) 0%, #1F3258 100%);
+      color: var(--color-white);
+      overflow: hidden;
+    }
+    .sm-bonus__topo {
+      position: absolute; inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1200' height='600' viewBox='0 0 1200 600'%3E%3Cg fill='none' stroke='%23FFFFFF' stroke-width='0.5' stroke-opacity='0.06'%3E%3Cpath d='M0,300 Q300,200 600,300 T1200,300'/%3E%3Cpath d='M0,260 Q300,160 600,260 T1200,260'/%3E%3Cpath d='M0,340 Q300,240 600,340 T1200,340'/%3E%3C/g%3E%3C/svg%3E");
+      pointer-events: none;
+    }
+    .sm-bonus--dark .container { position: relative; }
+    .sm-bonus--dark .sm-bonus__header {
+      border-bottom-color: rgba(255,255,255,0.12);
+    }
+    .sm-bonus--dark .sm-bonus__num { color: var(--color-malibu); }
+    .sm-bonus--dark .sm-bonus__eyebrow { color: var(--color-malibu); }
+    .sm-bonus--dark h2 { color: var(--color-white); }
+    .sm-bonus--dark h2 .serif-italic { color: var(--color-malibu); }
+    .sm-column--dark .sm-column__title {
+      color: var(--color-white);
+      border-bottom-color: var(--color-malibu);
+    }
+    .sm-column--dark li a {
+      color: rgba(255,255,255,0.78);
+    }
+    .sm-column--dark li a:hover {
+      color: var(--color-malibu);
+    }
+
+    /* ============================================
+       Final CTA
+    ============================================ */
+    .sm-final {
+      padding-block: var(--space-24);
+      background: linear-gradient(180deg, var(--color-white) 0%, var(--color-alice) 100%);
+      text-align: center;
+    }
+    .sm-final__inner {
+      max-width: 640px;
+    }
+    .sm-final h2 {
+      font-size: clamp(2.25rem, 4vw, 3rem);
+      letter-spacing: -0.025em;
+      line-height: 1.1;
+      margin-bottom: var(--space-5);
+    }
+    .sm-final h2 .serif-italic { color: var(--color-malibu); }
+    .sm-final__lede {
+      font-size: 1.125rem;
+      color: var(--color-text-strong);
+      line-height: 1.6;
+      margin-bottom: var(--space-8);
+    }
+    .sm-final__lede a {
+      color: var(--color-malibu);
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+    .sm-final__lede a:hover { color: var(--color-resolution); }
+
+    /* ============================================
+       Responsive
+    ============================================ */
+    @media (max-width: 1100px) {
+      .sm-vertical__grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 850px) {
+      .sm-vertical__heading-line { grid-template-columns: auto 1fr; }
+      .sm-vertical__cta { grid-column: 1 / -1; justify-self: start; margin-top: var(--space-3); }
+      .sm-bonus__grid { grid-template-columns: 1fr; gap: var(--space-6); }
+      .sm-hero__stats { gap: var(--space-6); }
+      .sm-hero__stat-num { font-size: 2.25rem; }
+    }
+    @media (max-width: 600px) {
+      .sm-vertical__grid { grid-template-columns: 1fr; gap: var(--space-6); }
+      .sm-vertical__heading-line { grid-template-columns: 1fr; gap: var(--space-3); }
+      .sm-vertical__num { font-size: 3.5rem; }
+      .sm-bonus__header { grid-template-columns: 1fr; }
+      .sm-bonus__num { font-size: 3.5rem; }
+    }
+  </style>
+</BaseLayout>

@@ -128,17 +128,26 @@ const faqs = [
       </header>
       <ol class="how__steps">
         <li class="how__step">
-          <span class="how__num">01</span>
+          <div class="how__step-head">
+            <span class="how__num">01</span>
+            <span class="how__dot" aria-hidden="true"></span>
+          </div>
           <h3>Pick your coverage category</h3>
           <p>Auto, home, life, business, health, renters, pet, travel. Each gets its own dedicated research.</p>
         </li>
         <li class="how__step">
-          <span class="how__num">02</span>
+          <div class="how__step-head">
+            <span class="how__num">02</span>
+            <span class="how__dot" aria-hidden="true"></span>
+          </div>
           <h3>Read the analysis</h3>
           <p>Independent carrier reviews, best-of rankings, and methodology you can audit. No paid placement.</p>
         </li>
         <li class="how__step">
-          <span class="how__num">03</span>
+          <div class="how__step-head">
+            <span class="how__num">03</span>
+            <span class="how__dot" aria-hidden="true"></span>
+          </div>
           <h3>Get quotes on your terms</h3>
           <p>Request quotes only from the carriers you choose. We never auto-route your data.</p>
         </li>
@@ -522,35 +531,74 @@ const faqs = [
       gap: var(--space-6);
     }
     .how__step {
-      padding: var(--space-7);
+      position: relative;
+      padding: var(--space-7) var(--space-6);
       background: var(--color-white);
       border-radius: 16px;
       border: 1px solid var(--color-border);
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      overflow: hidden;
+      transition:
+        transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+        box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+        border-color 0.3s ease;
+    }
+    .how__step::before {
+      content: "";
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 5px;
+      background: var(--color-malibu);
+      transform: scaleX(0.3);
+      transform-origin: left;
+      transition: transform 0.35s ease;
     }
     .how__step:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 12px 24px rgba(44, 69, 119, 0.06);
+      transform: translateY(-4px);
+      border-color: var(--color-malibu);
+      box-shadow:
+        0 4px 12px rgba(44, 69, 119, 0.04),
+        0 16px 32px rgba(44, 69, 119, 0.10);
+    }
+    .how__step:hover::before { transform: scaleX(1); }
+    .how__step-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: var(--space-5);
     }
     .how__num {
-      display: inline-block;
       font-family: var(--font-serif, "Plantin", Georgia, serif);
       font-style: italic; font-weight: 500;
       font-size: 3rem;
       line-height: 1;
-      color: var(--color-ship-cove);
-      margin-bottom: var(--space-4);
+      color: var(--color-malibu);
       letter-spacing: -0.03em;
     }
+    .how__dot {
+      width: 10px; height: 10px;
+      background: var(--color-malibu);
+      border-radius: 50%;
+      opacity: 0.25;
+      transition: opacity 0.3s, transform 0.3s;
+    }
+    .how__step:hover .how__dot {
+      opacity: 1;
+      transform: scale(1.4);
+    }
     .how__step h3 {
-      font-size: 1.25rem;
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 1.375rem;
       margin: 0 0 var(--space-3);
-      letter-spacing: -0.01em;
+      letter-spacing: -0.015em;
+      color: var(--color-resolution);
+      line-height: 1.2;
     }
     .how__step p {
       margin: 0;
       line-height: 1.6;
-      color: var(--color-text);
+      color: var(--color-text-muted);
+      font-size: 0.9375rem;
     }
 
     /* ============================================

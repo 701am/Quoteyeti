@@ -4,27 +4,27 @@ import { VERTICAL_LIST } from "~/data/verticals";
 
 // Real, non-fabricated stats
 const numbers = [
-  { value: "8", label: "Insurance verticals covered", detail: "Auto, home, life, business, health, renters, pet, and travel" },
-  { value: "50", label: "States in our analysis", detail: "Every carrier reviewed against every state's specific market" },
-  { value: "0", label: "Paid placements, ever", detail: "Our rankings can't be bought. Period." },
-  { value: "1", label: "Editorial team. No outsourcing.", detail: "Real humans writing, fact-checking, and updating every page" },
+  { value: "8", label: "Verticals covered", detail: "Auto, home, life, business, health, renters, pet, travel" },
+  { value: "50", label: "States analyzed", detail: "Every carrier reviewed against every state's market" },
+  { value: "0", label: "Paid placements", detail: "Our rankings can't be bought. Period." },
+  { value: "100%", label: "Editorial independence", detail: "No carrier influence on rankings, scores, or recommendations" },
 ];
 
 const principles = [
   {
-    eyebrow: "Independence",
-    title: "No paid placement. Ever.",
+    num: "01",
+    title: "Independent",
     body: "Carrier partnerships don't influence our rankings. We earn commission when you choose a policy through us, but the order, scores, and recommendations are entirely editorial.",
   },
   {
-    eyebrow: "Transparency",
-    title: "Our methodology is public.",
+    num: "02",
+    title: "Transparent",
     body: "Every score we publish has a documented weighting. Every claim has a source. If we can't back a number with data, we don't print it.",
   },
   {
-    eyebrow: "Quality over quantity",
-    title: "We update, not just publish.",
-    body: "Insurance markets change. So do we. Pages are reviewed quarterly minimum, and breaking changes (rate filings, regulatory shifts) trigger an immediate update.",
+    num: "03",
+    title: "Maintained",
+    body: "Insurance markets change. So do we. Pages are reviewed quarterly minimum, and breaking changes — rate filings, regulatory shifts — trigger an immediate update.",
   },
 ];
 
@@ -32,7 +32,7 @@ const howWeWork = [
   {
     num: "01",
     title: "We gather the data.",
-    body: "We pull rate data from public regulatory filings, third-party aggregators, and our own consumer-facing tools. Carrier claims get verified against state filings, not press releases.",
+    body: "Rate data comes from public regulatory filings, third-party aggregators, and our own consumer-facing tools. Carrier claims get verified against state filings, not press releases.",
   },
   {
     num: "02",
@@ -42,20 +42,38 @@ const howWeWork = [
   {
     num: "03",
     title: "We write it down.",
-    body: "Every review is drafted by an editor with insurance expertise, fact-checked against the source data, and edited for clarity. No AI slop. No filler. No paid placement.",
+    body: "Every review is drafted by an editor with insurance expertise, fact-checked against source data, and edited for clarity. No AI slop. No filler. No paid placement.",
   },
   {
     num: "04",
     title: "We connect you to coverage.",
-    body: "When you're ready, we route you to the carriers you choose — never the carrier paying the most. You get quotes on your terms.",
+    body: "When you're ready, we route you to the carriers you choose — never the one paying the most. You get quotes on your terms.",
   },
 ];
 
-// Placeholder team — David can swap in real people later
+// Placeholder team — David can swap in real people later. Each card gets a distinct accent.
 const team = [
-  { name: "The Editorial Team", role: "Writers & analysts", bio: "Licensed insurance experts, financial journalists, and former underwriters. Every page on QuoteYeti is reviewed by at least two of them before it goes live." },
-  { name: "The Engineering Team", role: "Builders & data wranglers", bio: "We built our own rating engine, our own data pipeline, and our own publishing tools — so we can move fast and stay independent of vendor lock-in." },
-  { name: "The Strategy Team", role: "Coverage & partnerships", bio: "We work with carriers on commission-based partnerships, but never on placement. Our team negotiates terms, never editorial influence." },
+  {
+    name: "The Editorial Team",
+    role: "Writers & analysts",
+    bio: "Licensed insurance experts, financial journalists, and former underwriters. Every page on QuoteYeti is reviewed by at least two of them before it goes live.",
+    accent: "#64BCE1",
+    initials: "ED",
+  },
+  {
+    name: "The Engineering Team",
+    role: "Builders & data wranglers",
+    bio: "We built our own rating engine, our own data pipeline, and our own publishing tools — so we can move fast and stay independent of vendor lock-in.",
+    accent: "#F46036",
+    initials: "EN",
+  },
+  {
+    name: "The Strategy Team",
+    role: "Coverage & partnerships",
+    bio: "We work with carriers on commission-based partnerships, but never on placement. Our team negotiates terms, never editorial influence.",
+    accent: "#8FB339",
+    initials: "ST",
+  },
 ];
 ---
 
@@ -69,9 +87,10 @@ const team = [
     <div class="about-hero__topo" aria-hidden="true"></div>
     <div class="container about-hero__inner">
       <div class="about-hero__copy">
-        <p class="eyebrow eyebrow--dark">About QuoteYeti</p>
+        <p class="eyebrow">About QuoteYeti</p>
         <h1>
           We do the searching.
+          <br/>
           <span class="serif-italic">You do the saving.</span>
         </h1>
         <p class="about-hero__lede">
@@ -97,43 +116,40 @@ const team = [
   <section class="numbers">
     <div class="container">
       <header class="numbers__header">
-        <p class="eyebrow">QuoteYeti, by the numbers</p>
+        <p class="eyebrow">QuoteYeti by the numbers</p>
         <h2>
           We measure ourselves
-          <span class="serif-italic">in transparency</span>,
-          not partnerships.
+          <span class="serif-italic">in transparency.</span>
         </h2>
       </header>
       <ul class="numbers__grid">
-        {numbers.map((n, i) => (
-          <li class="number-card" style={`--card-i: ${i};`}>
+        {numbers.map((n) => (
+          <li class="number-card">
             <span class="number-card__value">{n.value}</span>
-            <span class="number-card__label">{n.label}</span>
-            <span class="number-card__detail">{n.detail}</span>
+            <div class="number-card__text">
+              <span class="number-card__label">{n.label}</span>
+              <span class="number-card__detail">{n.detail}</span>
+            </div>
           </li>
         ))}
       </ul>
     </div>
   </section>
 
-  <!-- ============== MISSION / MANIFESTO BAND ============== -->
+  <!-- ============== MISSION BAND ============== -->
   <section class="mission">
     <div class="container">
       <div class="mission__inner">
         <p class="mission__eyebrow">Our mission</p>
         <p class="mission__quote">
-          <span class="mission__open" aria-hidden="true">"</span>
-          We're not in the business of selling insurance.
-          We're in the business of <em>finding the right one</em> —
-          and getting out of your way.
-          <span class="mission__close" aria-hidden="true">"</span>
+          <span class="mission__open" aria-hidden="true">"</span>We're not in the business of selling insurance. We're in the business of <em>finding the right one</em> — and getting out of your way.<span class="mission__close" aria-hidden="true">"</span>
         </p>
         <p class="mission__attribution">— The QuoteYeti editorial team</p>
       </div>
     </div>
   </section>
 
-  <!-- ============== PRINCIPLES (3 cards) ============== -->
+  <!-- ============== PRINCIPLES ============== -->
   <section class="principles">
     <div class="container">
       <header class="principles__header">
@@ -144,10 +160,12 @@ const team = [
         </h2>
       </header>
       <ol class="principles__grid">
-        {principles.map((p, i) => (
+        {principles.map((p) => (
           <li class="principle">
-            <span class="principle__num">0{i + 1}</span>
-            <p class="principle__eyebrow">{p.eyebrow}</p>
+            <div class="principle__head">
+              <span class="principle__num">{p.num}</span>
+              <span class="principle__dot" aria-hidden="true"></span>
+            </div>
             <h3 class="principle__title">{p.title}</h3>
             <p class="principle__body">{p.body}</p>
           </li>
@@ -156,15 +174,15 @@ const team = [
     </div>
   </section>
 
-  <!-- ============== HOW WE MAKE MONEY (transparency callout) ============== -->
+  <!-- ============== HOW WE MAKE MONEY ============== -->
   <section class="money" id="money">
     <div class="container">
       <div class="money__inner">
         <div class="money__copy">
-          <p class="eyebrow eyebrow--malibu">How we make money</p>
+          <p class="eyebrow">How we make money</p>
           <h2>
-            We get paid when you save —
-            <span class="serif-italic">not before, not differently.</span>
+            We get paid <span class="serif-italic">when you save</span>.
+            Not before. Not differently.
           </h2>
           <p class="money__body">
             Carriers pay us a commission when you choose to purchase a policy through QuoteYeti. That's our only revenue model. We don't sell your data. We don't take placement fees. We don't accept favors. The carrier paying us the most has no idea what their ranking is — and we like it that way.
@@ -177,38 +195,23 @@ const team = [
           <p class="money__pledge-eyebrow">The QuoteYeti pledge</p>
           <ul class="money__pledge-list">
             <li>
-              <svg viewBox="0 0 20 20" width="22" height="22" aria-hidden="true">
-                <circle cx="10" cy="10" r="9" fill="var(--color-malibu)"/>
-                <path d="M5.5 10.5l3 3 6-6" fill="none" stroke="white" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
+              <span class="pledge-check" aria-hidden="true">✓</span>
               <span>No paid placement, ever</span>
             </li>
             <li>
-              <svg viewBox="0 0 20 20" width="22" height="22" aria-hidden="true">
-                <circle cx="10" cy="10" r="9" fill="var(--color-malibu)"/>
-                <path d="M5.5 10.5l3 3 6-6" fill="none" stroke="white" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
+              <span class="pledge-check" aria-hidden="true">✓</span>
               <span>No data sold to third parties</span>
             </li>
             <li>
-              <svg viewBox="0 0 20 20" width="22" height="22" aria-hidden="true">
-                <circle cx="10" cy="10" r="9" fill="var(--color-malibu)"/>
-                <path d="M5.5 10.5l3 3 6-6" fill="none" stroke="white" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
+              <span class="pledge-check" aria-hidden="true">✓</span>
               <span>No unsolicited sales calls</span>
             </li>
             <li>
-              <svg viewBox="0 0 20 20" width="22" height="22" aria-hidden="true">
-                <circle cx="10" cy="10" r="9" fill="var(--color-malibu)"/>
-                <path d="M5.5 10.5l3 3 6-6" fill="none" stroke="white" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
+              <span class="pledge-check" aria-hidden="true">✓</span>
               <span>Methodology you can audit</span>
             </li>
             <li>
-              <svg viewBox="0 0 20 20" width="22" height="22" aria-hidden="true">
-                <circle cx="10" cy="10" r="9" fill="var(--color-malibu)"/>
-                <path d="M5.5 10.5l3 3 6-6" fill="none" stroke="white" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
+              <span class="pledge-check" aria-hidden="true">✓</span>
               <span>Quotes you control — not auto-routed</span>
             </li>
           </ul>
@@ -217,7 +220,7 @@ const team = [
     </div>
   </section>
 
-  <!-- ============== HOW WE WORK (methodology) ============== -->
+  <!-- ============== METHODOLOGY ============== -->
   <section class="methodology" id="methodology">
     <div class="container">
       <header class="methodology__header">
@@ -232,9 +235,12 @@ const team = [
         </p>
       </header>
       <ol class="methodology__steps">
-        {howWeWork.map((step) => (
+        {howWeWork.map((step, i) => (
           <li class="method-step">
-            <span class="method-step__num">{step.num}</span>
+            <span class="method-step__rail" aria-hidden="true">
+              <span class="method-step__num">{step.num}</span>
+              {i < howWeWork.length - 1 && <span class="method-step__line"></span>}
+            </span>
             <div class="method-step__body">
               <h3>{step.title}</h3>
               <p>{step.body}</p>
@@ -245,7 +251,7 @@ const team = [
     </div>
   </section>
 
-  <!-- ============== COVERAGE GRID ============== -->
+  <!-- ============== COVERAGE ============== -->
   <section class="coverage">
     <div class="container">
       <header class="coverage__header">
@@ -257,8 +263,12 @@ const team = [
       </header>
       <div class="coverage__grid">
         {VERTICAL_LIST.map((v) => (
-          <a href={v.path} class="coverage-pill" style={`--pill-accent: ${v.accent}; --pill-accent-soft: ${v.accentSoft};`}>
-            <img src={v.icon} alt="" />
+          <a
+            href={v.path}
+            class="coverage-pill"
+            style={`--pill-accent: ${v.accent}; --pill-accent-soft: ${v.accentSoft};`}
+          >
+            <span class="coverage-pill__dot" aria-hidden="true"></span>
             <span>{v.label}</span>
           </a>
         ))}
@@ -281,9 +291,9 @@ const team = [
       </header>
       <div class="team__grid">
         {team.map((member) => (
-          <article class="team-card">
+          <article class="team-card" style={`--team-accent: ${member.accent};`}>
             <div class="team-card__avatar" aria-hidden="true">
-              <img src="/assets/images/yeti-hero.svg" alt="" />
+              <span class="team-card__initials">{member.initials}</span>
             </div>
             <p class="team-card__role">{member.role}</p>
             <h3 class="team-card__name">{member.name}</h3>
@@ -294,12 +304,12 @@ const team = [
     </div>
   </section>
 
-  <!-- ============== WHERE WE'RE FROM ============== -->
+  <!-- ============== LOCATION ============== -->
   <section class="location">
     <div class="container">
       <div class="location__inner">
         <div class="location__copy">
-          <p class="eyebrow eyebrow--malibu">Where we work</p>
+          <p class="location__eyebrow">Where we work</p>
           <h2>
             Remote-first.
             <span class="serif-italic">Globally distributed.</span>
@@ -312,24 +322,22 @@ const team = [
           </p>
         </div>
         <div class="location__art" aria-hidden="true">
-          <div class="location__compass">
-            <svg viewBox="0 0 200 200" width="200" height="200">
-              <circle cx="100" cy="100" r="95" fill="none" stroke="var(--color-malibu)" stroke-width="2" opacity="0.4"/>
-              <circle cx="100" cy="100" r="75" fill="none" stroke="var(--color-malibu)" stroke-width="1" opacity="0.3"/>
-              <circle cx="100" cy="100" r="55" fill="none" stroke="var(--color-malibu)" stroke-width="1" opacity="0.2"/>
-              <line x1="100" y1="20" x2="100" y2="40" stroke="var(--color-malibu)" stroke-width="2" stroke-linecap="round"/>
-              <line x1="100" y1="160" x2="100" y2="180" stroke="var(--color-malibu)" stroke-width="2" stroke-linecap="round" opacity="0.5"/>
-              <line x1="20" y1="100" x2="40" y2="100" stroke="var(--color-malibu)" stroke-width="2" stroke-linecap="round" opacity="0.5"/>
-              <line x1="160" y1="100" x2="180" y2="100" stroke="var(--color-malibu)" stroke-width="2" stroke-linecap="round" opacity="0.5"/>
-              <path d="M100 35 L88 100 L100 90 L112 100 Z" fill="var(--color-malibu)"/>
-              <path d="M100 165 L88 100 L100 110 L112 100 Z" fill="var(--color-malibu)" opacity="0.4"/>
-              <text x="100" y="22" text-anchor="middle" font-family="serif" font-style="italic" font-size="14" font-weight="500" fill="var(--color-resolution)">N</text>
-              <text x="100" y="195" text-anchor="middle" font-family="serif" font-style="italic" font-size="14" font-weight="500" fill="var(--color-resolution)" opacity="0.5">S</text>
-              <text x="13" y="105" text-anchor="middle" font-family="serif" font-style="italic" font-size="14" font-weight="500" fill="var(--color-resolution)" opacity="0.5">W</text>
-              <text x="187" y="105" text-anchor="middle" font-family="serif" font-style="italic" font-size="14" font-weight="500" fill="var(--color-resolution)" opacity="0.5">E</text>
-              <circle cx="100" cy="100" r="4" fill="var(--color-resolution)"/>
-            </svg>
-          </div>
+          <svg class="location__compass" viewBox="0 0 240 240" width="240" height="240">
+            <circle cx="120" cy="120" r="110" fill="none" stroke="#64BCE1" stroke-width="1" stroke-opacity="0.35"/>
+            <circle cx="120" cy="120" r="88" fill="none" stroke="#64BCE1" stroke-width="1" stroke-opacity="0.25"/>
+            <circle cx="120" cy="120" r="64" fill="none" stroke="#64BCE1" stroke-width="1" stroke-opacity="0.18"/>
+            <line x1="120" y1="22" x2="120" y2="42" stroke="#64BCE1" stroke-width="2" stroke-linecap="round"/>
+            <line x1="120" y1="198" x2="120" y2="218" stroke="#64BCE1" stroke-width="2" stroke-linecap="round" opacity="0.5"/>
+            <line x1="22" y1="120" x2="42" y2="120" stroke="#64BCE1" stroke-width="2" stroke-linecap="round" opacity="0.5"/>
+            <line x1="198" y1="120" x2="218" y2="120" stroke="#64BCE1" stroke-width="2" stroke-linecap="round" opacity="0.5"/>
+            <path d="M120 50 L106 120 L120 110 L134 120 Z" fill="#64BCE1"/>
+            <path d="M120 190 L106 120 L120 130 L134 120 Z" fill="#64BCE1" opacity="0.35"/>
+            <text x="120" y="18" text-anchor="middle" font-family="Georgia, serif" font-style="italic" font-size="16" font-weight="500" fill="#FFFFFF">N</text>
+            <text x="120" y="232" text-anchor="middle" font-family="Georgia, serif" font-style="italic" font-size="16" font-weight="500" fill="#FFFFFF" opacity="0.5">S</text>
+            <text x="14" y="125" text-anchor="middle" font-family="Georgia, serif" font-style="italic" font-size="16" font-weight="500" fill="#FFFFFF" opacity="0.5">W</text>
+            <text x="226" y="125" text-anchor="middle" font-family="Georgia, serif" font-style="italic" font-size="16" font-weight="500" fill="#FFFFFF" opacity="0.5">E</text>
+            <circle cx="120" cy="120" r="5" fill="#FFFFFF"/>
+          </svg>
         </div>
       </div>
     </div>
@@ -339,7 +347,7 @@ const team = [
   <section class="final-cta">
     <div class="final-cta__topo" aria-hidden="true"></div>
     <div class="container final-cta__inner">
-      <p class="eyebrow eyebrow--dark">Ready when you are</p>
+      <p class="eyebrow">Ready when you are</p>
       <h2>
         Find the
         <span class="serif-italic">legendary deal</span>.
@@ -357,6 +365,9 @@ const team = [
   </section>
 
   <style>
+    /* ============================================
+       Shared
+    ============================================ */
     .serif-italic {
       font-family: var(--font-serif, "Plantin", Georgia, serif);
       font-style: italic;
@@ -364,17 +375,14 @@ const team = [
       color: var(--color-ship-cove);
       letter-spacing: -0.01em;
     }
-
     .eyebrow {
       display: inline-block;
       font-family: var(--font-display);
       font-size: 0.75rem; font-weight: 700;
       text-transform: uppercase; letter-spacing: 0.18em;
-      color: var(--color-ship-cove);
+      color: var(--color-malibu);
       margin: 0 0 var(--space-4);
     }
-    .eyebrow--dark { color: var(--color-resolution); }
-    .eyebrow--malibu { color: var(--color-malibu); }
 
     /* ============================================
        Hero
@@ -387,22 +395,26 @@ const team = [
     }
     .about-hero__topo {
       position: absolute; inset: 0;
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1200' height='800' viewBox='0 0 1200 800'%3E%3Cg fill='none' stroke='%232C4577' stroke-width='0.5' stroke-opacity='0.05'%3E%3Cpath d='M0,400 Q300,300 600,400 T1200,400'/%3E%3Cpath d='M0,360 Q300,260 600,360 T1200,360'/%3E%3Cpath d='M0,440 Q300,340 600,440 T1200,440'/%3E%3Cpath d='M0,320 Q300,220 600,320 T1200,320'/%3E%3Cpath d='M0,480 Q300,380 600,480 T1200,480'/%3E%3Cpath d='M0,280 Q300,180 600,280 T1200,280'/%3E%3Cpath d='M0,520 Q300,420 600,520 T1200,520'/%3E%3C/g%3E%3C/svg%3E");
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1200' height='800' viewBox='0 0 1200 800'%3E%3Cg fill='none' stroke='%232C4577' stroke-width='0.5' stroke-opacity='0.05'%3E%3Cpath d='M0,400 Q300,300 600,400 T1200,400'/%3E%3Cpath d='M0,360 Q300,260 600,360 T1200,360'/%3E%3Cpath d='M0,440 Q300,340 600,440 T1200,440'/%3E%3Cpath d='M0,320 Q300,220 600,320 T1200,320'/%3E%3Cpath d='M0,480 Q300,380 600,480 T1200,480'/%3E%3C/g%3E%3C/svg%3E");
       pointer-events: none;
     }
     .about-hero__inner {
       position: relative;
       display: grid;
-      grid-template-columns: 1.4fr 1fr;
+      grid-template-columns: 1.5fr 1fr;
       gap: var(--space-12);
       align-items: center;
     }
-    .about-hero__copy { max-width: 640px; }
+    .about-hero__copy { max-width: 680px; }
     .about-hero h1 {
-      font-size: clamp(2.75rem, 5.5vw, 4.5rem);
+      font-size: clamp(2.75rem, 5.5vw, 4.75rem);
       letter-spacing: -0.03em;
       line-height: 1.02;
       margin-bottom: var(--space-6);
+      color: var(--color-resolution);
+    }
+    .about-hero h1 .serif-italic {
+      color: var(--color-malibu);
     }
     .about-hero__lede {
       font-size: 1.25rem;
@@ -422,12 +434,12 @@ const team = [
     }
     .about-hero__art img {
       width: 100%;
-      max-width: 360px;
+      max-width: 380px;
       filter: drop-shadow(0 24px 48px rgba(44, 69, 119, 0.16));
     }
 
     /* ============================================
-       Big numbers
+       Numbers — clean horizontal cards
     ============================================ */
     .numbers {
       padding-block: var(--space-24);
@@ -448,55 +460,48 @@ const team = [
       margin: 0; padding: 0;
       display: grid;
       grid-template-columns: repeat(4, 1fr);
-      gap: var(--space-6);
+      gap: var(--space-4);
     }
     .number-card {
-      position: relative;
-      padding: var(--space-8) var(--space-6);
-      background: linear-gradient(180deg, var(--color-white) 0%, var(--color-alice) 100%);
+      display: flex;
+      align-items: center;
+      gap: var(--space-5);
+      padding: var(--space-6);
+      background: var(--color-white);
       border: 1px solid var(--color-border);
-      border-radius: 20px;
-      text-align: center;
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
-    }
-    .number-card::before {
-      content: "";
-      position: absolute;
-      top: 0; left: 50%;
-      transform: translateX(-50%);
-      width: 60%; height: 5px;
-      background: var(--color-malibu);
-      border-radius: 0 0 4px 4px;
-      transition: width 0.3s ease;
+      border-radius: 14px;
+      transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
     }
     .number-card:hover {
-      transform: translateY(-6px);
-      box-shadow: 0 20px 40px rgba(44, 69, 119, 0.10);
+      transform: translateY(-4px);
+      border-color: var(--color-malibu);
+      box-shadow: 0 14px 28px rgba(44, 69, 119, 0.08);
     }
-    .number-card:hover::before { width: 80%; }
     .number-card__value {
-      display: block;
+      flex-shrink: 0;
       font-family: var(--font-serif, "Plantin", Georgia, serif);
       font-style: italic;
       font-weight: 500;
-      font-size: clamp(4rem, 7vw, 6rem);
+      font-size: 3.25rem;
       line-height: 0.95;
-      color: var(--color-resolution);
-      letter-spacing: -0.045em;
-      margin-bottom: var(--space-4);
+      color: var(--color-malibu);
+      letter-spacing: -0.04em;
+    }
+    .number-card__text {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      min-width: 0;
     }
     .number-card__label {
-      display: block;
       font-family: var(--font-display);
       font-weight: 700;
-      font-size: 0.875rem;
+      font-size: 0.9375rem;
       color: var(--color-resolution);
       letter-spacing: -0.005em;
-      margin-bottom: var(--space-2);
-      line-height: 1.3;
+      line-height: 1.25;
     }
     .number-card__detail {
-      display: block;
       font-size: 0.8125rem;
       color: var(--color-text-muted);
       line-height: 1.5;
@@ -545,11 +550,11 @@ const team = [
       font-family: var(--font-serif, "Plantin", Georgia, serif);
       font-style: italic;
       font-weight: 400;
-      font-size: clamp(1.75rem, 3.5vw, 2.75rem);
-      line-height: 1.35;
+      font-size: clamp(1.75rem, 3.5vw, 2.5rem);
+      line-height: 1.4;
       color: var(--color-white);
       margin: 0 0 var(--space-6);
-      letter-spacing: -0.01em;
+      letter-spacing: -0.005em;
     }
     .mission__quote em {
       font-style: italic;
@@ -561,9 +566,8 @@ const team = [
       line-height: 0;
       vertical-align: -0.2em;
       opacity: 0.35;
-      margin-right: 4px;
+      margin: 0 4px;
     }
-    .mission__close { margin-left: 4px; margin-right: 0; }
     .mission__attribution {
       font-family: var(--font-display);
       font-weight: 700;
@@ -574,16 +578,16 @@ const team = [
     }
 
     /* ============================================
-       Principles (3 cards)
+       Principles — same architecture as homepage vcard
     ============================================ */
     .principles {
       padding-block: var(--space-24);
-      background: var(--color-white);
+      background: var(--color-alice);
     }
     .principles__header {
       text-align: center;
       max-width: 640px;
-      margin: 0 auto var(--space-14);
+      margin: 0 auto var(--space-12);
     }
     .principles__header h2 {
       font-size: clamp(2.25rem, 4vw, 3rem);
@@ -595,35 +599,49 @@ const team = [
       margin: 0; padding: 0;
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: var(--space-6);
+      gap: var(--space-5);
     }
     .principle {
       position: relative;
-      padding: var(--space-8) var(--space-7);
+      display: flex;
+      flex-direction: column;
+      padding: var(--space-7) var(--space-6);
       background: var(--color-white);
       border: 1px solid var(--color-border);
       border-radius: 16px;
-      transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+      overflow: hidden;
+      transition:
+        transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+        box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+        border-color 0.3s ease;
+      min-height: 240px;
     }
     .principle::before {
       content: "";
       position: absolute;
       top: 0; left: 0; right: 0;
-      height: 4px;
+      height: 5px;
       background: var(--color-malibu);
-      border-radius: 16px 16px 0 0;
       transform: scaleX(0.3);
       transform-origin: left;
       transition: transform 0.35s ease;
     }
     .principle:hover {
-      transform: translateY(-6px);
+      transform: translateY(-4px);
       border-color: var(--color-malibu);
-      box-shadow: 0 20px 40px rgba(44, 69, 119, 0.10);
+      box-shadow:
+        0 4px 12px rgba(44, 69, 119, 0.04),
+        0 20px 40px rgba(44, 69, 119, 0.10);
     }
     .principle:hover::before { transform: scaleX(1); }
+
+    .principle__head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: var(--space-5);
+    }
     .principle__num {
-      display: inline-block;
       font-family: var(--font-serif, "Plantin", Georgia, serif);
       font-style: italic;
       font-weight: 500;
@@ -631,25 +649,33 @@ const team = [
       line-height: 1;
       color: var(--color-malibu);
       letter-spacing: -0.03em;
-      margin-bottom: var(--space-5);
     }
-    .principle__eyebrow {
-      font-family: var(--font-display);
-      font-size: 0.6875rem; font-weight: 700;
-      text-transform: uppercase; letter-spacing: 0.16em;
-      color: var(--color-malibu);
-      margin: 0 0 var(--space-2);
+    .principle__dot {
+      width: 10px; height: 10px;
+      background: var(--color-malibu);
+      border-radius: 50%;
+      opacity: 0.25;
+      transition: opacity 0.3s, transform 0.3s;
+    }
+    .principle:hover .principle__dot {
+      opacity: 1;
+      transform: scale(1.4);
     }
     .principle__title {
-      font-size: 1.375rem;
-      margin: 0 0 var(--space-4);
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 1.5rem;
       letter-spacing: -0.015em;
       color: var(--color-resolution);
+      margin: 0 0 var(--space-3);
+      line-height: 1.2;
     }
     .principle__body {
       color: var(--color-text);
+      font-size: 0.9375rem;
       line-height: 1.6;
       margin: 0;
+      flex: 1;
     }
 
     /* ============================================
@@ -657,7 +683,7 @@ const team = [
     ============================================ */
     .money {
       padding-block: var(--space-24);
-      background: var(--color-alice);
+      background: var(--color-white);
     }
     .money__inner {
       display: grid;
@@ -668,7 +694,7 @@ const team = [
     .money__copy h2 {
       font-size: clamp(2rem, 3.5vw, 2.75rem);
       letter-spacing: -0.02em;
-      line-height: 1.1;
+      line-height: 1.15;
       margin-bottom: var(--space-6);
     }
     .money__body {
@@ -678,13 +704,20 @@ const team = [
       margin-bottom: var(--space-5);
     }
     .money__pledge {
-      padding: var(--space-8);
-      background: var(--color-white);
+      padding: var(--space-7);
+      background: linear-gradient(180deg, var(--color-alice) 0%, var(--color-white) 100%);
       border-radius: 16px;
       border: 1px solid var(--color-border);
       box-shadow: 0 4px 24px rgba(44, 69, 119, 0.04);
-      position: sticky;
-      top: calc(var(--header-height) + var(--space-5));
+      position: relative;
+    }
+    .money__pledge::before {
+      content: "";
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 5px;
+      background: var(--color-malibu);
+      border-radius: 16px 16px 0 0;
     }
     .money__pledge-eyebrow {
       font-family: var(--font-display);
@@ -704,27 +737,40 @@ const team = [
     }
     .money__pledge-list li {
       display: flex;
-      align-items: flex-start;
+      align-items: center;
       gap: var(--space-3);
       font-family: var(--font-display);
       font-weight: 600;
       font-size: 0.9375rem;
       color: var(--color-resolution);
-      line-height: 1.4;
+      line-height: 1.3;
     }
-    .money__pledge-list svg { flex-shrink: 0; margin-top: 1px; }
+    .pledge-check {
+      flex-shrink: 0;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 24px; height: 24px;
+      background: var(--color-malibu);
+      color: var(--color-white);
+      border-radius: 50%;
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 0.75rem;
+      line-height: 1;
+    }
 
     /* ============================================
-       Methodology
+       Methodology — vertical timeline
     ============================================ */
     .methodology {
       padding-block: var(--space-24);
-      background: var(--color-white);
+      background: var(--color-alice);
     }
     .methodology__header {
       text-align: center;
       max-width: 720px;
-      margin: 0 auto var(--space-14);
+      margin: 0 auto var(--space-12);
     }
     .methodology__header h2 {
       font-size: clamp(2.25rem, 4vw, 3rem);
@@ -739,38 +785,54 @@ const team = [
     }
     .methodology__steps {
       list-style: none;
-      margin: 0; padding: 0;
-      max-width: 920px;
-      margin-inline: auto;
+      margin: 0 auto; padding: 0;
+      max-width: 760px;
       display: flex;
       flex-direction: column;
-      gap: var(--space-4);
     }
     .method-step {
       display: grid;
-      grid-template-columns: 100px 1fr;
+      grid-template-columns: 80px 1fr;
       gap: var(--space-6);
-      padding: var(--space-7);
-      background: linear-gradient(180deg, var(--color-white) 0%, var(--color-alice) 100%);
-      border: 1px solid var(--color-border);
-      border-radius: 16px;
-      align-items: start;
-      transition: transform 0.2s ease, border-color 0.2s ease;
+      padding-bottom: var(--space-8);
+      align-items: flex-start;
     }
-    .method-step:hover {
-      transform: translateX(4px);
-      border-color: var(--color-malibu);
+    .method-step__rail {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: var(--space-3);
+      height: 100%;
     }
     .method-step__num {
+      flex-shrink: 0;
+      width: 56px; height: 56px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--color-white);
+      border: 2px solid var(--color-malibu);
+      border-radius: 50%;
       font-family: var(--font-serif, "Plantin", Georgia, serif);
       font-style: italic;
       font-weight: 500;
-      font-size: 4rem;
+      font-size: 1.5rem;
       line-height: 1;
       color: var(--color-malibu);
-      letter-spacing: -0.04em;
+      letter-spacing: -0.02em;
+    }
+    .method-step__line {
+      flex: 1;
+      width: 2px;
+      background: linear-gradient(180deg, var(--color-malibu) 0%, rgba(100, 188, 225, 0.2) 100%);
+      min-height: 32px;
+    }
+    .method-step__body {
+      padding-top: var(--space-3);
     }
     .method-step__body h3 {
+      font-family: var(--font-display);
+      font-weight: 700;
       font-size: 1.375rem;
       margin: 0 0 var(--space-3);
       letter-spacing: -0.015em;
@@ -780,19 +842,21 @@ const team = [
       margin: 0;
       line-height: 1.7;
       color: var(--color-text);
+      font-size: 1rem;
     }
+    .method-step:last-child { padding-bottom: 0; }
 
     /* ============================================
        Coverage pills
     ============================================ */
     .coverage {
       padding-block: var(--space-24);
-      background: var(--color-alice);
+      background: var(--color-white);
     }
     .coverage__header {
       text-align: center;
       max-width: 640px;
-      margin: 0 auto var(--space-12);
+      margin: 0 auto var(--space-10);
     }
     .coverage__header h2 {
       font-size: clamp(2rem, 3.5vw, 2.75rem);
@@ -811,19 +875,21 @@ const team = [
       display: inline-flex;
       align-items: center;
       gap: var(--space-3);
-      padding: var(--space-4) var(--space-6);
+      padding: 0.875rem 1.5rem;
       background: var(--color-white);
       border: 1px solid var(--color-border);
       border-radius: 100px;
       text-decoration: none;
       font-family: var(--font-display);
       font-weight: 600;
-      font-size: 1rem;
+      font-size: 0.9375rem;
       color: var(--color-resolution);
       transition: all 0.2s ease;
     }
-    .coverage-pill img {
-      width: 22px; height: 22px;
+    .coverage-pill__dot {
+      width: 10px; height: 10px;
+      background: var(--pill-accent);
+      border-radius: 50%;
       transition: transform 0.2s ease;
     }
     .coverage-pill:hover {
@@ -833,22 +899,22 @@ const team = [
       transform: translateY(-2px);
       box-shadow: 0 8px 16px rgba(44, 69, 119, 0.10);
     }
-    .coverage-pill:hover img {
-      filter: brightness(0) invert(1);
-      transform: scale(1.1);
+    .coverage-pill:hover .coverage-pill__dot {
+      background: var(--color-white);
+      transform: scale(1.3);
     }
 
     /* ============================================
-       Team
+       Team — distinct colored cards
     ============================================ */
     .team {
       padding-block: var(--space-24);
-      background: var(--color-white);
+      background: var(--color-alice);
     }
     .team__header {
       text-align: center;
       max-width: 720px;
-      margin: 0 auto var(--space-14);
+      margin: 0 auto var(--space-12);
     }
     .team__header h2 {
       font-size: clamp(2.25rem, 4vw, 3rem);
@@ -864,43 +930,59 @@ const team = [
     .team__grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: var(--space-6);
+      gap: var(--space-5);
     }
     .team-card {
-      padding: var(--space-7);
+      position: relative;
+      padding: var(--space-7) var(--space-6);
       background: var(--color-white);
       border: 1px solid var(--color-border);
       border-radius: 16px;
       text-align: center;
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+      overflow: hidden;
+    }
+    .team-card::before {
+      content: "";
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 5px;
+      background: var(--team-accent);
     }
     .team-card:hover {
       transform: translateY(-4px);
+      border-color: var(--team-accent);
       box-shadow: 0 16px 32px rgba(44, 69, 119, 0.08);
     }
     .team-card__avatar {
-      width: 96px; height: 96px;
+      width: 88px; height: 88px;
       margin: 0 auto var(--space-5);
-      background: var(--color-alice);
+      background: var(--team-accent);
       border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
-      overflow: hidden;
+      box-shadow: 0 8px 20px color-mix(in srgb, var(--team-accent) 30%, transparent);
     }
-    .team-card__avatar img {
-      width: 80%;
-      height: 80%;
-      object-fit: contain;
+    .team-card__initials {
+      font-family: var(--font-serif, "Plantin", Georgia, serif);
+      font-style: italic;
+      font-weight: 500;
+      font-size: 2.25rem;
+      color: var(--color-white);
+      letter-spacing: -0.02em;
+      line-height: 1;
     }
     .team-card__role {
       font-family: var(--font-display);
-      font-size: 0.75rem; font-weight: 700;
-      text-transform: uppercase; letter-spacing: 0.14em;
-      color: var(--color-malibu);
+      font-size: 0.6875rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.16em;
+      color: var(--team-accent);
       margin: 0 0 var(--space-2);
     }
     .team-card__name {
+      font-family: var(--font-display);
+      font-weight: 700;
       font-size: 1.25rem;
       margin: 0 0 var(--space-3);
       letter-spacing: -0.01em;
@@ -914,7 +996,7 @@ const team = [
     }
 
     /* ============================================
-       Location
+       Location — dark band
     ============================================ */
     .location {
       padding-block: var(--space-24);
@@ -932,14 +1014,22 @@ const team = [
     .location__inner {
       position: relative;
       display: grid;
-      grid-template-columns: 1.5fr 1fr;
+      grid-template-columns: 1.4fr 1fr;
       gap: var(--space-12);
       align-items: center;
+    }
+    .location__eyebrow {
+      display: inline-block;
+      font-family: var(--font-display);
+      font-size: 0.75rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.18em;
+      color: var(--color-malibu);
+      margin: 0 0 var(--space-4);
     }
     .location__copy h2 {
       font-size: clamp(2rem, 3.5vw, 2.75rem);
       letter-spacing: -0.02em;
-      line-height: 1.1;
+      line-height: 1.15;
       margin-bottom: var(--space-6);
       color: var(--color-white);
     }
@@ -962,22 +1052,12 @@ const team = [
       justify-content: center;
     }
     .location__compass {
-      width: 240px; height: 240px;
-      padding: var(--space-6);
+      width: 280px;
+      height: 280px;
+      padding: var(--space-5);
       background: rgba(255, 255, 255, 0.04);
       border-radius: 50%;
       border: 1px solid rgba(255, 255, 255, 0.10);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      animation: compass-rotate 60s linear infinite;
-    }
-    @keyframes compass-rotate {
-      from { transform: rotate(0deg); }
-      to { transform: rotate(360deg); }
-    }
-    @media (prefers-reduced-motion: reduce) {
-      .location__compass { animation: none; }
     }
 
     /* ============================================
@@ -1022,17 +1102,17 @@ const team = [
       .about-hero__art { order: -1; max-width: 240px; margin-inline: auto; }
       .numbers__grid { grid-template-columns: repeat(2, 1fr); }
       .principles__grid { grid-template-columns: 1fr; }
+      .principle { min-height: 0; }
       .money__inner { grid-template-columns: 1fr; }
-      .money__pledge { position: static; }
       .team__grid { grid-template-columns: 1fr; }
       .location__inner { grid-template-columns: 1fr; }
       .location__art { order: -1; }
-      .location__compass { width: 180px; height: 180px; }
+      .location__compass { width: 200px; height: 200px; }
     }
     @media (max-width: 600px) {
       .numbers__grid { grid-template-columns: 1fr; }
-      .method-step { grid-template-columns: 1fr; gap: var(--space-3); }
-      .method-step__num { font-size: 3rem; }
+      .method-step { grid-template-columns: 56px 1fr; gap: var(--space-4); }
+      .method-step__num { width: 44px; height: 44px; font-size: 1.25rem; }
       .about-hero__ctas { flex-direction: column; align-items: flex-start; }
     }
   </style>
