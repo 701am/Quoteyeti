@@ -1,0 +1,748 @@
+---
+import BaseLayout from "~/layouts/BaseLayout.astro";
+import type { Vertical } from "~/data/verticals";
+
+interface ReviewProps {
+  vertical: Vertical;
+
+  // Header
+  carrier: {
+    name: string;
+    logo?: string;
+    founded?: number;
+    headline: string;       // "GEICO is the fourth-best..." positioning sentence
+    updated: string;        // "February 11, 2026"
+    author?: { name: string; bio: string };
+    editor?: { name: string };
+  };
+
+  // Key takeaways
+  takeaways: string[];      // 3-5 bullet points
+
+  // Ratings
+  ratings: {
+    overall: number;
+    rank?: number;
+    breakdown: { category: string; score: number; rank?: number }[];
+  };
+
+  // Cost section
+  cost: {
+    summary: string;
+    avgMonthly?: string;
+    avgAnnual?: string;
+    differenceFromAvg?: string;     // "-17%"
+    byCategory?: { category: string; minimum: string; full: string; rank?: number }[];
+  };
+
+  // Customer experience
+  customerExperience: {
+    summary: string;
+    buying: string;
+    policyManagement: string;
+    claims: string;
+  };
+
+  // Industry ratings (AM Best, J.D. Power, etc.)
+  industryRatings: { source: string; score: string; overview: string }[];
+
+  // Discounts (auto only typically)
+  discounts?: { type: string; amount: string; eligibility: string }[];
+
+  // Coverage options
+  coverage: {
+    summary: string;
+    addOns: { name: string; covers: string; features?: string }[];
+  };
+
+  // Pros and cons (overall)
+  pros: string[];
+  cons: string[];
+
+  // Bottom line
+  bottomLine: string;
+
+  // FAQ
+  faqs: { q: string; a: string }[];
+
+  // Methodology
+  methodology: {
+    intro: string;
+    factors: { label: string; weight: string; description: string }[];
+  };
+}
+
+const props = Astro.props as ReviewProps;
+const { vertical, carrier, takeaways, ratings, cost, customerExperience, industryRatings, discounts, coverage, pros, cons, bottomLine, faqs, methodology } = props;
+---
+
+<BaseLayout
+  title={`${carrier.name} ${vertical.label} Review (2026)`}
+  description={carrier.headline}
+>
+
+  <!-- ============== HEADER ============== -->
+  <section class="review-hero">
+    <div class="container">
+      <nav class="breadcrumbs" aria-label="Breadcrumb">
+        <a href="/">Home</a> ›
+        <a href={vertical.path}>{vertical.short}</a> ›
+        <a href={`${vertical.path}reviews/`}>{vertical.short} Reviews</a> ›
+        <span>{carrier.name}</span>
+      </nav>
+
+      <div class="review-hero__head">
+        {carrier.logo && (
+          <div class="review-hero__logo">
+            <img src={carrier.logo} alt={`${carrier.name} logo`} />
+          </div>
+        )}
+        <div class="review-hero__title">
+          <p class="eyebrow">
+            <img src={vertical.icon} alt="" width="18" height="18" />
+            {vertical.label} Review
+          </p>
+          <h1>{carrier.name} {vertical.label} Review</h1>
+          <p class="review-hero__positioning">{carrier.headline}</p>
+
+          <div class="review-hero__meta">
+            <span class="review-hero__updated">Updated: {carrier.updated}</span>
+            {carrier.author && <span class="review-hero__byline">Written by {carrier.author.name}</span>}
+            {carrier.editor && <span class="review-hero__byline">Edited by {carrier.editor.name}</span>}
+          </div>
+        </div>
+      </div>
+
+      <a href={`${vertical.path}quotes/`} class="btn btn-accent review-hero__cta">
+        Get {vertical.short.toLowerCase()} quotes →
+      </a>
+    </div>
+  </section>
+
+  <!-- ============== TWO-COLUMN BODY: TOC + CONTENT ============== -->
+  <div class="review-page container">
+    <div class="review-page__layout">
+
+      <!-- Sticky TOC -->
+      <aside class="toc" aria-label="On this page">
+        <p class="toc__label">On this page</p>
+        <ol>
+          <li><a href="#takeaways">Key takeaways</a></li>
+          <li><a href="#ratings">Ratings</a></li>
+          <li><a href="#cost">How much it costs</a></li>
+          <li><a href="#customer-experience">Customer experience</a></li>
+          <li><a href="#industry-ratings">Industry ratings</a></li>
+          {discounts && <li><a href="#discounts">Discounts</a></li>}
+          <li><a href="#coverage">Coverage options</a></li>
+          <li><a href="#bottom-line">Bottom line</a></li>
+          <li><a href="#faq">FAQ</a></li>
+          <li><a href="#methodology">Our methodology</a></li>
+        </ol>
+      </aside>
+
+      <article class="review-content">
+
+        <!-- ===== KEY TAKEAWAYS ===== -->
+        <section id="takeaways" class="key-takeaways">
+          <h2>Key takeaways</h2>
+          <ul>
+            {takeaways.map((point) => (
+              <li>
+                <svg class="check-icon" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
+                  <circle cx="12" cy="12" r="11" fill="var(--section-accent-soft)" />
+                  <path d="M7 12.5l3.5 3.5L17 9" fill="none" stroke="var(--section-accent)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+                <span>{point}</span>
+              </li>
+            ))}
+          </ul>
+        </section>
+
+        <!-- ===== RATINGS ===== -->
+        <section id="ratings">
+          <h2>{carrier.name} ratings</h2>
+          <div class="ratings-overview">
+            <div class="ratings-overview__score">
+              <p class="ratings-overview__label">Overall score</p>
+              <p class="ratings-overview__number">{ratings.overall.toFixed(2)}</p>
+              <p class="ratings-overview__outof">out of 5</p>
+              {ratings.rank && <p class="ratings-overview__rank">National rank: #{ratings.rank}</p>}
+            </div>
+            <table class="ratings-table">
+              <thead>
+                <tr>
+                  <th>Category</th>
+                  <th>Score</th>
+                  {ratings.breakdown.some((b) => b.rank) && <th>Rank</th>}
+                </tr>
+              </thead>
+              <tbody>
+                {ratings.breakdown.map((b) => (
+                  <tr>
+                    <td>{b.category}</td>
+                    <td><span class="score-pill">{b.score.toFixed(2)}</span></td>
+                    {ratings.breakdown.some((x) => x.rank) && <td>{b.rank ? `#${b.rank}` : "—"}</td>}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- ===== COST ===== -->
+        <section id="cost">
+          <h2>How much does {carrier.name} cost?</h2>
+          <p class="prose">{cost.summary}</p>
+
+          {(cost.avgMonthly || cost.avgAnnual) && (
+            <div class="cost-summary">
+              {cost.avgMonthly && (
+                <div class="cost-summary__cell">
+                  <p class="cost-summary__label">Avg monthly</p>
+                  <p class="cost-summary__value">{cost.avgMonthly}</p>
+                </div>
+              )}
+              {cost.avgAnnual && (
+                <div class="cost-summary__cell">
+                  <p class="cost-summary__label">Avg annual</p>
+                  <p class="cost-summary__value">{cost.avgAnnual}</p>
+                </div>
+              )}
+              {cost.differenceFromAvg && (
+                <div class="cost-summary__cell">
+                  <p class="cost-summary__label">vs. national avg</p>
+                  <p class="cost-summary__value cost-summary__value--delta">{cost.differenceFromAvg}</p>
+                </div>
+              )}
+            </div>
+          )}
+
+          {cost.byCategory && cost.byCategory.length > 0 && (
+            <>
+              <h3>Rates by driver category</h3>
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Category</th>
+                    <th>Minimum coverage</th>
+                    <th>Full coverage</th>
+                    {cost.byCategory.some((c) => c.rank) && <th>Rank</th>}
+                  </tr>
+                </thead>
+                <tbody>
+                  {cost.byCategory.map((c) => (
+                    <tr>
+                      <td>{c.category}</td>
+                      <td>{c.minimum}</td>
+                      <td>{c.full}</td>
+                      {cost.byCategory.some((x) => x.rank) && <td>{c.rank ? `#${c.rank}` : "—"}</td>}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </>
+          )}
+        </section>
+
+        <!-- ===== CUSTOMER EXPERIENCE ===== -->
+        <section id="customer-experience">
+          <h2>{carrier.name} customer reviews and reputation</h2>
+          <p class="prose">{customerExperience.summary}</p>
+
+          <div class="cx-cards">
+            <div class="cx-card">
+              <div class="cx-card__icon-wrap" aria-hidden="true">
+                <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="var(--section-accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.5" y2="16.5"/>
+                </svg>
+              </div>
+              <h3 class="cx-card__title">Buying process</h3>
+              <p class="cx-card__body">{customerExperience.buying}</p>
+            </div>
+            <div class="cx-card">
+              <div class="cx-card__icon-wrap" aria-hidden="true">
+                <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="var(--section-accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 10h18M8 4v4M16 4v4"/>
+                </svg>
+              </div>
+              <h3 class="cx-card__title">Policy management</h3>
+              <p class="cx-card__body">{customerExperience.policyManagement}</p>
+            </div>
+            <div class="cx-card">
+              <div class="cx-card__icon-wrap" aria-hidden="true">
+                <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="var(--section-accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M12 2l3 6 7 1-5 5 1 7-6-3-6 3 1-7-5-5 7-1z"/>
+                </svg>
+              </div>
+              <h3 class="cx-card__title">Claims experience</h3>
+              <p class="cx-card__body">{customerExperience.claims}</p>
+            </div>
+          </div>
+        </section>
+
+        <!-- ===== INDUSTRY RATINGS ===== -->
+        <section id="industry-ratings">
+          <h2>Industry ratings</h2>
+          <p class="prose">Independent ratings from major financial strength and customer satisfaction agencies:</p>
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Source</th>
+                <th>Score</th>
+                <th>Overview</th>
+              </tr>
+            </thead>
+            <tbody>
+              {industryRatings.map((r) => (
+                <tr>
+                  <td><strong>{r.source}</strong></td>
+                  <td>{r.score}</td>
+                  <td>{r.overview}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </section>
+
+        <!-- ===== DISCOUNTS ===== -->
+        {discounts && discounts.length > 0 && (
+          <section id="discounts">
+            <h2>{carrier.name} discounts</h2>
+            <p class="prose">{carrier.name} offers {discounts.length} discounts to help reduce your premium:</p>
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Discount</th>
+                  <th>Average savings</th>
+                  <th>Eligibility</th>
+                </tr>
+              </thead>
+              <tbody>
+                {discounts.map((d) => (
+                  <tr>
+                    <td><strong>{d.type}</strong></td>
+                    <td>{d.amount}</td>
+                    <td>{d.eligibility}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </section>
+        )}
+
+        <!-- ===== COVERAGE OPTIONS ===== -->
+        <section id="coverage">
+          <h2>{carrier.name} coverage options</h2>
+          <p class="prose">{coverage.summary}</p>
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Add-on coverage</th>
+                <th>What it covers</th>
+                {coverage.addOns.some((a) => a.features) && <th>Key features</th>}
+              </tr>
+            </thead>
+            <tbody>
+              {coverage.addOns.map((a) => (
+                <tr>
+                  <td><strong>{a.name}</strong></td>
+                  <td>{a.covers}</td>
+                  {coverage.addOns.some((x) => x.features) && <td>{a.features ?? "—"}</td>}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </section>
+
+        <!-- ===== PROS & CONS ===== -->
+        <section class="review-prosCons" id="pros-cons">
+          <h2>Pros and cons</h2>
+          <div class="prosCons-grid">
+            <div class="prosCons__col prosCons__col--pros">
+              <h3>Pros</h3>
+              <ul>{pros.map((p) => <li>{p}</li>)}</ul>
+            </div>
+            <div class="prosCons__col prosCons__col--cons">
+              <h3>Cons</h3>
+              <ul>{cons.map((p) => <li>{p}</li>)}</ul>
+            </div>
+          </div>
+        </section>
+
+        <!-- ===== BOTTOM LINE ===== -->
+        <section id="bottom-line" class="bottom-line">
+          <h2>The bottom line</h2>
+          <div class="prose" set:html={bottomLine} />
+          <a href={`${vertical.path}quotes/`} class="btn btn-accent bottom-line__cta">
+            Get {vertical.short.toLowerCase()} quotes →
+          </a>
+        </section>
+
+        <!-- ===== FAQ ===== -->
+        <section id="faq" class="review-faq">
+          <h2>Frequently asked questions</h2>
+          {faqs.map((faq) => (
+            <details class="review-faq__item">
+              <summary>{faq.q}</summary>
+              <p>{faq.a}</p>
+            </details>
+          ))}
+        </section>
+
+        <!-- ===== METHODOLOGY ===== -->
+        <section id="methodology" class="methodology">
+          <h2>How we rated {carrier.name}</h2>
+          <p class="prose">{methodology.intro}</p>
+          <div class="methodology__factors">
+            {methodology.factors.map((f) => (
+              <div class="methodology__factor">
+                <p class="methodology__weight">{f.weight}</p>
+                <h3 class="methodology__label">{f.label}</h3>
+                <p class="methodology__desc">{f.description}</p>
+              </div>
+            ))}
+          </div>
+
+          {carrier.author && (
+            <div class="author-bio">
+              <h3>About {carrier.author.name}</h3>
+              <p>{carrier.author.bio}</p>
+            </div>
+          )}
+        </section>
+
+      </article>
+    </div>
+  </div>
+
+  <style>
+    /* ==================================================
+       Hero
+    ================================================== */
+    .review-hero {
+      padding-block: var(--space-12) var(--space-10);
+      background: var(--section-accent-soft);
+    }
+    .breadcrumbs { font-size: 0.875rem; color: var(--color-text-muted); margin-bottom: var(--space-5); }
+    .breadcrumbs a { color: var(--color-text-muted); }
+    .breadcrumbs a:hover { color: var(--section-accent); }
+    .review-hero__head {
+      display: flex; align-items: flex-start; gap: var(--space-6);
+      margin-bottom: var(--space-6);
+    }
+    .review-hero__logo {
+      flex-shrink: 0;
+      width: 88px; height: 88px;
+      background: var(--color-white);
+      border-radius: var(--radius);
+      padding: var(--space-3);
+      box-shadow: var(--shadow-sm);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .review-hero__logo img { max-width: 100%; max-height: 100%; object-fit: contain; }
+    .review-hero__title { flex: 1; }
+    .eyebrow {
+      display: inline-flex; align-items: center; gap: var(--space-2);
+      font-family: var(--font-display); font-size: 0.8125rem; font-weight: 600;
+      text-transform: uppercase; letter-spacing: 0.12em;
+      color: var(--section-accent);
+      background: var(--color-white);
+      padding: var(--space-2) var(--space-3);
+      border-radius: 100px;
+      margin-bottom: var(--space-4);
+    }
+    .review-hero h1 { margin-bottom: var(--space-3); }
+    .review-hero__positioning {
+      font-size: 1.25rem;
+      color: var(--color-text-strong);
+      margin: 0 0 var(--space-5);
+      max-width: 720px;
+      line-height: 1.5;
+    }
+    .review-hero__meta {
+      display: flex; flex-wrap: wrap; gap: var(--space-5);
+      font-size: 0.875rem;
+      color: var(--color-text-muted);
+    }
+    .review-hero__updated::before { content: "📅 "; }
+    .review-hero__cta { margin-top: var(--space-4); }
+
+    /* ==================================================
+       Two-column layout
+    ================================================== */
+    .review-page { padding-block: var(--space-12) var(--space-20); }
+    .review-page__layout {
+      display: grid;
+      grid-template-columns: 240px 1fr;
+      gap: var(--space-12);
+      align-items: start;
+    }
+    .toc {
+      position: sticky;
+      top: calc(var(--header-height) + var(--space-5));
+      padding: var(--space-5);
+      background: var(--color-alice);
+      border-radius: var(--radius);
+      border-left: 4px solid var(--section-accent);
+    }
+    .toc__label {
+      font-family: var(--font-display); font-weight: 700;
+      font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.12em;
+      color: var(--color-text-muted);
+      margin: 0 0 var(--space-3);
+    }
+    .toc ol { list-style: none; margin: 0; padding: 0; counter-reset: toc; }
+    .toc li { counter-increment: toc; margin-bottom: var(--space-2); font-size: 0.875rem; }
+    .toc li::before {
+      content: counter(toc) ".";
+      color: var(--color-text-muted);
+      margin-right: var(--space-2);
+      font-family: var(--font-display); font-weight: 600;
+    }
+    .toc a { color: var(--color-text-strong); }
+    .toc a:hover { color: var(--section-accent); }
+
+    .review-content section { margin-bottom: var(--space-16); scroll-margin-top: 100px; }
+    .review-content h2 {
+      font-size: 1.875rem;
+      margin: 0 0 var(--space-6);
+      padding-bottom: var(--space-3);
+      border-bottom: 1px solid var(--color-border);
+    }
+    .review-content h3 { font-size: 1.25rem; margin-top: var(--space-8); margin-bottom: var(--space-4); }
+    .prose { line-height: 1.7; margin-bottom: var(--space-5); }
+    .prose :global(p) { margin-bottom: var(--space-5); }
+
+    /* ==================================================
+       Key Takeaways
+    ================================================== */
+    .key-takeaways ul {
+      list-style: none; margin: 0; padding: 0;
+      display: flex; flex-direction: column; gap: var(--space-4);
+    }
+    .key-takeaways li {
+      display: flex; gap: var(--space-4);
+      padding: var(--space-4) var(--space-5);
+      background: var(--color-white);
+      border: 1px solid var(--color-border);
+      border-left: 4px solid var(--section-accent);
+      border-radius: var(--radius);
+      line-height: 1.5;
+    }
+    .check-icon { flex-shrink: 0; margin-top: 2px; }
+
+    /* ==================================================
+       Ratings
+    ================================================== */
+    .ratings-overview {
+      display: grid;
+      grid-template-columns: 200px 1fr;
+      gap: var(--space-8);
+      align-items: start;
+      padding: var(--space-6);
+      background: var(--color-alice);
+      border-radius: var(--radius-lg);
+    }
+    .ratings-overview__score { text-align: center; }
+    .ratings-overview__label {
+      font-family: var(--font-display); font-size: 0.75rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.12em;
+      color: var(--color-text-muted);
+      margin: 0;
+    }
+    .ratings-overview__number {
+      font-family: var(--font-serif); font-style: italic; font-weight: 700;
+      font-size: 4rem; line-height: 1;
+      color: var(--section-accent);
+      margin: var(--space-2) 0;
+    }
+    .ratings-overview__outof { color: var(--color-text-muted); margin: 0; font-size: 0.875rem; }
+    .ratings-overview__rank {
+      margin-top: var(--space-3);
+      font-family: var(--font-display); font-weight: 600;
+      color: var(--color-resolution);
+    }
+
+    /* ==================================================
+       Data tables
+    ================================================== */
+    .ratings-table, .data-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9375rem;
+    }
+    .ratings-table th, .data-table th {
+      text-align: left;
+      padding: var(--space-3) var(--space-4);
+      background: var(--section-accent-soft);
+      color: var(--color-resolution);
+      font-family: var(--font-display); font-weight: 600;
+      font-size: 0.75rem;
+      text-transform: uppercase; letter-spacing: 0.08em;
+      border-bottom: 2px solid var(--section-accent);
+    }
+    .ratings-table td, .data-table td {
+      padding: var(--space-3) var(--space-4);
+      border-bottom: 1px solid var(--color-border);
+      vertical-align: top;
+    }
+    .ratings-table tr:hover td, .data-table tr:hover td { background: var(--color-alice); }
+    .score-pill {
+      display: inline-block;
+      background: var(--section-accent-soft);
+      color: var(--section-accent);
+      font-family: var(--font-display); font-weight: 700;
+      padding: var(--space-1) var(--space-3);
+      border-radius: 100px;
+      font-size: 0.875rem;
+    }
+
+    /* ==================================================
+       Cost summary
+    ================================================== */
+    .cost-summary {
+      display: grid; grid-template-columns: repeat(3, 1fr);
+      gap: var(--space-4);
+      margin-block: var(--space-6);
+    }
+    .cost-summary__cell {
+      padding: var(--space-5);
+      background: var(--section-accent-soft);
+      border-radius: var(--radius);
+      text-align: center;
+    }
+    .cost-summary__label {
+      font-family: var(--font-display); font-size: 0.75rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.12em;
+      color: var(--color-text-muted);
+      margin: 0 0 var(--space-2);
+    }
+    .cost-summary__value {
+      font-family: var(--font-display); font-weight: 700;
+      font-size: 1.875rem;
+      color: var(--section-accent);
+      margin: 0;
+    }
+    .cost-summary__value--delta { font-size: 1.5rem; }
+
+    /* ==================================================
+       Customer experience cards
+    ================================================== */
+    .cx-cards {
+      display: grid; grid-template-columns: repeat(3, 1fr);
+      gap: var(--space-5);
+      margin-top: var(--space-6);
+    }
+    .cx-card {
+      padding: var(--space-6);
+      background: var(--color-white);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-lg);
+      border-top: 4px solid var(--section-accent);
+    }
+    .cx-card__icon-wrap {
+      width: 48px; height: 48px;
+      background: var(--section-accent-soft);
+      border-radius: var(--radius);
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: var(--space-4);
+    }
+    .cx-card__title { font-size: 1.125rem; margin: 0 0 var(--space-3); }
+    .cx-card__body { font-size: 0.9375rem; line-height: 1.6; margin: 0; }
+
+    /* ==================================================
+       Pros & cons
+    ================================================== */
+    .prosCons-grid {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: var(--space-5);
+    }
+    .prosCons__col {
+      padding: var(--space-6);
+      border-radius: var(--radius-lg);
+    }
+    .prosCons__col--pros { background: #F1F6E5; border-left: 4px solid #8FB339; }
+    .prosCons__col--cons { background: #FCF0EF; border-left: 4px solid #F46036; }
+    .prosCons__col h3 { font-size: 1.25rem; margin: 0 0 var(--space-4); }
+    .prosCons__col ul { margin: 0; padding-left: var(--space-5); }
+    .prosCons__col li { margin-bottom: var(--space-3); line-height: 1.5; }
+
+    /* ==================================================
+       Bottom line
+    ================================================== */
+    .bottom-line {
+      padding: var(--space-8);
+      background: var(--section-accent-soft);
+      border-radius: var(--radius-lg);
+      border-left: 4px solid var(--section-accent);
+    }
+    .bottom-line h2 { border-bottom: 0; padding-bottom: 0; }
+    .bottom-line__cta { margin-top: var(--space-4); }
+
+    /* ==================================================
+       FAQ
+    ================================================== */
+    .review-faq__item {
+      background: var(--color-white);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius);
+      margin-bottom: var(--space-3);
+    }
+    .review-faq__item summary {
+      cursor: pointer;
+      padding: var(--space-4) var(--space-5);
+      font-family: var(--font-display); font-weight: 600;
+      color: var(--color-resolution);
+      list-style: none;
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .review-faq__item summary::-webkit-details-marker { display: none; }
+    .review-faq__item summary::after { content: "+"; font-size: 1.5rem; color: var(--section-accent); }
+    .review-faq__item[open] summary::after { content: "−"; }
+    .review-faq__item p { padding: 0 var(--space-5) var(--space-4); margin: 0; color: var(--color-text); line-height: 1.6; }
+
+    /* ==================================================
+       Methodology
+    ================================================== */
+    .methodology__factors {
+      display: grid; grid-template-columns: repeat(3, 1fr);
+      gap: var(--space-5);
+      margin-top: var(--space-6);
+    }
+    .methodology__factor {
+      padding: var(--space-5);
+      background: var(--color-white);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius);
+    }
+    .methodology__weight {
+      font-family: var(--font-serif); font-style: italic; font-weight: 700;
+      font-size: 2rem;
+      color: var(--section-accent);
+      margin: 0 0 var(--space-2);
+      line-height: 1;
+    }
+    .methodology__label { font-size: 1rem; margin: 0 0 var(--space-2); }
+    .methodology__desc { font-size: 0.875rem; color: var(--color-text); margin: 0; line-height: 1.5; }
+    .author-bio {
+      margin-top: var(--space-12);
+      padding-top: var(--space-8);
+      border-top: 1px solid var(--color-border);
+    }
+    .author-bio h3 { font-size: 1.125rem; margin-bottom: var(--space-3); }
+    .author-bio p { line-height: 1.6; }
+
+    /* ==================================================
+       Responsive
+    ================================================== */
+    @media (max-width: 950px) {
+      .review-page__layout { grid-template-columns: 1fr; }
+      .toc { position: static; }
+      .ratings-overview { grid-template-columns: 1fr; text-align: center; }
+      .cost-summary, .cx-cards, .methodology__factors, .prosCons-grid { grid-template-columns: 1fr; }
+      .review-hero__head { flex-direction: column; }
+      .data-table, .ratings-table { font-size: 0.875rem; }
+      .data-table th, .data-table td, .ratings-table th, .ratings-table td { padding: var(--space-2) var(--space-3); }
+    }
+  </style>
+</BaseLayout>

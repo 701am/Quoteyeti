@@ -1,0 +1,33 @@
+---
+import BestOfHub from "~/layouts/BestOfHub.astro";
+import { VERTICALS } from "~/data/verticals";
+const v = VERTICALS.life;
+---
+
+<BestOfHub
+  vertical={v}
+  hero={{
+    headline: "Best Life Insurance Companies of 2026",
+    lede: "We ranked the top life insurers on rate competitiveness, underwriting flexibility, and financial strength. Compare term, whole, and universal options.",
+  }}
+  intro={`<p>Lorem ipsum dolor sit amet — life insurance is the rare purchase where "cheapest" isn't always best. Financial strength matters because the policy might pay out 40 years from now.</p><p>Sed do eiusmod tempor — we weighted financial strength (40%), rate competitiveness (35%), and product variety (25%). Rates are quoted for a 35-year-old non-smoker buying a 20-year, $500,000 term policy.</p>`}
+  carriers={[
+    { rank: 1, name: "Northwestern Mutual", score: 4.72, bestFor: "Financial strength", monthlyRate: "$28/mo", description: "Lorem ipsum dolor sit amet — Northwestern Mutual carries the highest financial strength ratings from every major agency and consistently pays the largest dividends in the industry.", pros: ["Highest financial strength rating", "Large policyholder dividends", "Broadest product lineup"], cons: ["Sold only through career agents", "Whole life products lean expensive"] },
+    { rank: 2, name: "Haven Life", score: 4.55, bestFor: "Term life, online buying", monthlyRate: "$22/mo", description: "Sed do eiusmod tempor — Haven Life (backed by MassMutual) offers fast, fully-online term issue with no medical exam for eligible applicants up to $1M.", pros: ["Apply and get approved online in minutes", "No-exam options up to $1M", "Backed by MassMutual"], cons: ["Term only, no whole or universal", "Age cap on no-exam pathway"] },
+    { rank: 3, name: "Banner Life", score: 4.48, bestFor: "Lowest term rates", monthlyRate: "$19/mo", description: "Ut enim ad minim veniam — Banner consistently quotes the lowest rates for healthy applicants on standard 20- and 30-year term policies.", pros: ["Cheapest term rates for healthy applicants", "Generous health classification", "Available in 49 states"], cons: ["Not available in New York", "Limited permanent product options"] },
+    { rank: 4, name: "MassMutual", score: 4.42, bestFor: "Whole life", monthlyRate: "$34/mo", description: "Duis aute irure dolor — MassMutual is the heavyweight in participating whole life, with strong dividend history and flexible policy design.", pros: ["Strong whole life dividend history", "Flexible riders and design options", "Excellent financial ratings"], cons: ["Term pricing is mid-pack", "Agent-driven sales model"] },
+    { rank: 5, name: "Pacific Life", score: 4.21, bestFor: "Indexed universal life", monthlyRate: "$31/mo", description: "Excepteur sint occaecat — Pacific Life leads in indexed universal life with strong cap rates and multiple crediting strategies.", pros: ["Top-tier IUL product design", "Strong cap rates", "Robust riders"], cons: ["Complex products require expert review", "Less competitive on term"] },
+    { rank: 6, name: "Guardian Life", score: 4.08, bestFor: "Permanent coverage with riders", monthlyRate: "$36/mo", description: "Lorem ipsum — Guardian's whole life products and rider availability make them strong for buyers building cash-value strategies.", pros: ["Strong rider lineup", "Long dividend history", "Good underwriting for some health conditions"], cons: ["Premium-heavy products", "Limited online presence"] },
+  ]}
+  methodologyPoints={[
+    "Financial strength (40%): combined AM Best, S&P, Moody's, and Fitch ratings",
+    "Rate competitiveness (35%): quotes pulled for 35-year-old non-smoker, $500K 20-year term across multiple health classifications",
+    "Product variety (25%): availability of term, whole, universal, indexed UL, plus quality of riders",
+    "Note: rates vary dramatically by age and health — your actual quote will differ",
+  ]}
+  faqs={[
+    { q: "Term or whole life?", a: "Lorem ipsum dolor sit amet — term for most people; whole life only if you have specific estate planning or cash value needs." },
+    { q: "How much coverage do I need?", a: "Sed do eiusmod tempor — common rule is 10-12× annual income, but it depends heavily on debts, dependents, and goals." },
+    { q: "Can I skip the medical exam?", a: "Ut enim ad minim — yes, several carriers offer no-exam policies up to $1M for healthy applicants under age 60." },
+  ]}
+/>

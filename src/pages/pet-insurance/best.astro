@@ -1,0 +1,33 @@
+---
+import BestOfHub from "~/layouts/BestOfHub.astro";
+import { VERTICALS } from "~/data/verticals";
+const v = VERTICALS.pet;
+---
+
+<BestOfHub
+  vertical={v}
+  hero={{
+    headline: "Best Pet Insurance Companies of 2026",
+    lede: "Compare the top pet insurance providers on coverage, claims experience, breed-specific exclusions, and reimbursement structure.",
+  }}
+  intro={`<p>Lorem ipsum dolor sit amet — pet insurance is unusual in that almost every plan excludes pre-existing conditions, and definitions of "pre-existing" vary widely between carriers.</p><p>Sed do eiusmod tempor — we weighted coverage breadth (40%), claims experience (35%), and value (25%). Premiums quoted for a 3-year-old, medium-breed mixed dog with $5,000 annual limit and 80% reimbursement.</p>`}
+  carriers={[
+    { rank: 1, name: "Healthy Paws", score: 4.65, bestFor: "Lifetime conditions", monthlyRate: "$48/mo", description: "Lorem ipsum dolor sit amet — Healthy Paws is one of the only carriers with no annual or lifetime payout caps, which matters most for chronic conditions.", pros: ["No annual or lifetime payout caps", "Fast claim processing", "Includes hereditary conditions"], cons: ["No wellness coverage option", "Higher rates for older pets"] },
+    { rank: 2, name: "Lemonade Pet", score: 4.42, bestFor: "Fast claims", monthlyRate: "$32/mo", description: "Sed do eiusmod tempor — Lemonade's app-based pet insurance pays straightforward claims in minutes and offers a clean experience for first-time buyers.", pros: ["Fastest claims processing", "Lowest rates for many profiles", "Bundle with renters/home for savings"], cons: ["Annual caps may be too low for some pets", "Wellness add-ons cost extra"] },
+    { rank: 3, name: "Embrace", score: 4.38, bestFor: "Wellness add-ons", monthlyRate: "$44/mo", description: "Ut enim ad minim veniam — Embrace's optional Wellness Rewards add-on reimburses routine care like checkups, vaccines, and dental cleanings.", pros: ["Strong wellness package option", "Diminishing deductible feature", "Covers exam fees"], cons: ["Slightly higher premiums than Lemonade", "Some breed-specific exclusions"] },
+    { rank: 4, name: "Trupanion", score: 4.25, bestFor: "Direct vet payment", monthlyRate: "$58/mo", description: "Duis aute irure dolor — Trupanion is the rare carrier that can pay the vet directly at checkout, so you don't have to front the cost and wait for reimbursement.", pros: ["Direct vet payment at checkout (Trupanion Express)", "No payout limits", "Covers prosthetics and implants"], cons: ["Among the more expensive options", "30-day waiting period for illness"] },
+    { rank: 5, name: "Spot", score: 4.12, bestFor: "Customizable limits", monthlyRate: "$36/mo", description: "Excepteur sint occaecat — Spot lets you build your policy with deductibles from $100 to $1,000 and reimbursement levels from 70% to 90%.", pros: ["Highly customizable policy", "Microchip and behavioral therapy covered", "Multi-pet discount"], cons: ["Newer brand", "Wait periods on certain conditions"] },
+    { rank: 6, name: "Fetch (Pet Insurance)", score: 4.05, bestFor: "Comprehensive coverage", monthlyRate: "$42/mo", description: "Lorem ipsum — Fetch (formerly Petplan) includes behavioral therapy, holistic care, and exam fees in its base policy at competitive rates.", pros: ["Includes behavioral therapy and holistic care", "Covers exam fees by default", "No upper age limit"], cons: ["6-month waiting period for orthopedic conditions", "Slower claim turnaround"] },
+  ]}
+  methodologyPoints={[
+    "Coverage breadth (40%): hereditary, behavioral, dental, exam fees, prescription coverage, alternative therapies",
+    "Claims experience (35%): average claim turnaround, satisfaction surveys, denial rates",
+    "Value (25%): premium relative to coverage limits and deductible structure",
+    "Baseline: 3-year-old medium-breed mixed dog, $5K annual limit, $250 deductible, 80% reimbursement",
+  ]}
+  faqs={[
+    { q: "Is pet insurance worth it?", a: "Lorem ipsum dolor sit amet — yes for most pets, especially purebreds with known hereditary conditions. Math heavily favors enrollment before any health issues develop." },
+    { q: "What's not covered?", a: "Sed do eiusmod tempor — pre-existing conditions are excluded by every carrier. Routine care (vaccines, dental cleanings) require a wellness add-on." },
+    { q: "Should I get accident-only or comprehensive?", a: "Ut enim ad minim — accident-only is much cheaper but limited. Most owners are better served by accident + illness, with wellness optional." },
+  ]}
+/>

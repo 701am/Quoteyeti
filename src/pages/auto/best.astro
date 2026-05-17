@@ -1,0 +1,34 @@
+---
+import BestOfHub from "~/layouts/BestOfHub.astro";
+import { VERTICALS } from "~/data/verticals";
+
+const v = VERTICALS.auto;
+---
+
+<BestOfHub
+  vertical={v}
+  hero={{
+    headline: "Best Car Insurance Companies of 2026",
+    lede: "We ranked the top auto insurers on rates, customer satisfaction, claims experience, and coverage breadth. Here's how they stack up.",
+  }}
+  intro={`<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. The best car insurance company depends on what you actually need — cheapest premium, best claims handling, broadest coverage, or strongest digital tools.</p><p>Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. We weighted three factors: cost (60%), customer satisfaction (30%), and coverage breadth (10%). Each carrier was scored using a baseline 40-year-old driver with good credit and a clean record.</p><p>Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Skip to the carrier that fits your profile, or read all six summaries below.</p>`}
+  carriers={[
+    { rank: 1, name: "USAA", score: 4.86, bestFor: "Military families", monthlyRate: "$87/mo", description: "Lorem ipsum dolor sit amet — USAA dominates the rankings on customer satisfaction and affordability, but only military members and their families qualify.", pros: ["Lowest rates for most profiles", "Industry-leading customer satisfaction", "Strong claims experience"], cons: ["Membership restricted to military", "Limited local agent network"], href: "/auto/reviews/usaa-insurance/" },
+    { rank: 2, name: "GEICO", score: 4.34, bestFor: "Affordability", monthlyRate: "$96/mo", description: "Sed do eiusmod tempor incididunt — GEICO ranks second on affordability for most driver categories, with strong digital tools but mixed claims-handling reviews.", pros: ["Competitive rates across most profiles", "Excellent mobile app", "15+ available discounts"], cons: ["Below-average for complex claims", "Limited agent-based service"], href: "/auto/reviews/geico-insurance/" },
+    { rank: 3, name: "Travelers", score: 4.5, bestFor: "Coverage variety", monthlyRate: "$112/mo", description: "Ut enim ad minim veniam — Travelers wins on coverage breadth and customer experience, but premiums run higher than GEICO and Progressive for most profiles.", pros: ["Strongest coverage options in the market", "Above-average customer experience", "Solid claims process"], cons: ["Higher base premiums", "Fewer discounts than competitors"] },
+    { rank: 4, name: "State Farm", score: 4.15, bestFor: "Agent service", monthlyRate: "$103/mo", description: "Duis aute irure dolor — State Farm is the choice for drivers who want a local agent. Slightly higher rates trade off for the longest-standing customer service reputation.", pros: ["Massive local agent network", "Strong financial stability", "Solid customer loyalty programs"], cons: ["Higher rates for young drivers", "Less competitive on bundling"], href: "/auto/reviews/state-farm-insurance/" },
+    { rank: 5, name: "Progressive", score: 4.2, bestFor: "High-risk drivers", monthlyRate: "$108/mo", description: "Excepteur sint occaecat cupidatat — Progressive's Name Your Price tool and high-risk underwriting make it the go-to for drivers with accidents, DUIs, or coverage lapses.", pros: ["Strong for high-risk profiles", "Name Your Price comparison tool", "Wide range of usage-based options"], cons: ["Mixed customer experience scores", "Rates can climb quickly on renewal"], href: "/auto/reviews/progressive-insurance/" },
+    { rank: 6, name: "Nationwide", score: 4.05, bestFor: "Bundling", monthlyRate: "$118/mo", description: "Lorem ipsum dolor sit amet — Nationwide isn't the cheapest standalone option but offers some of the strongest bundling discounts when combined with home or renters.", pros: ["Significant bundling savings", "SmartRide telematics program", "Vanishing deductible feature"], cons: ["Pricier than competitors standalone", "Mixed claims satisfaction"], href: "/auto/reviews/nationwide-insurance/" },
+  ]}
+  methodologyPoints={[
+    "Cost (60%): rates pulled across multiple driver profiles in every ZIP code, measuring how competitively each carrier prices against local competition",
+    "Customer satisfaction (30%): combined J.D. Power scores, NAIC complaint ratios, and aggregated review platform sentiment",
+    "Coverage variety (10%): breadth of base coverage plus available add-ons, evaluated against industry norms",
+    "Baseline profile: 40-year-old driver, 2012 mid-size sedan, clean record, good credit, 12,000 annual miles",
+  ]}
+  faqs={[
+    { q: "What's the cheapest car insurance company?", a: "Lorem ipsum dolor sit amet — USAA is cheapest if you qualify; GEICO is cheapest for most other drivers." },
+    { q: "How do I switch carriers?", a: "Sed do eiusmod tempor incididunt — get the new policy active first, then cancel the old one. Avoid a coverage gap." },
+    { q: "Does credit score affect my rate?", a: "Ut enim ad minim veniam — in most states, yes. California, Hawaii, Massachusetts, and Michigan prohibit credit-based pricing." },
+  ]}
+/>

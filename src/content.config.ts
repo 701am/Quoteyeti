@@ -20,14 +20,108 @@ const baseEntry = z.object({
 });
 
 /**
- * Brand pages (auto vertical) — make/model insurance rate guides.
- * Migrated from WP /brands/* to /auto/brands/*.
+ * Rich review schema — used by all 8 verticals for carrier reviews.
+ * Matches the ReviewLayout component expectations.
+ */
+const reviewSchema = baseEntry.extend({
+  // Carrier identification
+  company: z.string(),
+  companyLogo: z.string().optional(),
+  websiteUrl: z.string().optional(),
+  phoneNumber: z.string().optional(),
+  address: z.string().optional(),
+  foundedYear: z.number().optional(),
+
+  // Hero / positioning
+  positioning: z.string(),                  // e.g. "GEICO is the fourth-best..."
+  editor: z.string().optional(),
+
+  // Key takeaways
+  takeaways: z.array(z.string()).default([]),
+
+  // Ratings
+  overallScore: z.number().min(0).max(5),
+  overallRank: z.number().optional(),
+  ratings: z.array(z.object({
+    category: z.string(),
+    score: z.number().min(0).max(5),
+    rank: z.number().optional(),
+  })).default([]),
+
+  // Cost
+  costSummary: z.string().optional(),
+  avgMonthly: z.string().optional(),
+  avgAnnual: z.string().optional(),
+  differenceFromAvg: z.string().optional(),
+  costByCategory: z.array(z.object({
+    category: z.string(),
+    minimum: z.string(),
+    full: z.string(),
+    rank: z.number().optional(),
+  })).optional(),
+
+  // Customer experience
+  cxSummary: z.string().optional(),
+  cxBuying: z.string().optional(),
+  cxPolicyManagement: z.string().optional(),
+  cxClaims: z.string().optional(),
+
+  // Industry ratings
+  industryRatings: z.array(z.object({
+    source: z.string(),
+    score: z.string(),
+    overview: z.string(),
+  })).optional(),
+
+  // Discounts (auto vertical primarily)
+  discounts: z.array(z.object({
+    type: z.string(),
+    amount: z.string(),
+    eligibility: z.string(),
+  })).optional(),
+
+  // Coverage
+  coverageSummary: z.string().optional(),
+  coverageAddOns: z.array(z.object({
+    name: z.string(),
+    covers: z.string(),
+    features: z.string().optional(),
+  })).optional(),
+
+  // Pros / Cons / Bottom line
+  pros: z.array(z.string()).default([]),
+  cons: z.array(z.string()).default([]),
+  bottomLine: z.string().optional(),
+
+  // FAQ
+  faqs: z.array(z.object({
+    q: z.string(),
+    a: z.string(),
+  })).optional(),
+
+  // Methodology
+  methodologyIntro: z.string().optional(),
+  methodologyFactors: z.array(z.object({
+    label: z.string(),
+    weight: z.string(),
+    description: z.string(),
+  })).optional(),
+
+  // Author bio (overrides global author)
+  authorBio: z.string().optional(),
+
+  // Star rating shown on listing pages
+  starRating: z.number().min(0).max(5).optional(),
+});
+
+/**
+ * Brand pages (auto vertical only).
  */
 const autoBrands = defineCollection({
   loader: glob({ pattern: "**/*.{md,mdx}", base: "./src/content/auto/brands" }),
   schema: baseEntry.extend({
-    brand: z.string().optional(),       // "BMW", "Honda"
-    model: z.string().optional(),       // "M3", "Civic"
+    brand: z.string().optional(),
+    model: z.string().optional(),
     year: z.number().optional(),
     averageRate: z.number().optional(),
     minRate: z.number().optional(),
@@ -39,29 +133,26 @@ const autoBrands = defineCollection({
 });
 
 /**
- * Reviews (auto vertical) — insurance carrier reviews.
- * Migrated from WP /reviews/* to /auto/reviews/*.
+ * Reviews — one collection per vertical, all using the rich review schema.
  */
-const autoReviews = defineCollection({
-  loader: glob({ pattern: "**/*.{md,mdx}", base: "./src/content/auto/reviews" }),
-  schema: baseEntry.extend({
-    company: z.string().optional(),
-    companyLogo: z.string().optional(),
-    starRating: z.number().min(0).max(5).optional(),
-    websiteUrl: z.string().optional(),
-    phoneNumber: z.string().optional(),
-    address: z.string().optional(),
-    officesCount: z.number().optional(),
-    foundedYear: z.number().optional(),
-    pros: z.array(z.string()).optional(),
-    cons: z.array(z.string()).optional(),
-    mediaAlphaResult: z.string().optional(),
-  }),
-});
+function reviewCollection(verticalSlug: string) {
+  return defineCollection({
+    loader: glob({ pattern: "**/*.{md,mdx}", base: `./src/content/${verticalSlug}/reviews` }),
+    schema: reviewSchema,
+  });
+}
+
+const autoReviews = reviewCollection("auto");
+const homeReviews = reviewCollection("home");
+const lifeReviews = reviewCollection("life");
+const businessReviews = reviewCollection("business");
+const healthReviews = reviewCollection("health");
+const rentersReviews = reviewCollection("renters");
+const petReviews = reviewCollection("pet");
+const travelReviews = reviewCollection("travel");
 
 /**
- * Locations (auto vertical) — state/city auto insurance guides.
- * Migrated from WP /locations/* to /auto/locations/*.
+ * Locations (auto vertical only).
  */
 const autoLocations = defineCollection({
   loader: glob({ pattern: "**/*.{md,mdx}", base: "./src/content/auto/locations" }),
@@ -75,9 +166,6 @@ const autoLocations = defineCollection({
   }),
 });
 
-/**
- * Glossary entries (auto vertical).
- */
 const autoGlossary = defineCollection({
   loader: glob({ pattern: "**/*.{md,mdx}", base: "./src/content/auto/glossary" }),
   schema: baseEntry.extend({
@@ -86,9 +174,6 @@ const autoGlossary = defineCollection({
   }),
 });
 
-/**
- * FAQ entries (auto vertical).
- */
 const autoFaqs = defineCollection({
   loader: glob({ pattern: "**/*.{md,mdx}", base: "./src/content/auto/faqs" }),
   schema: baseEntry.extend({
@@ -98,13 +183,14 @@ const autoFaqs = defineCollection({
 });
 
 /**
- * Vertical-specific content collections.
- * Each vertical gets its own folder under src/content/{vertical}/.
- * For now: just guide-style entries; expand later with reviews/locations as needed.
+ * Generic vertical guides (excludes reviews — those are separate).
  */
 function verticalGuides(slug: string) {
   return defineCollection({
-    loader: glob({ pattern: "**/*.{md,mdx}", base: `./src/content/${slug}` }),
+    loader: glob({
+      pattern: ["**/*.{md,mdx}", "!reviews/**"],
+      base: `./src/content/${slug}`,
+    }),
     schema: baseEntry.extend({
       vertical: z.string().optional(),
       subcategory: z.string().optional(),
@@ -121,9 +207,6 @@ const renters = verticalGuides("renters");
 const pet = verticalGuides("pet");
 const travel = verticalGuides("travel");
 
-/**
- * Cross-cutting collections.
- */
 const pages = defineCollection({
   loader: glob({ pattern: "**/*.{md,mdx}", base: "./src/content/pages" }),
   schema: baseEntry.extend({
@@ -141,9 +224,6 @@ const posts = defineCollection({
   }),
 });
 
-/**
- * Marketing-style hub content per vertical (overrides defaults in vertical landing pages).
- */
 const verticals = defineCollection({
   loader: glob({ pattern: "**/*.{md,mdx}", base: "./src/content/verticals" }),
   schema: z.object({
@@ -157,6 +237,13 @@ const verticals = defineCollection({
 export const collections = {
   "auto-brands": autoBrands,
   "auto-reviews": autoReviews,
+  "home-reviews": homeReviews,
+  "life-reviews": lifeReviews,
+  "business-reviews": businessReviews,
+  "health-reviews": healthReviews,
+  "renters-reviews": rentersReviews,
+  "pet-reviews": petReviews,
+  "travel-reviews": travelReviews,
   "auto-locations": autoLocations,
   "auto-glossary": autoGlossary,
   "auto-faqs": autoFaqs,

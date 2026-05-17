@@ -1,0 +1,32 @@
+---
+import BestOfHub from "~/layouts/BestOfHub.astro";
+import { VERTICALS } from "~/data/verticals";
+const v = VERTICALS.renters;
+---
+
+<BestOfHub
+  vertical={v}
+  hero={{
+    headline: "Best Renters Insurance Companies of 2026",
+    lede: "Affordable coverage that protects your stuff, your liability, and your living costs if disaster strikes. Here are the top picks.",
+  }}
+  intro={`<p>Lorem ipsum dolor sit amet — renters insurance is one of the cheapest policies you can buy and one of the most underrated. Most renters are vastly underinsured for what they actually own.</p><p>Sed do eiusmod tempor — we weighted affordability (50%), claims experience (30%), and add-on availability (20%). National average premium is around $15/month for $20K personal property coverage.</p>`}
+  carriers={[
+    { rank: 1, name: "Lemonade", score: 4.58, bestFor: "Fast online buying", monthlyRate: "$12/mo", description: "Lorem ipsum dolor sit amet — Lemonade's app-first experience and AI-driven claims processing make it the modern default for renters under 35.", pros: ["Quote and bind in 90 seconds", "Fast app-based claims", "Below-market premiums in most states"], cons: ["Not available in every state", "Limited add-ons compared to legacy carriers"] },
+    { rank: 2, name: "State Farm", score: 4.42, bestFor: "Bundling with auto", monthlyRate: "$15/mo", description: "Sed do eiusmod tempor — State Farm's renters product is competitive standalone and even better when bundled with auto.", pros: ["Strong multi-line discounts", "Largest agent network", "Solid claims reputation"], cons: ["Slightly higher rates than digital-first carriers", "Older quoting experience"] },
+    { rank: 3, name: "USAA", score: 4.78, bestFor: "Military members", monthlyRate: "$10/mo", description: "Ut enim ad minim veniam — USAA's renters insurance includes flood and earthquake coverage in the base policy, which is rare in the industry.", pros: ["Flood and earthquake included", "Lowest rates for qualified members", "Top customer satisfaction"], cons: ["Membership limited to military families", "Smaller agent network"] },
+    { rank: 4, name: "Allstate", score: 4.05, bestFor: "Customization", monthlyRate: "$16/mo", description: "Duis aute irure dolor — Allstate's renters product offers more add-on options than most competitors, from valuable items coverage to identity theft.", pros: ["Wide range of optional coverages", "Strong agent and digital hybrid", "Reward Cash Back program"], cons: ["Mid-pack pricing", "Variable claims experience"] },
+    { rank: 5, name: "Toggle", score: 4.15, bestFor: "Subscription-style renters", monthlyRate: "$11/mo", description: "Excepteur sint occaecat — Toggle (a Farmers brand) offers month-to-month renters insurance with adjustable coverage levels.", pros: ["Flexible month-to-month pricing", "Modern app experience", "Can adjust coverage anytime"], cons: ["Limited brand recognition", "Coverage may not match traditional policies feature-for-feature"] },
+    { rank: 6, name: "Liberty Mutual", score: 3.95, bestFor: "Replacement-cost coverage", monthlyRate: "$17/mo", description: "Lorem ipsum — Liberty Mutual offers replacement cost coverage as standard rather than as an upgrade — a meaningful policy difference.", pros: ["Replacement cost included by default", "Long list of available discounts", "Online quote and bind"], cons: ["Pricing varies by state", "Customer experience scores are mid-pack"] },
+  ]}
+  methodologyPoints={[
+    "Affordability (50%): comparative quotes for $20K personal property, $100K liability, $1,000 deductible",
+    "Claims experience (30%): J.D. Power renters insurance studies, NAIC complaint ratios",
+    "Add-on availability (20%): replacement cost, valuable items, identity theft, water backup, earthquake",
+  ]}
+  faqs={[
+    { q: "How much renters insurance do I need?", a: "Lorem ipsum dolor sit amet — at minimum, enough to cover the replacement cost of all your belongings. Most renters underestimate their inventory value by 50%+." },
+    { q: "Does renters insurance cover my roommate?", a: "Sed do eiusmod tempor — no. Each roommate needs their own policy or must be specifically named on yours." },
+    { q: "Is renters insurance worth it?", a: "Ut enim ad minim — almost always yes. At ~$15/month for $20K of coverage plus liability protection, the math heavily favors having it." },
+  ]}
+/>

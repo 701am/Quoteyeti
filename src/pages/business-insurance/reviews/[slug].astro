@@ -4,7 +4,7 @@ import ReviewLayout from "~/layouts/ReviewLayout.astro";
 import { VERTICALS } from "~/data/verticals";
 
 export async function getStaticPaths() {
-  const reviews = await getCollection("auto-reviews", ({ data }) => !data.draft);
+  const reviews = await getCollection("business-reviews", ({ data }) => !data.draft);
   return reviews.map((entry) => ({
     params: { slug: entry.id },
     props: { entry },
@@ -14,7 +14,7 @@ export async function getStaticPaths() {
 const { entry } = Astro.props;
 const { Content } = await render(entry);
 const d = entry.data;
-const v = VERTICALS.auto;
+const v = VERTICALS.business;
 ---
 
 <ReviewLayout

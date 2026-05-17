@@ -61,8 +61,7 @@ const year = new Date().getFullYear();
   <section class="footer-bottom">
     <div class="container footer-bottom__inner">
       <a href="/" class="footer-bottom__mark" aria-label="QuoteYeti home">
-        <img src="/assets/images/footprint.svg" alt="" width="32" height="32" />
-        <span>QuoteYeti</span>
+        <img src="/assets/images/quoteyeti-logo.svg" alt="QuoteYeti" class="footer-bottom__logo" />
       </a>
       <nav class="footer-bottom__legal" aria-label="Legal">
         <a href="/privacy-policy/">Privacy</a>
@@ -188,11 +187,15 @@ const year = new Date().getFullYear();
     font-size: 0.875rem;
   }
   .footer-bottom__mark {
-    display: flex; align-items: center; gap: var(--space-2);
-    color: var(--color-white); text-decoration: none;
-    font-family: var(--font-display); font-weight: 600;
+    display: flex; align-items: center;
+    text-decoration: none;
   }
-  .footer-bottom__mark img { filter: invert(1) brightness(2); }
+  .footer-bottom__logo {
+    height: 32px; width: auto; display: block;
+    /* Convert navy portion to white-ish for legibility on dark footer */
+    filter: brightness(0) invert(1);
+    opacity: 0.92;
+  }
   .footer-bottom__legal {
     display: flex; gap: var(--space-5); flex-wrap: wrap;
     margin-left: auto;

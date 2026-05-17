@@ -1,0 +1,354 @@
+---
+import BaseLayout from "~/layouts/BaseLayout.astro";
+import type { Vertical } from "~/data/verticals";
+
+interface RankedCarrier {
+  rank: number;
+  name: string;
+  score: number;          // out of 5
+  bestFor: string;        // "Affordability", "Customer service", etc.
+  monthlyRate?: string;   // "$98/mo"
+  description: string;    // 2-3 sentence summary
+  pros: string[];
+  cons: string[];
+  href?: string;          // link to /<vertical>/reviews/<slug>/
+}
+
+interface Props {
+  vertical: Vertical;
+  hero: { headline: string; lede: string };
+  intro: string;                          // 2-3 paragraph editorial intro
+  carriers: RankedCarrier[];              // ranked list
+  methodologyPoints?: string[];           // bullets summarizing methodology
+  faqs?: { q: string; a: string }[];
+}
+
+const { vertical, hero, intro, carriers, methodologyPoints = [], faqs = [] } = Astro.props;
+---
+
+<BaseLayout
+  title={`Best ${vertical.label} Companies of 2026`}
+  description={`Compare the best ${vertical.short.toLowerCase()} insurance companies based on rates, customer satisfaction, and coverage.`}
+>
+
+  <section class="best-hero">
+    <div class="container">
+      <nav class="breadcrumbs" aria-label="Breadcrumb">
+        <a href="/">Home</a> ›
+        <a href={vertical.path}>{vertical.short}</a> ›
+        <span>Best {vertical.label}</span>
+      </nav>
+      <p class="eyebrow">
+        <img src={vertical.icon} alt="" width="20" height="20" />
+        {vertical.label}
+      </p>
+      <h1>{hero.headline}</h1>
+      <p class="best-hero__lede">{hero.lede}</p>
+    </div>
+  </section>
+
+  <div class="best-page container">
+    <div class="best-page__layout">
+
+      <!-- Sticky TOC sidebar -->
+      <aside class="toc" aria-label="On this page">
+        <p class="toc__label">On this page</p>
+        <ol>
+          <li><a href="#our-take">Our take</a></li>
+          <li><a href="#rankings">The rankings</a></li>
+          {carriers.map((c) => (
+            <li class="toc__sub">
+              <a href={`#${c.name.toLowerCase().replace(/\s+/g, "-")}`}>
+                {c.rank}. {c.name}
+              </a>
+            </li>
+          ))}
+          {methodologyPoints.length > 0 && <li><a href="#methodology">How we rated</a></li>}
+          {faqs.length > 0 && <li><a href="#faq">FAQ</a></li>}
+        </ol>
+      </aside>
+
+      <article class="best-content">
+
+        <!-- Editorial intro -->
+        <section id="our-take">
+          <h2>Our take</h2>
+          <div class="prose" set:html={intro} />
+        </section>
+
+        <!-- Rankings summary table -->
+        <section id="rankings">
+          <h2>The top {carriers.length} ranked</h2>
+          <table class="ranking-table">
+            <thead>
+              <tr>
+                <th>Rank</th>
+                <th>Carrier</th>
+                <th>Score</th>
+                <th>Best for</th>
+                {carriers.some((c) => c.monthlyRate) && <th>Monthly rate</th>}
+              </tr>
+            </thead>
+            <tbody>
+              {carriers.map((c) => (
+                <tr>
+                  <td class="ranking-table__rank">#{c.rank}</td>
+                  <td>
+                    <a href={`#${c.name.toLowerCase().replace(/\s+/g, "-")}`} class="ranking-table__name">{c.name}</a>
+                  </td>
+                  <td>
+                    <span class="ranking-table__score">★ {c.score.toFixed(1)}</span>
+                  </td>
+                  <td>{c.bestFor}</td>
+                  {carriers.some((x) => x.monthlyRate) && <td>{c.monthlyRate ?? "—"}</td>}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </section>
+
+        <!-- Detailed carrier cards -->
+        {carriers.map((c) => (
+          <section id={c.name.toLowerCase().replace(/\s+/g, "-")} class="carrier-card">
+            <div class="carrier-card__head">
+              <span class="carrier-card__rank">#{c.rank}</span>
+              <div>
+                <h3>{c.name}</h3>
+                <p class="carrier-card__meta">
+                  <span class="carrier-card__score">★ {c.score.toFixed(1)} out of 5</span>
+                  {c.monthlyRate && <span class="carrier-card__rate">{c.monthlyRate}</span>}
+                  <span class="carrier-card__bestfor">Best for: {c.bestFor}</span>
+                </p>
+              </div>
+            </div>
+            <p class="carrier-card__desc">{c.description}</p>
+            <div class="carrier-card__prosCons">
+              <div class="prosCons__col prosCons__col--pros">
+                <h4>Pros</h4>
+                <ul>{c.pros.map((p) => <li>{p}</li>)}</ul>
+              </div>
+              <div class="prosCons__col prosCons__col--cons">
+                <h4>Cons</h4>
+                <ul>{c.cons.map((p) => <li>{p}</li>)}</ul>
+              </div>
+            </div>
+            {c.href && (
+              <a href={c.href} class="carrier-card__cta">Read the full {c.name} review →</a>
+            )}
+          </section>
+        ))}
+
+        <!-- Methodology -->
+        {methodologyPoints.length > 0 && (
+          <section id="methodology" class="methodology">
+            <h2>How we rated {vertical.short.toLowerCase()} insurance companies</h2>
+            <p class="prose">
+              Our rankings reflect a comprehensive analysis of rates, customer satisfaction data, coverage breadth, and financial strength. We don't accept payment for placement on this list.
+            </p>
+            <ul class="methodology__list">
+              {methodologyPoints.map((point) => <li>{point}</li>)}
+            </ul>
+          </section>
+        )}
+
+        <!-- FAQ -->
+        {faqs.length > 0 && (
+          <section id="faq" class="best-faq">
+            <h2>FAQ</h2>
+            {faqs.map((faq) => (
+              <details class="best-faq__item">
+                <summary>{faq.q}</summary>
+                <p>{faq.a}</p>
+              </details>
+            ))}
+          </section>
+        )}
+
+      </article>
+    </div>
+  </div>
+
+  <style>
+    .best-hero {
+      padding-block: var(--space-12) var(--space-10);
+      background: var(--section-accent-soft);
+    }
+    .breadcrumbs { font-size: 0.875rem; color: var(--color-text-muted); margin-bottom: var(--space-5); }
+    .breadcrumbs a { color: var(--color-text-muted); }
+    .breadcrumbs a:hover { color: var(--section-accent); }
+    .eyebrow {
+      display: inline-flex; align-items: center; gap: var(--space-2);
+      font-family: var(--font-display);
+      font-size: 0.875rem; font-weight: 600;
+      text-transform: uppercase; letter-spacing: 0.12em;
+      color: var(--section-accent);
+      background: var(--color-white);
+      padding: var(--space-2) var(--space-4);
+      border-radius: 100px;
+      margin-bottom: var(--space-5);
+    }
+    .best-hero__lede { font-size: 1.25rem; color: var(--color-text-strong); margin-top: var(--space-4); max-width: 720px; }
+
+    .best-page { padding-block: var(--space-12) var(--space-20); }
+    .best-page__layout {
+      display: grid;
+      grid-template-columns: 240px 1fr;
+      gap: var(--space-12);
+      align-items: start;
+    }
+
+    /* Sticky TOC */
+    .toc {
+      position: sticky;
+      top: calc(var(--header-height) + var(--space-6));
+      padding: var(--space-5);
+      background: var(--color-alice);
+      border-radius: var(--radius);
+      border-left: 4px solid var(--section-accent);
+    }
+    .toc__label {
+      font-family: var(--font-display); font-weight: 700;
+      font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.12em;
+      color: var(--color-text-muted);
+      margin: 0 0 var(--space-3);
+    }
+    .toc ol { list-style: none; margin: 0; padding: 0; counter-reset: toc; }
+    .toc li {
+      counter-increment: toc;
+      margin-bottom: var(--space-2);
+      font-size: 0.875rem;
+    }
+    .toc li::before {
+      content: counter(toc) ".";
+      color: var(--color-text-muted);
+      margin-right: var(--space-2);
+      font-family: var(--font-display); font-weight: 600;
+    }
+    .toc__sub { padding-left: var(--space-4); }
+    .toc__sub::before { content: ""; margin-right: 0; }
+    .toc a { color: var(--color-text-strong); }
+    .toc a:hover { color: var(--section-accent); }
+
+    /* Content area */
+    .best-content section { margin-bottom: var(--space-16); scroll-margin-top: 100px; }
+    .best-content h2 {
+      font-size: 2rem;
+      margin: 0 0 var(--space-6);
+      padding-bottom: var(--space-4);
+      border-bottom: 1px solid var(--color-border);
+    }
+    .prose { line-height: 1.7; }
+    .prose :global(p) { margin-bottom: var(--space-5); }
+
+    /* Ranking table */
+    .ranking-table {
+      width: 100%; border-collapse: collapse;
+      font-size: 0.9375rem;
+    }
+    .ranking-table th {
+      text-align: left;
+      padding: var(--space-3) var(--space-4);
+      background: var(--section-accent-soft);
+      color: var(--color-resolution);
+      font-family: var(--font-display); font-weight: 600;
+      font-size: 0.8125rem;
+      text-transform: uppercase; letter-spacing: 0.08em;
+      border-bottom: 2px solid var(--section-accent);
+    }
+    .ranking-table td {
+      padding: var(--space-3) var(--space-4);
+      border-bottom: 1px solid var(--color-border);
+    }
+    .ranking-table tr:hover td { background: var(--color-alice); }
+    .ranking-table__rank { font-family: var(--font-display); font-weight: 700; color: var(--section-accent); }
+    .ranking-table__name { font-family: var(--font-display); font-weight: 600; color: var(--color-resolution); }
+    .ranking-table__score { font-family: var(--font-display); font-weight: 600; color: var(--section-accent); }
+
+    /* Carrier card */
+    .carrier-card {
+      padding: var(--space-8);
+      background: var(--color-white);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-lg);
+      border-top: 4px solid var(--section-accent);
+    }
+    .carrier-card__head {
+      display: flex; align-items: flex-start; gap: var(--space-5);
+      margin-bottom: var(--space-5);
+    }
+    .carrier-card__rank {
+      flex-shrink: 0;
+      width: 56px; height: 56px;
+      display: flex; align-items: center; justify-content: center;
+      background: var(--section-accent-soft);
+      color: var(--section-accent);
+      font-family: var(--font-display); font-weight: 700;
+      font-size: 1.25rem;
+      border-radius: var(--radius);
+    }
+    .carrier-card__head h3 { margin: 0 0 var(--space-2); font-size: 1.625rem; }
+    .carrier-card__meta {
+      display: flex; flex-wrap: wrap; gap: var(--space-4);
+      font-size: 0.9375rem;
+      margin: 0;
+    }
+    .carrier-card__score { color: var(--section-accent); font-family: var(--font-display); font-weight: 600; }
+    .carrier-card__rate { color: var(--color-text); font-family: var(--font-display); font-weight: 600; }
+    .carrier-card__bestfor { color: var(--color-text-muted); }
+    .carrier-card__desc { margin-bottom: var(--space-5); line-height: 1.6; }
+    .carrier-card__prosCons {
+      display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-5);
+      margin-bottom: var(--space-5);
+    }
+    .prosCons__col { padding: var(--space-5); border-radius: var(--radius); }
+    .prosCons__col--pros { background: #F1F6E5; border-left: 3px solid #8FB339; }
+    .prosCons__col--cons { background: #FCF0EF; border-left: 3px solid #F46036; }
+    .prosCons__col h4 { font-size: 1rem; margin: 0 0 var(--space-3); }
+    .prosCons__col ul { margin: 0; padding-left: var(--space-5); }
+    .prosCons__col li { margin-bottom: var(--space-2); font-size: 0.9375rem; }
+    .carrier-card__cta {
+      display: inline-block;
+      font-family: var(--font-display); font-weight: 600;
+      color: var(--section-accent);
+    }
+    .carrier-card__cta:hover { color: var(--color-resolution); }
+
+    /* Methodology */
+    .methodology__list {
+      margin-top: var(--space-5);
+      padding-left: var(--space-6);
+    }
+    .methodology__list li {
+      margin-bottom: var(--space-3);
+      line-height: 1.6;
+    }
+
+    /* FAQ */
+    .best-faq__item {
+      background: var(--color-white);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius);
+      margin-bottom: var(--space-3);
+    }
+    .best-faq__item summary {
+      cursor: pointer;
+      padding: var(--space-4) var(--space-5);
+      font-family: var(--font-display); font-weight: 600;
+      color: var(--color-resolution);
+      list-style: none;
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .best-faq__item summary::-webkit-details-marker { display: none; }
+    .best-faq__item summary::after { content: "+"; font-size: 1.5rem; color: var(--section-accent); }
+    .best-faq__item[open] summary::after { content: "−"; }
+    .best-faq__item p { padding: 0 var(--space-5) var(--space-4); margin: 0; color: var(--color-text); }
+
+    @media (max-width: 950px) {
+      .best-page__layout { grid-template-columns: 1fr; }
+      .toc { position: static; }
+      .carrier-card__prosCons { grid-template-columns: 1fr; }
+      .carrier-card { padding: var(--space-6); }
+      .ranking-table th, .ranking-table td { padding: var(--space-2) var(--space-3); font-size: 0.875rem; }
+    }
+  </style>
+</BaseLayout>

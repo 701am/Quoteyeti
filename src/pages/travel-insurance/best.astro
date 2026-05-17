@@ -1,0 +1,33 @@
+---
+import BestOfHub from "~/layouts/BestOfHub.astro";
+import { VERTICALS } from "~/data/verticals";
+const v = VERTICALS.travel;
+---
+
+<BestOfHub
+  vertical={v}
+  hero={{
+    headline: "Best Travel Insurance Companies of 2026",
+    lede: "Compare the top travel insurance providers on coverage limits, claims experience, and trip cancellation flexibility.",
+  }}
+  intro={`<p>Lorem ipsum dolor sit amet — travel insurance varies dramatically by trip type. A two-week European vacation needs different coverage than a year-long backpacking trip or a cruise.</p><p>Sed do eiusmod tempor — we weighted coverage limits (40%), claims experience (35%), and pricing (25%). Premiums quoted for a $3,000 international trip booked 60 days in advance.</p>`}
+  carriers={[
+    { rank: 1, name: "Travelex", score: 4.52, bestFor: "Family travel", monthlyRate: "$128/trip", description: "Lorem ipsum dolor sit amet — Travelex's family-friendly plans include kids 17 and under for free on parent policies, with strong cancellation and medical limits.", pros: ["Kids covered free under 17", "Strong medical evacuation limits", "Generous trip cancellation"], cons: ["Premium positioning", "Limited CFAR availability"] },
+    { rank: 2, name: "Allianz Travel", score: 4.45, bestFor: "Frequent travelers", monthlyRate: "$95/trip", description: "Sed do eiusmod tempor — Allianz's AllTrips Premier annual policy covers unlimited trips and is the best value for travelers taking 3+ trips per year.", pros: ["Strong annual multi-trip plan", "Global brand presence", "Robust mobile app"], cons: ["Cancellation reasons can be restrictive", "Pre-existing condition waiver requires fast purchase"] },
+    { rank: 3, name: "Seven Corners", score: 4.38, bestFor: "Long-term and expat travel", monthlyRate: "$110/trip", description: "Ut enim ad minim veniam — Seven Corners specializes in long-stay and expat travel insurance, with plans extending up to 364 days and renewable coverage.", pros: ["Up to 364-day single trip duration", "Strong international medical coverage", "Renewable plans"], cons: ["Less competitive for short trips", "Smaller brand recognition"] },
+    { rank: 4, name: "World Nomads", score: 4.32, bestFor: "Adventure travel", monthlyRate: "$135/trip", description: "Duis aute irure dolor — World Nomads is the go-to for adventure travelers. They cover 200+ activities including skiing, scuba, and trekking that most carriers exclude.", pros: ["Covers 200+ adventure activities", "Strong digital experience", "Buyable mid-trip"], cons: ["Higher premiums than family-focused carriers", "Lower trip cancellation limits"] },
+    { rank: 5, name: "Generali Global Assistance", score: 4.18, bestFor: "Cruise travel", monthlyRate: "$118/trip", description: "Excepteur sint occaecat — Generali's cruise-specific coverage handles missed connections, onboard medical events, and itinerary changes better than generic policies.", pros: ["Strong cruise-specific coverage", "Includes missed connections", "24/7 emergency assistance"], cons: ["Less competitive for non-cruise trips", "Filing process can be paperwork-heavy"] },
+    { rank: 6, name: "Battleface", score: 4.05, bestFor: "Last-minute trips", monthlyRate: "$98/trip", description: "Lorem ipsum — Battleface offers fast online buying and policies for travel destinations that other carriers won't cover, including remote and elevated-risk locations.", pros: ["Buy online quickly", "Covers more destinations than peers", "Modern app and experience"], cons: ["Newer brand", "Annual plans less developed"] },
+  ]}
+  methodologyPoints={[
+    "Coverage limits (40%): medical, evacuation, trip cancellation, baggage, and CFAR availability",
+    "Claims experience (35%): documented claim turnaround, denial rates, customer surveys",
+    "Pricing (25%): premium relative to coverage for $3K international trip, 60-day advance purchase",
+    "Note: rates are illustrative; actual quotes depend on trip cost, traveler age, and destination",
+  ]}
+  faqs={[
+    { q: "When should I buy travel insurance?", a: "Lorem ipsum dolor sit amet — within 14-21 days of your first trip deposit to get pre-existing condition waivers and CFAR eligibility." },
+    { q: "Does my credit card cover me?", a: "Sed do eiusmod tempor — premium cards often cover trip cancellation and rental car. Medical evacuation is usually the big gap." },
+    { q: "What's CFAR?", a: "Ut enim ad minim — Cancel For Any Reason. Costs about 40% more but lets you cancel for literally any reason and recover 50-75% of trip cost." },
+  ]}
+/>

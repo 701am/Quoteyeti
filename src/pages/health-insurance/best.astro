@@ -1,0 +1,33 @@
+---
+import BestOfHub from "~/layouts/BestOfHub.astro";
+import { VERTICALS } from "~/data/verticals";
+const v = VERTICALS.health;
+---
+
+<BestOfHub
+  vertical={v}
+  hero={{
+    headline: "Best Health Insurance Companies of 2026",
+    lede: "We ranked the top health insurers on plan availability, network breadth, customer experience, and value.",
+  }}
+  intro={`<p>Lorem ipsum dolor sit amet — health insurance carriers vary dramatically by state. The "best" insurer depends on what's available in your ZIP and which doctors you want in network.</p><p>Sed do eiusmod tempor — we weighted network breadth (40%), plan availability (30%), and customer satisfaction (30%). Availability varies; check your state's marketplace for actual plan options.</p>`}
+  carriers={[
+    { rank: 1, name: "Kaiser Permanente", score: 4.65, bestFor: "Integrated care", monthlyRate: "$485/mo", description: "Lorem ipsum dolor sit amet — Kaiser leads on customer satisfaction in every J.D. Power study and offers integrated care delivery in 8 states.", pros: ["Integrated insurance + care delivery", "Top-rated customer satisfaction", "Strong digital tools and pharmacy"], cons: ["Only available in 8 states + DC", "Must use Kaiser providers"] },
+    { rank: 2, name: "Blue Cross Blue Shield", score: 4.32, bestFor: "Nationwide network", monthlyRate: "$520/mo", description: "Sed do eiusmod tempor — BCBS operates as 35 independent state plans with the largest combined provider network in the country.", pros: ["Largest provider network", "Available in every state", "Strong PPO options"], cons: ["Quality varies by state plan", "Pricing can run high in some markets"] },
+    { rank: 3, name: "UnitedHealthcare", score: 4.18, bestFor: "Employer-sponsored plans", monthlyRate: "$535/mo", description: "Ut enim ad minim veniam — UnitedHealthcare dominates the employer market and offers some of the strongest digital tools and care navigation in the industry.", pros: ["Excellent digital health tools", "Wide provider network", "Strong care navigation programs"], cons: ["Customer service satisfaction lags peers", "Specialty pharmacy can be restrictive"] },
+    { rank: 4, name: "Aetna (CVS Health)", score: 4.08, bestFor: "MinuteClinic integration", monthlyRate: "$510/mo", description: "Duis aute irure dolor — Aetna's parent company CVS Health gives members convenient access to MinuteClinic and CVS pharmacy, simplifying everyday care.", pros: ["CVS MinuteClinic integration", "Strong dental and vision add-ons", "Good wellness programs"], cons: ["Network varies by region", "Marketplace plan availability limited in some states"] },
+    { rank: 5, name: "Cigna", score: 4.01, bestFor: "International coverage", monthlyRate: "$525/mo", description: "Excepteur sint occaecat — Cigna's global network makes it the choice for members who travel frequently or live abroad part-time.", pros: ["Strong global network", "24/7 telehealth included", "Wellness incentives"], cons: ["Smaller domestic network than competitors", "Limited marketplace availability"] },
+    { rank: 6, name: "Humana", score: 3.95, bestFor: "Medicare Advantage", monthlyRate: "Varies (MA)", description: "Lorem ipsum — Humana is one of the largest Medicare Advantage providers in the country with strong member retention and dental/vision add-ons.", pros: ["Best-in-class Medicare Advantage", "Strong member loyalty", "Robust dental and vision packages"], cons: ["Less competitive on ACA marketplace plans", "Network gaps in rural areas"] },
+  ]}
+  methodologyPoints={[
+    "Network breadth (40%): provider count and geographic coverage relative to enrollment",
+    "Plan availability (30%): number of states served plus plan types (HMO, PPO, EPO, HSA-qualifying)",
+    "Customer satisfaction (30%): J.D. Power health plan studies, NCQA quality ratings, complaint volumes",
+    "Note: rates shown are illustrative; actual cost depends on age, income, plan tier, and ACA subsidy eligibility",
+  ]}
+  faqs={[
+    { q: "When can I buy health insurance?", a: "Lorem ipsum dolor sit amet — open enrollment runs November-January for marketplace plans. Outside that window you need a qualifying life event." },
+    { q: "HMO or PPO?", a: "Sed do eiusmod tempor — HMOs are cheaper but require referrals and network providers. PPOs cost more but offer flexibility." },
+    { q: "How do ACA subsidies work?", a: "Ut enim ad minim — subsidies cap your premium at a percentage of income up to 400% of the federal poverty line (extended through 2025)." },
+  ]}
+/>

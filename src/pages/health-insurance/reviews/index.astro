@@ -1,0 +1,63 @@
+---
+import BaseLayout from "~/layouts/BaseLayout.astro";
+import { getCollection } from "astro:content";
+import { VERTICALS } from "~/data/verticals";
+
+const v = VERTICALS.health;
+const reviews = await getCollection("health-reviews", ({ data }) => !data.draft);
+reviews.sort((a, b) => a.data.title.localeCompare(b.data.title));
+---
+
+<BaseLayout
+  title={`${v.label} Company Reviews`}
+  description={`Independent reviews of major ${v.short.toLowerCase()} insurance carriers.`}
+>
+  <section class="page-hero">
+    <div class="container">
+      <p class="eyebrow">{v.label}</p>
+      <h1>Insurance company <span class="highlight underline-accent">reviews</span></h1>
+      <p class="page-hero__lede">
+        Independent reviews of major {v.short.toLowerCase()} insurance carriers — ratings, pros and cons, and what to expect.
+      </p>
+    </div>
+  </section>
+
+  <section class="container index-list">
+    {reviews.length === 0 ? (
+      <p class="index-list__empty">No reviews published yet.</p>
+    ) : (
+      <ul class="index-list__grid">
+        {reviews.map((entry) => (
+          <li>
+            <a href={`${v.path}reviews/${entry.id}/`} class="review-card">
+              <div class="review-card__head">
+                <h2 class="review-card__title">{entry.data.title}</h2>
+                {entry.data.starRating && (
+                  <span class="review-card__rating">★ {entry.data.starRating}</span>
+                )}
+              </div>
+              {entry.data.description && <p class="review-card__desc">{entry.data.description}</p>}
+              <span class="review-card__cta">Read review →</span>
+            </a>
+          </li>
+        ))}
+      </ul>
+    )}
+  </section>
+
+  <style>
+    .page-hero { padding-block: var(--space-16) var(--space-10); background: var(--section-accent-soft); }
+    .page-hero__lede { font-size: 1.25rem; color: var(--color-text-strong); max-width: 640px; }
+    .index-list { padding-block: var(--space-16); }
+    .index-list__grid { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-5); }
+    .index-list__empty { font-size: 1.125rem; color: var(--color-text-muted); text-align: center; padding-block: var(--space-12); }
+    .review-card { display: block; padding: var(--space-6); background: var(--color-white); border: 1px solid var(--color-border); border-radius: var(--radius); transition: all var(--transition); }
+    .review-card:hover { transform: translateY(-2px); box-shadow: var(--shadow); border-color: var(--section-accent); }
+    .review-card__head { display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-3); }
+    .review-card__title { font-size: 1.25rem; margin: 0; }
+    .review-card__rating { font-family: var(--font-display); font-weight: 700; color: var(--section-accent); }
+    .review-card__desc { font-size: 0.9375rem; color: var(--color-text); margin: 0 0 var(--space-4); }
+    .review-card__cta { font-family: var(--font-display); font-weight: 600; color: var(--section-accent); }
+    @media (max-width: 950px) { .index-list__grid { grid-template-columns: 1fr; } }
+  </style>
+</BaseLayout>
