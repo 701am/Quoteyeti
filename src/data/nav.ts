@@ -230,7 +230,7 @@ export const NAV: NavEntry[] = [
       ],
       featured: {
         eyebrow: "Newsletter",
-        heading: "Smart Cents",
+        heading: "The YetiLetter",
         body: "Hot takes on insurance and money, delivered weekly. No spam, just the good stuff.",
         cta: { label: "Subscribe", href: "/newsletter/" },
       },

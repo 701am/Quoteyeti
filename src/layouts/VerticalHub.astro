@@ -58,28 +58,37 @@ const { vertical, hero, pillars, calculators = [], subtopics = [], faqs = [] } =
 
   <!-- ============== THREE PILLARS ============== -->
   {pillars.length > 0 && (
-    <section class="vpillars container reveal">
-      <header class="vpillars__header">
-        <p class="eyebrow">Where to start</p>
-        <h2>
-          Three paths through
-          <span class="serif-italic">{vertical.short.toLowerCase()}</span>
-        </h2>
-      </header>
-      <div class="vpillars__grid">
-        {pillars.map((pillar, i) => (
-          <article class="vpillar">
-            <span class="vpillar__num">{String(i + 1).padStart(2, "0")}</span>
-            <h3 class="vpillar__title">{pillar.title}</h3>
-            <p class="vpillar__body">{pillar.body}</p>
-            <a href={pillar.href} class="vpillar__cta">
-              <span>{pillar.cta}</span>
-              <svg width="14" height="12" viewBox="0 0 14 12" fill="none" aria-hidden="true">
-                <path d="M8 1l5 5-5 5M1 6h12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
+    <section class="vpillars reveal">
+      <div class="container">
+        <header class="vpillars__header">
+          <p class="eyebrow">Where to start</p>
+          <h2>
+            Three paths through
+            <span class="serif-italic">{vertical.short.toLowerCase()}</span>
+          </h2>
+        </header>
+        <div class="vpillars__grid">
+          {pillars.map((pillar, i) => (
+            <a href={pillar.href} class="vpillar">
+              <div class="vpillar__head">
+                <span class="vpillar__num">{String(i + 1).padStart(2, "0")}</span>
+                <span class="vpillar__dot" aria-hidden="true"></span>
+              </div>
+              <div class="vpillar__body">
+                <h3 class="vpillar__title">{pillar.title}</h3>
+                <p class="vpillar__copy">{pillar.body}</p>
+              </div>
+              <span class="vpillar__cta">
+                <span class="vpillar__cta-label">{pillar.cta}</span>
+                <span class="vpillar__cta-arrow" aria-hidden="true">
+                  <svg width="14" height="12" viewBox="0 0 14 12" fill="none">
+                    <path d="M8 1l5 5-5 5M1 6h12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </span>
+              </span>
             </a>
-          </article>
-        ))}
+          ))}
+        </div>
       </div>
     </section>
   )}
@@ -229,7 +238,7 @@ const { vertical, hero, pillars, calculators = [], subtopics = [], faqs = [] } =
     .vhero__ctas { display: flex; gap: var(--space-5); align-items: center; flex-wrap: wrap; }
 
     /* ============================================
-       Pillars — numbered editorial
+       Pillars — confident card pattern
     ============================================ */
     .vpillars { padding-block: var(--space-20); }
     .vpillars__header { text-align: center; max-width: 640px; margin: 0 auto var(--space-12); }
@@ -239,59 +248,120 @@ const { vertical, hero, pillars, calculators = [], subtopics = [], faqs = [] } =
     }
     .vpillars__grid {
       display: grid; grid-template-columns: repeat(3, 1fr);
-      gap: var(--space-6);
+      gap: var(--space-5);
     }
     .vpillar {
-      padding: var(--space-7);
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      padding: var(--space-6);
       background: var(--color-white);
       border: 1px solid var(--color-border);
-      border-radius: var(--radius-lg);
-      transition: all 0.3s ease;
-      position: relative;
+      border-radius: 16px;
+      text-decoration: none;
+      color: inherit;
       overflow: hidden;
+      transition:
+        transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+        box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+        border-color 0.3s ease;
+      min-height: 260px;
     }
     .vpillar::before {
       content: "";
       position: absolute;
       top: 0; left: 0; right: 0;
-      height: 4px;
+      height: 5px;
       background: var(--section-accent);
-      transform: scaleX(0);
+      transform: scaleX(0.3);
       transform-origin: left;
-      transition: transform 0.4s ease;
+      transition: transform 0.35s ease;
     }
     .vpillar:hover {
-      transform: translateY(-4px);
+      transform: translateY(-6px);
       border-color: var(--section-accent);
-      box-shadow: 0 16px 32px rgba(0,0,0,0.06);
+      box-shadow:
+        0 4px 12px rgba(44, 69, 119, 0.04),
+        0 20px 40px rgba(44, 69, 119, 0.12);
     }
     .vpillar:hover::before { transform: scaleX(1); }
+
+    .vpillar__head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: var(--space-5);
+    }
     .vpillar__num {
-      display: inline-block;
       font-family: var(--font-serif, "Plantin", Georgia, serif);
-      font-style: italic; font-weight: 500;
-      font-size: 2.5rem;
+      font-style: italic;
+      font-weight: 500;
+      font-size: 3rem;
       line-height: 1;
       color: var(--section-accent);
-      margin-bottom: var(--space-4);
       letter-spacing: -0.03em;
     }
+    .vpillar__dot {
+      width: 10px; height: 10px;
+      background: var(--section-accent);
+      border-radius: 50%;
+      opacity: 0.25;
+      transition: opacity 0.3s ease, transform 0.3s ease;
+    }
+    .vpillar:hover .vpillar__dot {
+      opacity: 1;
+      transform: scale(1.4);
+    }
+
+    .vpillar__body {
+      flex: 1;
+      margin-bottom: var(--space-5);
+    }
     .vpillar__title {
+      font-family: var(--font-display);
+      font-weight: 700;
       font-size: 1.375rem;
+      letter-spacing: -0.015em;
+      color: var(--color-resolution);
       margin: 0 0 var(--space-3);
-      letter-spacing: -0.01em;
+      line-height: 1.2;
     }
-    .vpillar__body { line-height: 1.65; margin-bottom: var(--space-5); }
+    .vpillar__copy {
+      font-size: 0.9375rem;
+      color: var(--color-text-muted);
+      margin: 0;
+      line-height: 1.55;
+    }
     .vpillar__cta {
-      display: inline-flex; align-items: center; gap: var(--space-2);
-      font-family: var(--font-display); font-weight: 700;
-      font-size: 0.8125rem;
-      color: var(--section-accent);
-      text-transform: uppercase; letter-spacing: 0.08em;
-      text-decoration: none;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-top: var(--space-4);
+      border-top: 1px solid var(--color-border);
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 0.75rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--color-resolution);
+      transition: color 0.3s;
     }
-    .vpillar__cta svg { transition: transform 0.2s; }
-    .vpillar__cta:hover svg { transform: translateX(4px); }
+    .vpillar__cta-arrow {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 28px; height: 28px;
+      background: var(--color-alice);
+      border-radius: 50%;
+      color: var(--color-resolution);
+      transition: background 0.3s ease, color 0.3s ease, transform 0.3s ease;
+    }
+    .vpillar:hover .vpillar__cta { color: var(--section-accent); }
+    .vpillar:hover .vpillar__cta-arrow {
+      background: var(--section-accent);
+      color: var(--color-white);
+      transform: translateX(4px);
+    }
 
     /* ============================================
        Subtopics
