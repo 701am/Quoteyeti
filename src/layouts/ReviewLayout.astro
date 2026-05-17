@@ -107,7 +107,7 @@ const remainingTakeaways = takeaways.slice(1);
         </div>
       </div>
 
-      <a href={`${vertical.path}quotes/`} class="btn btn-accent btn-primary review-hero__cta">
+      <a href={`${vertical.path}quotes/`} class="btn-pill btn-pill--accent review-hero__cta">
         <span>Get {vertical.short.toLowerCase()} quotes</span>
         <svg width="16" height="14" viewBox="0 0 16 14" fill="none" aria-hidden="true">
           <path d="M9 1l6 6-6 6M1 7h14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -389,7 +389,7 @@ const remainingTakeaways = takeaways.slice(1);
           <p class="bottom-line__eyebrow">Our verdict</p>
           <h2>The <span class="serif-italic">bottom line</span></h2>
           <div class="prose" set:html={bottomLine} />
-          <a href={`${vertical.path}quotes/`} class="btn btn-accent btn-primary bottom-line__cta">
+          <a href={`${vertical.path}quotes/`} class="btn-pill btn-pill--accent bottom-line__cta">
             <span>Get {vertical.short.toLowerCase()} quotes</span>
             <svg width="16" height="14" viewBox="0 0 16 14" fill="none" aria-hidden="true">
               <path d="M9 1l6 6-6 6M1 7h14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -1169,21 +1169,6 @@ const remainingTakeaways = takeaways.slice(1);
     }
     .author-bio h3 { font-size: 1.125rem; margin-bottom: var(--space-3); }
     .author-bio p { line-height: 1.65; }
-
-    /* ==================================================
-       Buttons
-    ================================================== */
-    .btn-primary {
-      display: inline-flex; align-items: center; gap: var(--space-3);
-      padding: var(--space-4) var(--space-6);
-      font-family: var(--font-display); font-weight: 700;
-      font-size: 0.9375rem;
-      border-radius: 100px;
-      transition: all 0.2s ease;
-      letter-spacing: 0.01em;
-    }
-    .btn-primary svg { transition: transform 0.2s; }
-    .btn-primary:hover svg { transform: translateX(4px); }
 
     /* ==================================================
        Responsive

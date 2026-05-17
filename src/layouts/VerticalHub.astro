@@ -43,7 +43,7 @@ const { vertical, hero, pillars, calculators = [], subtopics = [], faqs = [] } =
       </h1>
       <p class="vhero__lede">{hero.lede}</p>
       <div class="vhero__ctas">
-        <a href={hero.ctaHref ?? `${vertical.path}quotes/`} class="btn btn-accent btn-primary">
+        <a href={hero.ctaHref ?? `${vertical.path}quotes/`} class="btn-pill btn-pill--accent">
           <span>{hero.ctaLabel ?? `Get ${vertical.short.toLowerCase()} quotes`}</span>
           <svg width="16" height="14" viewBox="0 0 16 14" fill="none" aria-hidden="true">
             <path d="M9 1l6 6-6 6M1 7h14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -227,28 +227,6 @@ const { vertical, hero, pillars, calculators = [], subtopics = [], faqs = [] } =
       line-height: 1.55;
     }
     .vhero__ctas { display: flex; gap: var(--space-5); align-items: center; flex-wrap: wrap; }
-
-    .btn-primary {
-      display: inline-flex; align-items: center; gap: var(--space-3);
-      padding: var(--space-4) var(--space-7);
-      font-family: var(--font-display); font-weight: 700;
-      font-size: 0.9375rem;
-      border-radius: 100px;
-      transition: all 0.2s ease;
-      letter-spacing: 0.01em;
-    }
-    .btn-primary svg { transition: transform 0.2s; }
-    .btn-primary:hover svg { transform: translateX(4px); }
-    .btn-tertiary {
-      font-family: var(--font-display); font-weight: 600;
-      font-size: 0.9375rem;
-      color: var(--color-text-strong);
-      text-decoration: none;
-      border-bottom: 1px solid var(--color-border);
-      padding-bottom: 2px;
-      transition: all 0.2s;
-    }
-    .btn-tertiary:hover { color: var(--section-accent); border-bottom-color: var(--section-accent); }
 
     /* ============================================
        Pillars — numbered editorial

@@ -1,0 +1,1039 @@
+---
+import BaseLayout from "~/layouts/BaseLayout.astro";
+import { VERTICAL_LIST } from "~/data/verticals";
+
+// Real, non-fabricated stats
+const numbers = [
+  { value: "8", label: "Insurance verticals covered", detail: "Auto, home, life, business, health, renters, pet, and travel" },
+  { value: "50", label: "States in our analysis", detail: "Every carrier reviewed against every state's specific market" },
+  { value: "0", label: "Paid placements, ever", detail: "Our rankings can't be bought. Period." },
+  { value: "1", label: "Editorial team. No outsourcing.", detail: "Real humans writing, fact-checking, and updating every page" },
+];
+
+const principles = [
+  {
+    eyebrow: "Independence",
+    title: "No paid placement. Ever.",
+    body: "Carrier partnerships don't influence our rankings. We earn commission when you choose a policy through us, but the order, scores, and recommendations are entirely editorial.",
+  },
+  {
+    eyebrow: "Transparency",
+    title: "Our methodology is public.",
+    body: "Every score we publish has a documented weighting. Every claim has a source. If we can't back a number with data, we don't print it.",
+  },
+  {
+    eyebrow: "Quality over quantity",
+    title: "We update, not just publish.",
+    body: "Insurance markets change. So do we. Pages are reviewed quarterly minimum, and breaking changes (rate filings, regulatory shifts) trigger an immediate update.",
+  },
+];
+
+const howWeWork = [
+  {
+    num: "01",
+    title: "We gather the data.",
+    body: "We pull rate data from public regulatory filings, third-party aggregators, and our own consumer-facing tools. Carrier claims get verified against state filings, not press releases.",
+  },
+  {
+    num: "02",
+    title: "We rank against a public rubric.",
+    body: "Every category — cost, customer experience, claims, financial strength, coverage breadth — has a documented weighting in our methodology. The scoring is transparent and auditable.",
+  },
+  {
+    num: "03",
+    title: "We write it down.",
+    body: "Every review is drafted by an editor with insurance expertise, fact-checked against the source data, and edited for clarity. No AI slop. No filler. No paid placement.",
+  },
+  {
+    num: "04",
+    title: "We connect you to coverage.",
+    body: "When you're ready, we route you to the carriers you choose — never the carrier paying the most. You get quotes on your terms.",
+  },
+];
+
+// Placeholder team — David can swap in real people later
+const team = [
+  { name: "The Editorial Team", role: "Writers & analysts", bio: "Licensed insurance experts, financial journalists, and former underwriters. Every page on QuoteYeti is reviewed by at least two of them before it goes live." },
+  { name: "The Engineering Team", role: "Builders & data wranglers", bio: "We built our own rating engine, our own data pipeline, and our own publishing tools — so we can move fast and stay independent of vendor lock-in." },
+  { name: "The Strategy Team", role: "Coverage & partnerships", bio: "We work with carriers on commission-based partnerships, but never on placement. Our team negotiates terms, never editorial influence." },
+];
+---
+
+<BaseLayout
+  title="About QuoteYeti — The smarter way to track down insurance savings"
+  description="QuoteYeti is an independent insurance comparison marketplace covering eight verticals. Our mission, methodology, and editorial standards."
+>
+
+  <!-- ============== HERO ============== -->
+  <section class="about-hero">
+    <div class="about-hero__topo" aria-hidden="true"></div>
+    <div class="container about-hero__inner">
+      <div class="about-hero__copy">
+        <p class="eyebrow eyebrow--dark">About QuoteYeti</p>
+        <h1>
+          We do the searching.
+          <span class="serif-italic">You do the saving.</span>
+        </h1>
+        <p class="about-hero__lede">
+          Shopping for insurance is needlessly painful. The carriers built it that way on purpose — and the comparison sites mostly serve the carriers, not the customer. We're here to change that.
+        </p>
+        <div class="about-hero__ctas">
+          <a href="#methodology" class="btn-pill btn-pill--navy">
+            <span>How we work</span>
+            <svg width="16" height="14" viewBox="0 0 16 14" fill="none" aria-hidden="true">
+              <path d="M9 1l6 6-6 6M1 7h14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </a>
+          <a href="#money" class="btn-tertiary">Or read how we make money →</a>
+        </div>
+      </div>
+      <div class="about-hero__art" aria-hidden="true">
+        <img src="/assets/images/yeti-hero.svg" alt="" />
+      </div>
+    </div>
+  </section>
+
+  <!-- ============== BIG NUMBERS ============== -->
+  <section class="numbers">
+    <div class="container">
+      <header class="numbers__header">
+        <p class="eyebrow">QuoteYeti, by the numbers</p>
+        <h2>
+          We measure ourselves
+          <span class="serif-italic">in transparency</span>,
+          not partnerships.
+        </h2>
+      </header>
+      <ul class="numbers__grid">
+        {numbers.map((n, i) => (
+          <li class="number-card" style={`--card-i: ${i};`}>
+            <span class="number-card__value">{n.value}</span>
+            <span class="number-card__label">{n.label}</span>
+            <span class="number-card__detail">{n.detail}</span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </section>
+
+  <!-- ============== MISSION / MANIFESTO BAND ============== -->
+  <section class="mission">
+    <div class="container">
+      <div class="mission__inner">
+        <p class="mission__eyebrow">Our mission</p>
+        <p class="mission__quote">
+          <span class="mission__open" aria-hidden="true">"</span>
+          We're not in the business of selling insurance.
+          We're in the business of <em>finding the right one</em> —
+          and getting out of your way.
+          <span class="mission__close" aria-hidden="true">"</span>
+        </p>
+        <p class="mission__attribution">— The QuoteYeti editorial team</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============== PRINCIPLES (3 cards) ============== -->
+  <section class="principles">
+    <div class="container">
+      <header class="principles__header">
+        <p class="eyebrow">What we stand for</p>
+        <h2>
+          Three principles.
+          <span class="serif-italic">Non-negotiable.</span>
+        </h2>
+      </header>
+      <ol class="principles__grid">
+        {principles.map((p, i) => (
+          <li class="principle">
+            <span class="principle__num">0{i + 1}</span>
+            <p class="principle__eyebrow">{p.eyebrow}</p>
+            <h3 class="principle__title">{p.title}</h3>
+            <p class="principle__body">{p.body}</p>
+          </li>
+        ))}
+      </ol>
+    </div>
+  </section>
+
+  <!-- ============== HOW WE MAKE MONEY (transparency callout) ============== -->
+  <section class="money" id="money">
+    <div class="container">
+      <div class="money__inner">
+        <div class="money__copy">
+          <p class="eyebrow eyebrow--malibu">How we make money</p>
+          <h2>
+            We get paid when you save —
+            <span class="serif-italic">not before, not differently.</span>
+          </h2>
+          <p class="money__body">
+            Carriers pay us a commission when you choose to purchase a policy through QuoteYeti. That's our only revenue model. We don't sell your data. We don't take placement fees. We don't accept favors. The carrier paying us the most has no idea what their ranking is — and we like it that way.
+          </p>
+          <p class="money__body">
+            If a carrier offers us better terms in exchange for editorial influence, we walk. If you've found a better rate somewhere else, we'll tell you to take it. Our job is to be the one comparison site you'd recommend to your mom.
+          </p>
+        </div>
+        <aside class="money__pledge">
+          <p class="money__pledge-eyebrow">The QuoteYeti pledge</p>
+          <ul class="money__pledge-list">
+            <li>
+              <svg viewBox="0 0 20 20" width="22" height="22" aria-hidden="true">
+                <circle cx="10" cy="10" r="9" fill="var(--color-malibu)"/>
+                <path d="M5.5 10.5l3 3 6-6" fill="none" stroke="white" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              <span>No paid placement, ever</span>
+            </li>
+            <li>
+              <svg viewBox="0 0 20 20" width="22" height="22" aria-hidden="true">
+                <circle cx="10" cy="10" r="9" fill="var(--color-malibu)"/>
+                <path d="M5.5 10.5l3 3 6-6" fill="none" stroke="white" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              <span>No data sold to third parties</span>
+            </li>
+            <li>
+              <svg viewBox="0 0 20 20" width="22" height="22" aria-hidden="true">
+                <circle cx="10" cy="10" r="9" fill="var(--color-malibu)"/>
+                <path d="M5.5 10.5l3 3 6-6" fill="none" stroke="white" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              <span>No unsolicited sales calls</span>
+            </li>
+            <li>
+              <svg viewBox="0 0 20 20" width="22" height="22" aria-hidden="true">
+                <circle cx="10" cy="10" r="9" fill="var(--color-malibu)"/>
+                <path d="M5.5 10.5l3 3 6-6" fill="none" stroke="white" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              <span>Methodology you can audit</span>
+            </li>
+            <li>
+              <svg viewBox="0 0 20 20" width="22" height="22" aria-hidden="true">
+                <circle cx="10" cy="10" r="9" fill="var(--color-malibu)"/>
+                <path d="M5.5 10.5l3 3 6-6" fill="none" stroke="white" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              <span>Quotes you control — not auto-routed</span>
+            </li>
+          </ul>
+        </aside>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============== HOW WE WORK (methodology) ============== -->
+  <section class="methodology" id="methodology">
+    <div class="container">
+      <header class="methodology__header">
+        <p class="eyebrow">Our methodology</p>
+        <h2>
+          How we
+          <span class="serif-italic">actually</span>
+          rate insurance.
+        </h2>
+        <p class="methodology__lede">
+          Every score we publish is the output of a documented, repeatable process. Here's exactly how it works.
+        </p>
+      </header>
+      <ol class="methodology__steps">
+        {howWeWork.map((step) => (
+          <li class="method-step">
+            <span class="method-step__num">{step.num}</span>
+            <div class="method-step__body">
+              <h3>{step.title}</h3>
+              <p>{step.body}</p>
+            </div>
+          </li>
+        ))}
+      </ol>
+    </div>
+  </section>
+
+  <!-- ============== COVERAGE GRID ============== -->
+  <section class="coverage">
+    <div class="container">
+      <header class="coverage__header">
+        <p class="eyebrow">What we cover</p>
+        <h2>
+          Eight categories.
+          <span class="serif-italic">One independent voice.</span>
+        </h2>
+      </header>
+      <div class="coverage__grid">
+        {VERTICAL_LIST.map((v) => (
+          <a href={v.path} class="coverage-pill" style={`--pill-accent: ${v.accent}; --pill-accent-soft: ${v.accentSoft};`}>
+            <img src={v.icon} alt="" />
+            <span>{v.label}</span>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- ============== MEET THE HERD ============== -->
+  <section class="team">
+    <div class="container">
+      <header class="team__header">
+        <p class="eyebrow">Meet the herd</p>
+        <h2>
+          The people behind the
+          <span class="serif-italic">research</span>.
+        </h2>
+        <p class="team__lede">
+          QuoteYeti is built and operated by a small, dedicated team of editors, analysts, and engineers. No outsourcing. No ghostwriting. No AI-generated content.
+        </p>
+      </header>
+      <div class="team__grid">
+        {team.map((member) => (
+          <article class="team-card">
+            <div class="team-card__avatar" aria-hidden="true">
+              <img src="/assets/images/yeti-hero.svg" alt="" />
+            </div>
+            <p class="team-card__role">{member.role}</p>
+            <h3 class="team-card__name">{member.name}</h3>
+            <p class="team-card__bio">{member.bio}</p>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- ============== WHERE WE'RE FROM ============== -->
+  <section class="location">
+    <div class="container">
+      <div class="location__inner">
+        <div class="location__copy">
+          <p class="eyebrow eyebrow--malibu">Where we work</p>
+          <h2>
+            Remote-first.
+            <span class="serif-italic">Globally distributed.</span>
+          </h2>
+          <p class="location__body">
+            QuoteYeti is built by a team that spans continents. Our editorial team works across the U.S. Our engineering and operations work from the Philippines, Europe, and Latin America. We hire for the work, not the zip code — and we think it makes the product better.
+          </p>
+          <p class="location__body">
+            If you want to work with us, we'd love to hear from you. Reach out via <a href="mailto:hello@quoteyeti.com">hello@quoteyeti.com</a>.
+          </p>
+        </div>
+        <div class="location__art" aria-hidden="true">
+          <div class="location__compass">
+            <svg viewBox="0 0 200 200" width="200" height="200">
+              <circle cx="100" cy="100" r="95" fill="none" stroke="var(--color-malibu)" stroke-width="2" opacity="0.4"/>
+              <circle cx="100" cy="100" r="75" fill="none" stroke="var(--color-malibu)" stroke-width="1" opacity="0.3"/>
+              <circle cx="100" cy="100" r="55" fill="none" stroke="var(--color-malibu)" stroke-width="1" opacity="0.2"/>
+              <line x1="100" y1="20" x2="100" y2="40" stroke="var(--color-malibu)" stroke-width="2" stroke-linecap="round"/>
+              <line x1="100" y1="160" x2="100" y2="180" stroke="var(--color-malibu)" stroke-width="2" stroke-linecap="round" opacity="0.5"/>
+              <line x1="20" y1="100" x2="40" y2="100" stroke="var(--color-malibu)" stroke-width="2" stroke-linecap="round" opacity="0.5"/>
+              <line x1="160" y1="100" x2="180" y2="100" stroke="var(--color-malibu)" stroke-width="2" stroke-linecap="round" opacity="0.5"/>
+              <path d="M100 35 L88 100 L100 90 L112 100 Z" fill="var(--color-malibu)"/>
+              <path d="M100 165 L88 100 L100 110 L112 100 Z" fill="var(--color-malibu)" opacity="0.4"/>
+              <text x="100" y="22" text-anchor="middle" font-family="serif" font-style="italic" font-size="14" font-weight="500" fill="var(--color-resolution)">N</text>
+              <text x="100" y="195" text-anchor="middle" font-family="serif" font-style="italic" font-size="14" font-weight="500" fill="var(--color-resolution)" opacity="0.5">S</text>
+              <text x="13" y="105" text-anchor="middle" font-family="serif" font-style="italic" font-size="14" font-weight="500" fill="var(--color-resolution)" opacity="0.5">W</text>
+              <text x="187" y="105" text-anchor="middle" font-family="serif" font-style="italic" font-size="14" font-weight="500" fill="var(--color-resolution)" opacity="0.5">E</text>
+              <circle cx="100" cy="100" r="4" fill="var(--color-resolution)"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============== FINAL CTA ============== -->
+  <section class="final-cta">
+    <div class="final-cta__topo" aria-hidden="true"></div>
+    <div class="container final-cta__inner">
+      <p class="eyebrow eyebrow--dark">Ready when you are</p>
+      <h2>
+        Find the
+        <span class="serif-italic">legendary deal</span>.
+      </h2>
+      <p class="final-cta__lede">
+        Pick a coverage category. Get the research. Save the money. The Yeti will be here when you're ready.
+      </p>
+      <a href="/" class="btn-pill btn-pill--navy">
+        <span>Start your search</span>
+        <svg width="16" height="14" viewBox="0 0 16 14" fill="none" aria-hidden="true">
+          <path d="M9 1l6 6-6 6M1 7h14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </a>
+    </div>
+  </section>
+
+  <style>
+    .serif-italic {
+      font-family: var(--font-serif, "Plantin", Georgia, serif);
+      font-style: italic;
+      font-weight: 500;
+      color: var(--color-ship-cove);
+      letter-spacing: -0.01em;
+    }
+
+    .eyebrow {
+      display: inline-block;
+      font-family: var(--font-display);
+      font-size: 0.75rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.18em;
+      color: var(--color-ship-cove);
+      margin: 0 0 var(--space-4);
+    }
+    .eyebrow--dark { color: var(--color-resolution); }
+    .eyebrow--malibu { color: var(--color-malibu); }
+
+    /* ============================================
+       Hero
+    ============================================ */
+    .about-hero {
+      position: relative;
+      padding-block: var(--space-24) var(--space-20);
+      background: linear-gradient(180deg, var(--color-alice) 0%, var(--color-white) 100%);
+      overflow: hidden;
+    }
+    .about-hero__topo {
+      position: absolute; inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1200' height='800' viewBox='0 0 1200 800'%3E%3Cg fill='none' stroke='%232C4577' stroke-width='0.5' stroke-opacity='0.05'%3E%3Cpath d='M0,400 Q300,300 600,400 T1200,400'/%3E%3Cpath d='M0,360 Q300,260 600,360 T1200,360'/%3E%3Cpath d='M0,440 Q300,340 600,440 T1200,440'/%3E%3Cpath d='M0,320 Q300,220 600,320 T1200,320'/%3E%3Cpath d='M0,480 Q300,380 600,480 T1200,480'/%3E%3Cpath d='M0,280 Q300,180 600,280 T1200,280'/%3E%3Cpath d='M0,520 Q300,420 600,520 T1200,520'/%3E%3C/g%3E%3C/svg%3E");
+      pointer-events: none;
+    }
+    .about-hero__inner {
+      position: relative;
+      display: grid;
+      grid-template-columns: 1.4fr 1fr;
+      gap: var(--space-12);
+      align-items: center;
+    }
+    .about-hero__copy { max-width: 640px; }
+    .about-hero h1 {
+      font-size: clamp(2.75rem, 5.5vw, 4.5rem);
+      letter-spacing: -0.03em;
+      line-height: 1.02;
+      margin-bottom: var(--space-6);
+    }
+    .about-hero__lede {
+      font-size: 1.25rem;
+      color: var(--color-text-strong);
+      line-height: 1.55;
+      margin-bottom: var(--space-8);
+    }
+    .about-hero__ctas {
+      display: flex;
+      gap: var(--space-6);
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .about-hero__art {
+      display: flex;
+      justify-content: center;
+    }
+    .about-hero__art img {
+      width: 100%;
+      max-width: 360px;
+      filter: drop-shadow(0 24px 48px rgba(44, 69, 119, 0.16));
+    }
+
+    /* ============================================
+       Big numbers
+    ============================================ */
+    .numbers {
+      padding-block: var(--space-24);
+      background: var(--color-white);
+    }
+    .numbers__header {
+      text-align: center;
+      max-width: 720px;
+      margin: 0 auto var(--space-14);
+    }
+    .numbers__header h2 {
+      font-size: clamp(2.25rem, 4vw, 3.25rem);
+      letter-spacing: -0.025em;
+      line-height: 1.1;
+    }
+    .numbers__grid {
+      list-style: none;
+      margin: 0; padding: 0;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: var(--space-6);
+    }
+    .number-card {
+      position: relative;
+      padding: var(--space-8) var(--space-6);
+      background: linear-gradient(180deg, var(--color-white) 0%, var(--color-alice) 100%);
+      border: 1px solid var(--color-border);
+      border-radius: 20px;
+      text-align: center;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .number-card::before {
+      content: "";
+      position: absolute;
+      top: 0; left: 50%;
+      transform: translateX(-50%);
+      width: 60%; height: 5px;
+      background: var(--color-malibu);
+      border-radius: 0 0 4px 4px;
+      transition: width 0.3s ease;
+    }
+    .number-card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 20px 40px rgba(44, 69, 119, 0.10);
+    }
+    .number-card:hover::before { width: 80%; }
+    .number-card__value {
+      display: block;
+      font-family: var(--font-serif, "Plantin", Georgia, serif);
+      font-style: italic;
+      font-weight: 500;
+      font-size: clamp(4rem, 7vw, 6rem);
+      line-height: 0.95;
+      color: var(--color-resolution);
+      letter-spacing: -0.045em;
+      margin-bottom: var(--space-4);
+    }
+    .number-card__label {
+      display: block;
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 0.875rem;
+      color: var(--color-resolution);
+      letter-spacing: -0.005em;
+      margin-bottom: var(--space-2);
+      line-height: 1.3;
+    }
+    .number-card__detail {
+      display: block;
+      font-size: 0.8125rem;
+      color: var(--color-text-muted);
+      line-height: 1.5;
+    }
+
+    /* ============================================
+       Mission band
+    ============================================ */
+    .mission {
+      background: linear-gradient(135deg, var(--color-resolution), #1F3258);
+      color: var(--color-white);
+      padding-block: var(--space-24);
+      position: relative;
+      overflow: hidden;
+    }
+    .mission::before {
+      content: "";
+      position: absolute;
+      top: -50%; left: -10%;
+      width: 50%; height: 200%;
+      background: var(--color-ship-cove);
+      opacity: 0.10;
+      transform: skewX(-20deg);
+    }
+    .mission::after {
+      content: "";
+      position: absolute; inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1200' height='400' viewBox='0 0 1200 400'%3E%3Cg fill='none' stroke='%23FFFFFF' stroke-width='0.5' stroke-opacity='0.04'%3E%3Cpath d='M0,200 Q300,100 600,200 T1200,200'/%3E%3Cpath d='M0,160 Q300,60 600,160 T1200,160'/%3E%3Cpath d='M0,240 Q300,140 600,240 T1200,240'/%3E%3C/g%3E%3C/svg%3E");
+      pointer-events: none;
+    }
+    .mission__inner {
+      max-width: 880px;
+      margin: 0 auto;
+      text-align: center;
+      position: relative;
+      z-index: 1;
+    }
+    .mission__eyebrow {
+      font-family: var(--font-display);
+      font-size: 0.75rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.18em;
+      color: var(--color-malibu);
+      margin: 0 0 var(--space-6);
+    }
+    .mission__quote {
+      font-family: var(--font-serif, "Plantin", Georgia, serif);
+      font-style: italic;
+      font-weight: 400;
+      font-size: clamp(1.75rem, 3.5vw, 2.75rem);
+      line-height: 1.35;
+      color: var(--color-white);
+      margin: 0 0 var(--space-6);
+      letter-spacing: -0.01em;
+    }
+    .mission__quote em {
+      font-style: italic;
+      color: var(--color-malibu);
+      font-weight: 500;
+    }
+    .mission__open, .mission__close {
+      font-size: 1.5em;
+      line-height: 0;
+      vertical-align: -0.2em;
+      opacity: 0.35;
+      margin-right: 4px;
+    }
+    .mission__close { margin-left: 4px; margin-right: 0; }
+    .mission__attribution {
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 0.75rem;
+      text-transform: uppercase; letter-spacing: 0.18em;
+      color: var(--color-malibu);
+      margin: 0;
+    }
+
+    /* ============================================
+       Principles (3 cards)
+    ============================================ */
+    .principles {
+      padding-block: var(--space-24);
+      background: var(--color-white);
+    }
+    .principles__header {
+      text-align: center;
+      max-width: 640px;
+      margin: 0 auto var(--space-14);
+    }
+    .principles__header h2 {
+      font-size: clamp(2.25rem, 4vw, 3rem);
+      letter-spacing: -0.025em;
+      line-height: 1.1;
+    }
+    .principles__grid {
+      list-style: none;
+      margin: 0; padding: 0;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: var(--space-6);
+    }
+    .principle {
+      position: relative;
+      padding: var(--space-8) var(--space-7);
+      background: var(--color-white);
+      border: 1px solid var(--color-border);
+      border-radius: 16px;
+      transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+    }
+    .principle::before {
+      content: "";
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 4px;
+      background: var(--color-malibu);
+      border-radius: 16px 16px 0 0;
+      transform: scaleX(0.3);
+      transform-origin: left;
+      transition: transform 0.35s ease;
+    }
+    .principle:hover {
+      transform: translateY(-6px);
+      border-color: var(--color-malibu);
+      box-shadow: 0 20px 40px rgba(44, 69, 119, 0.10);
+    }
+    .principle:hover::before { transform: scaleX(1); }
+    .principle__num {
+      display: inline-block;
+      font-family: var(--font-serif, "Plantin", Georgia, serif);
+      font-style: italic;
+      font-weight: 500;
+      font-size: 3rem;
+      line-height: 1;
+      color: var(--color-malibu);
+      letter-spacing: -0.03em;
+      margin-bottom: var(--space-5);
+    }
+    .principle__eyebrow {
+      font-family: var(--font-display);
+      font-size: 0.6875rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.16em;
+      color: var(--color-malibu);
+      margin: 0 0 var(--space-2);
+    }
+    .principle__title {
+      font-size: 1.375rem;
+      margin: 0 0 var(--space-4);
+      letter-spacing: -0.015em;
+      color: var(--color-resolution);
+    }
+    .principle__body {
+      color: var(--color-text);
+      line-height: 1.6;
+      margin: 0;
+    }
+
+    /* ============================================
+       Money / transparency
+    ============================================ */
+    .money {
+      padding-block: var(--space-24);
+      background: var(--color-alice);
+    }
+    .money__inner {
+      display: grid;
+      grid-template-columns: 1.4fr 1fr;
+      gap: var(--space-12);
+      align-items: start;
+    }
+    .money__copy h2 {
+      font-size: clamp(2rem, 3.5vw, 2.75rem);
+      letter-spacing: -0.02em;
+      line-height: 1.1;
+      margin-bottom: var(--space-6);
+    }
+    .money__body {
+      font-size: 1.0625rem;
+      line-height: 1.7;
+      color: var(--color-text-strong);
+      margin-bottom: var(--space-5);
+    }
+    .money__pledge {
+      padding: var(--space-8);
+      background: var(--color-white);
+      border-radius: 16px;
+      border: 1px solid var(--color-border);
+      box-shadow: 0 4px 24px rgba(44, 69, 119, 0.04);
+      position: sticky;
+      top: calc(var(--header-height) + var(--space-5));
+    }
+    .money__pledge-eyebrow {
+      font-family: var(--font-display);
+      font-size: 0.75rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.16em;
+      color: var(--color-malibu);
+      margin: 0 0 var(--space-5);
+      padding-bottom: var(--space-4);
+      border-bottom: 1px solid var(--color-border);
+    }
+    .money__pledge-list {
+      list-style: none;
+      margin: 0; padding: 0;
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-4);
+    }
+    .money__pledge-list li {
+      display: flex;
+      align-items: flex-start;
+      gap: var(--space-3);
+      font-family: var(--font-display);
+      font-weight: 600;
+      font-size: 0.9375rem;
+      color: var(--color-resolution);
+      line-height: 1.4;
+    }
+    .money__pledge-list svg { flex-shrink: 0; margin-top: 1px; }
+
+    /* ============================================
+       Methodology
+    ============================================ */
+    .methodology {
+      padding-block: var(--space-24);
+      background: var(--color-white);
+    }
+    .methodology__header {
+      text-align: center;
+      max-width: 720px;
+      margin: 0 auto var(--space-14);
+    }
+    .methodology__header h2 {
+      font-size: clamp(2.25rem, 4vw, 3rem);
+      letter-spacing: -0.025em;
+      line-height: 1.1;
+    }
+    .methodology__lede {
+      font-size: 1.125rem;
+      color: var(--color-text-muted);
+      margin-top: var(--space-4);
+      line-height: 1.6;
+    }
+    .methodology__steps {
+      list-style: none;
+      margin: 0; padding: 0;
+      max-width: 920px;
+      margin-inline: auto;
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-4);
+    }
+    .method-step {
+      display: grid;
+      grid-template-columns: 100px 1fr;
+      gap: var(--space-6);
+      padding: var(--space-7);
+      background: linear-gradient(180deg, var(--color-white) 0%, var(--color-alice) 100%);
+      border: 1px solid var(--color-border);
+      border-radius: 16px;
+      align-items: start;
+      transition: transform 0.2s ease, border-color 0.2s ease;
+    }
+    .method-step:hover {
+      transform: translateX(4px);
+      border-color: var(--color-malibu);
+    }
+    .method-step__num {
+      font-family: var(--font-serif, "Plantin", Georgia, serif);
+      font-style: italic;
+      font-weight: 500;
+      font-size: 4rem;
+      line-height: 1;
+      color: var(--color-malibu);
+      letter-spacing: -0.04em;
+    }
+    .method-step__body h3 {
+      font-size: 1.375rem;
+      margin: 0 0 var(--space-3);
+      letter-spacing: -0.015em;
+      color: var(--color-resolution);
+    }
+    .method-step__body p {
+      margin: 0;
+      line-height: 1.7;
+      color: var(--color-text);
+    }
+
+    /* ============================================
+       Coverage pills
+    ============================================ */
+    .coverage {
+      padding-block: var(--space-24);
+      background: var(--color-alice);
+    }
+    .coverage__header {
+      text-align: center;
+      max-width: 640px;
+      margin: 0 auto var(--space-12);
+    }
+    .coverage__header h2 {
+      font-size: clamp(2rem, 3.5vw, 2.75rem);
+      letter-spacing: -0.02em;
+      line-height: 1.1;
+    }
+    .coverage__grid {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: var(--space-3);
+      max-width: 920px;
+      margin-inline: auto;
+    }
+    .coverage-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-3);
+      padding: var(--space-4) var(--space-6);
+      background: var(--color-white);
+      border: 1px solid var(--color-border);
+      border-radius: 100px;
+      text-decoration: none;
+      font-family: var(--font-display);
+      font-weight: 600;
+      font-size: 1rem;
+      color: var(--color-resolution);
+      transition: all 0.2s ease;
+    }
+    .coverage-pill img {
+      width: 22px; height: 22px;
+      transition: transform 0.2s ease;
+    }
+    .coverage-pill:hover {
+      background: var(--pill-accent);
+      border-color: var(--pill-accent);
+      color: var(--color-white);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 16px rgba(44, 69, 119, 0.10);
+    }
+    .coverage-pill:hover img {
+      filter: brightness(0) invert(1);
+      transform: scale(1.1);
+    }
+
+    /* ============================================
+       Team
+    ============================================ */
+    .team {
+      padding-block: var(--space-24);
+      background: var(--color-white);
+    }
+    .team__header {
+      text-align: center;
+      max-width: 720px;
+      margin: 0 auto var(--space-14);
+    }
+    .team__header h2 {
+      font-size: clamp(2.25rem, 4vw, 3rem);
+      letter-spacing: -0.025em;
+      line-height: 1.1;
+    }
+    .team__lede {
+      font-size: 1.125rem;
+      color: var(--color-text-muted);
+      margin-top: var(--space-4);
+      line-height: 1.6;
+    }
+    .team__grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: var(--space-6);
+    }
+    .team-card {
+      padding: var(--space-7);
+      background: var(--color-white);
+      border: 1px solid var(--color-border);
+      border-radius: 16px;
+      text-align: center;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .team-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 16px 32px rgba(44, 69, 119, 0.08);
+    }
+    .team-card__avatar {
+      width: 96px; height: 96px;
+      margin: 0 auto var(--space-5);
+      background: var(--color-alice);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+    .team-card__avatar img {
+      width: 80%;
+      height: 80%;
+      object-fit: contain;
+    }
+    .team-card__role {
+      font-family: var(--font-display);
+      font-size: 0.75rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.14em;
+      color: var(--color-malibu);
+      margin: 0 0 var(--space-2);
+    }
+    .team-card__name {
+      font-size: 1.25rem;
+      margin: 0 0 var(--space-3);
+      letter-spacing: -0.01em;
+      color: var(--color-resolution);
+    }
+    .team-card__bio {
+      font-size: 0.9375rem;
+      line-height: 1.6;
+      color: var(--color-text);
+      margin: 0;
+    }
+
+    /* ============================================
+       Location
+    ============================================ */
+    .location {
+      padding-block: var(--space-24);
+      background: linear-gradient(135deg, var(--color-resolution) 0%, #1F3258 100%);
+      color: var(--color-white);
+      position: relative;
+      overflow: hidden;
+    }
+    .location::before {
+      content: "";
+      position: absolute; inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1200' height='600' viewBox='0 0 1200 600'%3E%3Cg fill='none' stroke='%23FFFFFF' stroke-width='0.5' stroke-opacity='0.06'%3E%3Cpath d='M0,300 Q300,200 600,300 T1200,300'/%3E%3Cpath d='M0,260 Q300,160 600,260 T1200,260'/%3E%3Cpath d='M0,340 Q300,240 600,340 T1200,340'/%3E%3Cpath d='M0,220 Q300,120 600,220 T1200,220'/%3E%3Cpath d='M0,380 Q300,280 600,380 T1200,380'/%3E%3C/g%3E%3C/svg%3E");
+      pointer-events: none;
+    }
+    .location__inner {
+      position: relative;
+      display: grid;
+      grid-template-columns: 1.5fr 1fr;
+      gap: var(--space-12);
+      align-items: center;
+    }
+    .location__copy h2 {
+      font-size: clamp(2rem, 3.5vw, 2.75rem);
+      letter-spacing: -0.02em;
+      line-height: 1.1;
+      margin-bottom: var(--space-6);
+      color: var(--color-white);
+    }
+    .location__copy .serif-italic { color: var(--color-malibu); }
+    .location__body {
+      font-size: 1.0625rem;
+      line-height: 1.7;
+      color: rgba(255, 255, 255, 0.85);
+      margin-bottom: var(--space-5);
+    }
+    .location__body a {
+      color: var(--color-malibu);
+      text-decoration: underline;
+      text-underline-offset: 4px;
+      text-decoration-thickness: 1px;
+    }
+    .location__body a:hover { color: var(--color-white); }
+    .location__art {
+      display: flex;
+      justify-content: center;
+    }
+    .location__compass {
+      width: 240px; height: 240px;
+      padding: var(--space-6);
+      background: rgba(255, 255, 255, 0.04);
+      border-radius: 50%;
+      border: 1px solid rgba(255, 255, 255, 0.10);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      animation: compass-rotate 60s linear infinite;
+    }
+    @keyframes compass-rotate {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .location__compass { animation: none; }
+    }
+
+    /* ============================================
+       Final CTA
+    ============================================ */
+    .final-cta {
+      padding-block: var(--space-24);
+      background: linear-gradient(180deg, var(--color-white) 0%, var(--color-alice) 100%);
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .final-cta__topo {
+      position: absolute; inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1200' height='600' viewBox='0 0 1200 600'%3E%3Cg fill='none' stroke='%232C4577' stroke-width='0.5' stroke-opacity='0.04'%3E%3Cpath d='M0,300 Q300,200 600,300 T1200,300'/%3E%3Cpath d='M0,260 Q300,160 600,260 T1200,260'/%3E%3Cpath d='M0,340 Q300,240 600,340 T1200,340'/%3E%3C/g%3E%3C/svg%3E");
+      pointer-events: none;
+    }
+    .final-cta__inner {
+      position: relative;
+      max-width: 720px;
+    }
+    .final-cta h2 {
+      font-size: clamp(2.5rem, 5vw, 3.75rem);
+      letter-spacing: -0.025em;
+      line-height: 1.05;
+      margin-bottom: var(--space-5);
+    }
+    .final-cta__lede {
+      font-size: 1.125rem;
+      color: var(--color-text-strong);
+      line-height: 1.6;
+      margin-bottom: var(--space-8);
+      max-width: 540px;
+      margin-inline: auto;
+    }
+
+    /* ============================================
+       Responsive
+    ============================================ */
+    @media (max-width: 1000px) {
+      .about-hero__inner { grid-template-columns: 1fr; gap: var(--space-8); }
+      .about-hero__art { order: -1; max-width: 240px; margin-inline: auto; }
+      .numbers__grid { grid-template-columns: repeat(2, 1fr); }
+      .principles__grid { grid-template-columns: 1fr; }
+      .money__inner { grid-template-columns: 1fr; }
+      .money__pledge { position: static; }
+      .team__grid { grid-template-columns: 1fr; }
+      .location__inner { grid-template-columns: 1fr; }
+      .location__art { order: -1; }
+      .location__compass { width: 180px; height: 180px; }
+    }
+    @media (max-width: 600px) {
+      .numbers__grid { grid-template-columns: 1fr; }
+      .method-step { grid-template-columns: 1fr; gap: var(--space-3); }
+      .method-step__num { font-size: 3rem; }
+      .about-hero__ctas { flex-direction: column; align-items: flex-start; }
+    }
+  </style>
+</BaseLayout>

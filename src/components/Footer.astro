@@ -1,6 +1,7 @@
 ---
 import type { VerticalKey } from "~/data/verticals";
 import { DEFAULT_FOOTER, SECTION_FOOTERS } from "~/data/footers";
+import { VERTICAL_LIST } from "~/data/verticals";
 
 interface Props {
   section?: VerticalKey;
@@ -10,39 +11,84 @@ const { section } = Astro.props;
 const footer = section ? SECTION_FOOTERS[section] : DEFAULT_FOOTER;
 const year = new Date().getFullYear();
 
-// Take only the first 3 columns to keep the layout tight
+// Three columns + newsletter
 const cols = footer.columns.slice(0, 3);
 ---
 
 <footer class="site-footer" data-footer-section={section ?? "default"}>
 
-  <!-- Layer 1: Brand band — replaces the old CTA -->
-  <section class="footer-brand">
-    <div class="container footer-brand__inner">
-      <a href="/" class="footer-brand__mark" aria-label="QuoteYeti home">
-        <img src="/assets/images/quoteyeti-logo.svg" alt="QuoteYeti" class="footer-brand__logo" />
-      </a>
-      <p class="footer-brand__tagline">
-        We navigate the wilderness of the insurance market so you don't have to.
-      </p>
-    </div>
-  </section>
-
-  <!-- Layer 2: Three link columns -->
-  <section class="footer-links container">
-    <div class="footer-links__grid">
-      {cols.map((col) => (
-        <div class="footer-links__col">
-          <h3 class="footer-links__col-title">{col.title}</h3>
-          <ul>
-            {col.links.map((link) => <li><a href={link.href}>{link.label}</a></li>)}
-          </ul>
+  <!-- ============== Newsletter band ============== -->
+  <section class="footer-newsletter-band">
+    <div class="footer-newsletter-band__topo" aria-hidden="true"></div>
+    <div class="container footer-newsletter-band__inner">
+      <div class="footer-newsletter-band__copy">
+        <p class="footer-newsletter-band__eyebrow">The YetiLetter</p>
+        <h2 class="footer-newsletter-band__heading">
+          Insurance intel, <em>weekly</em>.
+        </h2>
+        <p class="footer-newsletter-band__body">
+          Hot takes on rates, carriers, and money — straight to your inbox. No spam. No paid placement. Unsubscribe anytime.
+        </p>
+      </div>
+      <form class="footer-newsletter-form" action="/newsletter/" method="post">
+        <label class="sr-only" for="footer-email">Email address</label>
+        <div class="footer-newsletter-form__row">
+          <input
+            id="footer-email"
+            type="email"
+            name="email"
+            placeholder="you@example.com"
+            required
+            autocomplete="email"
+          />
+          <button type="submit" class="footer-newsletter-form__btn">
+            <span>Subscribe</span>
+            <svg width="14" height="12" viewBox="0 0 14 12" fill="none" aria-hidden="true">
+              <path d="M8 1l5 5-5 5M1 6h12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
         </div>
-      ))}
+        <p class="footer-newsletter-form__legal">By subscribing, you agree to our <a href="/privacy-policy/">Privacy Policy</a>.</p>
+      </form>
     </div>
   </section>
 
-  <!-- Layer 3: Universal bottom strip -->
+  <!-- ============== Main footer (dark) ============== -->
+  <section class="footer-main">
+    <div class="container footer-main__inner">
+      <!-- Brand column -->
+      <div class="footer-main__brand">
+        <a href="/" class="footer-main__mark" aria-label="QuoteYeti home">
+          <img src="/assets/images/quoteyeti-logo.svg" alt="QuoteYeti" class="footer-main__logo" />
+        </a>
+        <p class="footer-main__tagline">
+          We navigate the wilderness of the insurance market so you don't have to.
+        </p>
+        <div class="footer-main__verticals">
+          {VERTICAL_LIST.map((v) => (
+            <a href={v.path} class="footer-vertical-chip" style={`--chip-accent: ${v.accent}; --chip-accent-soft: ${v.accentSoft};`}>
+              <img src={v.icon} alt="" />
+              <span>{v.short}</span>
+            </a>
+          ))}
+        </div>
+      </div>
+
+      <!-- Link columns -->
+      <div class="footer-main__columns">
+        {cols.map((col) => (
+          <div class="footer-main__col">
+            <h3 class="footer-main__col-title">{col.title}</h3>
+            <ul>
+              {col.links.map((link) => <li><a href={link.href}>{link.label}</a></li>)}
+            </ul>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- ============== Bottom bar ============== -->
   <section class="footer-bottom">
     <div class="container footer-bottom__inner">
       <p class="footer-bottom__copy">© {year} QuoteYeti. All rights reserved.</p>
@@ -55,88 +101,244 @@ const cols = footer.columns.slice(0, 3);
       </nav>
     </div>
   </section>
+
+  <!-- Bottom accent strip mirroring header -->
+  <div class="footer-strip" aria-hidden="true">
+    <span class="footer-strip__bar" style="background: #F46036;"></span>
+    <span class="footer-strip__bar" style="background: #8FB339;"></span>
+    <span class="footer-strip__bar" style="background: #6B5B95;"></span>
+    <span class="footer-strip__bar" style="background: #14A38B;"></span>
+    <span class="footer-strip__bar" style="background: #E8A87C;"></span>
+    <span class="footer-strip__bar" style="background: #C06C84;"></span>
+    <span class="footer-strip__bar" style="background: #355C7D;"></span>
+    <span class="footer-strip__bar" style="background: #2E5266;"></span>
+  </div>
 </footer>
 
 <style>
-  .site-footer { margin-top: var(--space-24); }
+  .site-footer {
+    margin-top: var(--space-24);
+  }
 
-  /* ---- Brand band ---- */
-  .footer-brand {
-    background: linear-gradient(180deg, var(--color-white), var(--color-alice));
-    padding-block: var(--space-16) var(--space-12);
+  /* ============================================
+     Newsletter band — light, on top of the dark
+  ============================================ */
+  .footer-newsletter-band {
+    position: relative;
+    background: linear-gradient(135deg, #EFF4F8 0%, #FFFFFF 100%);
+    padding-block: var(--space-16);
     border-top: 1px solid var(--color-border);
+    overflow: hidden;
+  }
+  .footer-newsletter-band__topo {
+    position: absolute; inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1000' height='400' viewBox='0 0 1000 400'%3E%3Cg fill='none' stroke='%232C4577' stroke-width='0.5' stroke-opacity='0.05'%3E%3Cpath d='M0,200 Q250,100 500,200 T1000,200'/%3E%3Cpath d='M0,160 Q250,60 500,160 T1000,160'/%3E%3Cpath d='M0,240 Q250,140 500,240 T1000,240'/%3E%3Cpath d='M0,120 Q250,20 500,120 T1000,120'/%3E%3Cpath d='M0,280 Q250,180 500,280 T1000,280'/%3E%3C/g%3E%3C/svg%3E");
+    pointer-events: none;
+  }
+  .footer-newsletter-band__inner {
+    position: relative;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-12);
+    align-items: center;
+  }
+  .footer-newsletter-band__eyebrow {
+    display: inline-block;
+    font-family: var(--font-display);
+    font-size: 0.75rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.18em;
+    color: var(--color-malibu);
+    margin: 0 0 var(--space-3);
+    padding: 0.375rem 0.875rem;
+    background: var(--color-white);
+    border-radius: 100px;
+    box-shadow: 0 2px 8px rgba(44, 69, 119, 0.06);
+  }
+  .footer-newsletter-band__heading {
+    font-size: clamp(2rem, 3.5vw, 2.75rem);
+    color: var(--color-resolution);
+    margin: 0 0 var(--space-4);
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+  }
+  .footer-newsletter-band__heading em {
+    font-family: var(--font-serif, "Plantin", Georgia, serif);
+    font-style: italic;
+    font-weight: 500;
+    color: var(--color-malibu);
+  }
+  .footer-newsletter-band__body {
+    color: var(--color-text);
+    line-height: 1.65;
+    margin: 0;
+    max-width: 480px;
+    font-size: 1rem;
+  }
+
+  .footer-newsletter-form__row {
+    display: flex;
+    gap: 0;
+    background: var(--color-white);
+    border-radius: 100px;
+    padding: 6px;
+    box-shadow: 0 4px 20px rgba(44, 69, 119, 0.10), 0 1px 3px rgba(44, 69, 119, 0.06);
+    border: 1px solid var(--color-border);
+  }
+  .footer-newsletter-form__row input {
+    flex: 1;
+    font-family: var(--font-body);
+    font-size: 1rem;
+    padding: 0.875rem 1.25rem;
+    border: 0;
+    background: transparent;
+    color: var(--color-resolution);
+  }
+  .footer-newsletter-form__row input::placeholder { color: var(--color-text-muted); }
+  .footer-newsletter-form__row input:focus { outline: none; }
+  .footer-newsletter-form__btn {
+    display: inline-flex; align-items: center; gap: var(--space-2);
+    background: var(--color-resolution);
+    color: var(--color-white);
+    padding: 0.875rem 1.5rem;
+    border: 0;
+    border-radius: 100px;
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 0.9375rem;
+    cursor: pointer;
+    transition: background 0.18s, transform 0.15s;
+    white-space: nowrap;
+  }
+  .footer-newsletter-form__btn:hover {
+    background: var(--color-malibu);
+    color: var(--color-resolution);
+  }
+  .footer-newsletter-form__btn svg { transition: transform 0.2s; }
+  .footer-newsletter-form__btn:hover svg { transform: translateX(3px); }
+  .footer-newsletter-form__legal {
+    margin: var(--space-4) 0 0;
+    font-size: 0.75rem;
+    color: var(--color-text-muted);
+    padding-left: var(--space-2);
+  }
+  .footer-newsletter-form__legal a { color: var(--color-text-muted); border-bottom: 1px solid var(--color-border); text-decoration: none; }
+  .footer-newsletter-form__legal a:hover { color: var(--color-malibu); border-bottom-color: var(--color-malibu); }
+
+  /* ============================================
+     Main footer — dark navy, full width
+  ============================================ */
+  .footer-main {
+    background: linear-gradient(180deg, var(--color-resolution) 0%, #1F3258 100%);
+    color: var(--color-white);
+    padding-block: var(--space-20) var(--space-16);
     position: relative;
     overflow: hidden;
   }
-  .footer-brand::before {
+  .footer-main::before {
     content: "";
     position: absolute; inset: 0;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='800' height='400' viewBox='0 0 800 400'%3E%3Cg fill='none' stroke='%232C4577' stroke-width='0.5' stroke-opacity='0.05'%3E%3Cpath d='M0,200 Q200,100 400,200 T800,200'/%3E%3Cpath d='M0,160 Q200,60 400,160 T800,160'/%3E%3Cpath d='M0,240 Q200,140 400,240 T800,240'/%3E%3C/g%3E%3C/svg%3E");
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1200' height='600' viewBox='0 0 1200 600'%3E%3Cg fill='none' stroke='%23FFFFFF' stroke-width='0.5' stroke-opacity='0.05'%3E%3Cpath d='M0,300 Q300,200 600,300 T1200,300'/%3E%3Cpath d='M0,260 Q300,160 600,260 T1200,260'/%3E%3Cpath d='M0,340 Q300,240 600,340 T1200,340'/%3E%3Cpath d='M0,220 Q300,120 600,220 T1200,220'/%3E%3Cpath d='M0,380 Q300,280 600,380 T1200,380'/%3E%3Cpath d='M0,180 Q300,80 600,180 T1200,180'/%3E%3Cpath d='M0,420 Q300,320 600,420 T1200,420'/%3E%3C/g%3E%3C/svg%3E");
     pointer-events: none;
   }
-  .footer-brand__inner {
+  .footer-main__inner {
     position: relative;
-    text-align: center;
-    max-width: 640px;
+    display: grid;
+    grid-template-columns: 1.3fr 2fr;
+    gap: var(--space-16);
   }
-  .footer-brand__mark {
+
+  /* Brand column */
+  .footer-main__mark {
     display: inline-block;
     margin-bottom: var(--space-5);
   }
-  .footer-brand__logo {
-    height: 48px;
+  .footer-main__logo {
+    height: 44px;
     width: auto;
     display: block;
+    filter: brightness(0) invert(1);
   }
-  .footer-brand__tagline {
+  .footer-main__tagline {
     font-family: var(--font-serif, "Plantin", Georgia, serif);
     font-style: italic;
-    font-size: 1.25rem;
-    color: var(--color-text-strong);
-    margin: 0;
-    line-height: 1.45;
+    font-size: 1.0625rem;
+    color: var(--color-white);
+    opacity: 0.9;
+    margin: 0 0 var(--space-6);
+    line-height: 1.55;
+    max-width: 360px;
   }
+  .footer-main__verticals {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+  .footer-vertical-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: 0.5rem 0.875rem;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 100px;
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 0.8125rem;
+    color: var(--color-white);
+    text-decoration: none;
+    transition: all 0.2s ease;
+  }
+  .footer-vertical-chip img {
+    width: 14px; height: 14px;
+    filter: brightness(0) invert(1);
+    opacity: 0.7;
+    transition: opacity 0.2s;
+  }
+  .footer-vertical-chip:hover {
+    background: var(--chip-accent);
+    border-color: var(--chip-accent);
+    transform: translateY(-1px);
+  }
+  .footer-vertical-chip:hover img { opacity: 1; }
 
-  /* ---- Link columns ---- */
-  .footer-links {
-    padding-block: var(--space-12) var(--space-16);
-    background: var(--color-alice);
-  }
-  .footer-links__grid {
+  /* Link columns */
+  .footer-main__columns {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: var(--space-12);
-    max-width: 920px;
-    margin: 0 auto;
+    gap: var(--space-10);
   }
-  .footer-links__col-title {
+  .footer-main__col-title {
     font-family: var(--font-display);
-    font-size: 0.75rem; font-weight: 700;
-    text-transform: uppercase; letter-spacing: 0.14em;
-    color: var(--color-resolution);
+    font-size: 0.6875rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.18em;
+    color: var(--color-malibu);
     margin: 0 0 var(--space-5);
     padding-bottom: var(--space-3);
-    border-bottom: 1px solid var(--color-border);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.12);
   }
-  .footer-links__col ul {
+  .footer-main__col ul {
     list-style: none;
     margin: 0; padding: 0;
     display: flex; flex-direction: column;
     gap: var(--space-3);
   }
-  .footer-links__col li a {
-    color: var(--color-text);
+  .footer-main__col li a {
+    color: rgba(255, 255, 255, 0.78);
     font-size: 0.9375rem;
     text-decoration: none;
     transition: color 0.2s;
+    line-height: 1.4;
   }
-  .footer-links__col li a:hover { color: var(--section-accent); }
+  .footer-main__col li a:hover { color: var(--color-malibu); }
 
-  /* ---- Bottom strip ---- */
+  /* ============================================
+     Bottom bar
+  ============================================ */
   .footer-bottom {
-    background: var(--color-resolution);
+    background: #1A2A4A;
     color: var(--color-white);
     padding-block: var(--space-5);
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
   }
   .footer-bottom__inner {
     display: flex; align-items: center; justify-content: space-between;
@@ -144,25 +346,49 @@ const cols = footer.columns.slice(0, 3);
     font-size: 0.8125rem;
   }
   .footer-bottom__copy {
-    color: var(--color-white); opacity: 0.7;
+    color: rgba(255, 255, 255, 0.55);
     margin: 0;
   }
   .footer-bottom__legal {
     display: flex; gap: var(--space-5); flex-wrap: wrap;
   }
   .footer-bottom__legal a {
-    color: var(--color-white); opacity: 0.7;
+    color: rgba(255, 255, 255, 0.65);
     text-decoration: none;
-    transition: opacity 0.2s, color 0.2s;
+    transition: color 0.2s;
   }
-  .footer-bottom__legal a:hover { opacity: 1; color: var(--color-malibu); }
+  .footer-bottom__legal a:hover { color: var(--color-malibu); }
 
-  @media (max-width: 800px) {
-    .footer-links__grid { grid-template-columns: repeat(2, 1fr); gap: var(--space-8); }
-    .footer-brand__tagline { font-size: 1.0625rem; }
+  /* ============================================
+     Bottom accent strip
+  ============================================ */
+  .footer-strip {
+    display: flex;
+    height: 4px;
+    width: 100%;
+  }
+  .footer-strip__bar {
+    flex: 1;
+    height: 100%;
+  }
+
+  /* ============================================
+     Responsive
+  ============================================ */
+  @media (max-width: 950px) {
+    .footer-newsletter-band__inner { grid-template-columns: 1fr; gap: var(--space-8); }
+    .footer-main__inner { grid-template-columns: 1fr; gap: var(--space-12); }
+    .footer-main__columns { grid-template-columns: repeat(3, 1fr); gap: var(--space-8); }
+    .footer-main__tagline { max-width: none; }
+  }
+  @media (max-width: 700px) {
+    .footer-main__columns { grid-template-columns: repeat(2, 1fr); gap: var(--space-6); }
+    .footer-newsletter-form__row { flex-direction: column; border-radius: var(--radius-lg); padding: var(--space-3); }
+    .footer-newsletter-form__row input { padding: var(--space-3); }
+    .footer-newsletter-form__btn { justify-content: center; }
     .footer-bottom__inner { flex-direction: column; align-items: flex-start; }
   }
   @media (max-width: 480px) {
-    .footer-links__grid { grid-template-columns: 1fr; }
+    .footer-main__columns { grid-template-columns: 1fr; }
   }
 </style>

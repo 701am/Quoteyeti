@@ -23,7 +23,7 @@ import { VERTICAL_LIST } from "~/data/verticals";
       </p>
 
       <div class="four-oh-four__actions">
-        <a href="/" class="btn btn-accent btn-primary">
+        <a href="/" class="btn-pill btn-pill--navy">
           <span>Back to base camp</span>
           <svg width="16" height="14" viewBox="0 0 16 14" fill="none" aria-hidden="true">
             <path d="M9 1l6 6-6 6M1 7h14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -121,17 +121,6 @@ import { VERTICAL_LIST } from "~/data/verticals";
       line-height: 1.6;
       color: var(--color-text-strong);
     }
-
-    .btn-primary {
-      display: inline-flex; align-items: center; gap: var(--space-3);
-      padding: var(--space-4) var(--space-7);
-      font-family: var(--font-display); font-weight: 700;
-      font-size: 0.9375rem;
-      border-radius: 100px;
-      transition: all 0.2s ease;
-    }
-    .btn-primary svg { transition: transform 0.2s; }
-    .btn-primary:hover svg { transform: translateX(4px); }
 
     .four-oh-four__actions {
       display: flex; gap: var(--space-3); justify-content: center; flex-wrap: wrap;

@@ -194,6 +194,50 @@ a:hover { color: var(--color-link-hover); }
 .btn-ghost      { background: transparent; color: var(--color-resolution); padding: 0.5rem 0.75rem; }
 .btn-ghost:hover { color: var(--color-malibu); }
 
+/* Large pill CTAs — used on hero & section CTAs */
+.btn-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1rem;
+  padding: 1.125rem 2rem;
+  border-radius: 100px;
+  border: 2px solid transparent;
+  cursor: pointer;
+  text-decoration: none;
+  line-height: 1.2;
+  letter-spacing: 0.005em;
+  box-shadow: 0 2px 6px rgba(44, 69, 119, 0.08), 0 4px 14px rgba(44, 69, 119, 0.06);
+  transition: transform 0.15s ease, box-shadow 0.2s ease, background 0.2s ease, color 0.2s ease;
+}
+.btn-pill svg { transition: transform 0.2s ease; flex-shrink: 0; }
+.btn-pill:hover { transform: translateY(-2px); box-shadow: 0 6px 14px rgba(44, 69, 119, 0.14), 0 12px 28px rgba(44, 69, 119, 0.10); }
+.btn-pill:hover svg { transform: translateX(4px); }
+.btn-pill:active { transform: translateY(0); }
+.btn-pill--accent { background: var(--section-accent); color: var(--section-text-on-accent); }
+.btn-pill--accent:hover { background: var(--section-accent); color: var(--section-text-on-accent); filter: brightness(0.94); }
+.btn-pill--navy { background: var(--color-resolution); color: var(--color-white); }
+.btn-pill--navy:hover { background: var(--color-malibu); color: var(--color-resolution); }
+.btn-pill--white { background: var(--color-white); color: var(--color-resolution); }
+.btn-pill--white:hover { background: var(--color-resolution); color: var(--color-white); }
+
+/* Tertiary text link with dashed underline */
+.btn-tertiary {
+  display: inline-flex; align-items: center;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 0.9375rem;
+  color: var(--color-resolution);
+  text-decoration: none;
+  border-bottom: 1px dashed var(--color-ship-cove);
+  padding-bottom: 2px;
+  transition: color 0.2s, border-color 0.2s, border-style 0.2s;
+}
+.btn-tertiary:hover { color: var(--color-malibu); border-bottom-color: var(--color-malibu); border-bottom-style: solid; }
+
 .container {
   max-width: var(--container-max);
   margin-inline: auto;
