@@ -1,5 +1,6 @@
 ---
 import BaseLayout from "~/layouts/BaseLayout.astro";
+import ZipForm from "~/components/ZipForm.astro";
 import { VERTICAL_LIST } from "~/data/verticals";
 
 const topGuides = [
@@ -44,15 +45,14 @@ const faqs = [
         Spot the savings. Pay less. Zero relentless sales calls.
       </p>
 
-      <div class="hero__ctas">
-        <a href="#explore" class="btn-pill btn-pill--navy">
-          <span>Start your search</span>
-          <svg width="16" height="14" viewBox="0 0 16 14" fill="none" aria-hidden="true">
-            <path d="M9 1l6 6-6 6M1 7h14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-        </a>
-        <a href="/about/" class="btn-tertiary">Or read about the Yeti →</a>
+      <div class="hero__zip">
+        <ZipForm
+          variant="picker"
+          eyebrow="Compare in seconds"
+          heading="What are you insuring?"
+        />
       </div>
+      <a href="/about/" class="btn-tertiary hero__about-link">Or read about the Yeti →</a>
     </div>
   </section>
 
@@ -128,38 +128,40 @@ const faqs = [
       </header>
       <ol class="how__steps">
         <li class="how__step">
-          <div class="how__step-icon" aria-hidden="true">
-            <svg viewBox="0 0 32 32" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <rect x="4" y="8" width="24" height="20" rx="2"/>
-              <path d="M4 14h24"/>
-              <path d="M11 4v6M21 4v6"/>
-              <circle cx="11" cy="20" r="1.5" fill="currentColor"/>
-            </svg>
+          <div class="how__step-top">
+            <div class="how__step-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="6" width="18" height="15" rx="2"/>
+                <path d="M3 10h18M8 3v6M16 3v6"/>
+              </svg>
+            </div>
+            <span class="how__step-eyebrow">Step 01</span>
           </div>
-          <span class="how__step-eyebrow">Step 01</span>
           <h3>Pick your coverage category</h3>
           <p>Auto, home, life, business, health, renters, pet, travel. Each gets its own dedicated research.</p>
         </li>
         <li class="how__step">
-          <div class="how__step-icon" aria-hidden="true">
-            <svg viewBox="0 0 32 32" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <rect x="5" y="4" width="22" height="24" rx="2"/>
-              <path d="M10 10h12M10 15h12M10 20h8"/>
-            </svg>
+          <div class="how__step-top">
+            <div class="how__step-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M4 4h16v16H4z"/>
+                <path d="M8 9h8M8 13h8M8 17h5"/>
+              </svg>
+            </div>
+            <span class="how__step-eyebrow">Step 02</span>
           </div>
-          <span class="how__step-eyebrow">Step 02</span>
           <h3>Read the analysis</h3>
           <p>Independent carrier reviews, best-of rankings, and methodology you can audit. No paid placement.</p>
         </li>
         <li class="how__step">
-          <div class="how__step-icon" aria-hidden="true">
-            <svg viewBox="0 0 32 32" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M20 6l6 6-6 6"/>
-              <path d="M26 12H10a6 6 0 0 0-6 6v8"/>
-              <circle cx="16" cy="22" r="3"/>
-            </svg>
+          <div class="how__step-top">
+            <div class="how__step-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M5 12h14M13 6l6 6-6 6"/>
+              </svg>
+            </div>
+            <span class="how__step-eyebrow">Step 03</span>
           </div>
-          <span class="how__step-eyebrow">Step 03</span>
           <h3>Get quotes on your terms</h3>
           <p>Request quotes only from the carriers you choose. We never auto-route your data.</p>
         </li>
@@ -298,7 +300,8 @@ const faqs = [
       margin-bottom: var(--space-8);
       letter-spacing: -0.005em;
     }
-    .hero__ctas { display: flex; gap: var(--space-6); align-items: center; flex-wrap: wrap; }
+    .hero__zip { margin-bottom: var(--space-5); max-width: 540px; }
+    .hero__about-link { display: inline-flex; }
 
     /* ============================================
        THE SHOW: 8-vertical grid — confident, clean cards
@@ -527,7 +530,7 @@ const faqs = [
     }
 
     /* ============================================
-       How it works — icon-led cards
+       How it works — clean icon+eyebrow row
     ============================================ */
     .how { padding-block: var(--space-20); background: var(--color-alice); }
     .how__header { text-align: center; max-width: 640px; margin: 0 auto var(--space-14); }
@@ -541,13 +544,11 @@ const faqs = [
       display: grid;
       grid-template-columns: repeat(3, 1fr);
       gap: var(--space-6);
-      counter-reset: step;
     }
     .how__step {
-      position: relative;
-      padding: var(--space-9) var(--space-7);
+      padding: var(--space-8) var(--space-7);
       background: var(--color-white);
-      border-radius: 20px;
+      border-radius: 16px;
       border: 1px solid var(--color-border);
       transition:
         transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
@@ -555,39 +556,34 @@ const faqs = [
         border-color 0.3s ease;
     }
     .how__step:hover {
-      transform: translateY(-6px);
+      transform: translateY(-4px);
       border-color: var(--color-malibu);
-      box-shadow:
-        0 4px 12px rgba(44, 69, 119, 0.05),
-        0 24px 48px rgba(44, 69, 119, 0.10);
+      box-shadow: 0 16px 32px rgba(44, 69, 119, 0.08);
+    }
+    .how__step-top {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      margin-bottom: var(--space-6);
     }
     .how__step-icon {
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      width: 64px;
-      height: 64px;
-      border-radius: 16px;
-      background: linear-gradient(135deg, var(--color-malibu) 0%, #4DA8D5 100%);
-      color: var(--color-white);
-      margin-bottom: var(--space-6);
-      box-shadow:
-        0 4px 12px rgba(100, 188, 225, 0.25),
-        0 8px 24px rgba(100, 188, 225, 0.15);
-      transition: transform 0.3s ease;
-    }
-    .how__step:hover .how__step-icon {
-      transform: scale(1.05) rotate(-3deg);
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      background: var(--color-alice);
+      color: var(--color-malibu);
+      flex-shrink: 0;
     }
     .how__step-eyebrow {
-      display: inline-block;
       font-family: var(--font-display);
       font-size: 0.6875rem;
       font-weight: 700;
       text-transform: uppercase;
       letter-spacing: 0.18em;
       color: var(--color-malibu);
-      margin-bottom: var(--space-3);
     }
     .how__step h3 {
       font-family: var(--font-display);
@@ -720,7 +716,7 @@ const faqs = [
     @media (max-width: 760px) {
       .explore__grid { grid-template-columns: 1fr; }
       .guides__grid { grid-template-columns: 1fr; }
-      .hero__ctas { flex-direction: column; align-items: flex-start; }
+      .hero__about-link { font-size: 0.875rem; }
       .manifesto__quote { font-size: 1.375rem; }
     }
   </style>

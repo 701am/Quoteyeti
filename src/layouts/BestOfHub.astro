@@ -1,5 +1,6 @@
 ---
 import BaseLayout from "~/layouts/BaseLayout.astro";
+import ZipForm from "~/components/ZipForm.astro";
 import type { Vertical } from "~/data/verticals";
 
 interface RankedCarrier {
@@ -125,6 +126,16 @@ const topCarrier = carriers[0];
           </aside>
         )}
 
+        <!-- ===== MID-ARTICLE ZIP CTA BAND ===== -->
+        <ZipForm
+          variant="band"
+          vertical={vertical.key}
+          eyebrow="Or skip to the rates"
+          heading={`See what <em>you'd actually pay</em>.`}
+          lede={`Compare quotes from the top ${carriers.length} carriers below — and others — in 60 seconds.`}
+          ctaLabel="Get quotes"
+        />
+
         <!-- Detailed carrier cards -->
         {carriers.map((c) => (
           <section id={c.name.toLowerCase().replace(/\s+/g, "-")} class="carrier-card reveal">
@@ -199,6 +210,16 @@ const topCarrier = carriers[0];
       </article>
     </div>
   </div>
+
+  <!-- ============== PRE-FOOTER BANNER ============== -->
+  <ZipForm
+    variant="banner"
+    vertical={vertical.key}
+    eyebrow="Free · 60 seconds · No spam"
+    heading={`Ready to compare <em>${vertical.short.toLowerCase()} quotes?</em>`}
+    lede={`You've seen the rankings. Now see which of these carriers actually offers the best rate for your specific area and situation.`}
+    ctaLabel={`Get ${vertical.short.toLowerCase()} quotes`}
+  />
 
   <style>
     /* Hero */

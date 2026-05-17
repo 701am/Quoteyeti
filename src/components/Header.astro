@@ -1,6 +1,7 @@
 ---
 import { NAV } from "~/data/nav";
 import { VERTICALS } from "~/data/verticals";
+import ZipForm from "~/components/ZipForm.astro";
 ---
 
 <header class="site-header">
@@ -105,12 +106,7 @@ import { VERTICALS } from "~/data/verticals";
       </nav>
 
       <div class="site-header__actions">
-        <a href="/auto/quotes/" class="header__cta">
-          <span>Get quotes</span>
-          <svg width="14" height="12" viewBox="0 0 14 12" fill="none" aria-hidden="true">
-            <path d="M8 1l5 5-5 5M1 6h12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-        </a>
+        <ZipForm variant="header" vertical="auto" />
 
         <button class="header__menu-toggle" aria-label="Open menu" aria-expanded="false" data-mobile-toggle>
           <span></span><span></span><span></span>
@@ -450,7 +446,7 @@ import { VERTICALS } from "~/data/verticals";
     .megamenu__columns { grid-template-columns: repeat(3, 1fr); gap: var(--space-6); }
   }
   @media (max-width: 950px) {
-    .megamenu, .header__cta { display: none; }
+    .megamenu, :global(.zipcta--header) { display: none; }
     .header__menu-toggle { display: flex; }
   }
   @media (max-width: 600px) {

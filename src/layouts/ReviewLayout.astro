@@ -1,5 +1,6 @@
 ---
 import BaseLayout from "~/layouts/BaseLayout.astro";
+import ZipForm from "~/components/ZipForm.astro";
 import type { Vertical } from "~/data/verticals";
 
 interface ReviewProps {
@@ -120,21 +121,32 @@ const remainingTakeaways = takeaways.slice(1);
   <div class="review-page container">
     <div class="review-page__layout">
 
-      <!-- Sticky TOC with active-state highlighting -->
-      <aside class="toc" aria-label="On this page" data-toc>
-        <p class="toc__label">On this page</p>
-        <ol>
-          <li><a href="#takeaways" data-toc-link>Key takeaways</a></li>
-          <li><a href="#ratings" data-toc-link>Ratings</a></li>
-          <li><a href="#cost" data-toc-link>How much it costs</a></li>
-          <li><a href="#customer-experience" data-toc-link>Customer experience</a></li>
-          <li><a href="#industry-ratings" data-toc-link>Industry ratings</a></li>
-          {discounts && <li><a href="#discounts" data-toc-link>Discounts</a></li>}
-          <li><a href="#coverage" data-toc-link>Coverage</a></li>
-          <li><a href="#bottom-line" data-toc-link>Bottom line</a></li>
-          <li><a href="#faq" data-toc-link>FAQ</a></li>
-          <li><a href="#methodology" data-toc-link>Methodology</a></li>
-        </ol>
+      <!-- Sticky TOC + ZIP CTA sidebar -->
+      <aside class="review-sidebar" aria-label="Navigation and quote CTA">
+        <nav class="toc" aria-label="On this page" data-toc>
+          <p class="toc__label">On this page</p>
+          <ol>
+            <li><a href="#takeaways" data-toc-link>Key takeaways</a></li>
+            <li><a href="#ratings" data-toc-link>Ratings</a></li>
+            <li><a href="#cost" data-toc-link>How much it costs</a></li>
+            <li><a href="#customer-experience" data-toc-link>Customer experience</a></li>
+            <li><a href="#industry-ratings" data-toc-link>Industry ratings</a></li>
+            {discounts && <li><a href="#discounts" data-toc-link>Discounts</a></li>}
+            <li><a href="#coverage" data-toc-link>Coverage</a></li>
+            <li><a href="#bottom-line" data-toc-link>Bottom line</a></li>
+            <li><a href="#faq" data-toc-link>FAQ</a></li>
+            <li><a href="#methodology" data-toc-link>Methodology</a></li>
+          </ol>
+        </nav>
+
+        <ZipForm
+          variant="sidebar"
+          vertical={vertical.key}
+          eyebrow="See your rate"
+          heading={`Compare in <em>60s</em>`}
+          lede="Drop your ZIP. We'll do the rest."
+          ctaLabel="Get quotes"
+        />
       </aside>
 
       <article class="review-content">
@@ -159,6 +171,16 @@ const remainingTakeaways = takeaways.slice(1);
             </ol>
           )}
         </section>
+
+        <!-- ===== MID-ARTICLE ZIP CTA BAND ===== -->
+        <ZipForm
+          variant="band"
+          vertical={vertical.key}
+          eyebrow="Ready to compare?"
+          heading={`Get your <em>actual rate</em> in 60 seconds.`}
+          lede={`See what ${carrier.name} and other top carriers will charge you in your area.`}
+          ctaLabel="Get quotes"
+        />
 
         <!-- ===== RATINGS (bar chart) ===== -->
         <section id="ratings" class="reveal">
@@ -443,6 +465,16 @@ const remainingTakeaways = takeaways.slice(1);
     </div>
   </div>
 
+  <!-- ============== PRE-FOOTER BANNER ============== -->
+  <ZipForm
+    variant="banner"
+    vertical={vertical.key}
+    eyebrow="Free · 60 seconds · No spam"
+    heading={`Stop overpaying for <em>${vertical.short.toLowerCase()} insurance</em>.`}
+    lede={`You've read the ${carrier.name} review. Now see what you'd actually pay — and what other carriers will charge.`}
+    ctaLabel={`Get ${vertical.short.toLowerCase()} quotes`}
+  />
+
   <style>
     /* ==================================================
        Hero
@@ -544,10 +576,17 @@ const remainingTakeaways = takeaways.slice(1);
       align-items: start;
     }
 
-    /* TOC */
-    .toc {
+    /* Sidebar — sticky wrapper for TOC + ZIP CTA */
+    .review-sidebar {
       position: sticky;
       top: calc(var(--header-height) + var(--space-5));
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-5);
+    }
+
+    /* TOC */
+    .toc {
       padding: var(--space-6) var(--space-5);
       background: var(--color-white);
       border-radius: var(--radius);
@@ -1175,7 +1214,7 @@ const remainingTakeaways = takeaways.slice(1);
     ================================================== */
     @media (max-width: 950px) {
       .review-page__layout { grid-template-columns: 1fr; }
-      .toc {
+      .review-sidebar {
         position: static;
         margin-bottom: var(--space-8);
       }

@@ -1,78 +1,823 @@
 ---
+import { VERTICAL_LIST, VERTICALS, type VerticalKey } from "~/data/verticals";
+
+type ZipVariant = "hero" | "band" | "sidebar" | "banner" | "header" | "picker";
+
 interface Props {
-  variant?: "header" | "inline" | "modal";
+  variant: ZipVariant;
+  vertical?: VerticalKey;
+  eyebrow?: string;
   heading?: string;
+  lede?: string;
   ctaLabel?: string;
 }
-const { variant = "inline", heading, ctaLabel = "Get Quotes" } = Astro.props;
+
+const {
+  variant,
+  vertical = "auto",
+  eyebrow,
+  heading,
+  lede,
+  ctaLabel = "Get quotes",
+} = Astro.props;
+
+const v = VERTICALS[vertical];
+const formAction = `${v.path}quotes/`;
+
+// Generate unique input ID per instance so labels don't collide
+const inputId = `zip-${variant}-${vertical}-${Math.random().toString(36).slice(2, 8)}`;
 ---
 
-<form class={`zipform zipform--${variant}`} action="/quotes/" method="get" novalidate>
-  {heading && <h3 class="zipform__heading h5">{heading}</h3>}
-  <div class="zipform__row">
-    <label class="sr-only" for={`zip-${variant}`}>ZIP code</label>
+{variant === "hero" && (
+  <div class="zipcta zipcta--hero" style={`--zip-accent: ${v.accent}; --zip-accent-soft: ${v.accentSoft};`}>
+    {eyebrow && (
+      <p class="zipcta__eyebrow-pill">
+        <img src={v.icon} alt="" width="16" height="16" />
+        {eyebrow}
+      </p>
+    )}
+    {heading && <h1 class="zipcta__heading" set:html={heading} />}
+    {lede && <p class="zipcta__lede">{lede}</p>}
+
+    <form class="zipcta__form" action={formAction} method="get" novalidate>
+      <div class="zipcta__input-group">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" class="zipcta__pin" aria-hidden="true">
+          <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+          <circle cx="12" cy="10" r="3"/>
+        </svg>
+        <label class="sr-only" for={inputId}>ZIP code</label>
+        <input
+          id={inputId}
+          name="zip"
+          type="text"
+          inputmode="numeric"
+          pattern="[0-9]{5}"
+          maxlength="5"
+          placeholder="Enter your ZIP code"
+          required
+          autocomplete="postal-code"
+        />
+      </div>
+      <button type="submit" class="zipcta__btn">
+        <span>{ctaLabel}</span>
+        <svg width="14" height="12" viewBox="0 0 14 12" fill="none" aria-hidden="true">
+          <path d="M8 1l5 5-5 5M1 6h12" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+    </form>
+
+    <ul class="zipcta__trust">
+      <li><svg viewBox="0 0 20 20" width="13" height="13" aria-hidden="true"><circle cx="10" cy="10" r="9" fill="currentColor"/><path d="M5.5 10.5l3 3 6-6" stroke="white" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg> Free</li>
+      <li><svg viewBox="0 0 20 20" width="13" height="13" aria-hidden="true"><circle cx="10" cy="10" r="9" fill="currentColor"/><path d="M5.5 10.5l3 3 6-6" stroke="white" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg> No SSN required</li>
+      <li><svg viewBox="0 0 20 20" width="13" height="13" aria-hidden="true"><circle cx="10" cy="10" r="9" fill="currentColor"/><path d="M5.5 10.5l3 3 6-6" stroke="white" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg> 256-bit encryption</li>
+      <li><svg viewBox="0 0 20 20" width="13" height="13" aria-hidden="true"><circle cx="10" cy="10" r="9" fill="currentColor"/><path d="M5.5 10.5l3 3 6-6" stroke="white" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg> 40+ carriers</li>
+    </ul>
+  </div>
+)}
+
+{variant === "band" && (
+  <aside class="zipcta zipcta--band" style={`--zip-accent: ${v.accent};`}>
+    <div class="zipcta__band-overlay" aria-hidden="true"></div>
+    <div class="zipcta__band-copy">
+      <p class="zipcta__band-eyebrow">{eyebrow ?? "Ready to compare?"}</p>
+      <h3 class="zipcta__band-heading" set:html={heading ?? `Get your <em>actual rate</em> in 60 seconds.`} />
+      <p class="zipcta__band-lede">{lede ?? "Drop your ZIP. We'll pull live rates for your area."}</p>
+    </div>
+    <form class="zipcta__band-form" action={formAction} method="get" novalidate>
+      <label class="sr-only" for={inputId}>ZIP code</label>
+      <input
+        id={inputId}
+        name="zip"
+        type="text"
+        inputmode="numeric"
+        pattern="[0-9]{5}"
+        maxlength="5"
+        placeholder="ZIP code"
+        required
+        autocomplete="postal-code"
+      />
+      <button type="submit">
+        <span>{ctaLabel}</span>
+        <svg width="12" height="10" viewBox="0 0 14 12" fill="none" aria-hidden="true">
+          <path d="M8 1l5 5-5 5M1 6h12" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+    </form>
+  </aside>
+)}
+
+{variant === "sidebar" && (
+  <aside class="zipcta zipcta--sidebar" style={`--zip-accent: ${v.accent}; --zip-accent-soft: ${v.accentSoft};`}>
+    <p class="zipcta__side-eyebrow">{eyebrow ?? "See your rate"}</p>
+    <h4 class="zipcta__side-heading" set:html={heading ?? `Compare in <em>60s</em>`} />
+    <p class="zipcta__side-lede">{lede ?? "Drop your ZIP. We'll do the rest."}</p>
+    <form class="zipcta__side-form" action={formAction} method="get" novalidate>
+      <label class="sr-only" for={inputId}>ZIP code</label>
+      <input
+        id={inputId}
+        name="zip"
+        type="text"
+        inputmode="numeric"
+        pattern="[0-9]{5}"
+        maxlength="5"
+        placeholder="ZIP code"
+        required
+        autocomplete="postal-code"
+      />
+      <button type="submit">
+        <span>{ctaLabel}</span>
+        <svg width="12" height="10" viewBox="0 0 14 12" fill="none" aria-hidden="true">
+          <path d="M8 1l5 5-5 5M1 6h12" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+    </form>
+    <p class="zipcta__side-fine">Free · No SSN required</p>
+  </aside>
+)}
+
+{variant === "banner" && (
+  <section class="zipcta zipcta--banner" style={`--zip-accent: ${v.accent};`}>
+    <div class="zipcta__banner-topo" aria-hidden="true"></div>
+    <div class="zipcta__banner-inner">
+      <p class="zipcta__banner-tag">{eyebrow ?? "Free · 60 seconds · No spam"}</p>
+      <h3 class="zipcta__banner-heading" set:html={heading ?? `Stop overpaying for <em>${v.short.toLowerCase()} insurance</em>.`} />
+      <p class="zipcta__banner-lede">{lede ?? `Compare rates from 40+ carriers in 60 seconds. The cheapest option may save you hundreds.`}</p>
+      <form class="zipcta__banner-form" action={formAction} method="get" novalidate>
+        <label class="sr-only" for={inputId}>ZIP code</label>
+        <input
+          id={inputId}
+          name="zip"
+          type="text"
+          inputmode="numeric"
+          pattern="[0-9]{5}"
+          maxlength="5"
+          placeholder="Enter your ZIP code"
+          required
+          autocomplete="postal-code"
+        />
+        <button type="submit">
+          <span>{ctaLabel}</span>
+          <svg width="14" height="12" viewBox="0 0 14 12" fill="none" aria-hidden="true">
+            <path d="M8 1l5 5-5 5M1 6h12" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+      </form>
+    </div>
+  </section>
+)}
+
+{variant === "header" && (
+  <form class="zipcta zipcta--header" action={formAction} method="get" novalidate>
+    <label class="sr-only" for={inputId}>ZIP code</label>
     <input
-      id={`zip-${variant}`}
+      id={inputId}
       name="zip"
       type="text"
       inputmode="numeric"
       pattern="[0-9]{5}"
       maxlength="5"
-      placeholder="ZIP code"
+      placeholder="ZIP"
       required
-      class="zipform__input"
+      autocomplete="postal-code"
     />
-    <button type="submit" class="btn btn-primary zipform__submit">{ctaLabel}</button>
+    <button type="submit">
+      <span>Get quotes</span>
+      <svg width="11" height="9" viewBox="0 0 14 12" fill="none" aria-hidden="true">
+        <path d="M8 1l5 5-5 5M1 6h12" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </button>
+  </form>
+)}
+
+{variant === "picker" && (
+  <div class="zipcta zipcta--picker" data-zip-picker>
+    <p class="zipcta__picker-eyebrow">{eyebrow ?? "Compare in seconds"}</p>
+    <h4 class="zipcta__picker-heading">{heading ?? "What are you insuring?"}</h4>
+    <div class="zipcta__picker-grid" role="radiogroup" aria-label="Choose insurance type">
+      {VERTICAL_LIST.map((vert, i) => (
+        <button
+          type="button"
+          class={`zipcta__picker-btn${i === 0 ? " is-active" : ""}`}
+          role="radio"
+          aria-checked={i === 0 ? "true" : "false"}
+          data-vert-key={vert.key}
+          data-vert-path={vert.path}
+          style={`--btn-accent: ${vert.accent}; --btn-accent-soft: ${vert.accentSoft};`}
+        >
+          <img src={vert.icon} alt="" width="18" height="18" />
+          <span>{vert.short}</span>
+        </button>
+      ))}
+    </div>
+    <form class="zipcta__picker-form" action={`${VERTICAL_LIST[0].path}quotes/`} method="get" novalidate data-zip-picker-form>
+      <div class="zipcta__picker-input-group">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+          <circle cx="12" cy="10" r="3"/>
+        </svg>
+        <label class="sr-only" for={inputId}>ZIP code</label>
+        <input
+          id={inputId}
+          name="zip"
+          type="text"
+          inputmode="numeric"
+          pattern="[0-9]{5}"
+          maxlength="5"
+          placeholder="ZIP code"
+          required
+          autocomplete="postal-code"
+        />
+      </div>
+      <button type="submit">
+        <span>{ctaLabel === "Get quotes" ? "Continue" : ctaLabel}</span>
+        <svg width="12" height="10" viewBox="0 0 14 12" fill="none" aria-hidden="true">
+          <path d="M8 1l5 5-5 5M1 6h12" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+    </form>
   </div>
-  <p class="zipform__legal">
-    By submitting this form, you agree to our <a href="/privacy-policy/">privacy policy</a>.
-  </p>
-</form>
+)}
 
 <style>
-  .zipform {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-3);
+  .zipcta { font-family: var(--font-display, system-ui), sans-serif; }
+
+  /* ============================================
+     Shared form base
+  ============================================ */
+  input[type="text"]::placeholder { color: var(--color-text-muted, #9CA3AF); }
+  input[type="text"]:focus { outline: none; }
+  button { cursor: pointer; transition: background 0.2s, color 0.2s, transform 0.15s; }
+  button:hover { transform: translateY(-1px); }
+  button svg { transition: transform 0.2s; }
+  button:hover svg { transform: translateX(3px); }
+
+  /* ============================================
+     VARIANT A — Hero inline form
+  ============================================ */
+  .zipcta--hero {
+    --bg-soft: color-mix(in srgb, var(--zip-accent-soft) 60%, white);
   }
-  .zipform__heading {
-    margin: 0 0 var(--space-2);
-  }
-  .zipform__row {
-    display: flex;
-    gap: var(--space-3);
-    align-items: stretch;
-  }
-  .zipform__input {
-    flex: 1;
-    font-family: var(--font-body);
-    font-size: 1rem;
-    padding: 0.875rem 1.25rem;
-    border: 2px solid var(--color-border);
-    border-radius: var(--radius);
+  .zipcta__eyebrow-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    font-size: 0.6875rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    color: var(--zip-accent);
     background: var(--color-white);
+    padding: var(--space-2) var(--space-4);
+    border-radius: 100px;
+    margin: 0 0 var(--space-5);
+    box-shadow: 0 2px 6px rgba(44, 69, 119, 0.04);
+  }
+  .zipcta__heading {
+    font-size: clamp(2.5rem, 5vw, 3.5rem);
+    font-weight: 700;
+    letter-spacing: -0.025em;
+    line-height: 1.04;
+    margin: 0 0 var(--space-5);
+    color: var(--color-resolution);
+    max-width: 640px;
+  }
+  .zipcta__heading :global(em) {
+    font-family: var(--font-serif, "Plantin", Georgia, serif);
+    font-style: italic;
+    font-weight: 500;
+    color: var(--zip-accent);
+  }
+  .zipcta__lede {
+    font-size: 1.125rem;
     color: var(--color-text-strong);
-    transition: border-color var(--transition);
+    line-height: 1.55;
+    margin: 0 0 var(--space-8);
+    max-width: 580px;
+  }
+  .zipcta__form {
+    display: flex;
+    background: var(--color-white);
+    border-radius: 100px;
+    padding: 6px;
+    box-shadow:
+      0 4px 24px rgba(44, 69, 119, 0.10),
+      0 1px 3px rgba(44, 69, 119, 0.06);
+    border: 1px solid var(--color-border);
+    max-width: 520px;
+  }
+  .zipcta__input-group {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    padding: 0 var(--space-5);
+    flex: 1;
     min-width: 0;
   }
-  .zipform__input:focus {
-    outline: none;
-    border-color: var(--color-malibu);
+  .zipcta__pin {
+    color: var(--zip-accent);
+    flex-shrink: 0;
   }
-  .zipform__submit {
+  .zipcta__input-group input {
+    border: 0;
+    font-size: 1rem;
+    color: var(--color-resolution);
+    background: transparent;
+    width: 100%;
+    font-family: inherit;
+    padding: var(--space-4) 0;
+    min-width: 0;
+  }
+  .zipcta__btn {
+    background: var(--zip-accent);
+    color: var(--color-white);
+    border: 0;
+    padding: var(--space-4) var(--space-7);
+    border-radius: 100px;
+    font-weight: 700;
+    font-size: 0.9375rem;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
     white-space: nowrap;
     flex-shrink: 0;
   }
-  .zipform__legal {
-    font-size: 0.8125rem;
+  .zipcta__btn:hover { filter: brightness(0.93); }
+  .zipcta__trust {
+    list-style: none;
+    margin: var(--space-5) 0 0;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    gap: var(--space-5);
+    font-size: 0.75rem;
     color: var(--color-text-muted);
+    flex-wrap: wrap;
+  }
+  .zipcta__trust li {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .zipcta__trust svg {
+    color: var(--zip-accent);
+    flex-shrink: 0;
+  }
+
+  /* ============================================
+     VARIANT B — Mid-article band
+  ============================================ */
+  .zipcta--band {
+    background: var(--color-resolution);
+    color: var(--color-white);
+    padding: var(--space-9) var(--space-10);
+    border-radius: 16px;
+    position: relative;
+    overflow: hidden;
+    display: grid;
+    grid-template-columns: 1.2fr 1fr;
+    gap: var(--space-8);
+    align-items: center;
+    margin-block: var(--space-10);
+  }
+  .zipcta__band-overlay {
+    position: absolute;
+    top: -50%;
+    left: -10%;
+    width: 50%;
+    height: 200%;
+    background: var(--zip-accent);
+    opacity: 0.10;
+    transform: skewX(-20deg);
+    pointer-events: none;
+  }
+  .zipcta__band-copy { position: relative; }
+  .zipcta__band-eyebrow {
+    display: inline-block;
+    font-size: 0.6875rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    color: var(--zip-accent);
+    margin: 0 0 var(--space-3);
+  }
+  .zipcta__band-heading {
+    font-size: 1.875rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    line-height: 1.15;
+    margin: 0 0 var(--space-3);
+    color: var(--color-white);
+  }
+  .zipcta__band-heading :global(em) {
+    font-family: var(--font-serif, "Plantin", Georgia, serif);
+    font-style: italic;
+    font-weight: 500;
+    color: var(--zip-accent);
+  }
+  .zipcta__band-lede {
+    font-size: 0.9375rem;
+    color: rgba(255, 255, 255, 0.85);
+    line-height: 1.5;
     margin: 0;
   }
-  .zipform--header { max-width: 440px; }
-  .zipform--inline { max-width: 520px; }
-  .zipform--modal { width: 100%; }
+  .zipcta__band-form {
+    position: relative;
+    display: flex;
+    background: var(--color-white);
+    border-radius: 100px;
+    padding: 5px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+  }
+  .zipcta__band-form input {
+    border: 0;
+    font-size: 0.9375rem;
+    color: var(--color-resolution);
+    background: transparent;
+    width: 100%;
+    font-family: inherit;
+    padding: 13px 20px;
+    min-width: 0;
+  }
+  .zipcta__band-form button {
+    background: var(--zip-accent);
+    color: var(--color-white);
+    border: 0;
+    padding: 13px 22px;
+    border-radius: 100px;
+    font-weight: 700;
+    font-size: 0.875rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .zipcta__band-form button:hover { filter: brightness(0.93); }
 
-  @media (max-width: 520px) {
-    .zipform__row { flex-direction: column; }
+  /* ============================================
+     VARIANT C — Sticky sidebar
+  ============================================ */
+  .zipcta--sidebar {
+    background: linear-gradient(180deg, var(--zip-accent-soft) 0%, var(--color-white) 100%);
+    border: 1px solid var(--zip-accent);
+    border-radius: 14px;
+    padding: var(--space-6);
+    position: relative;
+    overflow: hidden;
+  }
+  .zipcta--sidebar::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: var(--zip-accent);
+  }
+  .zipcta__side-eyebrow {
+    font-size: 0.625rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    color: var(--zip-accent);
+    margin: var(--space-2) 0 var(--space-3);
+  }
+  .zipcta__side-heading {
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: var(--color-resolution);
+    margin: 0 0 var(--space-2);
+    letter-spacing: -0.01em;
+    line-height: 1.2;
+  }
+  .zipcta__side-heading :global(em) {
+    font-family: var(--font-serif, "Plantin", Georgia, serif);
+    font-style: italic;
+    font-weight: 500;
+    color: var(--zip-accent);
+  }
+  .zipcta__side-lede {
+    font-size: 0.8125rem;
+    color: var(--color-text-muted);
+    margin: 0 0 var(--space-4);
+    line-height: 1.5;
+  }
+  .zipcta__side-form input {
+    display: block;
+    width: 100%;
+    box-sizing: border-box;
+    border: 1px solid var(--color-border);
+    font-size: 0.875rem;
+    color: var(--color-resolution);
+    background: var(--color-white);
+    font-family: inherit;
+    padding: 11px 14px;
+    border-radius: 8px;
+    margin: 0 0 var(--space-2);
+  }
+  .zipcta__side-form input:focus {
+    border-color: var(--zip-accent);
+  }
+  .zipcta__side-form button {
+    background: var(--zip-accent);
+    color: var(--color-white);
+    border: 0;
+    padding: 12px;
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: 0.8125rem;
+    width: 100%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+  }
+  .zipcta__side-form button:hover { filter: brightness(0.93); }
+  .zipcta__side-fine {
+    font-size: 0.625rem;
+    color: var(--color-text-muted);
+    margin: var(--space-2) 0 0;
+    text-align: center;
+  }
+
+  /* ============================================
+     VARIANT D — Full-width pre-footer banner
+  ============================================ */
+  .zipcta--banner {
+    background: linear-gradient(135deg, var(--color-resolution) 0%, #1F3258 100%);
+    color: var(--color-white);
+    padding: var(--space-20) var(--space-10);
+    position: relative;
+    overflow: hidden;
+    text-align: center;
+  }
+  .zipcta__banner-topo {
+    position: absolute;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1200' height='400' viewBox='0 0 1200 400'%3E%3Cg fill='none' stroke='%23FFFFFF' stroke-width='0.5' stroke-opacity='0.06'%3E%3Cpath d='M0,200 Q300,100 600,200 T1200,200'/%3E%3Cpath d='M0,160 Q300,60 600,160 T1200,160'/%3E%3Cpath d='M0,240 Q300,140 600,240 T1200,240'/%3E%3C/g%3E%3C/svg%3E");
+    pointer-events: none;
+  }
+  .zipcta__banner-inner {
+    position: relative;
+    max-width: 680px;
+    margin: 0 auto;
+  }
+  .zipcta__banner-tag {
+    display: inline-block;
+    font-size: 0.6875rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    color: var(--color-malibu, #64BCE1);
+    margin: 0 0 var(--space-5);
+    padding: 7px 16px;
+    background: rgba(100, 188, 225, 0.12);
+    border-radius: 100px;
+    border: 1px solid rgba(100, 188, 225, 0.25);
+  }
+  .zipcta__banner-heading {
+    font-size: clamp(2.25rem, 4.5vw, 2.875rem);
+    font-weight: 700;
+    letter-spacing: -0.025em;
+    line-height: 1.05;
+    margin: 0 0 var(--space-5);
+    color: var(--color-white);
+  }
+  .zipcta__banner-heading :global(em) {
+    font-family: var(--font-serif, "Plantin", Georgia, serif);
+    font-style: italic;
+    font-weight: 500;
+    color: var(--color-malibu, #64BCE1);
+  }
+  .zipcta__banner-lede {
+    font-size: 1.125rem;
+    color: rgba(255, 255, 255, 0.85);
+    line-height: 1.55;
+    margin: 0 0 var(--space-8);
+  }
+  .zipcta__banner-form {
+    display: flex;
+    background: var(--color-white);
+    border-radius: 100px;
+    padding: 6px;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.20);
+    max-width: 480px;
+    margin: 0 auto;
+  }
+  .zipcta__banner-form input {
+    border: 0;
+    font-size: 1rem;
+    color: var(--color-resolution);
+    background: transparent;
+    width: 100%;
+    font-family: inherit;
+    padding: 15px 22px;
+    min-width: 0;
+  }
+  .zipcta__banner-form button {
+    background: #F46036;
+    color: var(--color-white);
+    border: 0;
+    padding: 15px 30px;
+    border-radius: 100px;
+    font-weight: 700;
+    font-size: 0.9375rem;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .zipcta__banner-form button:hover { filter: brightness(0.93); }
+
+  /* ============================================
+     VARIANT E — Slim header inline ZIP
+  ============================================ */
+  .zipcta--header {
+    display: flex;
+    background: var(--color-alice);
+    border-radius: 100px;
+    padding: 4px;
+    border: 1px solid var(--color-border);
+    margin: 0;
+  }
+  .zipcta--header input {
+    border: 0;
+    font-size: 0.8125rem;
+    color: var(--color-resolution);
+    background: transparent;
+    width: 80px;
+    font-family: inherit;
+    padding: 8px 14px;
+    min-width: 0;
+  }
+  .zipcta--header button {
+    background: var(--color-resolution);
+    color: var(--color-white);
+    border: 0;
+    padding: 8px 16px;
+    border-radius: 100px;
+    font-weight: 700;
+    font-size: 0.75rem;
+    letter-spacing: 0.02em;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .zipcta--header button:hover {
+    background: var(--color-malibu);
+    color: var(--color-resolution);
+  }
+
+  /* ============================================
+     VARIANT F — Vertical picker
+  ============================================ */
+  .zipcta--picker {
+    background: var(--color-white);
+    border: 1px solid var(--color-border);
+    border-radius: 16px;
+    padding: var(--space-7);
+    box-shadow: 0 4px 24px rgba(44, 69, 119, 0.06);
+    max-width: 540px;
+  }
+  .zipcta__picker-eyebrow {
+    font-size: 0.6875rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    color: var(--color-malibu, #64BCE1);
+    margin: 0 0 var(--space-2);
+  }
+  .zipcta__picker-heading {
+    font-size: 1.375rem;
+    font-weight: 700;
+    color: var(--color-resolution);
+    margin: 0 0 var(--space-5);
+    letter-spacing: -0.015em;
+    line-height: 1.2;
+  }
+  .zipcta__picker-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 6px;
+    margin: 0 0 var(--space-5);
+  }
+  .zipcta__picker-btn {
+    background: var(--color-alice);
+    border: 1px solid var(--color-border);
+    color: var(--color-resolution);
+    padding: 10px 6px;
+    border-radius: 10px;
+    font-family: inherit;
+    font-weight: 600;
+    font-size: 0.6875rem;
+    text-align: center;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s ease;
+  }
+  .zipcta__picker-btn img {
+    transition: transform 0.2s;
+  }
+  .zipcta__picker-btn:hover {
+    border-color: var(--btn-accent);
+    transform: translateY(-2px);
+  }
+  .zipcta__picker-btn.is-active {
+    background: var(--btn-accent-soft);
+    border-color: var(--btn-accent);
+    color: var(--btn-accent);
+    font-weight: 700;
+  }
+  .zipcta__picker-btn.is-active img {
+    transform: scale(1.05);
+  }
+  .zipcta__picker-form {
+    display: flex;
+    background: var(--color-alice);
+    border-radius: 100px;
+    padding: 5px;
+    border: 1px solid var(--color-border);
+  }
+  .zipcta__picker-input-group {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: 0 var(--space-4);
+    flex: 1;
+    color: var(--color-malibu, #64BCE1);
+    min-width: 0;
+  }
+  .zipcta__picker-input-group input {
+    border: 0;
+    font-size: 0.875rem;
+    color: var(--color-resolution);
+    background: transparent;
+    width: 100%;
+    font-family: inherit;
+    padding: 11px 0;
+    min-width: 0;
+  }
+  .zipcta__picker-form button {
+    background: #F46036;
+    color: var(--color-white);
+    border: 0;
+    padding: 11px 22px;
+    border-radius: 100px;
+    font-weight: 700;
+    font-size: 0.8125rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .zipcta__picker-form button:hover { filter: brightness(0.93); }
+
+  /* ============================================
+     Responsive
+  ============================================ */
+  @media (max-width: 768px) {
+    .zipcta__heading { font-size: 2.25rem; }
+    .zipcta__form { flex-direction: column; border-radius: 16px; padding: 8px; }
+    .zipcta__btn { width: 100%; justify-content: center; padding: 14px; }
+    .zipcta--band { grid-template-columns: 1fr; padding: var(--space-7); }
+    .zipcta__band-form { flex-direction: column; border-radius: 16px; padding: 8px; }
+    .zipcta__band-form button { width: 100%; justify-content: center; }
+    .zipcta__banner-form { flex-direction: column; border-radius: 16px; padding: 8px; }
+    .zipcta__banner-form button { width: 100%; justify-content: center; padding: 14px; }
+    .zipcta__picker-grid { grid-template-columns: repeat(4, 1fr); }
+    .zipcta__picker-form { flex-direction: column; border-radius: 12px; padding: 6px; }
+    .zipcta__picker-form button { width: 100%; justify-content: center; padding: 11px; }
+  }
+  @media (max-width: 480px) {
+    .zipcta__picker-grid { grid-template-columns: repeat(2, 1fr); }
   }
 </style>
+
+<script>
+  // Picker variant: swap form action + active state when user picks a vertical
+  document.querySelectorAll<HTMLElement>("[data-zip-picker]").forEach((picker) => {
+    const buttons = picker.querySelectorAll<HTMLButtonElement>("[data-vert-key]");
+    const form = picker.querySelector<HTMLFormElement>("[data-zip-picker-form]");
+    if (!form) return;
+    buttons.forEach((btn) => {
+      btn.addEventListener("click", () => {
+        buttons.forEach((b) => {
+          b.classList.remove("is-active");
+          b.setAttribute("aria-checked", "false");
+        });
+        btn.classList.add("is-active");
+        btn.setAttribute("aria-checked", "true");
+        const path = btn.dataset.vertPath;
+        if (path) form.action = `${path}quotes/`;
+      });
+    });
+  });
+</script>

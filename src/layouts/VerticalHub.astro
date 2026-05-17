@@ -1,5 +1,6 @@
 ---
 import BaseLayout from "~/layouts/BaseLayout.astro";
+import ZipForm from "~/components/ZipForm.astro";
 import type { Vertical } from "~/data/verticals";
 
 interface Subtopic {
@@ -42,17 +43,16 @@ const { vertical, hero, pillars, calculators = [], subtopics = [], faqs = [] } =
         <span class="serif-italic">{vertical.short.toLowerCase()}</span>.
       </h1>
       <p class="vhero__lede">{hero.lede}</p>
-      <div class="vhero__ctas">
-        <a href={hero.ctaHref ?? `${vertical.path}quotes/`} class="btn-pill btn-pill--accent">
-          <span>{hero.ctaLabel ?? `Get ${vertical.short.toLowerCase()} quotes`}</span>
-          <svg width="16" height="14" viewBox="0 0 16 14" fill="none" aria-hidden="true">
-            <path d="M9 1l6 6-6 6M1 7h14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-        </a>
-        <a href={`${vertical.path}best/`} class="btn-tertiary">
-          Or see the best {vertical.short.toLowerCase()} carriers →
-        </a>
+      <div class="vhero__zip">
+        <ZipForm
+          variant="hero"
+          vertical={vertical.key}
+          ctaLabel={hero.ctaLabel ?? `Get ${vertical.short.toLowerCase()} quotes`}
+        />
       </div>
+      <a href={`${vertical.path}best/`} class="btn-tertiary vhero__alt-link">
+        Or see the best {vertical.short.toLowerCase()} carriers →
+      </a>
     </div>
   </section>
 
@@ -172,6 +172,16 @@ const { vertical, hero, pillars, calculators = [], subtopics = [], faqs = [] } =
     </section>
   )}
 
+  <!-- ============== PRE-FOOTER BANNER ============== -->
+  <ZipForm
+    variant="banner"
+    vertical={vertical.key}
+    eyebrow="Free · 60 seconds · No spam"
+    heading={`Stop overpaying for <em>${vertical.short.toLowerCase()} insurance</em>.`}
+    lede={`Compare rates from 40+ carriers in 60 seconds. The cheapest option may save you hundreds.`}
+    ctaLabel={`Get ${vertical.short.toLowerCase()} quotes`}
+  />
+
   <style>
     .serif-italic {
       font-family: var(--font-serif, "Plantin", Georgia, serif);
@@ -235,7 +245,8 @@ const { vertical, hero, pillars, calculators = [], subtopics = [], faqs = [] } =
       max-width: 600px;
       line-height: 1.55;
     }
-    .vhero__ctas { display: flex; gap: var(--space-5); align-items: center; flex-wrap: wrap; }
+    .vhero__zip { margin-bottom: var(--space-5); max-width: 580px; }
+    .vhero__alt-link { display: inline-flex; }
 
     /* ============================================
        Pillars — confident card pattern
@@ -499,7 +510,7 @@ const { vertical, hero, pillars, calculators = [], subtopics = [], faqs = [] } =
     @media (max-width: 640px) {
       .vpillars__grid, .vsubtopics__grid, .vcalc__grid { grid-template-columns: 1fr; }
       .vhero h1 { font-size: 2rem; }
-      .vhero__ctas { flex-direction: column; align-items: flex-start; }
+      .vhero__alt-link { font-size: 0.875rem; }
     }
   </style>
 
