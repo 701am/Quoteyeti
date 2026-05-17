@@ -1,21 +1,56 @@
-# Map old WordPress paths to new Astro routes.
-# Astro uses build.format='directory' so /brands/bmw/ → /brands/bmw/index.html naturally.
-# Add additional mappings below as you migrate content.
+# =================================================================
+# QuoteYeti v2 redirects
+# Order matters in this file: more specific rules first.
+# =================================================================
 
-# WP admin → CMS
-/wp-admin/*       /admin/                 301
-/wp-login.php     /admin/                 301
+# --- WordPress admin/internal paths (drop them) -------------------
+/wp-admin/*          /  301
+/wp-login.php        /  301
+/wp-content/*        /  301
+/wp-json/*           /  404
+/xmlrpc.php          /  404
 
-# WP feeds → Astro RSS
-/feed/            /rss.xml                301
-/comments/feed/   /rss.xml                301
+# --- WordPress feed URLs -> new RSS endpoint ----------------------
+/feed                /rss.xml  301
+/feed/               /rss.xml  301
+/feed/atom           /rss.xml  301
+/feed/rss            /rss.xml  301
+/comments/feed       /rss.xml  301
 
-# WP search → site search (if added later)
-# /?s=:term       /search/?q=:term        301
+# --- Move existing QuoteYeti content under /auto/* ----------------
+# These are the big SEO-critical migrations. Single regex rule per
+# collection thanks to :splat capturing.
 
-# Common WP attachment redirects (uploads now live at /assets/...)
-# Keep these dynamic — adjust per audit
-# /wp-content/uploads/*  /assets/uploads/:splat  301
+/brands/*            /auto/brands/:splat       301
+/reviews/*           /auto/reviews/:splat      301
+/locations/*         /auto/locations/:splat    301
+/glossary/*          /auto/glossary/:splat     301
+/faqs/*              /auto/faqs/:splat         301
 
-# Catch-all 404
-/*  /404  404
+# Pluralization variants (WP sometimes had singular forms)
+/brand/*             /auto/brands/:splat       301
+/review/*            /auto/reviews/:splat      301
+/location/*          /auto/locations/:splat    301
+/faq/*               /auto/faqs/:splat         301
+
+# Collection indexes
+/brands              /auto/brands/             301
+/brands/             /auto/brands/             301
+/reviews             /auto/reviews/            301
+/reviews/            /auto/reviews/            301
+/locations           /auto/locations/          301
+/locations/          /auto/locations/          301
+/glossary            /auto/glossary/           301
+/glossary/           /auto/glossary/           301
+/faqs                /auto/faqs/               301
+/faqs/               /auto/faqs/               301
+
+# --- Common WP slug patterns that might exist in inbound links ----
+# (Add additional ones as discovered in WP audit; keep them above wildcards.)
+
+# --- Optional: rename old blog URLs -------------------------------
+/news/*              /blog/:splat              301
+/articles/*          /blog/:splat              301
+
+# --- SPA fallback (only if needed) --------------------------------
+# /*                  /index.html               200

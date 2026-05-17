@@ -1,0 +1,53 @@
+---
+import VerticalHub from "~/layouts/VerticalHub.astro";
+import { VERTICALS } from "~/data/verticals";
+
+const v = VERTICALS.health;
+---
+
+<VerticalHub
+  vertical={v}
+  hero={{
+    headline: "Care that fits your life",
+    lede: "ACA marketplace, Medicare, short-term — we explain what each plan actually covers and what it'll really cost.",
+  }}
+  pillars={[
+    {
+      title: "ACA marketplace",
+      body: "Lorem ipsum dolor sit amet — open enrollment, subsidies, special enrollment periods, and choosing a metal tier.",
+      href: "/health-insurance/aca/",
+      cta: "ACA basics",
+    },
+    {
+      title: "Medicare 101",
+      body: "Parts A, B, C, D explained plainly. When to sign up, how to avoid late penalties.",
+      href: "/health-insurance/medicare/",
+      cta: "Understand Medicare",
+    },
+    {
+      title: "Short-term plans",
+      body: "Bridge coverage between jobs or before Medicare. The pros, cons, and when they make sense.",
+      href: "/health-insurance/short-term/",
+      cta: "Short-term plans",
+    },
+  ]}
+  calculators={[
+    { label: "Plan estimator", href: "/health-insurance/calculator/" },
+    { label: "ACA subsidy calculator", href: "/health-insurance/subsidy/" },
+    { label: "HSA contribution limits", href: "/health-insurance/hsa/" },
+  ]}
+  subtopics={[
+    { title: "HMO vs. PPO", href: "/health-insurance/hmo-vs-ppo/", desc: "Network, referrals, and out-of-pocket trade-offs." },
+    { title: "Medicare Advantage", href: "/health-insurance/medicare-advantage/", desc: "Part C plans — pros, cons, and the gotchas." },
+    { title: "Medigap (Medicare Supplement)", href: "/health-insurance/medigap/", desc: "Plans F, G, N — what changed and what to buy now." },
+    { title: "High-deductible plans (HDHP)", href: "/health-insurance/hdhp/", desc: "When pairing with an HSA makes sense." },
+    { title: "Catastrophic plans", href: "/health-insurance/catastrophic/", desc: "Under-30 emergency coverage at minimum premiums." },
+    { title: "Dental & vision", href: "/health-insurance/dental-vision/", desc: "Standalone plans vs. medical add-ons." },
+  ]}
+  faqs={[
+    { q: "Is health insurance still required?", a: "Lorem ipsum — federal mandate is $0 since 2019, but some states (CA, MA, NJ, RI, DC) have their own." },
+    { q: "What's a deductible vs. an out-of-pocket max?", a: "Sed do eiusmod — deductible is what you pay before insurance kicks in; max is your annual ceiling." },
+    { q: "Can I switch plans mid-year?", a: "Ut enim ad minim — only with a qualifying life event: job loss, marriage, baby, move." },
+    { q: "How do subsidies work?", a: "Duis aute irure — ACA subsidies cap your premium at a % of income up to 400% FPL (extended through 2025)." },
+  ]}
+/>

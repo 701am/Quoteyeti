@@ -1,0 +1,94 @@
+---
+import BaseLayout from "~/layouts/BaseLayout.astro";
+import { getCollection, render } from "astro:content";
+
+export async function getStaticPaths() {
+  const reviews = await getCollection("auto-reviews", ({ data }) => !data.draft);
+  return reviews.map((entry) => ({
+    params: { slug: entry.id },
+    props: { entry },
+  }));
+}
+
+const { entry } = Astro.props;
+const { Content } = await render(entry);
+const d = entry.data;
+---
+
+<BaseLayout
+  title={d.seoTitle ?? `${d.title} - QuoteYeti`}
+  description={d.seoDescription ?? d.description}
+  ogImage={d.ogImage ?? d.companyLogo}
+  noindex={d.noindex}
+>
+  <article class="review-article">
+    <header class="entry-hero">
+      <div class="container">
+        <nav class="breadcrumbs" aria-label="Breadcrumb">
+          <a href="/">Home</a> ›
+          <a href="/auto/">Auto</a> ›
+          <a href="/auto/reviews/">Reviews</a> ›
+          <span>{d.company ?? d.title}</span>
+        </nav>
+        <div class="review-head">
+          {d.companyLogo && <img src={d.companyLogo} alt={`${d.company} logo`} class="review-head__logo" />}
+          <div>
+            <p class="eyebrow">Insurance Review</p>
+            <h1>{d.title}</h1>
+            {d.starRating && <p class="review-head__rating">★ {d.starRating} out of 5</p>}
+          </div>
+        </div>
+      </div>
+    </header>
+
+    {(d.pros || d.cons) && (
+      <div class="container review-prosCons">
+        {d.pros && (
+          <div class="review-prosCons__col review-prosCons__col--pros">
+            <h2>Pros</h2>
+            <ul>{d.pros.map((item) => <li>{item}</li>)}</ul>
+          </div>
+        )}
+        {d.cons && (
+          <div class="review-prosCons__col review-prosCons__col--cons">
+            <h2>Cons</h2>
+            <ul>{d.cons.map((item) => <li>{item}</li>)}</ul>
+          </div>
+        )}
+      </div>
+    )}
+
+    <div class="container-narrow entry-body">
+      <Content />
+    </div>
+  </article>
+
+  <style>
+    .entry-hero { padding-block: var(--space-12) var(--space-10); background: var(--section-accent-soft); }
+    .breadcrumbs { font-size: 0.875rem; color: var(--color-text-muted); margin-bottom: var(--space-5); }
+    .breadcrumbs a { color: var(--color-text-muted); }
+    .breadcrumbs a:hover { color: var(--section-accent); }
+    .review-head { display: flex; align-items: center; gap: var(--space-6); }
+    .review-head__logo { width: 80px; height: 80px; border-radius: var(--radius); background: var(--color-white); padding: var(--space-2); }
+    .review-head__rating { font-family: var(--font-display); font-weight: 700; color: var(--section-accent); font-size: 1.125rem; margin-top: var(--space-2); }
+    .review-prosCons {
+      display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-6);
+      margin-top: var(--space-10);
+    }
+    .review-prosCons__col {
+      padding: var(--space-6);
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--color-border);
+    }
+    .review-prosCons__col--pros { background: #F1F6E5; border-color: #8FB339; }
+    .review-prosCons__col--cons { background: #FCF0EF; border-color: #F46036; }
+    .review-prosCons__col h2 { font-size: 1.25rem; margin: 0 0 var(--space-4); }
+    .review-prosCons__col ul { margin: 0; padding-left: var(--space-5); }
+    .review-prosCons__col li { margin-bottom: var(--space-2); }
+    .entry-body { padding-block: var(--space-12) var(--space-20); font-size: 1.0625rem; line-height: 1.7; }
+    .entry-body :global(h2) { margin-top: var(--space-10); margin-bottom: var(--space-5); }
+    .entry-body :global(h3) { margin-top: var(--space-8); margin-bottom: var(--space-4); }
+    .entry-body :global(p) { margin-bottom: var(--space-5); }
+    @media (max-width: 950px) { .review-prosCons { grid-template-columns: 1fr; } }
+  </style>
+</BaseLayout>

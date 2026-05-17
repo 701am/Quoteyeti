@@ -1,0 +1,53 @@
+---
+import VerticalHub from "~/layouts/VerticalHub.astro";
+import { VERTICALS } from "~/data/verticals";
+
+const v = VERTICALS.travel;
+---
+
+<VerticalHub
+  vertical={v}
+  hero={{
+    headline: "Cover the unexpected, wherever you go",
+    lede: "Trip cancellation, medical emergencies, lost baggage — compare plans from real travel insurers, not the airline upsell.",
+  }}
+  pillars={[
+    {
+      title: "Trip cancellation",
+      body: "Lorem ipsum dolor sit amet — get up to 100% reimbursement when an illness, family emergency, or other covered reason forces a cancellation.",
+      href: "/travel-insurance/cancellation/",
+      cta: "Cancellation 101",
+    },
+    {
+      title: "Medical & evacuation",
+      body: "Your US health insurance probably doesn't cover you abroad. We compare what carriers fill the gap.",
+      href: "/travel-insurance/medical/",
+      cta: "Medical coverage",
+    },
+    {
+      title: "Cancel For Any Reason (CFAR)",
+      body: "Costs more, refunds less, but lets you cancel for literally any reason. The flexibility math.",
+      href: "/travel-insurance/cfar/",
+      cta: "CFAR explained",
+    },
+  ]}
+  calculators={[
+    { label: "Trip cost calculator", href: "/travel-insurance/calculator/" },
+    { label: "Coverage estimator", href: "/travel-insurance/coverage-estimator/" },
+    { label: "Credit card vs. policy", href: "/travel-insurance/credit-card/" },
+  ]}
+  subtopics={[
+    { title: "International travel", href: "/travel-insurance/international/", desc: "Visa requirements, medical, and evac coverage for going abroad." },
+    { title: "Cruise insurance", href: "/travel-insurance/cruises/", desc: "Onboard medical, missed-port, and what cruise lines don't cover." },
+    { title: "Adventure travel", href: "/travel-insurance/adventure/", desc: "Coverage for skiing, climbing, diving, and other 'hazardous' activities." },
+    { title: "Annual / multi-trip", href: "/travel-insurance/annual/", desc: "When buying a year of coverage beats single-trip policies." },
+    { title: "Group travel", href: "/travel-insurance/group/", desc: "Family and group plans, plus the discounts available." },
+    { title: "Pandemic coverage", href: "/travel-insurance/pandemic/", desc: "What COVID-related coverage still exists in 2026." },
+  ]}
+  faqs={[
+    { q: "When should I buy travel insurance?", a: "Lorem ipsum — within 14–21 days of your first trip deposit to get the best coverage (pre-existing waivers, CFAR eligibility)." },
+    { q: "Does my credit card already cover me?", a: "Sed do eiusmod — many premium cards include cancellation and rental car coverage. Medical evac is usually the big gap." },
+    { q: "What's typically NOT covered?", a: "Ut enim ad minim — pre-existing conditions (unless waived), state-department-warned destinations, alcohol-related incidents." },
+    { q: "Is travel insurance refundable?", a: "Duis aute irure — yes, within a 'free look' period (usually 10–14 days), as long as your trip hasn't started." },
+  ]}
+/>

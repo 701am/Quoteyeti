@@ -2,6 +2,7 @@
 import "~/styles/tokens.css";
 import Header from "~/components/Header.astro";
 import Footer from "~/components/Footer.astro";
+import { detectVertical } from "~/data/verticals";
 
 interface Props {
   title: string;
@@ -9,20 +10,25 @@ interface Props {
   ogImage?: string;
   canonical?: string;
   noindex?: boolean;
-  bodyClass?: string;
+  /** Override section detection. Useful for utility pages that should adopt a specific vertical's accent. */
+  sectionOverride?: import("~/data/verticals").VerticalKey | null;
 }
 
 const {
   title,
-  description = "QuoteYeti helps drivers find the right auto insurance coverage. Compare rates, read reviews, and get matched with the policy that fits.",
+  description = "QuoteYeti helps you compare insurance — auto, home, life, business, health, renters, pet, and travel — without the sales pressure.",
   ogImage = "/assets/images/hero-peaks.svg",
   canonical = Astro.url.href,
   noindex = false,
-  bodyClass = "",
+  sectionOverride,
 } = Astro.props;
 
+const detectedVertical = detectVertical(Astro.url.pathname);
+const sectionKey = sectionOverride !== undefined ? sectionOverride : detectedVertical?.key;
+const sectionAttr = sectionKey ?? "default";
+
 const siteName = "QuoteYeti";
-const fullTitle = title.includes(siteName) ? title : `${title} - ${siteName}`;
+const fullTitle = title.includes(siteName) ? title : `${title} · ${siteName}`;
 ---
 
 <!doctype html>
@@ -35,7 +41,6 @@ const fullTitle = title.includes(siteName) ? title : `${title} - ${siteName}`;
     <link rel="canonical" href={canonical} />
     {noindex && <meta name="robots" content="noindex, nofollow" />}
 
-    <!-- Open Graph -->
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content={siteName} />
     <meta property="og:title" content={fullTitle} />
@@ -44,40 +49,29 @@ const fullTitle = title.includes(siteName) ? title : `${title} - ${siteName}`;
     <meta property="og:url" content={canonical} />
     <meta name="twitter:card" content="summary_large_image" />
 
-    <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="/assets/images/footprint.svg" />
 
-    <!-- Adobe Typekit fonts (Plantin, Proxima Nova, Sofia Pro)
-         NOTE: replace this kit ID with your own Adobe Fonts kit before deploying.
-         The original kit is tied to QuoteYeti's Adobe account and may stop working. -->
     <link rel="preconnect" href="https://use.typekit.net" crossorigin />
     <link rel="stylesheet" href="https://use.typekit.net/lqp1bjs.css" />
 
     <slot name="head" />
   </head>
-  <body class={bodyClass}>
+  <body data-section={sectionAttr}>
     <a href="#main" class="skip-link">Skip to content</a>
     <Header />
     <main id="main">
       <slot />
     </main>
-    <Footer />
+    <Footer section={sectionKey} />
 
     <style>
       .skip-link {
-        position: absolute;
-        top: -100px;
-        left: 0;
-        background: var(--color-resolution);
-        color: var(--color-white);
+        position: absolute; top: -100px; left: 0;
+        background: var(--color-resolution); color: var(--color-white);
         padding: var(--space-3) var(--space-5);
-        z-index: 100;
-        transition: top var(--transition);
+        z-index: 100; transition: top var(--transition);
       }
-      .skip-link:focus {
-        top: 0;
-        color: var(--color-white);
-      }
+      .skip-link:focus { top: 0; color: var(--color-white); }
     </style>
   </body>
 </html>

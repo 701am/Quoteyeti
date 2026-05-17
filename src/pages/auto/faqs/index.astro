@@ -1,0 +1,79 @@
+---
+import BaseLayout from "~/layouts/BaseLayout.astro";
+import { getCollection } from "astro:content";
+
+const faqs = await getCollection("auto-faqs", ({ data }) => !data.draft);
+
+// Group by category if available
+const grouped = faqs.reduce((acc, entry) => {
+  const cat = entry.data.category ?? "General";
+  acc[cat] ??= [];
+  acc[cat].push(entry);
+  return acc;
+}, {} as Record<string, typeof faqs>);
+
+const categories = Object.keys(grouped).sort();
+---
+
+<BaseLayout
+  title="Auto Insurance FAQs - QuoteYeti"
+  description="Plain answers to the most common auto insurance questions."
+>
+  <section class="page-hero">
+    <div class="container">
+      <p class="eyebrow">Auto Insurance</p>
+      <h1>Auto insurance, <span class="highlight underline-accent">demystified</span></h1>
+      <p class="page-hero__lede">Quick answers to the questions everyone asks.</p>
+    </div>
+  </section>
+
+  <section class="container-narrow faq-page">
+    {faqs.length === 0 ? (
+      <p class="index-list__empty">No FAQs published yet.</p>
+    ) : (
+      categories.map((cat) => (
+        <section class="faq-page__section">
+          <h2 class="faq-page__cat">{cat}</h2>
+          <div class="faq-page__list">
+            {grouped[cat].map((entry) => (
+              <details class="faq-item">
+                <summary><a href={`/auto/faqs/${entry.id}/`}>{entry.data.question ?? entry.data.title}</a></summary>
+                {entry.data.description && <p>{entry.data.description}</p>}
+              </details>
+            ))}
+          </div>
+        </section>
+      ))
+    )}
+  </section>
+
+  <style>
+    .page-hero { padding-block: var(--space-16) var(--space-10); background: var(--section-accent-soft); }
+    .page-hero__lede { font-size: 1.25rem; color: var(--color-text-strong); max-width: 640px; }
+    .faq-page { padding-block: var(--space-12) var(--space-20); }
+    .faq-page__section { margin-bottom: var(--space-12); }
+    .faq-page__cat {
+      font-family: var(--font-serif); font-style: italic;
+      font-size: 2rem; color: var(--section-accent);
+      margin: 0 0 var(--space-6);
+    }
+    .faq-page__list { display: flex; flex-direction: column; gap: var(--space-3); }
+    .faq-item {
+      background: var(--color-white);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius);
+    }
+    .faq-item summary {
+      cursor: pointer;
+      padding: var(--space-4) var(--space-5);
+      font-family: var(--font-display); font-weight: 600;
+      color: var(--color-resolution);
+      list-style: none;
+    }
+    .faq-item summary::-webkit-details-marker { display: none; }
+    .faq-item summary a { color: inherit; }
+    .faq-item summary a:hover { color: var(--section-accent); }
+    .faq-item p { padding: 0 var(--space-5) var(--space-4); margin: 0; color: var(--color-text); }
+    .index-list__empty { font-size: 1.125rem; color: var(--color-text-muted); text-align: center; padding-block: var(--space-12); }
+  </style>
+</BaseLayout>

@@ -1,0 +1,53 @@
+---
+import VerticalHub from "~/layouts/VerticalHub.astro";
+import { VERTICALS } from "~/data/verticals";
+
+const v = VERTICALS.life;
+---
+
+<VerticalHub
+  vertical={v}
+  hero={{
+    headline: "Coverage for the people who count on you",
+    lede: "Compare term, whole, and universal life policies in one place. No sales call required to see what you'll pay.",
+  }}
+  pillars={[
+    {
+      title: "Term life",
+      body: "Lorem ipsum dolor sit amet — affordable coverage for a fixed period. The right choice for most families.",
+      href: "/life-insurance/term/",
+      cta: "Compare term life",
+    },
+    {
+      title: "Whole life",
+      body: "Permanent coverage that builds cash value over time. More expensive, more flexible.",
+      href: "/life-insurance/whole/",
+      cta: "Compare whole life",
+    },
+    {
+      title: "No medical exam",
+      body: "Faster approval, no needles. We compare the carriers that actually offer real coverage.",
+      href: "/life-insurance/no-exam/",
+      cta: "See no-exam options",
+    },
+  ]}
+  calculators={[
+    { label: "How much life insurance?", href: "/life-insurance/calculator/" },
+    { label: "Term vs. whole compared", href: "/life-insurance/term-vs-whole/" },
+    { label: "Coverage by income", href: "/life-insurance/coverage-by-income/" },
+  ]}
+  subtopics={[
+    { title: "Best for young families", href: "/life-insurance/young-families/", desc: "Maximum coverage for the lowest premium years." },
+    { title: "Life insurance for seniors", href: "/life-insurance/seniors/", desc: "Guaranteed-issue and final-expense options after 60." },
+    { title: "Universal life", href: "/life-insurance/universal/", desc: "Flexible-premium policies with investment components." },
+    { title: "Guaranteed acceptance", href: "/life-insurance/guaranteed/", desc: "No medical questions, smaller benefit amounts." },
+    { title: "Riders explained", href: "/life-insurance/riders/", desc: "Common add-ons like waiver of premium, accelerated benefit." },
+    { title: "Beneficiary basics", href: "/life-insurance/beneficiaries/", desc: "Primary, contingent, irrevocable — and the mistakes to avoid." },
+  ]}
+  faqs={[
+    { q: "How much life insurance do I need?", a: "Lorem ipsum — common rule of thumb is 10–12× annual income, but situations vary." },
+    { q: "Term vs. whole life — which?", a: "Sed do eiusmod — term for most, whole only if you have specific estate-planning needs." },
+    { q: "Does life insurance pay out for suicide?", a: "Ut enim ad minim veniam — most policies have a 1-2 year suicide clause. After that, yes." },
+    { q: "What about pre-existing conditions?", a: "Duis aute irure — conditions affect rates and eligibility but rarely make coverage impossible." },
+  ]}
+/>

@@ -1,0 +1,94 @@
+---
+import BaseLayout from "~/layouts/BaseLayout.astro";
+import { getCollection } from "astro:content";
+
+const glossary = await getCollection("auto-glossary", ({ data }) => !data.draft);
+glossary.sort((a, b) => (a.data.term ?? a.data.title).localeCompare(b.data.term ?? b.data.title));
+
+// Group by first letter
+const grouped = glossary.reduce((acc, entry) => {
+  const letter = (entry.data.term ?? entry.data.title)[0].toUpperCase();
+  acc[letter] ??= [];
+  acc[letter].push(entry);
+  return acc;
+}, {} as Record<string, typeof glossary>);
+
+const letters = Object.keys(grouped).sort();
+---
+
+<BaseLayout
+  title="Auto Insurance Glossary - QuoteYeti"
+  description="Plain-English definitions for every auto insurance term that matters."
+>
+  <section class="page-hero">
+    <div class="container">
+      <p class="eyebrow">Auto Insurance</p>
+      <h1>Insurance <span class="highlight underline-accent">glossary</span></h1>
+      <p class="page-hero__lede">The terms insurance carriers use, translated.</p>
+    </div>
+  </section>
+
+  <section class="container glossary">
+    {letters.length === 0 ? (
+      <p class="index-list__empty">No glossary entries yet.</p>
+    ) : (
+      <>
+        <nav class="glossary__nav" aria-label="Jump to letter">
+          {letters.map((l) => <a href={`#letter-${l}`}>{l}</a>)}
+        </nav>
+        {letters.map((l) => (
+          <section id={`letter-${l}`} class="glossary__section">
+            <h2 class="glossary__letter">{l}</h2>
+            <dl class="glossary__list">
+              {grouped[l].map((entry) => (
+                <>
+                  <dt><a href={`/auto/glossary/${entry.id}/`}>{entry.data.term ?? entry.data.title}</a></dt>
+                  <dd>{entry.data.description ?? ""}</dd>
+                </>
+              ))}
+            </dl>
+          </section>
+        ))}
+      </>
+    )}
+  </section>
+
+  <style>
+    .page-hero { padding-block: var(--space-16) var(--space-10); background: var(--section-accent-soft); }
+    .page-hero__lede { font-size: 1.25rem; color: var(--color-text-strong); max-width: 640px; }
+    .glossary { padding-block: var(--space-12) var(--space-20); }
+    .glossary__nav {
+      display: flex; flex-wrap: wrap; gap: var(--space-2);
+      padding: var(--space-4); background: var(--color-alice);
+      border-radius: var(--radius); margin-bottom: var(--space-12);
+      position: sticky; top: calc(var(--header-height) + var(--space-2)); z-index: 5;
+    }
+    .glossary__nav a {
+      width: 36px; height: 36px;
+      display: inline-flex; align-items: center; justify-content: center;
+      background: var(--color-white); border: 1px solid var(--color-border);
+      border-radius: var(--radius-sm);
+      font-family: var(--font-display); font-weight: 600;
+    }
+    .glossary__nav a:hover { border-color: var(--section-accent); color: var(--section-accent); }
+    .glossary__section { margin-bottom: var(--space-12); scroll-margin-top: 120px; }
+    .glossary__letter {
+      font-family: var(--font-serif); font-style: italic;
+      color: var(--section-accent);
+      font-size: 3rem; margin: 0 0 var(--space-5);
+    }
+    .glossary__list { display: grid; grid-template-columns: 200px 1fr; gap: var(--space-3) var(--space-6); margin: 0; }
+    .glossary__list dt {
+      font-family: var(--font-display); font-weight: 600;
+      color: var(--color-resolution);
+    }
+    .glossary__list dt a { color: var(--color-resolution); }
+    .glossary__list dt a:hover { color: var(--section-accent); }
+    .glossary__list dd { margin: 0; color: var(--color-text); }
+    .index-list__empty { font-size: 1.125rem; color: var(--color-text-muted); text-align: center; padding-block: var(--space-12); }
+    @media (max-width: 700px) {
+      .glossary__list { grid-template-columns: 1fr; }
+      .glossary__list dd { margin-bottom: var(--space-3); padding-left: var(--space-3); }
+    }
+  </style>
+</BaseLayout>

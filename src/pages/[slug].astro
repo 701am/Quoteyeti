@@ -3,41 +3,37 @@ import BaseLayout from "~/layouts/BaseLayout.astro";
 import { getCollection, render } from "astro:content";
 
 export async function getStaticPaths() {
-  const pages = await getCollection("pages");
-  return pages.map((entry) => ({
-    params: { slug: entry.data.slug },
-    props: { entry },
-  }));
+  const pages = await getCollection("pages", ({ data }) => !data.draft);
+  return pages.map((entry) => ({ params: { slug: entry.id }, props: { entry } }));
 }
 
 const { entry } = Astro.props;
 const { Content } = await render(entry);
+const d = entry.data;
+const isNarrow = d.layout === "narrow" || !d.layout;
 ---
 
-<BaseLayout
-  title={entry.data.seo.metaTitle ?? entry.data.title}
-  description={entry.data.seo.metaDescription}
-  noindex={entry.data.seo.noindex}
->
-  <article class="page">
-    <header class="page__hero">
-      <div class="container">
-        <h1>{entry.data.title}</h1>
+<BaseLayout title={d.seoTitle ?? d.title} description={d.seoDescription ?? d.description} noindex={d.noindex}>
+  <article class="page-article">
+    <header class="page-header">
+      <div class={isNarrow ? "container-narrow" : "container"}>
+        <h1>{d.title}</h1>
+        {d.description && <p class="page-header__lede">{d.description}</p>}
       </div>
     </header>
-    <div class="container page__body prose">
+    <div class={isNarrow ? "container-narrow page-body" : "container page-body"}>
       <Content />
     </div>
   </article>
-
   <style>
-    .page__hero { padding-block: var(--space-16); background: var(--color-alice); }
-    .page__body { padding-block: var(--space-16); max-width: 760px; }
-    .prose :global(h2) { margin-top: var(--space-12); }
-    .prose :global(h3) { margin-top: var(--space-10); }
-    .prose :global(p) { margin-block: 0 var(--space-5); line-height: 1.7; }
-    .prose :global(ul), .prose :global(ol) { margin-block: 0 var(--space-5); padding-left: 1.5em; }
-    .prose :global(li) { margin-bottom: var(--space-2); }
-    .prose :global(a) { text-decoration: underline; }
+    .page-header { padding-block: var(--space-16) var(--space-8); background: var(--color-alice); }
+    .page-header__lede { font-size: 1.25rem; color: var(--color-text-strong); max-width: 640px; }
+    .page-body { padding-block: var(--space-12) var(--space-20); font-size: 1.0625rem; line-height: 1.7; }
+    .page-body :global(h2) { margin-top: var(--space-10); margin-bottom: var(--space-5); }
+    .page-body :global(h3) { margin-top: var(--space-8); margin-bottom: var(--space-4); }
+    .page-body :global(p) { margin-bottom: var(--space-5); }
+    .page-body :global(ul), .page-body :global(ol) { margin-bottom: var(--space-5); padding-left: var(--space-6); }
+    .page-body :global(li) { margin-bottom: var(--space-2); }
+    .page-body :global(a) { text-decoration: underline; text-underline-offset: 3px; }
   </style>
 </BaseLayout>

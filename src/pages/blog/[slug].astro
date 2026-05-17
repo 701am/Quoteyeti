@@ -1,0 +1,45 @@
+---
+import BaseLayout from "~/layouts/BaseLayout.astro";
+import { getCollection, render } from "astro:content";
+
+export async function getStaticPaths() {
+  const posts = await getCollection("posts", ({ data }) => !data.draft);
+  return posts.map((entry) => ({ params: { slug: entry.id }, props: { entry } }));
+}
+
+const { entry } = Astro.props;
+const { Content } = await render(entry);
+const d = entry.data;
+const date = d.publishDate ? new Date(d.publishDate).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" }) : null;
+---
+
+<BaseLayout title={d.seoTitle ?? d.title} description={d.seoDescription ?? d.description} ogImage={d.ogImage ?? d.heroImage}>
+  <article>
+    <header class="entry-hero">
+      <div class="container-narrow">
+        <nav class="breadcrumbs" aria-label="Breadcrumb">
+          <a href="/">Home</a> › <a href="/blog/">The Dispatch</a> › <span>{d.title}</span>
+        </nav>
+        {d.category && <p class="eyebrow">{d.category}</p>}
+        <h1>{d.title}</h1>
+        <p class="entry-hero__meta">
+          {date && <span>{date}</span>}
+          {d.author && <span> · {d.author}</span>}
+        </p>
+      </div>
+    </header>
+    <div class="container-narrow entry-body"><Content /></div>
+  </article>
+  <style>
+    .entry-hero { padding-block: var(--space-12) var(--space-10); background: var(--color-alice); }
+    .breadcrumbs { font-size: 0.875rem; color: var(--color-text-muted); margin-bottom: var(--space-5); }
+    .breadcrumbs a { color: var(--color-text-muted); }
+    .breadcrumbs a:hover { color: var(--color-malibu); }
+    .entry-hero__meta { color: var(--color-text-muted); font-size: 0.9375rem; margin-top: var(--space-3); }
+    .entry-body { padding-block: var(--space-10) var(--space-20); font-size: 1.0625rem; line-height: 1.7; }
+    .entry-body :global(h2) { margin-top: var(--space-10); margin-bottom: var(--space-5); }
+    .entry-body :global(h3) { margin-top: var(--space-8); margin-bottom: var(--space-4); }
+    .entry-body :global(p) { margin-bottom: var(--space-5); }
+    .entry-body :global(ul), .entry-body :global(ol) { margin-bottom: var(--space-5); padding-left: var(--space-6); }
+  </style>
+</BaseLayout>

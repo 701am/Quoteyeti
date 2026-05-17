@@ -1,0 +1,53 @@
+---
+import VerticalHub from "~/layouts/VerticalHub.astro";
+import { VERTICALS } from "~/data/verticals";
+
+const v = VERTICALS.business;
+---
+
+<VerticalHub
+  vertical={v}
+  hero={{
+    headline: "Insurance for the work you actually do",
+    lede: "General liability, workers' comp, professional indemnity, commercial auto — we compare what your business actually needs.",
+  }}
+  pillars={[
+    {
+      title: "General liability",
+      body: "Lorem ipsum dolor sit amet — the baseline policy covering third-party bodily injury and property damage claims.",
+      href: "/business-insurance/general-liability/",
+      cta: "GL coverage 101",
+    },
+    {
+      title: "Workers' comp",
+      body: "State-mandated in most cases. We help you find compliant coverage without overpaying.",
+      href: "/business-insurance/workers-comp/",
+      cta: "Workers' comp guide",
+    },
+    {
+      title: "Professional liability (E&O)",
+      body: "If you sell advice or expertise, you need this. Consultants, accountants, designers, IT.",
+      href: "/business-insurance/professional-liability/",
+      cta: "E&O explained",
+    },
+  ]}
+  calculators={[
+    { label: "Business insurance cost", href: "/business-insurance/calculator/" },
+    { label: "Workers' comp estimator", href: "/business-insurance/workers-comp-calc/" },
+    { label: "BOP bundling calculator", href: "/business-insurance/bop-calc/" },
+  ]}
+  subtopics={[
+    { title: "Contractors", href: "/business-insurance/contractors/", desc: "GL, tools coverage, and the certificates GCs require." },
+    { title: "Restaurants & bars", href: "/business-insurance/restaurants/", desc: "Liquor liability, equipment breakdown, food spoilage." },
+    { title: "Consultants & freelancers", href: "/business-insurance/consultants/", desc: "E&O for the contract work you're doing solo." },
+    { title: "Retail", href: "/business-insurance/retail/", desc: "Premises liability, inventory protection, business interruption." },
+    { title: "Healthcare practices", href: "/business-insurance/healthcare/", desc: "Malpractice, HIPAA cyber coverage, and the BOP basics." },
+    { title: "Cyber liability", href: "/business-insurance/cyber/", desc: "First-party and third-party cyber coverage for modern threats." },
+  ]}
+  faqs={[
+    { q: "Do I need business insurance if I'm a freelancer?", a: "Lorem ipsum — depends on contracts, but most enterprise clients now require proof of E&O." },
+    { q: "Is workers' comp legally required?", a: "Sed do eiusmod — in nearly every state if you have employees. Texas is the major exception." },
+    { q: "What's a BOP?", a: "Ut enim ad minim — Business Owner's Policy bundles GL + property at a discount. Sweet spot for small businesses." },
+    { q: "Cyber liability — is it worth it?", a: "Duis aute irure — if you handle customer data, almost always yes. Average breach cost dwarfs the premium." },
+  ]}
+/>

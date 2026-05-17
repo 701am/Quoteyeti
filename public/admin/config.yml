@@ -1,150 +1,315 @@
+# =================================================================
+# QuoteYeti v2 Decap CMS configuration
+# =================================================================
+#
+# Auth: Netlify Identity + Git Gateway
+# Paste your GitHub repo info into backend.repo before going live.
+# =================================================================
+
 backend:
   name: git-gateway
   branch: main
-  # Auth via Netlify Identity → Git Gateway. Enable both in Netlify dashboard.
+  commit_messages:
+    create: "Create {{collection}} \"{{slug}}\""
+    update: "Update {{collection}} \"{{slug}}\""
+    delete: "Delete {{collection}} \"{{slug}}\""
 
-# Editorial workflow: edits go through PRs rather than direct commits.
-# Strongly recommended for any site with more than one editor.
 publish_mode: editorial_workflow
+media_folder: "public/assets/uploads"
+public_folder: "/assets/uploads"
+site_url: "https://www.quoteyeti.com"
+display_url: "https://www.quoteyeti.com"
+logo_url: "/assets/images/footprint.svg"
 
-media_folder: "public/uploads"
-public_folder: "/uploads"
-
-site_url: https://www.quoteyeti.com
-display_url: https://www.quoteyeti.com
-logo_url: /uploads/quote-yeti-logo-light.svg
-
-# Shared field group for SEO — reused across all collections
-# (Decap doesn't have true "partials" but we define it inline per collection)
+# Common reusable field groups
+shared_fields: &shared_fields
+  - { label: "Title", name: "title", widget: "string" }
+  - { label: "Description", name: "description", widget: "string", required: false }
+  - { label: "Publish date", name: "publishDate", widget: "datetime", required: false }
+  - { label: "Updated date", name: "updatedDate", widget: "datetime", required: false }
+  - { label: "Draft", name: "draft", widget: "boolean", default: false, required: false }
+  - { label: "Author", name: "author", widget: "string", required: false }
+  - label: "SEO"
+    name: "seo"
+    widget: "object"
+    collapsed: true
+    required: false
+    fields:
+      - { label: "SEO title", name: "seoTitle", widget: "string", required: false }
+      - { label: "SEO description", name: "seoDescription", widget: "text", required: false }
+      - { label: "Canonical URL", name: "canonical", widget: "string", required: false }
+      - { label: "OpenGraph image", name: "ogImage", widget: "image", required: false }
+      - { label: "No-index this page", name: "noindex", widget: "boolean", default: false, required: false }
+  - { label: "Body", name: "body", widget: "markdown" }
 
 collections:
-  - name: "brands"
-    label: "Brands"
+
+  # ========== Auto vertical (existing QuoteYeti content) ==========
+
+  - name: "auto-brands"
+    label: "Auto · Brand Pages"
     label_singular: "Brand"
-    folder: "src/content/brands"
+    folder: "src/content/auto/brands"
     create: true
     slug: "{{slug}}"
-    preview_path: "brands/{{slug}}"
-    summary: "{{brandName}} — updated {{updatedAt | date('YYYY-MM-DD')}}"
+    extension: "md"
     fields:
-      - { name: "title", label: "Title", widget: "string" }
-      - { name: "slug", label: "Slug", widget: "string", hint: "URL segment. Matches WP slug exactly for redirect mapping." }
-      - { name: "brandName", label: "Brand Name", widget: "string" }
-      - { name: "logo", label: "Brand Logo", widget: "image", required: false }
-      - { name: "heroImage", label: "Hero Image", widget: "image", required: false }
-      - { name: "publishedAt", label: "Published", widget: "datetime" }
-      - { name: "updatedAt", label: "Updated", widget: "datetime", required: false }
-      - { name: "averageRate", label: "Average Insurance Rate", widget: "string", required: false }
-      - name: "popularModels"
-        label: "Popular Models"
-        widget: "list"
-        required: false
-        field: { name: "model", label: "Model", widget: "string" }
-      - name: "relatedReviews"
-        label: "Related Provider Reviews"
-        widget: "list"
-        required: false
-        field: { name: "review", label: "Review slug", widget: "string" }
-      - name: "seo"
-        label: "SEO"
+      - { label: "Title", name: "title", widget: "string" }
+      - { label: "Brand", name: "brand", widget: "string", required: false }
+      - { label: "Model", name: "model", widget: "string", required: false }
+      - { label: "Body type", name: "bodyType", widget: "string", required: false }
+      - { label: "Average rate ($/yr)", name: "averageRate", widget: "number", required: false }
+      - { label: "Min rate ($/yr)", name: "minRate", widget: "number", required: false }
+      - { label: "Max rate ($/yr)", name: "maxRate", widget: "number", required: false }
+      - { label: "Description", name: "description", widget: "string", required: false }
+      - { label: "Hero image", name: "heroImage", widget: "image", required: false }
+      - { label: "Tags", name: "tags", widget: "list", required: false }
+      - { label: "Publish date", name: "publishDate", widget: "datetime", required: false }
+      - { label: "Draft", name: "draft", widget: "boolean", default: false, required: false }
+      - label: "SEO"
+        name: "seo"
         widget: "object"
         collapsed: true
+        required: false
         fields:
-          - { name: "metaTitle", label: "Meta Title", widget: "string", required: false }
-          - { name: "metaDescription", label: "Meta Description", widget: "text", required: false }
-          - { name: "ogImage", label: "OG Image", widget: "image", required: false }
-          - { name: "canonical", label: "Canonical URL", widget: "string", required: false }
-          - { name: "noindex", label: "No-index", widget: "boolean", default: false }
-      - { name: "body", label: "Body", widget: "markdown" }
+          - { label: "SEO title", name: "seoTitle", widget: "string", required: false }
+          - { label: "SEO description", name: "seoDescription", widget: "text", required: false }
+          - { label: "Canonical URL", name: "canonical", widget: "string", required: false }
+          - { label: "No-index", name: "noindex", widget: "boolean", default: false, required: false }
+      - { label: "Body", name: "body", widget: "markdown" }
 
-  - name: "reviews"
-    label: "Provider Reviews"
+  - name: "auto-reviews"
+    label: "Auto · Carrier Reviews"
     label_singular: "Review"
-    folder: "src/content/reviews"
+    folder: "src/content/auto/reviews"
     create: true
     slug: "{{slug}}"
-    preview_path: "reviews/{{slug}}"
-    summary: "{{providerName}} — {{rating}}★"
+    extension: "md"
     fields:
-      - { name: "title", label: "Title", widget: "string" }
-      - { name: "slug", label: "Slug", widget: "string" }
-      - { name: "providerName", label: "Provider Name", widget: "string" }
-      - { name: "logo", label: "Provider Logo", widget: "image", required: false }
-      - { name: "rating", label: "Rating (0–5)", widget: "number", required: false, value_type: "float", min: 0, max: 5, step: 0.1 }
-      - name: "pros"
-        label: "Pros"
-        widget: "list"
-        required: false
-        field: { name: "pro", label: "Pro", widget: "string" }
-      - name: "cons"
-        label: "Cons"
-        widget: "list"
-        required: false
-        field: { name: "con", label: "Con", widget: "string" }
-      - { name: "publishedAt", label: "Published", widget: "datetime" }
-      - { name: "updatedAt", label: "Updated", widget: "datetime", required: false }
-      - name: "seo"
-        label: "SEO"
+      - { label: "Title", name: "title", widget: "string" }
+      - { label: "Company name", name: "company", widget: "string", required: false }
+      - { label: "Company logo", name: "companyLogo", widget: "image", required: false }
+      - { label: "Star rating (0-5)", name: "starRating", widget: "number", min: 0, max: 5, step: 0.1, required: false }
+      - { label: "Website URL", name: "websiteUrl", widget: "string", required: false }
+      - { label: "Phone number", name: "phoneNumber", widget: "string", required: false }
+      - { label: "Address", name: "address", widget: "string", required: false }
+      - { label: "Number of offices", name: "officesCount", widget: "number", required: false }
+      - { label: "Founded year", name: "foundedYear", widget: "number", required: false }
+      - { label: "Pros", name: "pros", widget: "list", required: false }
+      - { label: "Cons", name: "cons", widget: "list", required: false }
+      - { label: "MediaAlpha placeholder", name: "mediaAlphaResult", widget: "string", required: false }
+      - { label: "Description", name: "description", widget: "string", required: false }
+      - { label: "Publish date", name: "publishDate", widget: "datetime", required: false }
+      - { label: "Draft", name: "draft", widget: "boolean", default: false, required: false }
+      - label: "SEO"
+        name: "seo"
         widget: "object"
         collapsed: true
+        required: false
         fields:
-          - { name: "metaTitle", label: "Meta Title", widget: "string", required: false }
-          - { name: "metaDescription", label: "Meta Description", widget: "text", required: false }
-          - { name: "ogImage", label: "OG Image", widget: "image", required: false }
-          - { name: "canonical", label: "Canonical URL", widget: "string", required: false }
-          - { name: "noindex", label: "No-index", widget: "boolean", default: false }
-      - { name: "body", label: "Body", widget: "markdown" }
+          - { label: "SEO title", name: "seoTitle", widget: "string", required: false }
+          - { label: "SEO description", name: "seoDescription", widget: "text", required: false }
+          - { label: "No-index", name: "noindex", widget: "boolean", default: false, required: false }
+      - { label: "Body", name: "body", widget: "markdown" }
 
-  - name: "bestOf"
-    label: "Best-Of Articles"
-    label_singular: "Best-Of Article"
-    folder: "src/content/bestOf"
+  - name: "auto-locations"
+    label: "Auto · State & City Pages"
+    label_singular: "Location"
+    folder: "src/content/auto/locations"
     create: true
     slug: "{{slug}}"
-    preview_path: "best-car-insurance/{{slug}}"
+    extension: "md"
     fields:
-      - { name: "title", label: "Title", widget: "string" }
-      - { name: "slug", label: "Slug", widget: "string" }
-      - { name: "heroImage", label: "Hero Image", widget: "image", required: false }
-      - { name: "publishedAt", label: "Published", widget: "datetime" }
-      - { name: "updatedAt", label: "Updated", widget: "datetime", required: false }
-      - name: "seo"
-        label: "SEO"
-        widget: "object"
-        collapsed: true
-        fields:
-          - { name: "metaTitle", label: "Meta Title", widget: "string", required: false }
-          - { name: "metaDescription", label: "Meta Description", widget: "text", required: false }
-          - { name: "ogImage", label: "OG Image", widget: "image", required: false }
-          - { name: "canonical", label: "Canonical URL", widget: "string", required: false }
-          - { name: "noindex", label: "No-index", widget: "boolean", default: false }
-      - { name: "body", label: "Body", widget: "markdown" }
+      - { label: "Title", name: "title", widget: "string" }
+      - { label: "State (full name)", name: "state", widget: "string", required: false }
+      - { label: "State abbreviation (2 letters)", name: "stateAbbr", widget: "string", required: false }
+      - { label: "City (if city page)", name: "city", widget: "string", required: false }
+      - { label: "Is this a city page?", name: "isCityPage", widget: "boolean", default: false, required: false }
+      - { label: "Average rate ($/yr)", name: "averageRate", widget: "number", required: false }
+      - { label: "Minimum liability required", name: "minLiabilityRequired", widget: "string", required: false }
+      - { label: "Description", name: "description", widget: "string", required: false }
+      - { label: "Publish date", name: "publishDate", widget: "datetime", required: false }
+      - { label: "Draft", name: "draft", widget: "boolean", default: false, required: false }
+      - { label: "Body", name: "body", widget: "markdown" }
+
+  - name: "auto-glossary"
+    label: "Auto · Glossary"
+    label_singular: "Glossary Term"
+    folder: "src/content/auto/glossary"
+    create: true
+    slug: "{{slug}}"
+    extension: "md"
+    fields:
+      - { label: "Title (page title)", name: "title", widget: "string" }
+      - { label: "Term", name: "term", widget: "string" }
+      - { label: "Short definition", name: "description", widget: "string", required: false }
+      - { label: "Related terms", name: "relatedTerms", widget: "list", required: false }
+      - { label: "Publish date", name: "publishDate", widget: "datetime", required: false }
+      - { label: "Draft", name: "draft", widget: "boolean", default: false, required: false }
+      - { label: "Full definition (body)", name: "body", widget: "markdown" }
+
+  - name: "auto-faqs"
+    label: "Auto · FAQs"
+    label_singular: "FAQ"
+    folder: "src/content/auto/faqs"
+    create: true
+    slug: "{{slug}}"
+    extension: "md"
+    fields:
+      - { label: "Title (page title)", name: "title", widget: "string" }
+      - { label: "Question", name: "question", widget: "string" }
+      - { label: "Short answer (for indexes)", name: "description", widget: "text", required: false }
+      - { label: "Category", name: "category", widget: "string", required: false }
+      - { label: "Publish date", name: "publishDate", widget: "datetime", required: false }
+      - { label: "Draft", name: "draft", widget: "boolean", default: false, required: false }
+      - { label: "Full answer (body)", name: "body", widget: "markdown" }
+
+  # ========== Other verticals (each gets a generic guides collection) ==========
+
+  - name: "home"
+    label: "Home Insurance"
+    label_singular: "Home insurance guide"
+    folder: "src/content/home"
+    create: true
+    slug: "{{slug}}"
+    extension: "md"
+    fields:
+      - { label: "Title", name: "title", widget: "string" }
+      - { label: "Description", name: "description", widget: "string", required: false }
+      - { label: "Subcategory", name: "subcategory", widget: "string", required: false }
+      - { label: "Hero image", name: "heroImage", widget: "image", required: false }
+      - { label: "Publish date", name: "publishDate", widget: "datetime", required: false }
+      - { label: "Draft", name: "draft", widget: "boolean", default: false, required: false }
+      - { label: "Body", name: "body", widget: "markdown" }
+
+  - name: "life"
+    label: "Life Insurance"
+    label_singular: "Life insurance guide"
+    folder: "src/content/life"
+    create: true
+    slug: "{{slug}}"
+    extension: "md"
+    fields:
+      - { label: "Title", name: "title", widget: "string" }
+      - { label: "Description", name: "description", widget: "string", required: false }
+      - { label: "Subcategory", name: "subcategory", widget: "string", required: false }
+      - { label: "Hero image", name: "heroImage", widget: "image", required: false }
+      - { label: "Publish date", name: "publishDate", widget: "datetime", required: false }
+      - { label: "Draft", name: "draft", widget: "boolean", default: false, required: false }
+      - { label: "Body", name: "body", widget: "markdown" }
+
+  - name: "business"
+    label: "Business Insurance"
+    label_singular: "Business insurance guide"
+    folder: "src/content/business"
+    create: true
+    slug: "{{slug}}"
+    extension: "md"
+    fields:
+      - { label: "Title", name: "title", widget: "string" }
+      - { label: "Description", name: "description", widget: "string", required: false }
+      - { label: "Subcategory", name: "subcategory", widget: "string", required: false }
+      - { label: "Hero image", name: "heroImage", widget: "image", required: false }
+      - { label: "Publish date", name: "publishDate", widget: "datetime", required: false }
+      - { label: "Draft", name: "draft", widget: "boolean", default: false, required: false }
+      - { label: "Body", name: "body", widget: "markdown" }
+
+  - name: "health"
+    label: "Health Insurance"
+    label_singular: "Health insurance guide"
+    folder: "src/content/health"
+    create: true
+    slug: "{{slug}}"
+    extension: "md"
+    fields:
+      - { label: "Title", name: "title", widget: "string" }
+      - { label: "Description", name: "description", widget: "string", required: false }
+      - { label: "Subcategory", name: "subcategory", widget: "string", required: false }
+      - { label: "Hero image", name: "heroImage", widget: "image", required: false }
+      - { label: "Publish date", name: "publishDate", widget: "datetime", required: false }
+      - { label: "Draft", name: "draft", widget: "boolean", default: false, required: false }
+      - { label: "Body", name: "body", widget: "markdown" }
+
+  - name: "renters"
+    label: "Renters Insurance"
+    label_singular: "Renters insurance guide"
+    folder: "src/content/renters"
+    create: true
+    slug: "{{slug}}"
+    extension: "md"
+    fields:
+      - { label: "Title", name: "title", widget: "string" }
+      - { label: "Description", name: "description", widget: "string", required: false }
+      - { label: "Subcategory", name: "subcategory", widget: "string", required: false }
+      - { label: "Hero image", name: "heroImage", widget: "image", required: false }
+      - { label: "Publish date", name: "publishDate", widget: "datetime", required: false }
+      - { label: "Draft", name: "draft", widget: "boolean", default: false, required: false }
+      - { label: "Body", name: "body", widget: "markdown" }
+
+  - name: "pet"
+    label: "Pet Insurance"
+    label_singular: "Pet insurance guide"
+    folder: "src/content/pet"
+    create: true
+    slug: "{{slug}}"
+    extension: "md"
+    fields:
+      - { label: "Title", name: "title", widget: "string" }
+      - { label: "Description", name: "description", widget: "string", required: false }
+      - { label: "Subcategory", name: "subcategory", widget: "string", required: false }
+      - { label: "Hero image", name: "heroImage", widget: "image", required: false }
+      - { label: "Publish date", name: "publishDate", widget: "datetime", required: false }
+      - { label: "Draft", name: "draft", widget: "boolean", default: false, required: false }
+      - { label: "Body", name: "body", widget: "markdown" }
+
+  - name: "travel"
+    label: "Travel Insurance"
+    label_singular: "Travel insurance guide"
+    folder: "src/content/travel"
+    create: true
+    slug: "{{slug}}"
+    extension: "md"
+    fields:
+      - { label: "Title", name: "title", widget: "string" }
+      - { label: "Description", name: "description", widget: "string", required: false }
+      - { label: "Subcategory", name: "subcategory", widget: "string", required: false }
+      - { label: "Hero image", name: "heroImage", widget: "image", required: false }
+      - { label: "Publish date", name: "publishDate", widget: "datetime", required: false }
+      - { label: "Draft", name: "draft", widget: "boolean", default: false, required: false }
+      - { label: "Body", name: "body", widget: "markdown" }
+
+  # ========== Cross-cutting collections ==========
+
+  - name: "posts"
+    label: "The Dispatch (Blog)"
+    label_singular: "Post"
+    folder: "src/content/posts"
+    create: true
+    slug: "{{slug}}"
+    extension: "md"
+    fields:
+      - { label: "Title", name: "title", widget: "string" }
+      - { label: "Description", name: "description", widget: "string", required: false }
+      - { label: "Excerpt", name: "excerpt", widget: "text", required: false }
+      - { label: "Category", name: "category", widget: "string", required: false }
+      - { label: "Tags", name: "tags", widget: "list", required: false }
+      - { label: "Hero image", name: "heroImage", widget: "image", required: false }
+      - { label: "Author", name: "author", widget: "string", required: false }
+      - { label: "Publish date", name: "publishDate", widget: "datetime", required: true }
+      - { label: "Draft", name: "draft", widget: "boolean", default: false, required: false }
+      - { label: "Body", name: "body", widget: "markdown" }
 
   - name: "pages"
-    label: "Pages"
+    label: "Static Pages"
     label_singular: "Page"
     folder: "src/content/pages"
     create: true
     slug: "{{slug}}"
-    preview_path: "{{slug}}"
+    extension: "md"
     fields:
-      - { name: "title", label: "Title", widget: "string" }
-      - { name: "slug", label: "Slug", widget: "string" }
-      - name: "template"
-        label: "Template"
-        widget: "select"
-        options: ["default", "faq", "glossary", "contact"]
-        default: "default"
-      - { name: "publishedAt", label: "Published", widget: "datetime" }
-      - { name: "updatedAt", label: "Updated", widget: "datetime", required: false }
-      - name: "seo"
-        label: "SEO"
-        widget: "object"
-        collapsed: true
-        fields:
-          - { name: "metaTitle", label: "Meta Title", widget: "string", required: false }
-          - { name: "metaDescription", label: "Meta Description", widget: "text", required: false }
-          - { name: "ogImage", label: "OG Image", widget: "image", required: false }
-          - { name: "canonical", label: "Canonical URL", widget: "string", required: false }
-          - { name: "noindex", label: "No-index", widget: "boolean", default: false }
-      - { name: "body", label: "Body", widget: "markdown" }
+      - { label: "Title", name: "title", widget: "string" }
+      - { label: "Description", name: "description", widget: "string", required: false }
+      - { label: "Layout", name: "layout", widget: "select", options: ["default", "narrow", "wide"], default: "default", required: false }
+      - { label: "Publish date", name: "publishDate", widget: "datetime", required: false }
+      - { label: "Draft", name: "draft", widget: "boolean", default: false, required: false }
+      - { label: "Body", name: "body", widget: "markdown" }

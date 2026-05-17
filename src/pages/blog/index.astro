@@ -1,0 +1,58 @@
+---
+import BaseLayout from "~/layouts/BaseLayout.astro";
+import { getCollection } from "astro:content";
+
+const posts = await getCollection("posts", ({ data }) => !data.draft);
+posts.sort((a, b) => (b.data.publishDate?.getTime() ?? 0) - (a.data.publishDate?.getTime() ?? 0));
+---
+
+<BaseLayout
+  title="The Dispatch - QuoteYeti Blog"
+  description="The QuoteYeti team's take on insurance, money, and how to spend less on both."
+>
+  <section class="page-hero">
+    <div class="container">
+      <p class="eyebrow">The Dispatch</p>
+      <h1>Hot takes from the <span class="highlight underline-accent">Yeti</span></h1>
+      <p class="page-hero__lede">Independent reporting and unsolicited opinions on insurance, money, and consumer protection.</p>
+    </div>
+  </section>
+
+  <section class="container blog-grid">
+    {posts.length === 0 ? (
+      <p class="index-list__empty">No posts yet.</p>
+    ) : (
+      <ul class="blog-grid__list">
+        {posts.map((post) => (
+          <li>
+            <a href={`/blog/${post.id}/`} class="post-card">
+              {post.data.category && <p class="post-card__cat">{post.data.category}</p>}
+              <h2 class="post-card__title">{post.data.title}</h2>
+              {post.data.excerpt && <p class="post-card__excerpt">{post.data.excerpt}</p>}
+              <span class="post-card__cta">Read post →</span>
+            </a>
+          </li>
+        ))}
+      </ul>
+    )}
+  </section>
+
+  <style>
+    .page-hero { padding-block: var(--space-16) var(--space-10); background: var(--color-alice); }
+    .page-hero__lede { font-size: 1.25rem; color: var(--color-text-strong); max-width: 640px; }
+    .blog-grid { padding-block: var(--space-16); }
+    .blog-grid__list { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-6); }
+    .post-card {
+      display: block; padding: var(--space-6);
+      background: var(--color-white); border: 1px solid var(--color-border); border-radius: var(--radius-lg);
+      transition: all var(--transition);
+    }
+    .post-card:hover { transform: translateY(-2px); box-shadow: var(--shadow); border-color: var(--color-malibu); }
+    .post-card__cat { font-family: var(--font-display); font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em; color: var(--color-malibu); margin: 0 0 var(--space-3); }
+    .post-card__title { font-size: 1.25rem; margin-bottom: var(--space-3); }
+    .post-card__excerpt { font-size: 0.9375rem; color: var(--color-text); margin: 0 0 var(--space-4); }
+    .post-card__cta { font-family: var(--font-display); font-weight: 600; color: var(--color-resolution); }
+    .index-list__empty { font-size: 1.125rem; color: var(--color-text-muted); text-align: center; padding-block: var(--space-12); }
+    @media (max-width: 950px) { .blog-grid__list { grid-template-columns: 1fr; } }
+  </style>
+</BaseLayout>

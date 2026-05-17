@@ -1,0 +1,55 @@
+---
+import VerticalHub from "~/layouts/VerticalHub.astro";
+import { VERTICALS } from "~/data/verticals";
+
+const v = VERTICALS.auto;
+---
+
+<VerticalHub
+  vertical={v}
+  hero={{
+    headline: "Your coverage, simplified.",
+    lede: "Compare car insurance rates from the carriers actually competing for your business — no spam calls, no inflated premiums.",
+    ctaLabel: "Get auto quotes",
+    ctaHref: "/auto/quotes/",
+  }}
+  pillars={[
+    {
+      title: "Compare 70+ carriers",
+      body: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore.",
+      href: "/auto/compare/",
+      cta: "Compare carriers",
+    },
+    {
+      title: "Reviews you can trust",
+      body: "Independent provider reviews — pros, cons, ratings, and real customer experience data.",
+      href: "/auto/reviews/",
+      cta: "Read reviews",
+    },
+    {
+      title: "Brand-specific rates",
+      body: "Average insurance cost for every make and model, from Acura to Volvo.",
+      href: "/auto/brands/",
+      cta: "Browse brands",
+    },
+  ]}
+  calculators={[
+    { label: "Auto insurance calculator", href: "/auto/calculator/" },
+    { label: "How much coverage do I need?", href: "/auto/how-much-do-i-need/" },
+    { label: "Discount finder", href: "/auto/discounts/" },
+  ]}
+  subtopics={[
+    { title: "Cheapest full coverage", href: "/auto/cheapest-full-coverage/", desc: "Lowest premiums for full coverage policies, ranked by state." },
+    { title: "Best for young drivers", href: "/auto/best-for-young-drivers/", desc: "Carriers that don't punish you for being under 25." },
+    { title: "SR-22 insurance", href: "/auto/sr-22/", desc: "What it is, who needs it, and how to file." },
+    { title: "Bundling auto + home", href: "/auto/bundling/", desc: "How much you really save by combining policies." },
+    { title: "Telematics programs", href: "/auto/telematics/", desc: "Drive-tracking discounts compared across carriers." },
+    { title: "After an accident", href: "/auto/after-accident/", desc: "Filing claims, dealing with adjusters, and what to expect." },
+  ]}
+  faqs={[
+    { q: "How much car insurance do I need?", a: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Most states require at minimum liability coverage." },
+    { q: "What is full coverage?", a: "Sed do eiusmod tempor incididunt ut labore — full coverage typically includes liability + collision + comprehensive." },
+    { q: "Can I switch carriers mid-policy?", a: "Ut enim ad minim veniam — yes, but check for cancellation fees and overlap your start dates." },
+    { q: "Does credit score affect my rate?", a: "Duis aute irure dolor in reprehenderit — in most states, yes; California, Hawaii, and Massachusetts prohibit it." },
+  ]}
+/>

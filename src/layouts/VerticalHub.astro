@@ -1,0 +1,319 @@
+---
+import BaseLayout from "~/layouts/BaseLayout.astro";
+import type { Vertical } from "~/data/verticals";
+
+interface Subtopic {
+  title: string;
+  href: string;
+  desc: string;
+}
+
+interface Props {
+  vertical: Vertical;
+  hero: { headline: string; lede: string; ctaLabel?: string; ctaHref?: string };
+  pillars: { title: string; body: string; href: string; cta: string }[];
+  calculators?: { label: string; href: string }[];
+  subtopics?: Subtopic[];
+  faqs?: { q: string; a: string }[];
+}
+
+const { vertical, hero, pillars, calculators = [], subtopics = [], faqs = [] } = Astro.props;
+---
+
+<BaseLayout
+  title={`${vertical.label} - QuoteYeti`}
+  description={vertical.description}
+>
+
+  <!-- ============== HERO ============== -->
+  <section class="vhero">
+    <div class="vhero__art" aria-hidden="true">
+      <img src="/assets/images/hero-clouds.svg" alt="" class="vhero__clouds" />
+      <img src="/assets/images/hero-peaks.svg" alt="" class="vhero__peaks" />
+      <img src="/assets/images/yeti-hero.svg" alt="" class="vhero__yeti" />
+    </div>
+    <div class="container vhero__inner">
+      <p class="vhero__eyebrow">
+        <img src={vertical.icon} alt="" width="20" height="20" />
+        {vertical.label}
+      </p>
+      <h1>
+        {hero.headline} <span class="highlight underline-accent">{vertical.short.toLowerCase()}</span>.
+      </h1>
+      <p class="vhero__lede">{hero.lede}</p>
+      <div class="vhero__ctas">
+        <a href={hero.ctaHref ?? `${vertical.path}quotes/`} class="btn btn-accent">
+          {hero.ctaLabel ?? `Get ${vertical.short.toLowerCase()} quotes`}
+        </a>
+        {calculators.length > 0 && (
+          <a href={calculators[0].href} class="btn btn-secondary">
+            Try the {vertical.short.toLowerCase()} calculator
+          </a>
+        )}
+      </div>
+    </div>
+  </section>
+
+  <!-- ============== THREE PILLARS ============== -->
+  {pillars.length > 0 && (
+    <section class="vpillars container">
+      <div class="vpillars__grid">
+        {pillars.map((pillar) => (
+          <article class="vpillar">
+            <h2 class="vpillar__title">{pillar.title}</h2>
+            <p class="vpillar__body">{pillar.body}</p>
+            <a href={pillar.href} class="vpillar__cta">
+              {pillar.cta} <span aria-hidden="true">→</span>
+            </a>
+          </article>
+        ))}
+      </div>
+    </section>
+  )}
+
+  <!-- ============== SUBTOPICS GRID ============== -->
+  {subtopics.length > 0 && (
+    <section class="vsubtopics">
+      <div class="container">
+        <header class="vsubtopics__header">
+          <p class="eyebrow">Explore {vertical.short.toLowerCase()} guides</p>
+          <h2>Everything you need to choose well</h2>
+        </header>
+        <div class="vsubtopics__grid">
+          {subtopics.map((topic) => (
+            <a href={topic.href} class="vsubtopic-card">
+              <h3 class="vsubtopic-card__title">{topic.title}</h3>
+              <p class="vsubtopic-card__desc">{topic.desc}</p>
+              <span class="vsubtopic-card__arrow" aria-hidden="true">→</span>
+            </a>
+          ))}
+        </div>
+      </div>
+    </section>
+  )}
+
+  <!-- ============== CALCULATORS ============== -->
+  {calculators.length > 0 && (
+    <section class="vcalc container">
+      <header class="vcalc__header">
+        <p class="eyebrow">Free calculators</p>
+        <h2>Do the math <span class="highlight">before</span> the sales call</h2>
+      </header>
+      <div class="vcalc__grid">
+        {calculators.map((calc) => (
+          <a href={calc.href} class="vcalc-tile">
+            <img src={vertical.icon} alt="" width="32" height="32" class="vcalc-tile__icon" />
+            <span>{calc.label}</span>
+            <span class="vcalc-tile__arrow" aria-hidden="true">→</span>
+          </a>
+        ))}
+      </div>
+    </section>
+  )}
+
+  <!-- ============== FAQ ============== -->
+  {faqs.length > 0 && (
+    <section class="vfaq">
+      <div class="container-narrow">
+        <header class="vfaq__header">
+          <p class="eyebrow">Frequently asked</p>
+          <h2>{vertical.short} insurance, demystified</h2>
+        </header>
+        <div class="vfaq__list">
+          {faqs.map((faq) => (
+            <details class="vfaq__item">
+              <summary>{faq.q}</summary>
+              <p>{faq.a}</p>
+            </details>
+          ))}
+        </div>
+      </div>
+    </section>
+  )}
+
+  <style>
+    /* ---------- Hero ---------- */
+    .vhero {
+      position: relative;
+      padding-block: var(--space-24);
+      overflow: hidden;
+      background: linear-gradient(180deg, var(--section-accent-soft) 0%, var(--color-white) 100%);
+    }
+    .vhero__art { position: absolute; inset: 0; pointer-events: none; z-index: 0; }
+    .vhero__clouds {
+      position: absolute;
+      top: 8%;
+      left: -10%;
+      width: 50%;
+      opacity: 0.5;
+    }
+    .vhero__peaks {
+      position: absolute;
+      bottom: -20px; left: 0;
+      width: 100%;
+      opacity: 0.95;
+    }
+    .vhero__yeti {
+      position: absolute;
+      right: -40px; bottom: 0;
+      width: 32%;
+      max-width: 420px;
+    }
+    .vhero__inner { position: relative; z-index: 1; max-width: 720px; }
+    .vhero__eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-2);
+      font-family: var(--font-display);
+      font-size: 0.875rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--section-accent);
+      background: var(--color-white);
+      padding: var(--space-2) var(--space-4);
+      border-radius: 100px;
+      border: 1px solid var(--section-accent-soft);
+      margin-bottom: var(--space-6);
+    }
+    .vhero__lede {
+      font-size: 1.25rem;
+      color: var(--color-text-strong);
+      margin-bottom: var(--space-8);
+      max-width: 580px;
+    }
+    .vhero__ctas { display: flex; gap: var(--space-3); flex-wrap: wrap; }
+
+    /* ---------- Pillars ---------- */
+    .vpillars { padding-block: var(--space-20); }
+    .vpillars__grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: var(--space-8);
+    }
+    .vpillar {
+      padding: var(--space-8);
+      background: var(--color-white);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-lg);
+      border-top: 4px solid var(--section-accent);
+      transition: transform var(--transition), box-shadow var(--transition);
+    }
+    .vpillar:hover { transform: translateY(-4px); box-shadow: var(--shadow); }
+    .vpillar__title { font-size: 1.5rem; margin-bottom: var(--space-3); }
+    .vpillar__body { color: var(--color-text); margin-bottom: var(--space-5); }
+    .vpillar__cta {
+      font-family: var(--font-display); font-weight: 600;
+      color: var(--section-accent);
+    }
+    .vpillar__cta:hover { color: var(--color-resolution); }
+
+    /* ---------- Subtopics ---------- */
+    .vsubtopics {
+      background: var(--color-alice);
+      padding-block: var(--space-20);
+    }
+    .vsubtopics__header { text-align: center; margin-bottom: var(--space-12); max-width: 640px; margin-inline: auto; }
+    .vsubtopics__grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: var(--space-5);
+    }
+    .vsubtopic-card {
+      display: block;
+      padding: var(--space-6);
+      background: var(--color-white);
+      border-radius: var(--radius-lg);
+      border: 1px solid transparent;
+      transition: all var(--transition);
+      position: relative;
+    }
+    .vsubtopic-card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow);
+      border-color: var(--section-accent);
+    }
+    .vsubtopic-card__title { font-size: 1.125rem; margin-bottom: var(--space-2); }
+    .vsubtopic-card__desc { font-size: 0.9375rem; color: var(--color-text); margin: 0; }
+    .vsubtopic-card__arrow {
+      position: absolute; right: var(--space-5); top: var(--space-5);
+      color: var(--section-accent);
+      transition: transform var(--transition);
+    }
+    .vsubtopic-card:hover .vsubtopic-card__arrow { transform: translateX(4px); }
+
+    /* ---------- Calculators ---------- */
+    .vcalc { padding-block: var(--space-20); }
+    .vcalc__header { text-align: center; margin-bottom: var(--space-12); }
+    .vcalc__grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: var(--space-4);
+    }
+    .vcalc-tile {
+      display: flex;
+      align-items: center;
+      gap: var(--space-4);
+      padding: var(--space-5) var(--space-6);
+      background: var(--section-accent-soft);
+      border-radius: var(--radius);
+      color: var(--color-resolution);
+      font-family: var(--font-display);
+      font-weight: 600;
+      transition: all var(--transition);
+    }
+    .vcalc-tile:hover {
+      background: var(--section-accent);
+      color: var(--section-text-on-accent);
+    }
+    .vcalc-tile__icon { flex-shrink: 0; }
+    .vcalc-tile__arrow { margin-left: auto; }
+
+    /* ---------- FAQ ---------- */
+    .vfaq {
+      padding-block: var(--space-20);
+      background: var(--color-alice);
+    }
+    .vfaq__header { text-align: center; margin-bottom: var(--space-10); }
+    .vfaq__list { display: flex; flex-direction: column; gap: var(--space-3); }
+    .vfaq__item {
+      background: var(--color-white);
+      border-radius: var(--radius);
+      border: 1px solid var(--color-border);
+      transition: border-color var(--transition);
+    }
+    .vfaq__item:hover { border-color: var(--section-accent); }
+    .vfaq__item summary {
+      cursor: pointer;
+      padding: var(--space-5) var(--space-6);
+      font-family: var(--font-display);
+      font-weight: 600;
+      font-size: 1.0625rem;
+      color: var(--color-resolution);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      list-style: none;
+    }
+    .vfaq__item summary::-webkit-details-marker { display: none; }
+    .vfaq__item summary::after {
+      content: "+";
+      font-size: 1.5rem;
+      color: var(--section-accent);
+      transition: transform var(--transition);
+    }
+    .vfaq__item[open] summary::after { content: "−"; }
+    .vfaq__item p {
+      padding: 0 var(--space-6) var(--space-5);
+      margin: 0;
+      color: var(--color-text);
+      line-height: 1.6;
+    }
+
+    /* ---------- Responsive ---------- */
+    @media (max-width: 950px) {
+      .vpillars__grid, .vsubtopics__grid, .vcalc__grid { grid-template-columns: 1fr; }
+      .vhero__yeti { width: 40%; opacity: 0.5; }
+    }
+  </style>
+</BaseLayout>

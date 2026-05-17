@@ -1,0 +1,53 @@
+---
+import VerticalHub from "~/layouts/VerticalHub.astro";
+import { VERTICALS } from "~/data/verticals";
+
+const v = VERTICALS.renters;
+---
+
+<VerticalHub
+  vertical={v}
+  hero={{
+    headline: "Affordable protection for what you've got",
+    lede: "Renters insurance covers more than most renters realize — and costs less than a streaming subscription.",
+  }}
+  pillars={[
+    {
+      title: "What it covers",
+      body: "Lorem ipsum dolor sit amet — personal property, liability, additional living expenses if your unit becomes uninhabitable.",
+      href: "/renters-insurance/coverage/",
+      cta: "See what's covered",
+    },
+    {
+      title: "Best cheap renters",
+      body: "Lemonade, State Farm, Toggle — we compare premiums for $20K personal property coverage by state.",
+      href: "/renters-insurance/cheapest/",
+      cta: "Cheapest options",
+    },
+    {
+      title: "Do you need it?",
+      body: "Most landlords now require it. Even if yours doesn't — the math almost always favors having it.",
+      href: "/renters-insurance/do-i-need-it/",
+      cta: "Should I get it?",
+    },
+  ]}
+  calculators={[
+    { label: "Renters cost calculator", href: "/renters-insurance/calculator/" },
+    { label: "Coverage limit estimator", href: "/renters-insurance/coverage-limits/" },
+    { label: "Bundling savings", href: "/renters-insurance/bundling/" },
+  ]}
+  subtopics={[
+    { title: "College students", href: "/renters-insurance/students/", desc: "Dorm coverage under parents' policy vs. standalone." },
+    { title: "Roommates", href: "/renters-insurance/roommates/", desc: "Separate policies vs. shared — which is smarter." },
+    { title: "Pet owners", href: "/renters-insurance/pet-owners/", desc: "Liability coverage when a guest gets bitten." },
+    { title: "Working from home", href: "/renters-insurance/home-office/", desc: "When standard renters won't cover work equipment." },
+    { title: "Filing a claim", href: "/renters-insurance/claims/", desc: "Documentation, depreciation, and getting paid quickly." },
+    { title: "Earthquake & flood", href: "/renters-insurance/disasters/", desc: "What's excluded and where to get add-on coverage." },
+  ]}
+  faqs={[
+    { q: "How much does renters insurance cost?", a: "Lorem ipsum — national average is around $15/month for $20K personal property." },
+    { q: "Does it cover my roommate's stuff?", a: "Sed do eiusmod — only if they're explicitly named on your policy. Otherwise they need their own." },
+    { q: "Is theft covered outside my apartment?", a: "Ut enim ad minim — yes, in most policies, but check limits on items in your car or while traveling." },
+    { q: "What's an actual cash value vs. replacement cost?", a: "Duis aute irure — ACV pays depreciated value; RCV pays what new costs. RCV is worth the small premium upgrade." },
+  ]}
+/>

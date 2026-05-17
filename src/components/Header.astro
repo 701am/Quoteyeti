@@ -1,96 +1,131 @@
 ---
-// Replicates the original QuoteYeti header: logo + 4 dropdown menus + Start for Free CTA
-const navItems = [
-  {
-    label: "Top Brands",
-    children: [
-      { label: "All Brands", href: "/brands/" },
-      { label: "Mazda", href: "/brands/mazda-insurance-rates/" },
-      { label: "BMW", href: "/brands/bmw/" },
-      { label: "Subaru", href: "/brands/subaru-insurance-rates/" },
-      { label: "Porsche", href: "/brands/porsche-insurance-rates/" },
-      { label: "Honda", href: "/brands/honda-insurance-rates/" },
-      { label: "Lexus", href: "/brands/lexus-insurance-rates/" },
-      { label: "Toyota", href: "/brands/toyota-insurance-rates/" },
-      { label: "Chrysler", href: "/brands/chrysler/" },
-      { label: "Buick", href: "/brands/buick/" },
-      { label: "Hyundai", href: "/brands/hyundai-insurance-rates/" },
-      { label: "Audi", href: "/brands/audi/" },
-      { label: "Infiniti", href: "/brands/infiniti-car-insurance/" },
-    ],
-  },
-  {
-    label: "Top Reviews",
-    children: [
-      { label: "All Reviews", href: "/reviews/" },
-      { label: "State Farm", href: "/reviews/state-farm-insurance/" },
-      { label: "Allstate", href: "/reviews/allstate-insurance/" },
-      { label: "Progressive", href: "/reviews/progressive-insurance/" },
-      { label: "GEICO", href: "/reviews/geico-insurance/" },
-      { label: "USAA", href: "/reviews/usaa-insurance/" },
-      { label: "Liberty Mutual", href: "/reviews/liberty-mutual-insurance/" },
-      { label: "Farmers", href: "/reviews/farmers-insurance/" },
-      { label: "Travelers", href: "/reviews/travelers-insurance/" },
-      { label: "American Family", href: "/reviews/american-family-insurance/" },
-      { label: "Nationwide", href: "/reviews/nationwide-insurance/" },
-      { label: "Chubb", href: "/reviews/chubb-auto-insurance/" },
-      { label: "Kemper", href: "/reviews/kemper-auto-insurance/" },
-    ],
-  },
-  {
-    label: "Resources",
-    children: [
-      { label: "Best Car Insurance for Military", href: "/best-car-insurance/best-car-insurance-for-military/" },
-      { label: "Insurance Statistics", href: "/resources/car-insurance-statistics/" },
-      { label: "FAQs", href: "/faqs/" },
-      { label: "Car Insurance Glossary", href: "/glossary/" },
-    ],
-  },
-  {
-    label: "Company",
-    children: [
-      { label: "About QuoteYeti", href: "/about/" },
-      { label: "Contact", href: "/contact/" },
-    ],
-  },
-];
+import { NAV } from "~/data/nav";
+import { VERTICALS } from "~/data/verticals";
 ---
 
 <header class="site-header">
   <div class="container site-header__inner">
-    <a href="/" class="site-header__logo" aria-label="QuoteYeti home">
-      <span class="logo-mark" aria-hidden="true">
-        <!-- Inline yeti footprint as logo placeholder -->
-        <img src="/assets/images/footprint.svg" alt="" width="32" height="32" />
-      </span>
-      <span class="logo-text">QuoteYeti</span>
+    <a href="/" class="brand" aria-label="QuoteYeti home">
+      <img src="/assets/images/footprint.svg" alt="" width="36" height="36" />
+      <span class="brand__text">QuoteYeti</span>
     </a>
 
-    <nav class="site-nav" aria-label="Primary">
-      <ul class="site-nav__list">
-        {navItems.map((item) => (
-          <li class="site-nav__item">
-            <button class="site-nav__top" aria-expanded="false" aria-haspopup="true">
-              {item.label}
-              <svg width="10" height="6" viewBox="0 0 10 6" aria-hidden="true">
-                <path d="M1 1l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
-              </svg>
-            </button>
-            <ul class="site-nav__sub">
-              {item.children.map((c) => (
-                <li><a href={c.href}>{c.label}</a></li>
-              ))}
-            </ul>
-          </li>
-        ))}
+    <nav class="megamenu" aria-label="Primary">
+      <ul class="megamenu__list" role="menubar">
+        {NAV.map((entry, i) => {
+          const vertical = entry.verticalKey ? VERTICALS[entry.verticalKey] : null;
+          const accentVar = vertical ? `--section-accent: ${vertical.accent}; --section-accent-soft: ${vertical.accentSoft};` : "";
+          return (
+            <li class="megamenu__item" role="none">
+              {entry.href && !entry.panel ? (
+                <a href={entry.href} class="megamenu__top" role="menuitem">{entry.label}</a>
+              ) : (
+                <>
+                  <button
+                    class="megamenu__top"
+                    role="menuitem"
+                    aria-haspopup="true"
+                    aria-expanded="false"
+                    aria-controls={`mm-panel-${i}`}
+                    data-mm-trigger={i}
+                  >
+                    {entry.label}
+                    <svg width="10" height="6" viewBox="0 0 10 6" aria-hidden="true">
+                      <path d="M1 1l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+                    </svg>
+                  </button>
+                  {entry.panel && (
+                    <div
+                      id={`mm-panel-${i}`}
+                      class="megamenu__panel"
+                      data-mm-panel={i}
+                      style={accentVar}
+                      role="region"
+                      aria-label={`${entry.label} menu`}
+                      hidden
+                    >
+                      <div class="container megamenu__panel-inner">
+                        <div class="megamenu__columns">
+                          {entry.panel.columns.map((col) => (
+                            <div class="megamenu__column">
+                              <h3 class="megamenu__col-title">{col.title}</h3>
+                              <ul class="megamenu__links">
+                                {col.links.map((link) => (
+                                  <li>
+                                    <a href={link.href}>
+                                      <span>{link.label}</span>
+                                      {link.desc && <span class="megamenu__link-desc">{link.desc}</span>}
+                                    </a>
+                                  </li>
+                                ))}
+                              </ul>
+                            </div>
+                          ))}
+                        </div>
+
+                        <aside class="megamenu__featured" aria-label="Featured">
+                          {entry.panel.featured.image && (
+                            <div class="megamenu__featured-art" aria-hidden="true">
+                              <img src={entry.panel.featured.image} alt="" />
+                            </div>
+                          )}
+                          <div class="megamenu__featured-body">
+                            <p class="megamenu__featured-eyebrow">{entry.panel.featured.eyebrow}</p>
+                            <h4 class="megamenu__featured-heading">{entry.panel.featured.heading}</h4>
+                            <p class="megamenu__featured-text">{entry.panel.featured.body}</p>
+                            <a href={entry.panel.featured.cta.href} class="megamenu__featured-cta">
+                              {entry.panel.featured.cta.label} <span aria-hidden="true">→</span>
+                            </a>
+                          </div>
+                        </aside>
+                      </div>
+                    </div>
+                  )}
+                </>
+              )}
+            </li>
+          );
+        })}
       </ul>
     </nav>
 
-    <a href="#start-for-free" class="btn btn-primary site-header__cta">Start for free</a>
+    <a href="/auto/quotes/" class="btn btn-primary header__cta">Get quotes</a>
 
-    <button class="site-header__menu-btn" aria-label="Open menu" aria-expanded="false">
+    <button class="header__menu-toggle" aria-label="Open menu" aria-expanded="false" data-mobile-toggle>
       <span></span><span></span><span></span>
     </button>
+  </div>
+
+  <div class="mobile-drawer" data-mobile-drawer hidden>
+    <ul class="mobile-drawer__list">
+      {NAV.map((entry) => (
+        <li class="mobile-drawer__item">
+          {entry.href && !entry.panel ? (
+            <a href={entry.href} class="mobile-drawer__top">{entry.label}</a>
+          ) : (
+            <details class="mobile-drawer__details">
+              <summary>{entry.label}</summary>
+              {entry.panel && (
+                <div class="mobile-drawer__panel">
+                  {entry.panel.columns.map((col) => (
+                    <div class="mobile-drawer__col">
+                      <p class="mobile-drawer__col-title">{col.title}</p>
+                      <ul>
+                        {col.links.map((link) => <li><a href={link.href}>{link.label}</a></li>)}
+                      </ul>
+                    </div>
+                  ))}
+                  <a href={entry.panel.featured.cta.href} class="mobile-drawer__cta">
+                    {entry.panel.featured.cta.label} →
+                  </a>
+                </div>
+              )}
+            </details>
+          )}
+        </li>
+      ))}
+    </ul>
+    <a href="/auto/quotes/" class="btn btn-primary mobile-drawer__cta-primary">Get quotes</a>
   </div>
 </header>
 
@@ -101,109 +136,251 @@ const navItems = [
     position: sticky;
     top: 0;
     z-index: 50;
+    height: var(--header-height);
   }
   .site-header__inner {
     display: flex;
     align-items: center;
     gap: var(--space-8);
-    padding-block: var(--space-4);
+    height: 100%;
   }
-  .site-header__logo {
-    display: flex;
-    align-items: center;
-    gap: var(--space-2);
-    font-family: var(--font-display);
-    font-weight: 600;
-    font-size: 1.25rem;
-    color: var(--color-resolution);
-    text-decoration: none;
+  .brand {
+    display: flex; align-items: center; gap: var(--space-2);
+    font-family: var(--font-display); font-weight: 600; font-size: 1.25rem;
+    color: var(--color-resolution); text-decoration: none; flex-shrink: 0;
   }
-  .logo-mark img { display: block; }
+  .brand__text { letter-spacing: -0.01em; }
 
-  .site-nav { flex: 1; }
-  .site-nav__list {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    display: flex;
-    gap: var(--space-6);
+  .megamenu { flex: 1; height: 100%; }
+  .megamenu__list {
+    list-style: none; margin: 0; padding: 0;
+    display: flex; gap: var(--space-2); height: 100%; align-items: stretch;
   }
-  .site-nav__item { position: relative; }
-  .site-nav__top {
-    background: none;
-    border: 0;
-    font-family: var(--font-display);
-    font-weight: 600;
-    font-size: 1rem;
+  .megamenu__item { position: static; display: flex; align-items: stretch; }
+  .megamenu__top {
+    background: none; border: 0;
+    font-family: var(--font-display); font-weight: 600; font-size: 0.9375rem;
     color: var(--color-resolution);
-    padding: var(--space-3) 0;
+    padding: 0 var(--space-4);
     cursor: pointer;
-    display: inline-flex;
-    align-items: center;
-    gap: var(--space-2);
+    display: inline-flex; align-items: center; gap: var(--space-2);
+    border-bottom: 3px solid transparent;
+    transition: all var(--transition); text-decoration: none;
   }
-  .site-nav__top:hover { color: var(--color-malibu); }
-  .site-nav__sub {
-    list-style: none;
-    margin: 0;
-    padding: var(--space-3) 0;
-    position: absolute;
-    top: 100%;
-    left: 0;
-    min-width: 220px;
+  .megamenu__top:hover, .megamenu__top[aria-expanded="true"] {
+    color: var(--color-resolution); border-bottom-color: var(--color-malibu);
+  }
+
+  .megamenu__panel {
+    position: absolute; top: var(--header-height); left: 0; right: 0;
     background: var(--color-white);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius);
-    box-shadow: var(--shadow);
-    opacity: 0;
-    visibility: hidden;
-    transform: translateY(-4px);
-    transition: all var(--transition);
+    border-top: 1px solid var(--color-border);
+    border-bottom: 4px solid var(--section-accent);
+    box-shadow: var(--shadow-lg);
+    z-index: 49;
+    animation: mm-in 0.18s ease;
   }
-  .site-nav__item:hover .site-nav__sub,
-  .site-nav__item:focus-within .site-nav__sub {
-    opacity: 1;
-    visibility: visible;
-    transform: translateY(0);
+  .megamenu__panel[hidden] { display: none; }
+  @keyframes mm-in {
+    from { opacity: 0; transform: translateY(-4px); }
+    to   { opacity: 1; transform: translateY(0); }
   }
-  .site-nav__sub a {
-    display: block;
-    padding: var(--space-2) var(--space-5);
-    color: var(--color-text);
-    font-size: 0.95rem;
+  .megamenu__panel-inner {
+    display: grid;
+    grid-template-columns: 1fr 320px;
+    gap: var(--space-12);
+    padding-block: var(--space-10);
   }
-  .site-nav__sub a:hover {
-    background: var(--color-alice);
-    color: var(--color-resolution);
+  .megamenu__columns {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-10);
+  }
+  .megamenu__col-title {
+    font-family: var(--font-display);
+    font-size: 0.75rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.12em;
+    color: var(--section-accent);
+    margin: 0 0 var(--space-4);
+  }
+  .megamenu__links { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--space-1); }
+  .megamenu__links a {
+    display: block; padding: var(--space-2) 0;
+    color: var(--color-text-strong);
+    font-size: 0.9375rem;
+    border-radius: var(--radius-sm);
+    transition: color var(--transition);
+  }
+  .megamenu__links a:hover { color: var(--section-accent); }
+  .megamenu__link-desc {
+    display: block; font-size: 0.8125rem; color: var(--color-text-muted);
+    font-weight: 400; margin-top: 2px;
   }
 
-  .site-header__menu-btn {
-    display: none;
-    background: none;
-    border: 0;
-    padding: var(--space-2);
-    flex-direction: column;
-    gap: 5px;
-    cursor: pointer;
+  .megamenu__featured {
+    background: var(--section-accent-soft);
+    border-radius: var(--radius-lg);
+    padding: var(--space-6);
+    display: flex; flex-direction: column; gap: var(--space-4);
+    position: relative; overflow: hidden;
   }
-  .site-header__menu-btn span {
-    display: block;
-    width: 24px;
-    height: 2px;
+  .megamenu__featured-art {
+    position: absolute; right: -20px; top: -20px;
+    width: 140px; opacity: 0.18; pointer-events: none;
+  }
+  .megamenu__featured-art img { width: 100%; }
+  .megamenu__featured-body { position: relative; }
+  .megamenu__featured-eyebrow {
+    font-family: var(--font-display);
+    font-size: 0.75rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.12em;
+    color: var(--section-accent);
+    margin: 0 0 var(--space-2);
+  }
+  .megamenu__featured-heading {
+    font-family: var(--font-display);
+    font-size: 1.25rem; font-weight: 600;
+    color: var(--color-resolution);
+    margin: 0 0 var(--space-3);
+    line-height: 1.2;
+  }
+  .megamenu__featured-text { color: var(--color-text); margin: 0 0 var(--space-4); font-size: 0.9375rem; line-height: 1.5; }
+  .megamenu__featured-cta {
+    font-family: var(--font-display); font-weight: 600;
+    color: var(--section-accent); font-size: 0.9375rem;
+  }
+  .megamenu__featured-cta:hover { color: var(--color-resolution); }
+
+  .header__cta { padding: 0.625rem 1.25rem; font-size: 0.9375rem; flex-shrink: 0; }
+  .header__menu-toggle {
+    display: none;
+    background: none; border: 0; padding: var(--space-2);
+    flex-direction: column; gap: 5px; cursor: pointer;
+  }
+  .header__menu-toggle span {
+    display: block; width: 24px; height: 2px;
     background: var(--color-resolution);
   }
 
+  .mobile-drawer {
+    position: absolute; top: var(--header-height); left: 0; right: 0;
+    background: var(--color-white);
+    border-top: 1px solid var(--color-border);
+    box-shadow: var(--shadow-lg);
+    padding: var(--space-6);
+    max-height: calc(100vh - var(--header-height));
+    overflow-y: auto;
+  }
+  .mobile-drawer__list { list-style: none; margin: 0; padding: 0; }
+  .mobile-drawer__details summary {
+    cursor: pointer; padding: var(--space-3) 0;
+    font-family: var(--font-display); font-weight: 600; font-size: 1.125rem;
+    color: var(--color-resolution);
+    border-bottom: 1px solid var(--color-border);
+    display: flex; justify-content: space-between; align-items: center;
+    list-style: none;
+  }
+  .mobile-drawer__details summary::-webkit-details-marker { display: none; }
+  .mobile-drawer__details summary::after { content: "+"; font-size: 1.5rem; color: var(--color-malibu); }
+  .mobile-drawer__details[open] summary::after { content: "−"; }
+  .mobile-drawer__panel { padding: var(--space-4) 0 var(--space-6); }
+  .mobile-drawer__col-title {
+    font-family: var(--font-display);
+    font-size: 0.75rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.12em;
+    color: var(--color-text-muted);
+    margin: var(--space-4) 0 var(--space-2);
+  }
+  .mobile-drawer__col ul { list-style: none; margin: 0; padding: 0; }
+  .mobile-drawer__col li a { display: block; padding: var(--space-2) 0; color: var(--color-text-strong); }
+  .mobile-drawer__cta { display: inline-block; margin-top: var(--space-4); font-family: var(--font-display); font-weight: 600; color: var(--color-malibu); }
+  .mobile-drawer__top {
+    display: block; padding: var(--space-3) 0;
+    font-family: var(--font-display); font-weight: 600; font-size: 1.125rem;
+    color: var(--color-resolution);
+    border-bottom: 1px solid var(--color-border);
+  }
+  .mobile-drawer__cta-primary { margin-top: var(--space-6); width: 100%; }
+
+  @media (max-width: 1060px) {
+    .megamenu__panel-inner { grid-template-columns: 1fr; }
+    .megamenu__featured { max-width: 480px; }
+  }
   @media (max-width: 950px) {
-    .site-nav, .site-header__cta { display: none; }
-    .site-header__menu-btn { display: flex; }
+    .megamenu, .header__cta { display: none; }
+    .header__menu-toggle { display: flex; }
   }
 </style>
 
 <script>
-  // Mobile menu toggle (deferred until full mobile nav drawer is built)
-  const btn = document.querySelector<HTMLButtonElement>(".site-header__menu-btn");
-  btn?.addEventListener("click", () => {
-    const open = btn.getAttribute("aria-expanded") === "true";
-    btn.setAttribute("aria-expanded", String(!open));
+  const triggers = document.querySelectorAll<HTMLButtonElement>("[data-mm-trigger]");
+  const panels = document.querySelectorAll<HTMLDivElement>("[data-mm-panel]");
+  let hideTimer: number | null = null;
+  let activeIndex: number | null = null;
+
+  function show(index: number) {
+    if (hideTimer) { clearTimeout(hideTimer); hideTimer = null; }
+    if (activeIndex !== null && activeIndex !== index) hideImmediate(activeIndex);
+    const trigger = triggers[index];
+    const panel = panels[index];
+    if (!trigger || !panel) return;
+    trigger.setAttribute("aria-expanded", "true");
+    panel.hidden = false;
+    activeIndex = index;
+  }
+  function hideImmediate(index: number) {
+    triggers[index]?.setAttribute("aria-expanded", "false");
+    if (panels[index]) panels[index].hidden = true;
+    if (activeIndex === index) activeIndex = null;
+  }
+  function scheduleHide(index: number) {
+    if (hideTimer) clearTimeout(hideTimer);
+    hideTimer = window.setTimeout(() => hideImmediate(index), 180);
+  }
+
+  triggers.forEach((trigger, i) => {
+    const item = trigger.closest("li");
+    if (!item) return;
+    item.addEventListener("mouseenter", () => show(i));
+    item.addEventListener("mouseleave", () => scheduleHide(i));
+    trigger.addEventListener("click", (e) => {
+      e.preventDefault();
+      const expanded = trigger.getAttribute("aria-expanded") === "true";
+      if (expanded) hideImmediate(i); else show(i);
+    });
+    trigger.addEventListener("focus", () => show(i));
+  });
+
+  panels.forEach((panel, i) => {
+    panel.addEventListener("mouseenter", () => {
+      if (hideTimer) { clearTimeout(hideTimer); hideTimer = null; }
+    });
+    panel.addEventListener("mouseleave", () => scheduleHide(i));
+  });
+
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && activeIndex !== null) {
+      const i = activeIndex;
+      hideImmediate(i);
+      triggers[i]?.focus();
+    }
+  });
+
+  document.addEventListener("click", (e) => {
+    if (activeIndex === null) return;
+    const target = e.target as Node;
+    const trigger = triggers[activeIndex];
+    const panel = panels[activeIndex];
+    if (trigger && trigger.contains(target)) return;
+    if (panel && panel.contains(target)) return;
+    hideImmediate(activeIndex);
+  });
+
+  const mobileToggle = document.querySelector<HTMLButtonElement>("[data-mobile-toggle]");
+  const mobileDrawer = document.querySelector<HTMLDivElement>("[data-mobile-drawer]");
+  mobileToggle?.addEventListener("click", () => {
+    const expanded = mobileToggle.getAttribute("aria-expanded") === "true";
+    mobileToggle.setAttribute("aria-expanded", String(!expanded));
+    if (mobileDrawer) mobileDrawer.hidden = expanded;
   });
 </script>

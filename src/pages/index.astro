@@ -1,142 +1,227 @@
 ---
 import BaseLayout from "~/layouts/BaseLayout.astro";
-import ZipForm from "~/components/ZipForm.astro";
+import { VERTICAL_LIST } from "~/data/verticals";
 
-const pressLogos = [
-  { src: "/assets/images/fox.svg", alt: "Fox News", fallback: "Fox" },
-  { src: "/assets/images/usa-today.svg", alt: "USA Today", fallback: "USA Today" },
-  { src: "/assets/images/digital-journal.svg", alt: "Digital Journal", fallback: "Digital Journal" },
-  { src: "/assets/images/benzinga.svg", alt: "Benzinga", fallback: "Benzinga" },
-  { src: "/assets/images/market-watch.svg", alt: "MarketWatch", fallback: "MarketWatch" },
+const featuredVerticals = VERTICAL_LIST.filter((v) => ["auto", "home", "business"].includes(v.key));
+const secondaryVerticals = VERTICAL_LIST.filter((v) => !["auto", "home", "business"].includes(v.key));
+
+const calculators = [
+  { label: "Auto Insurance Calculator", href: "/auto/calculator/", vertical: "auto" },
+  { label: "Life Insurance Calculator", href: "/life-insurance/calculator/", vertical: "life" },
+  { label: "Health Insurance Calculator", href: "/health-insurance/calculator/", vertical: "health" },
+  { label: "Home Insurance Calculator", href: "/home-insurance/calculator/", vertical: "home" },
+  { label: "Business Insurance Calculator", href: "/business-insurance/calculator/", vertical: "business" },
+  { label: "Pet Insurance Calculator", href: "/pet-insurance/calculator/", vertical: "pet" },
 ];
 
-const categoryCards = [
-  {
-    title: "Brands",
-    icon: "/assets/images/footprint.svg",
-    body: "Lorem ipsum dolor sit amet, consectetur adipiscing elit on all major makes and models.",
-    href: "/brands/",
-    cta: "Browse Brands",
-  },
-  {
-    title: "Reviews",
-    icon: "/assets/images/footprint.svg",
-    body: "Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua reviews.",
-    href: "/reviews/",
-    cta: "Browse Reviews",
-  },
-  {
-    title: "FAQs",
-    icon: "/assets/images/footprint.svg",
-    body: "Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.",
-    href: "/faqs/",
-    cta: "Browse FAQs",
-  },
+const carriers = ["Progressive", "GEICO", "State Farm", "Allstate", "Liberty Mutual", "Nationwide", "Farmers", "Travelers"];
+const press = ["Fox", "USA Today", "Digital Journal", "Benzinga", "MarketWatch"];
+
+const topGuides = [
+  { title: "Types of Insurance: See Which Is Right for You", href: "/insurance/", category: "Insurance 101" },
+  { title: "Car Insurance Basics 101 — Plain English", href: "/auto/basics/", category: "Auto" },
+  { title: "Business Insurance: What Does It Cover?", href: "/business-insurance/coverage/", category: "Business" },
+  { title: "Is Life Insurance Worth It? Expert Take", href: "/life-insurance/is-it-worth-it/", category: "Life" },
+  { title: "How Much Home Insurance Do You Need?", href: "/home-insurance/how-much-do-i-need/", category: "Home" },
+  { title: "How to Get Health Insurance in 2026", href: "/health-insurance/how-to-get/", category: "Health" },
+];
+
+const faqs = [
+  { q: "What is QuoteYeti?", a: "QuoteYeti is an insurance comparison marketplace covering eight insurance verticals. We analyze rates from top carriers, publish independent guides, and connect you with the right coverage for your situation." },
+  { q: "How does QuoteYeti make money?", a: "Carriers pay us a commission when you purchase a policy through us. Our editorial rankings and recommendations are independent of those partnerships." },
+  { q: "Is QuoteYeti an insurance company?", a: "No. We're a marketplace and editorial team. We don't underwrite or sell policies directly — we connect you with the companies that do." },
+  { q: "Do you share my personal data?", a: "We don't sell personal data to third parties. When you request quotes, your information goes only to the carriers and licensed partners you choose." },
 ];
 ---
 
 <BaseLayout
-  title="Welcome to QuoteYeti! - QuoteYeti"
-  description="Lorem ipsum dolor sit amet — our goal is to make your life safer by providing the information needed to choose the best auto insurance coverage for you."
+  title="QuoteYeti - Compare Insurance Without the Sales Pressure"
+  description="One yeti, every line of coverage. Compare auto, home, life, business, health, renters, pet, and travel insurance — all in one place."
 >
 
   <!-- ============== HERO ============== -->
   <section class="hero">
     <div class="hero__art" aria-hidden="true">
+      <img src="/assets/images/hero-clouds.svg" alt="" class="hero__clouds" />
       <img src="/assets/images/hero-peaks.svg" alt="" class="hero__peaks" />
       <img src="/assets/images/yeti-hero.svg" alt="" class="hero__yeti" />
     </div>
     <div class="container hero__inner">
-      <h1>Your coverage, <span class="highlight underline">simplified</span>.</h1>
+      <p class="hero__eyebrow">QuoteYeti, your insurance research assistant</p>
+      <h1>The smarter way to <span class="highlight underline-accent">compare insurance</span>.</h1>
       <p class="hero__lede">
-        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Insurance doesn't have to be a dirty word.
+        We do the insurance math so you don't have to. Compare quotes across eight categories.
+        Save time. Pay less. No sales calls.
       </p>
-      <ZipForm variant="header" ctaLabel="Get Quotes" />
-    </div>
-  </section>
 
-  <!-- ============== TRUSTED-BY ============== -->
-  <section class="trusted container">
-    <h2 class="trusted__heading">Trusted by thousands of car enthusiasts</h2>
-    <p class="trusted__lede">
-      Lorem ipsum dolor sit amet — QuoteYeti readers come from all over the country with the goal of getting great coverage for less.
-    </p>
-
-    <figure class="trusted__quote">
-      <blockquote>
-        <p>
-          "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor
-          incididunt ut labore et dolore magna aliqua. I was looking at my bills and realized
-          I could save $40 a month by switching my car insurance."
-        </p>
-      </blockquote>
-      <figcaption>
-        <img src="/assets/images/keyshia-davis.jpeg" alt="" width="64" height="64" class="trusted__avatar" />
-        <span>
-          <strong>Lorem Ipsum</strong><br />
-          2018 Honda Civic
-        </span>
-      </figcaption>
-    </figure>
-  </section>
-
-  <!-- ============== SAVINGS CTA ============== -->
-  <section class="savings">
-    <div class="container savings__inner">
-      <div class="savings__copy">
-        <h2><span class="highlight">Bring on the savings!</span></h2>
-        <p>
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit. The days of shopping
-          around for car insurance are over. We've done the research and have the tools
-          to find you the best coverage for you.
-        </p>
-        <a href="#start-for-free" class="btn btn-primary">Start for free</a>
+      <div class="hero__tiles">
+        {featuredVerticals.map((v) => (
+          <a href={v.path} class="hero-tile hero-tile--featured" style={`--tile-accent: ${v.accent}; --tile-accent-soft: ${v.accentSoft};`}>
+            <img src={v.icon} alt="" class="hero-tile__icon" />
+            <span class="hero-tile__label">{v.label}</span>
+            <span class="hero-tile__arrow" aria-hidden="true">→</span>
+          </a>
+        ))}
       </div>
-      <div class="savings__art" aria-hidden="true">
-        <img src="/assets/images/thumbs-up-left.svg" alt="" />
+
+      <div class="hero__chips">
+        <p class="hero__chips-label">More coverage:</p>
+        <div class="hero__chips-row">
+          {secondaryVerticals.map((v) => (
+            <a href={v.path} class="hero-chip" style={`--chip-accent: ${v.accent};`}>
+              <img src={v.icon} alt="" />
+              <span>{v.short}</span>
+            </a>
+          ))}
+        </div>
       </div>
     </div>
   </section>
 
-  <!-- ============== PRESS STRIP ============== -->
-  <section class="press container">
-    <p class="press__label">QuoteYeti in the wild.</p>
-    <ul class="press__logos">
-      {pressLogos.map((logo) => (
-        <li class="press__logo">
-          <span>{logo.fallback}</span>
-        </li>
-      ))}
-    </ul>
+  <!-- ============== CARRIER STRIP ============== -->
+  <section class="carriers">
+    <div class="container">
+      <p class="carriers__label">Compare coverage and costs across America's top insurers</p>
+      <ul class="carriers__list">
+        {carriers.map((c) => <li class="carrier-logo">{c}</li>)}
+      </ul>
+    </div>
   </section>
 
-  <!-- ============== CATEGORY CARDS ============== -->
-  <section class="categories container">
-    <h2 class="categories__heading">How can we help?</h2>
-    <p class="categories__lede">Lorem ipsum — search our knowledge base by category.</p>
-    <div class="categories__grid">
-      {categoryCards.map((card) => (
-        <article class="category-card">
-          <div class="category-card__icon" aria-hidden="true">
-            <img src={card.icon} alt="" width="48" height="48" />
-          </div>
-          <h3>{card.title}</h3>
-          <p>{card.body}</p>
-          <a href={card.href} class="category-card__link">{card.cta} →</a>
+  <!-- ============== VALUE PROPS ============== -->
+  <section class="value-props">
+    <div class="container">
+      <p class="eyebrow">Why smarter shoppers use QuoteYeti</p>
+      <h2>The work <span class="highlight">before</span> the work.</h2>
+      <div class="value-props__grid">
+        <article class="value-prop">
+          <h3 class="value-prop__title">Find the right coverage without overpaying</h3>
+          <p>Compare insurance options that fit your life and your budget — without guesswork or sales pressure.</p>
         </article>
-      ))}
+        <article class="value-prop">
+          <h3 class="value-prop__title">Expert recommendations you can rely on</h3>
+          <p>Choose confidently with guidance from licensed insurance experts and data analysts who evaluate pricing, customer satisfaction, and coverage options.</p>
+        </article>
+        <article class="value-prop">
+          <h3 class="value-prop__title">Personalized tools that do the math</h3>
+          <p>Save time and money with free calculators and tools tailored to your ZIP code, budget, and coverage needs.</p>
+        </article>
+      </div>
+      <a href="/about/" class="btn btn-secondary value-props__cta">About the Yeti</a>
     </div>
   </section>
 
-  <!-- ============== FINAL CTA ============== -->
-  <section class="final-cta">
-    <div class="final-cta__art" aria-hidden="true">
-      <img src="/assets/images/hero-peaks.svg" alt="" />
+  <!-- ============== CALCULATORS ============== -->
+  <section class="calc-grid">
+    <div class="container">
+      <header class="calc-grid__header">
+        <p class="eyebrow">Tools that do the math</p>
+        <h2>Estimate your rate <span class="highlight">before</span> talking to anyone</h2>
+      </header>
+      <div class="calc-grid__tiles">
+        {calculators.map((c) => (
+          <a href={c.href} class="calc-tile" data-vertical={c.vertical}>
+            <span class="calc-tile__label">{c.label}</span>
+            <span aria-hidden="true">→</span>
+          </a>
+        ))}
+      </div>
     </div>
-    <div class="container final-cta__inner">
-      <p class="final-cta__overline">Ready to get started?</p>
-      <h2><span class="highlight">We've got you covered.</span></h2>
-      <a href="#start-for-free" class="btn btn-primary">Start for free</a>
+  </section>
+
+  <!-- ============== STATS BANNER ============== -->
+  <section class="stats">
+    <div class="container stats__inner">
+      <h2 class="stats__heading">The numbers don't lie</h2>
+      <p class="stats__lede">
+        We've analyzed millions of quotes and evaluated every major provider so you can compare insurance options with confidence.
+      </p>
+      <ul class="stats__grid">
+        <li>
+          <span class="stats__number">2.4M+</span>
+          <span class="stats__label">Insurance quotes<br />analyzed nationwide</span>
+        </li>
+        <li>
+          <span class="stats__number">125+</span>
+          <span class="stats__label">Top insurance<br />companies reviewed</span>
+        </li>
+        <li>
+          <span class="stats__number">8</span>
+          <span class="stats__label">Insurance verticals,<br />one expert team</span>
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ============== PRESS ============== -->
+  <section class="press">
+    <div class="container">
+      <p class="eyebrow">Trusted by top media</p>
+      <h3 class="press__heading">Our research has been featured in:</h3>
+      <ul class="press__list">
+        {press.map((p) => <li>{p}</li>)}
+      </ul>
+    </div>
+  </section>
+
+  <!-- ============== TOP GUIDES ============== -->
+  <section class="guides">
+    <div class="container">
+      <header class="guides__header">
+        <p class="eyebrow">Top insurance guides</p>
+        <h2>The reading that pays for itself</h2>
+      </header>
+      <div class="guides__grid">
+        {topGuides.map((g) => (
+          <a href={g.href} class="guide-card">
+            <p class="guide-card__category">{g.category}</p>
+            <h3 class="guide-card__title">{g.title}</h3>
+            <span class="guide-card__cta">Read more →</span>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- ============== EXPLORE GRID — 8 VERTICALS ============== -->
+  <section class="explore">
+    <div class="container">
+      <header class="explore__header">
+        <p class="eyebrow">All eight verticals</p>
+        <h2>Pick your line of coverage</h2>
+      </header>
+      <div class="explore__grid">
+        {VERTICAL_LIST.map((v) => (
+          <article class="explore-card" style={`--card-accent: ${v.accent}; --card-accent-soft: ${v.accentSoft};`}>
+            <div class="explore-card__icon">
+              <img src={v.icon} alt="" />
+            </div>
+            <h3 class="explore-card__title">{v.label}</h3>
+            <p class="explore-card__desc">{v.description}</p>
+            <a href={v.path} class="explore-card__cta">
+              Compare {v.short.toLowerCase()} insurance <span aria-hidden="true">→</span>
+            </a>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- ============== FAQ ============== -->
+  <section class="home-faq">
+    <div class="container-narrow">
+      <header class="home-faq__header">
+        <p class="eyebrow">Frequently asked</p>
+        <h2>Common questions</h2>
+      </header>
+      <div class="home-faq__list">
+        {faqs.map((faq) => (
+          <details class="home-faq__item">
+            <summary>{faq.q}</summary>
+            <p>{faq.a}</p>
+          </details>
+        ))}
+      </div>
     </div>
   </section>
 
@@ -148,193 +233,309 @@ const categoryCards = [
       overflow: hidden;
       background: linear-gradient(180deg, var(--color-alice) 0%, var(--color-white) 100%);
     }
-    .hero__art {
-      position: absolute;
-      inset: 0;
-      pointer-events: none;
-      z-index: 0;
-    }
-    .hero__peaks {
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      width: 100%;
-      height: auto;
-      opacity: 0.85;
-    }
-    .hero__yeti {
-      position: absolute;
-      right: 0;
-      bottom: 0;
-      width: 36%;
-      max-width: 480px;
-      height: auto;
-    }
-    .hero__inner {
-      position: relative;
-      z-index: 1;
-      max-width: 720px;
+    .hero__art { position: absolute; inset: 0; pointer-events: none; z-index: 0; }
+    .hero__clouds { position: absolute; top: 4%; left: -8%; width: 56%; opacity: 0.45; }
+    .hero__peaks { position: absolute; bottom: 0; left: 0; width: 100%; opacity: 0.9; }
+    .hero__yeti { position: absolute; right: 0; bottom: 0; width: 28%; max-width: 380px; }
+    .hero__inner { position: relative; z-index: 1; max-width: 820px; }
+    .hero__eyebrow {
+      font-family: var(--font-display); font-size: 0.875rem; font-weight: 600;
+      text-transform: uppercase; letter-spacing: 0.12em;
+      color: var(--color-ship-cove);
+      margin: 0 0 var(--space-5);
     }
     .hero__lede {
-      font-size: 1.25rem;
-      color: var(--color-text-strong);
-      margin-bottom: var(--space-8);
-      max-width: 540px;
+      font-size: 1.25rem; color: var(--color-text-strong);
+      margin-bottom: var(--space-10); max-width: 620px;
     }
 
-    /* ---------- Trusted ---------- */
-    .trusted { padding-block: var(--space-24); text-align: center; }
-    .trusted__heading { margin-bottom: var(--space-5); }
-    .trusted__lede { max-width: 640px; margin: 0 auto var(--space-12); color: var(--color-text-strong); }
-    .trusted__quote {
-      max-width: 640px;
-      margin: 0 auto;
-      padding: var(--space-8);
-      background: var(--color-alice);
+    .hero__tiles {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-4);
+      margin-bottom: var(--space-6);
+    }
+    .hero-tile {
+      display: flex; flex-direction: column; gap: var(--space-3);
+      padding: var(--space-6);
+      background: var(--color-white);
+      border: 2px solid var(--color-border);
       border-radius: var(--radius-lg);
-      box-shadow: var(--shadow-sm);
+      text-decoration: none;
+      transition: all var(--transition);
+      position: relative;
+      min-height: 140px;
     }
-    .trusted__quote blockquote {
-      margin: 0 0 var(--space-6);
-      font-family: var(--font-serif);
-      font-size: 1.375rem;
-      line-height: 1.5;
+    .hero-tile:hover {
+      border-color: var(--tile-accent);
+      background: var(--tile-accent-soft);
+      transform: translateY(-2px);
+      box-shadow: var(--shadow);
+    }
+    .hero-tile__icon {
+      width: 40px; height: 40px;
+      color: var(--tile-accent);
+    }
+    .hero-tile__label {
+      font-family: var(--font-display); font-weight: 600;
+      font-size: 1.125rem; color: var(--color-resolution);
+    }
+    .hero-tile__arrow {
+      position: absolute; right: var(--space-5); bottom: var(--space-5);
+      color: var(--tile-accent);
+      font-size: 1.25rem;
+      transition: transform var(--transition);
+    }
+    .hero-tile:hover .hero-tile__arrow { transform: translateX(4px); }
+
+    .hero__chips { margin-top: var(--space-4); }
+    .hero__chips-label {
+      font-family: var(--font-display); font-size: 0.8125rem; font-weight: 600;
+      text-transform: uppercase; letter-spacing: 0.12em;
+      color: var(--color-text-muted);
+      margin: 0 0 var(--space-3);
+    }
+    .hero__chips-row { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+    .hero-chip {
+      display: inline-flex; align-items: center; gap: var(--space-2);
+      padding: var(--space-2) var(--space-4);
+      background: var(--color-white);
+      border: 1px solid var(--color-border);
+      border-radius: 100px;
       color: var(--color-resolution);
-      font-style: italic;
+      font-family: var(--font-display); font-weight: 600;
+      font-size: 0.875rem;
+      transition: all var(--transition);
     }
-    .trusted__quote figcaption {
-      display: flex;
-      align-items: center;
-      gap: var(--space-4);
-      justify-content: center;
-      font-size: 0.95rem;
-      color: var(--color-text);
-    }
-    .trusted__avatar {
-      border-radius: 50%;
-      object-fit: cover;
+    .hero-chip img { width: 18px; height: 18px; color: var(--chip-accent); }
+    .hero-chip:hover {
+      border-color: var(--chip-accent);
+      color: var(--chip-accent);
     }
 
-    /* ---------- Savings ---------- */
-    .savings {
-      background: var(--color-resolution);
-      color: var(--color-white);
-      padding-block: var(--space-24);
-    }
-    .savings__inner {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: var(--space-12);
-      align-items: center;
-    }
-    .savings__copy h2 { color: var(--color-white); margin-bottom: var(--space-5); }
-    .savings__copy p { margin-bottom: var(--space-8); font-size: 1.125rem; opacity: 0.9; }
-    .savings__art { text-align: center; }
-    .savings__art img { max-width: 320px; width: 100%; }
-    @media (max-width: 950px) {
-      .savings__inner { grid-template-columns: 1fr; }
-      .savings__art { order: -1; }
-    }
-
-    /* ---------- Press ---------- */
-    .press {
-      padding-block: var(--space-16);
-      text-align: center;
+    /* ---------- Carrier strip ---------- */
+    .carriers {
+      padding-block: var(--space-10);
       border-top: 1px solid var(--color-border);
       border-bottom: 1px solid var(--color-border);
     }
-    .press__label {
-      font-family: var(--font-display);
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
-      font-size: 0.875rem;
+    .carriers__label {
+      text-align: center;
+      font-family: var(--font-display); font-size: 0.875rem; font-weight: 600;
+      text-transform: uppercase; letter-spacing: 0.12em;
       color: var(--color-ship-cove);
-      margin-bottom: var(--space-8);
+      margin: 0 0 var(--space-6);
     }
-    .press__logos {
-      list-style: none;
-      margin: 0;
-      padding: 0;
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      align-items: center;
-      gap: var(--space-12);
+    .carriers__list {
+      list-style: none; margin: 0; padding: 0;
+      display: flex; flex-wrap: wrap; justify-content: center;
+      align-items: center; gap: var(--space-10);
     }
-    .press__logo {
-      font-family: var(--font-serif);
-      font-size: 1.25rem;
+    .carrier-logo {
+      font-family: var(--font-serif); font-style: italic;
+      font-size: 1.125rem;
       color: var(--color-ship-cove);
       opacity: 0.7;
       transition: opacity var(--transition);
     }
-    .press__logo:hover { opacity: 1; }
+    .carrier-logo:hover { opacity: 1; }
 
-    /* ---------- Categories ---------- */
-    .categories {
+    /* ---------- Value props ---------- */
+    .value-props { padding-block: var(--space-24); }
+    .value-props h2 { max-width: 720px; margin-bottom: var(--space-12); }
+    .value-props__grid {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-8);
+      margin-bottom: var(--space-12);
+    }
+    .value-prop {
+      padding-top: var(--space-6);
+      border-top: 4px solid var(--color-malibu);
+    }
+    .value-prop__title { font-size: 1.375rem; margin-bottom: var(--space-3); }
+    .value-prop p { color: var(--color-text); }
+
+    /* ---------- Calculators ---------- */
+    .calc-grid {
+      background: var(--color-alice);
       padding-block: var(--space-24);
-      text-align: center;
     }
-    .categories__heading { margin-bottom: var(--space-5); }
-    .categories__lede { color: var(--color-text); margin-bottom: var(--space-12); }
-    .categories__grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: var(--space-8);
+    .calc-grid__header { text-align: center; margin-bottom: var(--space-12); max-width: 640px; margin-inline: auto; }
+    .calc-grid__tiles {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-4);
     }
-    .category-card {
-      padding: var(--space-10) var(--space-6);
+    .calc-tile {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: var(--space-5) var(--space-6);
       background: var(--color-white);
-      border: 1px solid var(--color-border);
+      border-radius: var(--radius);
+      color: var(--color-resolution);
+      font-family: var(--font-display); font-weight: 600;
+      font-size: 1.0625rem;
+      transition: all var(--transition);
+      border: 1px solid transparent;
+    }
+    .calc-tile:hover {
+      border-color: var(--color-malibu);
+      transform: translateY(-2px);
+      box-shadow: var(--shadow);
+    }
+
+    /* ---------- Stats ---------- */
+    .stats {
+      background: var(--color-resolution);
+      color: var(--color-white);
+      padding-block: var(--space-20);
+    }
+    .stats__inner { text-align: center; max-width: 900px; }
+    .stats__heading { color: var(--color-white); }
+    .stats__lede { font-size: 1.125rem; opacity: 0.92; margin-bottom: var(--space-12); }
+    .stats__grid {
+      list-style: none; margin: 0; padding: 0;
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-8);
+    }
+    .stats__number {
+      display: block;
+      font-family: var(--font-serif); font-style: italic; font-weight: 700;
+      font-size: 4rem; line-height: 1;
+      color: var(--color-malibu);
+      margin-bottom: var(--space-3);
+    }
+    .stats__label {
+      font-family: var(--font-display); font-size: 0.9375rem;
+      opacity: 0.85;
+    }
+
+    /* ---------- Press ---------- */
+    .press { padding-block: var(--space-20); text-align: center; }
+    .press__heading {
+      font-family: var(--font-body); font-weight: 400;
+      font-size: 1.125rem;
+      color: var(--color-text);
+      margin-bottom: var(--space-8);
+    }
+    .press__list {
+      list-style: none; margin: 0; padding: 0;
+      display: flex; justify-content: center; align-items: center;
+      flex-wrap: wrap; gap: var(--space-10);
+    }
+    .press__list li {
+      font-family: var(--font-serif); font-style: italic;
+      font-size: 1.25rem;
+      color: var(--color-ship-cove);
+      opacity: 0.75;
+    }
+
+    /* ---------- Top guides ---------- */
+    .guides {
+      background: var(--color-alice);
+      padding-block: var(--space-24);
+    }
+    .guides__header { text-align: center; margin-bottom: var(--space-12); }
+    .guides__grid {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-5);
+    }
+    .guide-card {
+      display: block;
+      padding: var(--space-6);
+      background: var(--color-white);
       border-radius: var(--radius-lg);
-      text-align: center;
+      border: 1px solid var(--color-border);
       transition: all var(--transition);
     }
-    .category-card:hover {
-      transform: translateY(-4px);
+    .guide-card:hover {
+      transform: translateY(-2px);
       box-shadow: var(--shadow);
       border-color: var(--color-malibu);
     }
-    .category-card__icon { margin-bottom: var(--space-5); }
-    .category-card h3 { font-size: 1.5rem; margin-bottom: var(--space-3); }
-    .category-card p { color: var(--color-text); margin-bottom: var(--space-6); }
-    .category-card__link {
-      font-weight: 600;
-      font-family: var(--font-display);
+    .guide-card__category {
+      font-family: var(--font-display); font-size: 0.75rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.12em;
+      color: var(--color-malibu);
+      margin: 0 0 var(--space-3);
     }
-    @media (max-width: 950px) {
-      .categories__grid { grid-template-columns: 1fr; }
+    .guide-card__title {
+      font-size: 1.125rem; line-height: 1.3;
+      margin-bottom: var(--space-4);
+    }
+    .guide-card__cta {
+      font-family: var(--font-display); font-weight: 600;
+      color: var(--color-resolution);
     }
 
-    /* ---------- Final CTA ---------- */
-    .final-cta {
-      position: relative;
-      padding-block: var(--space-24);
+    /* ---------- Explore (8 verticals) ---------- */
+    .explore { padding-block: var(--space-24); }
+    .explore__header { text-align: center; margin-bottom: var(--space-12); }
+    .explore__grid {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--space-5);
+    }
+    .explore-card {
+      padding: var(--space-6);
+      background: var(--color-white);
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--color-border);
+      border-top: 4px solid var(--card-accent);
+      display: flex; flex-direction: column; gap: var(--space-3);
+      transition: all var(--transition);
+    }
+    .explore-card:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow);
+    }
+    .explore-card__icon {
+      width: 48px; height: 48px;
+      background: var(--card-accent-soft);
+      border-radius: var(--radius);
+      display: flex; align-items: center; justify-content: center;
+      color: var(--card-accent);
+    }
+    .explore-card__icon img { width: 28px; height: 28px; }
+    .explore-card__title { font-size: 1.25rem; margin-bottom: var(--space-2); }
+    .explore-card__desc { font-size: 0.9375rem; color: var(--color-text); margin: 0; flex: 1; }
+    .explore-card__cta {
+      font-family: var(--font-display); font-weight: 600;
+      font-size: 0.9375rem;
+      color: var(--card-accent);
+      margin-top: var(--space-4);
+    }
+
+    /* ---------- FAQ ---------- */
+    .home-faq {
       background: var(--color-alice);
-      text-align: center;
-      overflow: hidden;
+      padding-block: var(--space-20);
     }
-    .final-cta__art {
-      position: absolute;
-      inset: 0;
-      z-index: 0;
-      pointer-events: none;
+    .home-faq__header { text-align: center; margin-bottom: var(--space-10); }
+    .home-faq__list { display: flex; flex-direction: column; gap: var(--space-3); }
+    .home-faq__item {
+      background: var(--color-white);
+      border-radius: var(--radius);
+      border: 1px solid var(--color-border);
     }
-    .final-cta__art img {
-      position: absolute;
-      bottom: 0;
-      width: 100%;
-      opacity: 0.4;
+    .home-faq__item summary {
+      cursor: pointer;
+      padding: var(--space-5) var(--space-6);
+      font-family: var(--font-display); font-weight: 600;
+      font-size: 1.0625rem;
+      color: var(--color-resolution);
+      display: flex; justify-content: space-between; align-items: center;
+      list-style: none;
     }
-    .final-cta__inner { position: relative; z-index: 1; }
-    .final-cta__overline {
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
-      font-size: 0.875rem;
-      color: var(--color-ship-cove);
-      margin-bottom: var(--space-3);
+    .home-faq__item summary::-webkit-details-marker { display: none; }
+    .home-faq__item summary::after {
+      content: "+"; font-size: 1.5rem; color: var(--color-malibu);
     }
-    .final-cta h2 { margin-bottom: var(--space-8); }
-  </style>
+    .home-faq__item[open] summary::after { content: "−"; }
+    .home-faq__item p {
+      padding: 0 var(--space-6) var(--space-5); margin: 0;
+      color: var(--color-text); line-height: 1.6;
+    }
 
+    /* ---------- Responsive ---------- */
+    @media (max-width: 950px) {
+      .hero__tiles, .value-props__grid, .calc-grid__tiles, .stats__grid, .guides__grid { grid-template-columns: 1fr; }
+      .explore__grid { grid-template-columns: repeat(2, 1fr); }
+      .hero__yeti { width: 40%; opacity: 0.45; }
+      .stats__number { font-size: 3rem; }
+    }
+    @media (max-width: 600px) {
+      .explore__grid { grid-template-columns: 1fr; }
+    }
+  </style>
 </BaseLayout>

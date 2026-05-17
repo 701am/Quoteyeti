@@ -1,21 +1,22 @@
 /* ================================================================
-   QuoteYeti Design Tokens
-   Extracted from the original theme stylesheet (index.css).
-   Single source of truth — every component reads from these vars.
+   QuoteYeti Design Tokens v2
+   - Master palette extracted from the original theme stylesheet
+   - 8 vertical accent colors layered on top
+   - Section context is set via [data-section] on <body>
    ================================================================ */
 
 :root {
-  /* ---- Color palette (named in the original theme) ---- */
-  --color-alice:        #EFF4F8;   /* pale blue background */
-  --color-ship-cove:    #8495B2;   /* muted blue-grey */
-  --color-malibu:       #64BCE1;   /* sky blue accent */
-  --color-resolution:   #2C4577;   /* deep navy — primary brand */
-  --color-charcoal:     #212529;   /* near-black text */
-  --color-snow:         #F9F9F9;   /* off-white */
+  /* ---- Master color palette (named in the original theme) ---- */
+  --color-alice:        #EFF4F8;
+  --color-ship-cove:    #8495B2;
+  --color-malibu:       #64BCE1;
+  --color-resolution:   #2C4577;
+  --color-charcoal:     #212529;
+  --color-snow:         #F9F9F9;
   --color-white-smoke:  #F1F1F1;
-  --color-gainsboro:    #DFDFDF;   /* borders */
-  --color-matterhorn:   #505050;   /* secondary text */
-  --color-orange:       #F46036;   /* CTA orange — second accent */
+  --color-gainsboro:    #DFDFDF;
+  --color-matterhorn:   #505050;
+  --color-orange:       #F46036;
   --color-error:        #C02B0A;
   --color-white:        #FFFFFF;
 
@@ -31,24 +32,27 @@
   --color-cta:          var(--color-orange);
   --color-border:       var(--color-gainsboro);
 
-  /* ---- Typography ----
-     Adobe Typekit fonts. Loaded via the kit URL in the layout <head>.
-     For your own deployment, swap with your Typekit kit ID or
-     substitute open-source equivalents in the fallback chain.        */
-  --font-display: "sofia-pro", "Source Sans Pro", system-ui, sans-serif;
-  --font-serif:   "plantin", "Source Serif Pro", Georgia, serif;
+  /* ---- Section accent (default = orange/QuoteYeti) ----
+     Verticals override these via [data-section="<slug>"]            */
+  --section-accent:      var(--color-orange);
+  --section-accent-soft: #FCF0EF;
+  --section-text-on-accent: var(--color-white);
+
+  /* ---- Typography ---- */
+  --font-display: "sofia-pro", "Source Sans 3", system-ui, sans-serif;
+  --font-serif:   "plantin", "Source Serif 4", Georgia, serif;
   --font-body:    "proxima-nova", "Inter", system-ui, sans-serif;
 
-  /* ---- Type scale (matches source) ---- */
-  --fs-h1:   3.25rem;   /* 52px → 2.25rem mobile */
-  --fs-h2:   2.75rem;   /* 44px → 2.25rem mobile */
-  --fs-h3:   2.25rem;   /* 36px → 1.75rem mobile */
-  --fs-h4:   1.75rem;   /* 28px → 1.25rem mobile */
-  --fs-h5:   1.25rem;   /* 20px → 1rem    mobile */
+  /* ---- Type scale ---- */
+  --fs-h1:   3.25rem;
+  --fs-h2:   2.75rem;
+  --fs-h3:   2.25rem;
+  --fs-h4:   1.75rem;
+  --fs-h5:   1.25rem;
   --fs-h6:   1rem;
   --fs-body: 18px;
 
-  /* ---- Spacing (matches the rem values used in source) ---- */
+  /* ---- Spacing ---- */
   --space-1:  0.25rem;
   --space-2:  0.5rem;
   --space-3:  0.75rem;
@@ -65,13 +69,15 @@
   --space-32: 8rem;
 
   /* ---- Layout ---- */
-  --container-max: 1200px;
+  --container-max: 1240px;
   --container-pad: var(--space-6);
+  --header-height: 72px;
 
   /* ---- Effects ---- */
   --radius-sm: 4px;
   --radius:    8px;
   --radius-lg: 12px;
+  --radius-xl: 20px;
   --shadow-sm: 0 1px 4px rgba(0,0,0,0.08);
   --shadow:    0 4px 16px rgba(44,69,119,0.12);
   --shadow-lg: 0 16px 40px rgba(44,69,119,0.16);
@@ -79,18 +85,22 @@
   --transition: 0.2s ease;
 }
 
-/* ---- Breakpoints used in source (for reference / @media use) ----
-   1400, 1320, 1280, 1200, 1060, 1020, 950, 780, 740, 600, 520, 440
-   Primary breakpoint is 950px (mobile/desktop split).             */
+/* ---- Vertical accent overrides ---- */
+[data-section="auto"]     { --section-accent: #F46036; --section-accent-soft: #FCF0EF; }
+[data-section="home"]     { --section-accent: #8FB339; --section-accent-soft: #F1F6E5; }
+[data-section="life"]     { --section-accent: #6B5B95; --section-accent-soft: #EFEDF3; }
+[data-section="business"] { --section-accent: #2E5266; --section-accent-soft: #E8EEF1; }
+[data-section="health"]   { --section-accent: #14A38B; --section-accent-soft: #E3F4F0; }
+[data-section="renters"]  { --section-accent: #E8A87C; --section-accent-soft: #FBF1E9; --section-text-on-accent: #2C4577; }
+[data-section="pet"]      { --section-accent: #C06C84; --section-accent-soft: #F5E8ED; }
+[data-section="travel"]   { --section-accent: #355C7D; --section-accent-soft: #E5EBF1; }
 
-/* ---- Base reset ---- */
+/* ================================================================
+   Base reset and elements
+   ================================================================ */
+
 *, *::before, *::after { box-sizing: border-box; }
-
-html, body {
-  margin: 0;
-  padding: 0;
-  min-height: 100vh;
-}
+html, body { margin: 0; padding: 0; min-height: 100vh; }
 
 body {
   font-family: var(--font-body);
@@ -102,7 +112,6 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* ---- Headings (extracted from source: sofia-pro 600, navy, 1.1 line-height) ---- */
 h1, .h1, h2, .h2, h3, .h3, h4, .h4, h5, .h5, h6, .h6 {
   color: var(--color-heading);
   font-family: var(--font-display);
@@ -110,29 +119,37 @@ h1, .h1, h2, .h2, h3, .h3, h4, .h4, h5, .h5, h6, .h6 {
   line-height: 1.1;
   margin: 0 0 var(--space-5);
 }
-
 h1, .h1 { font-size: var(--fs-h1); margin-bottom: var(--space-8); }
 h2, .h2 { font-size: var(--fs-h2); }
 h3, .h3 { font-size: var(--fs-h3); }
 h4, .h4 { font-size: var(--fs-h4); }
 h5, .h5 { font-size: var(--fs-h5); }
-h6, .h6 { font-size: var(--fs-h6); }
+h6, .h6 {
+  font-size: var(--fs-h6);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-text-muted);
+}
 
-/* Plantin serif accent — opt in with .highlight class on any heading */
-.highlight { font-family: var(--font-serif); font-weight: 700; }
+.highlight {
+  font-family: var(--font-serif);
+  font-weight: 700;
+  font-style: italic;
+  letter-spacing: -0.01em;
+}
 
-/* The malibu underline effect, simplified */
-.underline {
+.underline-accent {
   position: relative;
   display: inline-block;
   z-index: 1;
 }
-.underline::before {
+.underline-accent::before {
   content: "";
   position: absolute;
-  inset: auto 0 -0.25rem 0;
-  height: 1.25rem;
-  background: var(--color-malibu);
+  inset: auto 0 -0.1em 0;
+  height: 0.4em;
+  background: var(--section-accent);
+  opacity: 0.35;
   z-index: -1;
 }
 
@@ -140,12 +157,10 @@ h6, .h6 { font-size: var(--fs-h6); }
   h1, .h1 { font-size: 2.25rem; }
   h2, .h2 { font-size: 2.25rem; }
   h3, .h3 { font-size: 1.75rem; }
-  h4, .h4 { font-size: 1.25rem; }
-  h5, .h5 { font-size: 1rem; }
-  .underline::before { height: 14px; bottom: 0; }
+  h4, .h4 { font-size: 1.375rem; }
+  h5, .h5 { font-size: 1.125rem; }
 }
 
-/* ---- Links ---- */
 a {
   color: var(--color-link);
   text-decoration: none;
@@ -153,9 +168,11 @@ a {
 }
 a:hover { color: var(--color-link-hover); }
 
-/* ---- Buttons ---- */
 .btn {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
   font-family: var(--font-display);
   font-weight: 600;
   font-size: 1rem;
@@ -166,34 +183,29 @@ a:hover { color: var(--color-link-hover); }
   transition: all var(--transition);
   text-align: center;
   line-height: 1.2;
+  text-decoration: none;
 }
-.btn-primary {
-  background: var(--color-cta);
-  color: var(--color-white);
-}
-.btn-primary:hover {
-  background: var(--color-resolution);
-  color: var(--color-white);
-}
-.btn-secondary {
-  background: transparent;
-  color: var(--color-resolution);
-  border-color: var(--color-resolution);
-}
-.btn-secondary:hover {
-  background: var(--color-resolution);
-  color: var(--color-white);
-}
+.btn-primary    { background: var(--color-cta); color: var(--color-white); }
+.btn-primary:hover { background: var(--color-resolution); color: var(--color-white); }
+.btn-accent     { background: var(--section-accent); color: var(--section-text-on-accent); }
+.btn-accent:hover { filter: brightness(0.92); color: var(--section-text-on-accent); }
+.btn-secondary  { background: transparent; color: var(--color-resolution); border-color: var(--color-resolution); }
+.btn-secondary:hover { background: var(--color-resolution); color: var(--color-white); }
+.btn-ghost      { background: transparent; color: var(--color-resolution); padding: 0.5rem 0.75rem; }
+.btn-ghost:hover { color: var(--color-malibu); }
 
-/* ---- Container ---- */
 .container {
   max-width: var(--container-max);
   margin-inline: auto;
   padding-inline: var(--container-pad);
   width: 100%;
 }
+.container-narrow {
+  max-width: 780px;
+  margin-inline: auto;
+  padding-inline: var(--container-pad);
+}
 
-/* ---- Utility ---- */
 .sr-only {
   position: absolute;
   width: 1px; height: 1px;
@@ -202,4 +214,14 @@ a:hover { color: var(--color-link-hover); }
   clip: rect(0,0,0,0);
   white-space: nowrap;
   border: 0;
+}
+
+.eyebrow {
+  font-family: var(--font-display);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--color-text-muted);
+  margin-bottom: var(--space-3);
 }

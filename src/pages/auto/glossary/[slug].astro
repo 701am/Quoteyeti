@@ -1,0 +1,38 @@
+---
+import BaseLayout from "~/layouts/BaseLayout.astro";
+import { getCollection, render } from "astro:content";
+
+export async function getStaticPaths() {
+  const glossary = await getCollection("auto-glossary", ({ data }) => !data.draft);
+  return glossary.map((entry) => ({ params: { slug: entry.id }, props: { entry } }));
+}
+
+const { entry } = Astro.props;
+const { Content } = await render(entry);
+const d = entry.data;
+---
+
+<BaseLayout title={d.seoTitle ?? `${d.term ?? d.title} Definition`} description={d.seoDescription ?? d.description}>
+  <article>
+    <header class="entry-hero">
+      <div class="container-narrow">
+        <nav class="breadcrumbs" aria-label="Breadcrumb">
+          <a href="/">Home</a> › <a href="/auto/">Auto</a> › <a href="/auto/glossary/">Glossary</a> › <span>{d.term ?? d.title}</span>
+        </nav>
+        <p class="eyebrow">Glossary</p>
+        <h1>{d.term ?? d.title}</h1>
+        {d.description && <p class="entry-hero__lede">{d.description}</p>}
+      </div>
+    </header>
+    <div class="container-narrow entry-body"><Content /></div>
+  </article>
+  <style>
+    .entry-hero { padding-block: var(--space-12) var(--space-10); background: var(--section-accent-soft); }
+    .breadcrumbs { font-size: 0.875rem; color: var(--color-text-muted); margin-bottom: var(--space-5); }
+    .breadcrumbs a { color: var(--color-text-muted); }
+    .breadcrumbs a:hover { color: var(--section-accent); }
+    .entry-hero__lede { font-size: 1.25rem; color: var(--color-text-strong); margin-top: var(--space-4); }
+    .entry-body { padding-block: var(--space-10) var(--space-20); font-size: 1.0625rem; line-height: 1.7; }
+    .entry-body :global(p) { margin-bottom: var(--space-5); }
+  </style>
+</BaseLayout>

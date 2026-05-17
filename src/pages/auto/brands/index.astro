@@ -1,0 +1,71 @@
+---
+import BaseLayout from "~/layouts/BaseLayout.astro";
+import { getCollection } from "astro:content";
+import { VERTICALS } from "~/data/verticals";
+
+const v = VERTICALS.auto;
+const brands = await getCollection("auto-brands", ({ data }) => !data.draft);
+brands.sort((a, b) => a.data.title.localeCompare(b.data.title));
+---
+
+<BaseLayout
+  title={`Car Insurance Rates by Brand - ${v.label}`}
+  description="Compare auto insurance rates for every major car make and model. Find what BMW, Honda, Tesla, and more cost to insure."
+>
+
+  <section class="page-hero">
+    <div class="container">
+      <p class="eyebrow">Auto Insurance</p>
+      <h1>Insurance rates by <span class="highlight underline-accent">brand</span></h1>
+      <p class="page-hero__lede">
+        Average annual insurance costs for every major make and model — from Acura to Volvo.
+      </p>
+    </div>
+  </section>
+
+  <section class="container index-list">
+    {brands.length === 0 ? (
+      <p class="index-list__empty">No brands published yet. Add entries via <a href="/admin/">/admin/</a>.</p>
+    ) : (
+      <ul class="index-list__grid">
+        {brands.map((entry) => (
+          <li>
+            <a href={`/auto/brands/${entry.id}/`} class="index-card">
+              <h2 class="index-card__title">{entry.data.title}</h2>
+              {entry.data.description && <p class="index-card__desc">{entry.data.description}</p>}
+              <span class="index-card__arrow" aria-hidden="true">→</span>
+            </a>
+          </li>
+        ))}
+      </ul>
+    )}
+  </section>
+
+  <style>
+    .page-hero {
+      padding-block: var(--space-16) var(--space-10);
+      background: var(--section-accent-soft);
+    }
+    .page-hero__lede { font-size: 1.25rem; color: var(--color-text-strong); max-width: 640px; }
+    .index-list { padding-block: var(--space-16); }
+    .index-list__grid {
+      list-style: none; margin: 0; padding: 0;
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-5);
+    }
+    .index-list__empty { font-size: 1.125rem; color: var(--color-text-muted); text-align: center; padding-block: var(--space-12); }
+    .index-card {
+      display: block;
+      padding: var(--space-5);
+      background: var(--color-white);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius);
+      position: relative;
+      transition: all var(--transition);
+    }
+    .index-card:hover { transform: translateY(-2px); box-shadow: var(--shadow); border-color: var(--section-accent); }
+    .index-card__title { font-size: 1.125rem; margin-bottom: var(--space-2); }
+    .index-card__desc { font-size: 0.9375rem; color: var(--color-text); margin: 0 0 var(--space-3); }
+    .index-card__arrow { position: absolute; right: var(--space-5); top: var(--space-5); color: var(--section-accent); }
+    @media (max-width: 950px) { .index-list__grid { grid-template-columns: 1fr; } }
+  </style>
+</BaseLayout>

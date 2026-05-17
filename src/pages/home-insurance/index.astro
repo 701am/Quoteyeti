@@ -1,0 +1,53 @@
+---
+import VerticalHub from "~/layouts/VerticalHub.astro";
+import { VERTICALS } from "~/data/verticals";
+
+const v = VERTICALS.home;
+---
+
+<VerticalHub
+  vertical={v}
+  hero={{
+    headline: "Protect what matters",
+    lede: "Compare home insurance rates from the carriers that actually cover your area — including the ones the big aggregators skip.",
+  }}
+  pillars={[
+    {
+      title: "Best home insurers",
+      body: "Lorem ipsum dolor sit amet — independent rankings based on rates, claims experience, and coverage breadth.",
+      href: "/home-insurance/best/",
+      cta: "See the rankings",
+    },
+    {
+      title: "Cheapest by state",
+      body: "Rates vary wildly by state and ZIP. See who's cheapest where you live.",
+      href: "/home-insurance/cheapest/",
+      cta: "Find cheap rates",
+    },
+    {
+      title: "How much coverage?",
+      body: "Dwelling, contents, liability — figure out the right limits before you quote.",
+      href: "/home-insurance/how-much-do-i-need/",
+      cta: "Calculate coverage",
+    },
+  ]}
+  calculators={[
+    { label: "Home insurance calculator", href: "/home-insurance/calculator/" },
+    { label: "Dwelling coverage estimator", href: "/home-insurance/coverage-estimator/" },
+    { label: "Replacement cost tool", href: "/home-insurance/replacement-cost/" },
+  ]}
+  subtopics={[
+    { title: "Condo (HO-6) insurance", href: "/home-insurance/condo/", desc: "What HO-6 covers and how it differs from a homeowner's policy." },
+    { title: "Manufactured home", href: "/home-insurance/manufactured/", desc: "Specialized coverage for mobile and manufactured homes." },
+    { title: "Flood insurance", href: "/home-insurance/flood/", desc: "Why most home policies don't cover flooding — and what does." },
+    { title: "Landlord insurance", href: "/home-insurance/landlord/", desc: "Dwelling, liability, and lost-rent coverage for rental properties." },
+    { title: "Filing a claim", href: "/home-insurance/claims/", desc: "Step-by-step from damage to payout, and how to avoid claim denials." },
+    { title: "Bundling with auto", href: "/home-insurance/bundling/", desc: "Real savings ranges when you combine home + auto." },
+  ]}
+  faqs={[
+    { q: "What does home insurance actually cover?", a: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Dwelling, contents, liability, and ALE." },
+    { q: "How much home insurance do I need?", a: "Sed do eiusmod tempor incididunt ut labore — usually 100% of replacement cost." },
+    { q: "Is flood damage covered?", a: "Ut enim ad minim veniam — flood is excluded from standard policies. You need separate NFIP or private flood coverage." },
+    { q: "Does my mortgage require home insurance?", a: "Duis aute irure dolor — yes, lenders universally require it for the loan term." },
+  ]}
+/>

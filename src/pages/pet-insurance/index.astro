@@ -1,0 +1,53 @@
+---
+import VerticalHub from "~/layouts/VerticalHub.astro";
+import { VERTICALS } from "~/data/verticals";
+
+const v = VERTICALS.pet;
+---
+
+<VerticalHub
+  vertical={v}
+  hero={{
+    headline: "Because they're family too",
+    lede: "Compare pet insurance plans without the upsell. Real costs, real exclusions, real reviews from real pet owners.",
+  }}
+  pillars={[
+    {
+      title: "Best pet insurance",
+      body: "Lorem ipsum dolor sit amet — Healthy Paws, Lemonade, Embrace, Trupanion, Spot — ranked on coverage and claims experience.",
+      href: "/pet-insurance/best/",
+      cta: "See top providers",
+    },
+    {
+      title: "Cheapest plans",
+      body: "Premium ranges by breed, age, and location. Find the cheapest coverage that doesn't leave you exposed.",
+      href: "/pet-insurance/cheapest/",
+      cta: "Cheapest plans",
+    },
+    {
+      title: "Pre-existing conditions",
+      body: "Almost no insurer covers them. We explain how every major plan defines and excludes them.",
+      href: "/pet-insurance/pre-existing/",
+      cta: "Pre-existing 101",
+    },
+  ]}
+  calculators={[
+    { label: "Pet insurance calculator", href: "/pet-insurance/calculator/" },
+    { label: "Cost by breed", href: "/pet-insurance/cost-by-breed/" },
+    { label: "Wellness add-on value", href: "/pet-insurance/wellness/" },
+  ]}
+  subtopics={[
+    { title: "Insurance for dogs", href: "/pet-insurance/dogs/", desc: "Breed-specific risks and the plans that cover them best." },
+    { title: "Insurance for cats", href: "/pet-insurance/cats/", desc: "What feline-specific coverage really matters." },
+    { title: "Multi-pet households", href: "/pet-insurance/multi-pet/", desc: "Discounts and the carriers that offer them." },
+    { title: "Senior pets", href: "/pet-insurance/senior-pets/", desc: "Age cutoffs, higher deductibles, and what's still worth it." },
+    { title: "Exotic pets", href: "/pet-insurance/exotic/", desc: "Birds, reptiles, rabbits — the few carriers that'll write policies." },
+    { title: "Wellness vs. accident-only", href: "/pet-insurance/coverage-types/", desc: "What each tier actually pays for." },
+  ]}
+  faqs={[
+    { q: "Is pet insurance worth it?", a: "Lorem ipsum — yes for most pets, especially purebreds with known hereditary conditions." },
+    { q: "What's not covered?", a: "Sed do eiusmod — pre-existing conditions, routine care (without a wellness add-on), and breeding-related costs." },
+    { q: "When should I sign up?", a: "Ut enim ad minim — as young and healthy as possible. Conditions diagnosed before enrollment are excluded forever." },
+    { q: "Can I use any vet?", a: "Duis aute irure — most plans let you use any licensed vet. You pay up front and submit for reimbursement." },
+  ]}
+/>

@@ -2,28 +2,61 @@
 import BaseLayout from "~/layouts/BaseLayout.astro";
 ---
 
-<BaseLayout title="Page not found - QuoteYeti" noindex={true}>
-  <section class="notfound container">
-    <h1>Lost in the snow?</h1>
-    <p>The page you're looking for doesn't exist — but we can help you find what you need.</p>
-    <div class="notfound__links">
-      <a href="/" class="btn btn-primary">Back home</a>
-      <a href="/brands/" class="btn btn-secondary">Browse brands</a>
-      <a href="/reviews/" class="btn btn-secondary">Browse reviews</a>
+<BaseLayout title="Page Not Found - QuoteYeti" description="The page you're looking for doesn't exist." noindex={true}>
+  <section class="four-oh-four">
+    <div class="container">
+      <p class="four-oh-four__eyebrow">Error 404</p>
+      <h1>Even the Yeti can't find this page</h1>
+      <p class="four-oh-four__lede">
+        The page you're looking for might've moved, been renamed, or never existed in the first place.
+      </p>
+
+      <div class="four-oh-four__art" aria-hidden="true">
+        <img src="/assets/images/yeti-hero.svg" alt="" />
+      </div>
+
+      <div class="four-oh-four__actions">
+        <a href="/" class="btn btn-primary">Back to home</a>
+        <a href="/auto/" class="btn btn-secondary">Browse auto insurance</a>
+      </div>
+
+      <nav class="four-oh-four__shortcuts" aria-label="Quick links">
+        <p>Try one of these instead:</p>
+        <ul>
+          <li><a href="/auto/">Auto Insurance</a></li>
+          <li><a href="/home-insurance/">Home Insurance</a></li>
+          <li><a href="/life-insurance/">Life Insurance</a></li>
+          <li><a href="/business-insurance/">Business Insurance</a></li>
+          <li><a href="/auto/glossary/">Insurance Glossary</a></li>
+          <li><a href="/blog/">The Dispatch</a></li>
+        </ul>
+      </nav>
     </div>
   </section>
 
   <style>
-    .notfound {
+    .four-oh-four {
       text-align: center;
-      padding-block: var(--space-32) var(--space-24);
+      padding-block: var(--space-20);
+      background: linear-gradient(180deg, var(--color-alice) 0%, var(--color-white) 100%);
     }
-    .notfound p { font-size: 1.125rem; margin-bottom: var(--space-10); }
-    .notfound__links {
-      display: flex;
-      gap: var(--space-4);
-      justify-content: center;
-      flex-wrap: wrap;
+    .four-oh-four__eyebrow {
+      font-family: var(--font-display); font-size: 0.875rem; font-weight: 600;
+      text-transform: uppercase; letter-spacing: 0.12em;
+      color: var(--color-orange);
+      margin: 0 0 var(--space-4);
     }
+    .four-oh-four h1 { max-width: 700px; margin-inline: auto; }
+    .four-oh-four__lede { font-size: 1.25rem; max-width: 540px; margin: var(--space-4) auto var(--space-10); }
+    .four-oh-four__art { max-width: 240px; margin: var(--space-8) auto; }
+    .four-oh-four__art img { width: 100%; }
+    .four-oh-four__actions { display: flex; gap: var(--space-3); justify-content: center; flex-wrap: wrap; margin-bottom: var(--space-16); }
+    .four-oh-four__shortcuts { max-width: 700px; margin: var(--space-12) auto 0; }
+    .four-oh-four__shortcuts p { font-family: var(--font-display); font-weight: 600; color: var(--color-resolution); }
+    .four-oh-four__shortcuts ul {
+      list-style: none; margin: var(--space-5) 0 0; padding: 0;
+      display: flex; flex-wrap: wrap; justify-content: center; gap: var(--space-3) var(--space-5);
+    }
+    .four-oh-four__shortcuts a { color: var(--color-malibu); font-weight: 600; }
   </style>
 </BaseLayout>
