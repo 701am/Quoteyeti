@@ -1,0 +1,136 @@
+---
+import type { FieldDef, SelectOption } from "~/lib/lead-flow/types";
+
+interface Props { field: FieldDef; }
+const { field } = Astro.props as Props;
+
+// Normalize options
+function normalizeOptions(opts: FieldDef["options"]): SelectOption[] {
+  if (!opts) return [];
+  return opts.map((o) => typeof o === "string" ? { value: o, label: o } : o);
+}
+
+const wrapperAttrs: Record<string, string> = {};
+if (field.showIf) wrapperAttrs["data-show-if"] = field.showIf;
+---
+
+<div class="lead-field" {...wrapperAttrs}>
+  <label for={`f-${field.name}`}>{field.label}</label>
+
+  {field.kind === "text" && (
+    <input
+      id={`f-${field.name}`}
+      name={field.name}
+      type="text"
+      required={field.required !== false && !field.showIf}
+      placeholder={field.placeholder}
+      autocomplete={field.autocomplete}
+    />
+  )}
+
+  {field.kind === "email" && (
+    <input
+      id={`f-${field.name}`}
+      name={field.name}
+      type="email"
+      required={field.required !== false}
+      autocomplete={field.autocomplete ?? "email"}
+    />
+  )}
+
+  {field.kind === "tel" && (
+    <input
+      id={`f-${field.name}`}
+      name={field.name}
+      type="tel"
+      inputmode="tel"
+      required={field.required !== false}
+      autocomplete={field.autocomplete ?? "tel"}
+      placeholder={field.placeholder ?? "(555) 555-5555"}
+    />
+  )}
+
+  {field.kind === "number" && (
+    <input
+      id={`f-${field.name}`}
+      name={field.name}
+      type="number"
+      inputmode="numeric"
+      required={field.required !== false}
+      placeholder={field.placeholder}
+      min={field.min}
+      max={field.max}
+    />
+  )}
+
+  {field.kind === "date" && (
+    <input
+      id={`f-${field.name}`}
+      name={field.name}
+      type="date"
+      required={field.required !== false}
+      autocomplete={field.autocomplete}
+      min={field.min}
+      max={field.max}
+    />
+  )}
+
+  {field.kind === "zip" && (
+    <input
+      id={`f-${field.name}`}
+      name={field.name}
+      type="text"
+      inputmode="numeric"
+      pattern="[0-9]{5}"
+      maxlength="5"
+      required={field.required !== false}
+      autocomplete={field.autocomplete ?? "postal-code"}
+      data-zip-input
+    />
+  )}
+
+  {field.kind === "select" && (
+    <select
+      id={`f-${field.name}`}
+      name={field.name}
+      required={field.required !== false && !field.showIf}
+    >
+      <option value="">Select…</option>
+      {normalizeOptions(field.options).map((opt) => (
+        <option value={opt.value}>{opt.label}</option>
+      ))}
+    </select>
+  )}
+
+  {field.kind === "pills" && (
+    <div class="lead-pills" role="radiogroup" aria-label={field.label}>
+      {normalizeOptions(field.options).map((opt) => (
+        <label class="lead-pill">
+          <input
+            type="radio"
+            name={field.name}
+            value={opt.value}
+            required={field.required !== false && !field.showIf}
+          />
+          <span>{opt.label}</span>
+        </label>
+      ))}
+    </div>
+  )}
+
+  {field.kind === "yesno" && (
+    <div class="lead-pills lead-pills--yesno" role="radiogroup" aria-label={field.label}>
+      <label class="lead-pill">
+        <input type="radio" name={field.name} value="Yes" required={field.required !== false && !field.showIf} />
+        <span>Yes</span>
+      </label>
+      <label class="lead-pill">
+        <input type="radio" name={field.name} value="No" required={field.required !== false && !field.showIf} />
+        <span>No</span>
+      </label>
+    </div>
+  )}
+
+  {field.hint && <p class="lead-field__hint">{field.hint}</p>}
+  {field.kind === "zip" && <p class="lead-field__hint" data-zip-state></p>}
+</div>

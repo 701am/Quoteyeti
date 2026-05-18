@@ -1,0 +1,190 @@
+---
+/**
+ * FunnelLayout — distraction-free shell for lead-flow pages.
+ *
+ * Design philosophy: get the user through the funnel. No competing CTAs,
+ * no nav links, nothing to click that takes them away. Just a centered
+ * brand mark at the top (non-clickable, by design) and a slim footer.
+ *
+ * Use for /<vertical>/quotes/ and /<vertical>/quotes/thanks/.
+ */
+import "~/styles/tokens.css";
+import Fonts from "~/components/Fonts.astro";
+import Seo, { type BreadcrumbItem } from "~/components/Seo.astro";
+import { detectVertical } from "~/data/verticals";
+
+interface Props {
+  title: string;
+  description?: string;
+  ogImage?: string;
+  canonical?: string;
+  noindex?: boolean;
+  breadcrumbs?: BreadcrumbItem[];
+  sectionOverride?: import("~/data/verticals").VerticalKey | null;
+}
+
+const {
+  title,
+  description = "Compare offers from our partner network — independent research, no sales pressure.",
+  ogImage,
+  canonical,
+  noindex = true, // funnel pages default to noindex
+  breadcrumbs,
+  sectionOverride,
+} = Astro.props;
+
+const detectedVertical = detectVertical(Astro.url.pathname);
+const sectionKey = sectionOverride !== undefined ? sectionOverride : detectedVertical?.key;
+const sectionAttr = sectionKey ?? "default";
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <Seo
+      title={title}
+      description={description}
+      canonical={canonical}
+      ogImage={ogImage}
+      noindex={noindex}
+      pageType="default"
+      breadcrumbs={breadcrumbs}
+    />
+
+    <link rel="icon" type="image/svg+xml" href="/assets/images/footprint.svg" />
+    <Fonts />
+
+    <slot name="head" />
+  </head>
+  <body data-section={sectionAttr} class="funnel-body">
+    <!-- Centered brand mark — intentionally NOT a link.
+         Removes the "back to home" escape hatch during the funnel. -->
+    <header class="funnel-brand" role="banner">
+      <div class="funnel-brand__inner">
+        <img
+          src="/assets/images/quoteyeti-logo.svg"
+          alt="QuoteYeti"
+          class="funnel-brand__logo"
+          width="160"
+          height="36"
+        />
+      </div>
+    </header>
+
+    <main id="main" class="funnel-main">
+      <slot />
+    </main>
+
+    <!-- Slim footer — only legal essentials, no nav links to other parts of the site -->
+    <footer class="funnel-footer">
+      <div class="funnel-footer__inner">
+        <p class="funnel-footer__line">
+          © {new Date().getFullYear()} QuoteYeti · Independent insurance research
+        </p>
+        <p class="funnel-footer__legal">
+          <a href="/privacy-policy/" rel="noopener">Privacy</a>
+          <span aria-hidden="true">·</span>
+          <a href="/terms/" rel="noopener">Terms</a>
+          <span aria-hidden="true">·</span>
+          <a href="/editorial/" rel="noopener">Editorial standards</a>
+        </p>
+        <p class="funnel-footer__disclaimer">
+          QuoteYeti is not an insurance agency or broker. We compare offers from our partner network of licensed insurers and agents. Quotes are provided by third parties; QuoteYeti does not issue policies or make underwriting decisions.
+        </p>
+      </div>
+    </footer>
+
+    <style>
+      .funnel-body {
+        background: var(--color-alice);
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
+
+      /* ---- Centered brand bar ---- */
+      .funnel-brand {
+        background: var(--color-white);
+        border-bottom: 1px solid var(--color-border);
+        padding: var(--space-5) var(--space-5);
+      }
+      .funnel-brand__inner {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        max-width: 1200px;
+        margin: 0 auto;
+      }
+      .funnel-brand__logo {
+        height: 36px;
+        width: auto;
+        display: block;
+        /* No hover, no transform, no pointer cursor — intentional dead pixel */
+        user-select: none;
+        pointer-events: none;
+      }
+
+      /* ---- Main ---- */
+      .funnel-main {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+      }
+
+      /* ---- Slim footer ---- */
+      .funnel-footer {
+        background: var(--color-white);
+        border-top: 1px solid var(--color-border);
+        padding: var(--space-8) var(--space-5) var(--space-9);
+        margin-top: auto;
+      }
+      .funnel-footer__inner {
+        max-width: 760px;
+        margin: 0 auto;
+        text-align: center;
+      }
+      .funnel-footer__line {
+        font-family: var(--font-display);
+        font-size: 0.8125rem;
+        font-weight: 600;
+        color: var(--color-text-strong);
+        margin: 0 0 var(--space-3);
+        letter-spacing: 0.005em;
+      }
+      .funnel-footer__legal {
+        font-size: 0.8125rem;
+        color: var(--color-text-muted);
+        margin: 0 0 var(--space-5);
+        display: flex;
+        gap: var(--space-3);
+        justify-content: center;
+        align-items: center;
+        flex-wrap: wrap;
+      }
+      .funnel-footer__legal a {
+        color: var(--color-text-muted);
+        text-decoration: none;
+        transition: color 0.15s;
+      }
+      .funnel-footer__legal a:hover { color: var(--color-malibu); }
+      .funnel-footer__legal span { color: var(--color-ship-cove); }
+      .funnel-footer__disclaimer {
+        font-size: 0.75rem;
+        line-height: 1.6;
+        color: var(--color-text-muted);
+        margin: 0;
+        max-width: 640px;
+        margin-inline: auto;
+      }
+
+      @media (max-width: 600px) {
+        .funnel-brand { padding: var(--space-4); }
+        .funnel-brand__logo { height: 32px; }
+        .funnel-footer { padding: var(--space-7) var(--space-4) var(--space-8); }
+      }
+    </style>
+  </body>
+</html>

@@ -1,0 +1,20 @@
+---
+import FunnelLayout from "~/layouts/FunnelLayout.astro";
+import LeadFlow from "~/components/lead-flow/LeadFlow.astro";
+import { FLOWS } from "~/lib/lead-flow/vertical-flows";
+
+const flow = FLOWS.renters;
+---
+
+<FunnelLayout
+  title="Get Renters Insurance Quotes — Compare Offers"
+  description="Compare renters insurance offers from our partner network. Free, fast, and you choose who contacts you."
+  noindex={true}
+  breadcrumbs={[
+    { name: "Home", url: "/" },
+    { name: "Renters", url: "/renters-insurance/" },
+    { name: "Get quotes", url: "/renters-insurance/quotes/" },
+  ]}
+>
+  <LeadFlow config={flow} />
+</FunnelLayout>

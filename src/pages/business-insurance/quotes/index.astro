@@ -1,0 +1,20 @@
+---
+import FunnelLayout from "~/layouts/FunnelLayout.astro";
+import LeadFlow from "~/components/lead-flow/LeadFlow.astro";
+import { FLOWS } from "~/lib/lead-flow/vertical-flows";
+
+const flow = FLOWS.business;
+---
+
+<FunnelLayout
+  title="Get Business Insurance Quotes — Compare Offers"
+  description="Compare business insurance offers from our partner network. Free, fast, and you choose who contacts you."
+  noindex={true}
+  breadcrumbs={[
+    { name: "Home", url: "/" },
+    { name: "Business", url: "/business-insurance/" },
+    { name: "Get quotes", url: "/business-insurance/quotes/" },
+  ]}
+>
+  <LeadFlow config={flow} />
+</FunnelLayout>

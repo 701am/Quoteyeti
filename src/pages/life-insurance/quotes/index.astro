@@ -3,17 +3,17 @@ import FunnelLayout from "~/layouts/FunnelLayout.astro";
 import LeadFlow from "~/components/lead-flow/LeadFlow.astro";
 import { FLOWS } from "~/lib/lead-flow/vertical-flows";
 
-const flow = FLOWS.auto;
+const flow = FLOWS.life;
 ---
 
 <FunnelLayout
-  title="Get Auto Insurance Quotes — Compare Offers"
-  description="Compare auto insurance offers from our partner network. Free, fast, and you choose who contacts you."
+  title="Get Life Insurance Quotes — Compare Offers"
+  description="Compare life insurance offers from our partner network. Free, fast, and you choose who contacts you."
   noindex={true}
   breadcrumbs={[
     { name: "Home", url: "/" },
-    { name: "Auto", url: "/auto/" },
-    { name: "Get quotes", url: "/auto/quotes/" },
+    { name: "Life", url: "/life-insurance/" },
+    { name: "Get quotes", url: "/life-insurance/quotes/" },
   ]}
 >
   <LeadFlow config={flow} />

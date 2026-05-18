@@ -1,0 +1,723 @@
+---
+/**
+ * LeadFlow — universal multi-step form renderer.
+ *
+ * Reads a FlowConfig (from src/lib/lead-flow/vertical-flows.ts) and
+ * renders the entire funnel: progress bar, all vertical-specific steps,
+ * the shared contact+TCPA step, the Netlify Forms wiring, the schema
+ * form for build-time bot detection, and the client-side controller.
+ *
+ * Per-page contract:
+ *   <LeadFlow config={FLOWS.home} />
+ *
+ * That's the entire page after layout.
+ */
+import { VERTICALS } from "~/data/verticals";
+import type { FlowConfig, FieldDef, StepDef } from "~/lib/lead-flow/types";
+import FieldRender from "~/components/lead-flow/FieldRender.astro";
+
+interface Props {
+  config: FlowConfig;
+}
+
+const { config } = Astro.props as Props;
+const vertical = VERTICALS[config.verticalKey];
+
+// Total step count includes the contact step we inject at the end
+const totalSteps = config.steps.length + 1;
+const netlifyFormName = `${config.slug}-quotes-lead`;
+
+/** Render heading with optional {italic}…{/italic} flourish. */
+function splitItalic(heading: string): { before: string; italic: string; after: string } {
+  const m = heading.match(/^(.*?)\{italic\}(.+?)\{\/italic\}(.*)$/);
+  if (!m) return { before: heading, italic: "", after: "" };
+  return { before: m[1], italic: m[2], after: m[3] };
+}
+
+/** All field names across the flow (for the hidden schema form Netlify scans). */
+const allFieldNames: string[] = [];
+for (const step of config.steps) {
+  for (const f of step.fields) allFieldNames.push(f.name);
+}
+// Contact step fields
+const CONTACT_FIELDS = ["first_name", "last_name", "email", "phone"];
+allFieldNames.push(...CONTACT_FIELDS);
+// Audit fields
+const AUDIT_FIELDS = [
+  "tcpa_consent", "tcpa_consent_text", "tcpa_consent_timestamp",
+  "tcpa_consent_ua", "referrer", "utm_source",
+];
+allFieldNames.push(...AUDIT_FIELDS);
+
+/**
+ * Pre-compute the field layout per step. Two consecutive `width: "half"`
+ * fields with no conditional reveal share a row. Everything else is full-width.
+ */
+interface FieldRow {
+  kind: "single" | "double";
+  fields: FieldDef[];
+}
+function layoutStep(step: StepDef): FieldRow[] {
+  const rows: FieldRow[] = [];
+  let i = 0;
+  while (i < step.fields.length) {
+    const f = step.fields[i];
+    const next = step.fields[i + 1];
+    if (f.width === "half" && next && next.width === "half" && !f.showIf && !next.showIf) {
+      rows.push({ kind: "double", fields: [f, next] });
+      i += 2;
+    } else {
+      rows.push({ kind: "single", fields: [f] });
+      i += 1;
+    }
+  }
+  return rows;
+}
+const stepLayouts = config.steps.map((s) => layoutStep(s));
+---
+
+<section class="lead-flow" data-flow-section>
+  <div class="lead-flow__container">
+
+    {/* ============ Header / progress ============ */}
+    <header class="lead-flow__header">
+      <p class="lead-flow__eyebrow">{config.eyebrow}</p>
+      <div class="lead-flow__progress" aria-label="Form progress">
+        <div class="lead-flow__progress-bar">
+          <div class="lead-flow__progress-fill" data-progress-fill style="width: 14%"></div>
+        </div>
+        <p class="lead-flow__progress-label">
+          <span data-step-current>1</span> of <span data-step-total>{totalSteps}</span>
+        </p>
+      </div>
+    </header>
+
+    {/* ============ Hidden schema form for Netlify build-bot ============ */}
+    <form name={netlifyFormName} netlify netlify-honeypot="bot-field" hidden aria-hidden="true">
+      <input type="text" name="bot-field" />
+      {allFieldNames.map((n) => <input type="text" name={n} />)}
+    </form>
+
+    {/* ============ Visible interactive form ============ */}
+    <form
+      class="lead-form"
+      name={netlifyFormName}
+      method="POST"
+      data-netlify="true"
+      data-netlify-honeypot="bot-field"
+      action={config.thanksUrl}
+      data-lead-form
+      novalidate
+    >
+      <input type="hidden" name="form-name" value={netlifyFormName} />
+      <p hidden><label>Leave this empty: <input name="bot-field" /></label></p>
+
+      {/* Audit-trail hidden fields populated by the client at submit time */}
+      <input type="hidden" name="tcpa_consent_text" data-tcpa-text-snapshot />
+      <input type="hidden" name="tcpa_consent_timestamp" data-tcpa-ts />
+      <input type="hidden" name="tcpa_consent_ua" data-tcpa-ua />
+      <input type="hidden" name="referrer" data-referrer />
+      <input type="hidden" name="utm_source" data-utm-source />
+
+      {/* ============ Vertical-specific steps ============ */}
+      {config.steps.map((step: StepDef, i: number) => {
+        const stepNum = i + 1;
+        const isFirst = stepNum === 1;
+        const split = splitItalic(step.heading);
+        return (
+          <fieldset class={`lead-step${isFirst ? " is-active" : ""}`} data-step={stepNum}>
+            <p class="lead-step__eyebrow">Step {stepNum} of {totalSteps}</p>
+            {isFirst ? (
+              <h1 class="lead-step__heading">
+                {split.before}
+                {split.italic && <span class="serif-italic">{split.italic}</span>}
+                {split.after}
+              </h1>
+            ) : (
+              <h2 class="lead-step__heading">
+                {split.before}
+                {split.italic && <span class="serif-italic">{split.italic}</span>}
+                {split.after}
+              </h2>
+            )}
+            <p class="lead-step__lede">{step.lede}</p>
+
+            {stepLayouts[i].map((row) =>
+              row.kind === "double" ? (
+                <div class="lead-field-row">
+                  <FieldRender field={row.fields[0]} />
+                  <FieldRender field={row.fields[1]} />
+                </div>
+              ) : (
+                <FieldRender field={row.fields[0]} />
+              )
+            )}
+
+            <div class={`lead-step__nav${isFirst ? " is-first" : ""}`}>
+              {!isFirst && <button type="button" class="lead-btn-text" data-prev>← Back</button>}
+              <button type="button" class="lead-btn lead-btn--navy" data-next>
+                <span>Continue</span>
+                <svg width="14" height="12" viewBox="0 0 14 12" fill="none" aria-hidden="true"><path d="M8 1l5 5-5 5M1 6h12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </button>
+            </div>
+          </fieldset>
+        );
+      })}
+
+      {/* ============ Final step: contact + TCPA ============ */}
+      <fieldset class="lead-step" data-step={totalSteps}>
+        <p class="lead-step__eyebrow">Step {totalSteps} of {totalSteps} · Last one</p>
+        <h2 class="lead-step__heading">Where should we send your <span class="serif-italic">offers</span>?</h2>
+        <p class="lead-step__lede">We'll connect you with our partner network. You choose who you want to talk to — no spam from us.</p>
+
+        <div class="lead-field-row">
+          <div class="lead-field">
+            <label for="f-first">First name</label>
+            <input id="f-first" name="first_name" type="text" required autocomplete="given-name" />
+          </div>
+          <div class="lead-field">
+            <label for="f-last">Last name</label>
+            <input id="f-last" name="last_name" type="text" required autocomplete="family-name" />
+          </div>
+        </div>
+
+        <div class="lead-field">
+          <label for="f-email">Email</label>
+          <input id="f-email" name="email" type="email" required autocomplete="email" />
+        </div>
+
+        <div class="lead-field">
+          <label for="f-phone">Phone number</label>
+          <input id="f-phone" name="phone" type="tel" inputmode="tel" required autocomplete="tel" placeholder="(555) 555-5555" />
+          <p class="lead-field__hint">Used by our partner network to send you offers. See consent below.</p>
+        </div>
+
+        <div class="lead-tcpa">
+          <label class="lead-tcpa__checkbox">
+            <input type="checkbox" name="tcpa_consent" value="yes" required />
+            <span class="lead-tcpa__box" aria-hidden="true">
+              <svg viewBox="0 0 16 16" width="11" height="11" fill="none"><path d="M3 8l3 3 7-7" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </span>
+            <span class="lead-tcpa__text" data-tcpa-text>
+              By clicking <strong>"{config.submitLabel}"</strong> below, I provide my electronic signature and express written consent to be contacted by <strong>QuoteYeti</strong> and our <a href="/partners/" target="_blank" rel="noopener">network of licensed insurance carriers and agents</a> at the phone number and email I provided above, including via autodialer, pre-recorded messages, and text/SMS — even if my number is on a do-not-call list. Message/data rates may apply. Consent is not a condition of purchase. I can opt out at any time by replying STOP. I have read and agree to QuoteYeti's <a href="/privacy-policy/" target="_blank" rel="noopener">privacy policy</a> and <a href="/terms/" target="_blank" rel="noopener">terms of use</a>.
+            </span>
+          </label>
+        </div>
+
+        <div class="lead-step__nav">
+          <button type="button" class="lead-btn-text" data-prev>← Back</button>
+          <button type="submit" class="lead-btn lead-btn--accent">
+            <span>{config.submitLabel}</span>
+            <svg width="14" height="12" viewBox="0 0 14 12" fill="none" aria-hidden="true"><path d="M8 1l5 5-5 5M1 6h12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+        </div>
+
+        <p class="lead-trust">
+          <svg viewBox="0 0 20 20" width="14" height="14" aria-hidden="true"><path d="M10 1l2.5 5.5L18 7l-4 4 1 6-5-3-5 3 1-6-4-4 5.5-.5L10 1z" fill="currentColor"/></svg>
+          <span>Free · No SSN required · 256-bit encryption · You choose who contacts you</span>
+        </p>
+      </fieldset>
+    </form>
+  </div>
+</section>
+
+{/* ============================================ */}
+{/* Field renderer — defined as inline component */}
+{/* ============================================ */}
+<script>
+  // Phone formatter (XXX) XXX-XXXX
+  const form = document.querySelector("[data-lead-form]");
+  if (form) {
+    const steps = Array.from(form.querySelectorAll(".lead-step"));
+    const totalSteps = steps.length;
+    const progressFill = document.querySelector("[data-progress-fill]");
+    const currentSpan = document.querySelector("[data-step-current]");
+    const totalSpan = document.querySelector("[data-step-total]");
+    if (totalSpan) totalSpan.textContent = String(totalSteps);
+
+    let currentStep = 1;
+
+    function showStep(n) {
+      currentStep = n;
+      steps.forEach((s) => s.classList.remove("is-active"));
+      const target = form.querySelector(`.lead-step[data-step="${n}"]`);
+      if (target) target.classList.add("is-active");
+      if (progressFill) progressFill.style.width = `${(n / totalSteps) * 100}%`;
+      if (currentSpan) currentSpan.textContent = String(n);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function getStepFields(stepEl) {
+      return Array.from(stepEl.querySelectorAll("input[name], select[name]"))
+        .filter((el) => !el.hidden && el.type !== "hidden");
+    }
+
+    function validateStep(stepEl) {
+      const fields = getStepFields(stepEl);
+      let valid = true;
+      const seenRadioGroups = new Set();
+      for (const field of fields) {
+        if (field.type === "radio") {
+          if (seenRadioGroups.has(field.name)) continue;
+          seenRadioGroups.add(field.name);
+          const group = stepEl.querySelectorAll(`input[name="${field.name}"]`);
+          const checked = Array.from(group).some((r) => r.checked);
+          if (!checked && field.required) {
+            valid = false;
+            group.forEach((r) => {
+              const span = r.nextElementSibling;
+              if (span) span.style.borderColor = "#C02B0A";
+            });
+          }
+          continue;
+        }
+        if (field.type === "checkbox") {
+          if (field.required && !field.checked) {
+            const box = field.parentElement.querySelector(".lead-tcpa__box");
+            if (box) box.style.borderColor = "#C02B0A";
+            valid = false;
+          }
+          continue;
+        }
+        const wrapper = field.closest("[data-show-if]");
+        if (wrapper && !wrapper.classList.contains("is-visible")) continue;
+        if (field.required && !field.value.trim()) {
+          field.setAttribute("aria-invalid", "true");
+          valid = false;
+        } else if (!field.checkValidity()) {
+          field.setAttribute("aria-invalid", "true");
+          valid = false;
+        } else {
+          field.removeAttribute("aria-invalid");
+        }
+      }
+      if (!valid) {
+        const firstInvalid = stepEl.querySelector("[aria-invalid='true']") || stepEl.querySelector("input, select");
+        if (firstInvalid && firstInvalid.focus) firstInvalid.focus();
+      }
+      return valid;
+    }
+
+    form.querySelectorAll("[data-next]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const stepEl = form.querySelector(`.lead-step[data-step="${currentStep}"]`);
+        if (stepEl && validateStep(stepEl)) showStep(Math.min(currentStep + 1, totalSteps));
+      });
+    });
+    form.querySelectorAll("[data-prev]").forEach((btn) => {
+      btn.addEventListener("click", () => showStep(Math.max(currentStep - 1, 1)));
+    });
+
+    form.addEventListener("input", (e) => {
+      const t = e.target;
+      if (t && (t.tagName === "INPUT" || t.tagName === "SELECT")) {
+        t.removeAttribute("aria-invalid");
+      }
+    });
+    form.addEventListener("change", (e) => {
+      const t = e.target;
+      if (t && t.type === "radio") {
+        form.querySelectorAll(`input[name="${t.name}"]`).forEach((r) => {
+          const span = r.nextElementSibling;
+          if (span) span.style.borderColor = "";
+        });
+      }
+      if (t && t.type === "checkbox") {
+        const box = t.parentElement.querySelector(".lead-tcpa__box");
+        if (box) box.style.borderColor = "";
+      }
+    });
+
+    // Conditional fields
+    const conditionals = form.querySelectorAll("[data-show-if]");
+    function evaluateConditionals() {
+      conditionals.forEach((el) => {
+        const expr = el.getAttribute("data-show-if");
+        if (!expr) return;
+        const [fieldName, expected] = expr.split("=");
+        const checked = form.querySelector(`input[name="${fieldName}"]:checked`);
+        if (checked && checked.value === expected) {
+          el.classList.add("is-visible");
+        } else {
+          el.classList.remove("is-visible");
+          el.querySelectorAll("input, select").forEach((f) => { f.value = ""; });
+        }
+      });
+    }
+    form.addEventListener("change", evaluateConditionals);
+    evaluateConditionals();
+
+    // ZIP pre-fill from URL
+    const params = new URLSearchParams(window.location.search);
+    const incomingZip = params.get("zip");
+    const zipInput = form.querySelector("[data-zip-input]");
+    if (zipInput && incomingZip && /^\d{5}$/.test(incomingZip)) zipInput.value = incomingZip;
+
+    // ZIP state hint
+    const ZIP_PREFIX_STATE = {
+      "0": "MA/NH/VT/CT/RI/NJ", "1": "NY/NJ/PA", "2": "DC/VA/MD/NC/SC/WV",
+      "3": "FL/GA/AL/TN/MS", "4": "MI/IN/KY/OH", "5": "WI/MN/IA/MT/ND/SD",
+      "6": "IL/KS/MO/NE", "7": "TX/AR/OK/LA", "8": "CO/WY/UT/NM/AZ/NV/ID",
+      "9": "CA/OR/WA/AK/HI",
+    };
+    const zipState = document.querySelector("[data-zip-state]");
+    if (zipInput && zipState) {
+      zipInput.addEventListener("input", () => {
+        const v = zipInput.value;
+        if (v.length === 5 && /^\d{5}$/.test(v)) {
+          zipState.textContent = `Looks good — comparing rates in ${ZIP_PREFIX_STATE[v[0]] || "your area"}.`;
+          zipState.style.color = "var(--color-malibu)";
+        } else if (v.length > 0) zipState.textContent = "";
+      });
+      if (zipInput.value) zipInput.dispatchEvent(new Event("input"));
+    }
+
+    // Phone format
+    const phoneInput = form.querySelector('input[name="phone"]');
+    if (phoneInput) {
+      phoneInput.addEventListener("input", (e) => {
+        const digits = e.target.value.replace(/\D/g, "").slice(0, 10);
+        let f = digits;
+        if (digits.length > 6) f = `(${digits.slice(0,3)}) ${digits.slice(3,6)}-${digits.slice(6)}`;
+        else if (digits.length > 3) f = `(${digits.slice(0,3)}) ${digits.slice(3)}`;
+        else if (digits.length > 0) f = `(${digits}`;
+        e.target.value = f;
+      });
+    }
+
+    // TCPA audit snapshot
+    const tcpaText = document.querySelector("[data-tcpa-text]");
+    const tcpaSnapshot = document.querySelector("[data-tcpa-text-snapshot]");
+    const tcpaTs = document.querySelector("[data-tcpa-ts]");
+    const tcpaUa = document.querySelector("[data-tcpa-ua]");
+    if (tcpaText && tcpaSnapshot) tcpaSnapshot.value = tcpaText.textContent.trim().replace(/\s+/g, " ");
+    if (tcpaUa) tcpaUa.value = navigator.userAgent;
+    const refIn = document.querySelector("[data-referrer]");
+    const utmIn = document.querySelector("[data-utm-source]");
+    if (refIn) refIn.value = document.referrer || "direct";
+    if (utmIn) utmIn.value = params.get("utm_source") || "";
+
+    form.addEventListener("submit", (e) => {
+      const stepEl = form.querySelector(`.lead-step[data-step="${currentStep}"]`);
+      if (stepEl && !validateStep(stepEl)) { e.preventDefault(); return; }
+      if (tcpaTs) tcpaTs.value = new Date().toISOString();
+    });
+  }
+</script>
+
+<style>
+  .lead-flow {
+    padding: var(--space-10) var(--space-5) var(--space-12);
+  }
+  .lead-flow__container {
+    max-width: 680px;
+    margin: 0 auto;
+  }
+
+  .lead-flow__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--space-7);
+    gap: var(--space-5);
+    flex-wrap: wrap;
+  }
+  .lead-flow__eyebrow {
+    font-family: var(--font-display);
+    font-size: 0.6875rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    color: var(--color-malibu);
+    margin: 0;
+  }
+  .lead-flow__progress {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    flex: 1;
+    min-width: 200px;
+    max-width: 320px;
+  }
+  .lead-flow__progress-bar {
+    flex: 1;
+    height: 6px;
+    background: var(--color-alice);
+    border-radius: 100px;
+    overflow: hidden;
+    border: 1px solid var(--color-border);
+  }
+  .lead-flow__progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--color-malibu) 0%, #F46036 100%);
+    border-radius: 100px;
+    transition: width 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .lead-flow__progress-label {
+    font-family: var(--font-display);
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    color: var(--color-text-muted);
+    margin: 0;
+    white-space: nowrap;
+  }
+
+  /* Form card */
+  .lead-form {
+    background: var(--color-white);
+    border: 1px solid var(--color-border);
+    border-radius: 20px;
+    padding: var(--space-10) var(--space-9);
+    box-shadow: 0 4px 24px rgba(44, 69, 119, 0.04);
+  }
+
+  .lead-step {
+    display: none;
+    border: 0;
+    padding: 0;
+    margin: 0;
+    animation: leadStepFadeIn 0.3s ease-out;
+  }
+  .lead-step.is-active { display: block; }
+  @keyframes leadStepFadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .lead-step__eyebrow {
+    display: inline-block;
+    font-family: var(--font-display);
+    font-size: 0.6875rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    color: #F46036;
+    margin: 0 0 var(--space-4);
+  }
+  .lead-step__heading {
+    font-family: var(--font-display);
+    font-size: clamp(1.625rem, 3.4vw, 2.125rem);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+    color: var(--color-resolution);
+    margin: 0 0 var(--space-4);
+  }
+  .lead-step__heading .serif-italic {
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-weight: 500;
+    color: var(--color-malibu);
+    letter-spacing: -0.01em;
+  }
+  .lead-step__lede {
+    font-size: 1rem;
+    line-height: 1.55;
+    color: var(--color-text-muted);
+    margin: 0 0 var(--space-8);
+  }
+
+  /* Field base */
+  .lead-field { margin-bottom: var(--space-6); }
+  .lead-field-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-5);
+    margin-bottom: var(--space-6);
+  }
+  .lead-field-row .lead-field { margin-bottom: 0; }
+  .lead-field label {
+    display: block;
+    font-family: var(--font-display);
+    font-size: 0.8125rem;
+    font-weight: 700;
+    color: var(--color-resolution);
+    margin: 0 0 var(--space-2);
+  }
+  .lead-field__hint {
+    font-size: 0.75rem;
+    color: var(--color-text-muted);
+    margin: var(--space-2) 0 0;
+    line-height: 1.4;
+  }
+  .lead-field input[type="text"],
+  .lead-field input[type="email"],
+  .lead-field input[type="tel"],
+  .lead-field input[type="number"],
+  .lead-field input[type="date"],
+  .lead-field select {
+    width: 100%;
+    padding: 14px 16px;
+    border: 1px solid var(--color-border);
+    border-radius: 10px;
+    font-family: inherit;
+    font-size: 1rem;
+    color: var(--color-resolution);
+    background: var(--color-white);
+    transition: border-color 0.15s, box-shadow 0.15s;
+  }
+  .lead-field input:focus, .lead-field select:focus {
+    outline: none;
+    border-color: var(--color-malibu);
+    box-shadow: 0 0 0 3px rgba(100, 188, 225, 0.18);
+  }
+  .lead-field input[aria-invalid="true"], .lead-field select[aria-invalid="true"] {
+    border-color: #C02B0A;
+    box-shadow: 0 0 0 3px rgba(192, 43, 10, 0.12);
+  }
+
+  /* Pills */
+  .lead-pills {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: var(--space-2);
+  }
+  .lead-pill { position: relative; cursor: pointer; }
+  .lead-pill input { position: absolute; opacity: 0; pointer-events: none; }
+  .lead-pill span {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 14px 12px;
+    border: 1px solid var(--color-border);
+    border-radius: 10px;
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 0.9375rem;
+    color: var(--color-resolution);
+    background: var(--color-white);
+    transition: all 0.18s ease;
+    text-align: center;
+    line-height: 1.2;
+  }
+  .lead-pill:hover span { border-color: var(--color-malibu); background: var(--color-alice); }
+  .lead-pill input:checked + span {
+    border-color: var(--color-malibu);
+    background: #E8F3FA;
+    box-shadow: inset 0 0 0 1px var(--color-malibu);
+  }
+  .lead-pill input:focus-visible + span {
+    box-shadow: 0 0 0 3px rgba(100, 188, 225, 0.25);
+  }
+
+  /* Yes/No pills — narrower grid */
+  .lead-pills--yesno { grid-template-columns: 1fr 1fr; max-width: 280px; }
+
+  /* Conditional fields */
+  [data-show-if] { display: none; }
+  [data-show-if].is-visible { display: block; animation: leadStepFadeIn 0.25s ease-out; }
+
+  /* TCPA */
+  .lead-tcpa {
+    background: var(--color-alice);
+    border: 1px solid var(--color-border);
+    border-radius: 12px;
+    padding: var(--space-5);
+    margin: var(--space-8) 0 var(--space-6);
+  }
+  .lead-tcpa__checkbox {
+    display: grid;
+    grid-template-columns: 22px 1fr;
+    gap: var(--space-3);
+    cursor: pointer;
+    align-items: flex-start;
+  }
+  .lead-tcpa__checkbox input { position: absolute; opacity: 0; pointer-events: none; }
+  .lead-tcpa__box {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    border: 1.5px solid var(--color-ship-cove);
+    border-radius: 6px;
+    background: var(--color-white);
+    color: transparent;
+    transition: all 0.15s;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+  .lead-tcpa__checkbox input:checked ~ .lead-tcpa__box {
+    background: var(--color-malibu);
+    border-color: var(--color-malibu);
+    color: var(--color-white);
+  }
+  .lead-tcpa__checkbox input:focus-visible ~ .lead-tcpa__box {
+    box-shadow: 0 0 0 3px rgba(100, 188, 225, 0.25);
+  }
+  .lead-tcpa__text {
+    font-size: 0.75rem;
+    line-height: 1.55;
+    color: var(--color-text);
+  }
+  .lead-tcpa__text a {
+    color: var(--color-malibu);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+  .lead-tcpa__text strong { color: var(--color-resolution); font-weight: 700; }
+
+  /* Nav */
+  .lead-step__nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--space-3);
+    margin-top: var(--space-8);
+  }
+  .lead-step__nav.is-first { justify-content: flex-end; }
+  .lead-btn-text {
+    background: none;
+    border: 0;
+    cursor: pointer;
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 0.875rem;
+    color: var(--color-text-muted);
+    padding: var(--space-2) var(--space-3);
+    transition: color 0.15s;
+  }
+  .lead-btn-text:hover { color: var(--color-resolution); }
+
+  .lead-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: 14px 28px;
+    border-radius: 100px;
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 0.9375rem;
+    border: 0;
+    cursor: pointer;
+    transition: transform 0.15s, box-shadow 0.15s, filter 0.15s;
+  }
+  .lead-btn svg { transition: transform 0.2s; }
+  .lead-btn:hover svg { transform: translateX(3px); }
+  .lead-btn:hover { transform: translateY(-2px); }
+  .lead-btn--navy { background: var(--color-resolution); color: var(--color-white); box-shadow: 0 4px 12px rgba(44, 69, 119, 0.15); }
+  .lead-btn--navy:hover { filter: brightness(0.93); }
+  .lead-btn--accent { background: #F46036; color: var(--color-white); box-shadow: 0 4px 12px rgba(244, 96, 54, 0.25); }
+  .lead-btn--accent:hover { filter: brightness(0.93); }
+
+  .lead-trust {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    justify-content: center;
+    font-size: 0.75rem;
+    color: var(--color-text-muted);
+    margin: var(--space-6) 0 0;
+    text-align: center;
+  }
+  .lead-trust svg { color: var(--color-malibu); flex-shrink: 0; }
+
+  @media (max-width: 720px) {
+    .lead-form { padding: var(--space-7) var(--space-5); }
+    .lead-field-row { grid-template-columns: 1fr; }
+    .lead-pills { grid-template-columns: repeat(2, 1fr); }
+    .lead-step__heading { font-size: 1.375rem; }
+    .lead-step__lede { font-size: 0.9375rem; }
+  }
+</style>
