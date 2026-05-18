@@ -231,6 +231,8 @@ const verticals = defineCollection({
     verticalKey: z.enum(["auto", "home", "life", "business", "health", "renters", "pet", "travel"]),
     heroHeadline: z.string().optional(),
     heroLede: z.string().optional(),
+    publishDate: z.coerce.date().optional(),
+    updatedDate: z.coerce.date().optional(),
   }),
 });
 

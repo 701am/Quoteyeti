@@ -168,9 +168,16 @@ review_fields: &review_fields
 guide_fields: &guide_fields
   - { label: "Title", name: "title", widget: "string" }
   - { label: "Description", name: "description", widget: "string", required: false }
+  - label: "Vertical (must match parent folder)"
+    name: "vertical"
+    widget: "select"
+    options: ["auto", "home", "life", "business", "health", "renters", "pet", "travel"]
+    required: false
   - { label: "Subcategory", name: "subcategory", widget: "string", required: false }
   - { label: "Hero image", name: "heroImage", widget: "image", required: false }
+  - { label: "Author", name: "author", widget: "string", required: false }
   - { label: "Publish date", name: "publishDate", widget: "datetime", required: false }
+  - { label: "Updated date", name: "updatedDate", widget: "datetime", required: false }
   - { label: "Draft", name: "draft", widget: "boolean", default: false, required: false }
   - { label: "[SEO] Title override", name: "seoTitle", widget: "string", required: false }
   - { label: "[SEO] Description override", name: "seoDescription", widget: "text", required: false }
@@ -201,6 +208,8 @@ collections:
         options: ["auto", "home", "life", "business", "health", "renters", "pet", "travel"]
       - { label: "Hero headline", name: "heroHeadline", widget: "string", required: false }
       - { label: "Hero lede", name: "heroLede", widget: "text", required: false }
+      - { label: "Publish date", name: "publishDate", widget: "datetime", required: false }
+      - { label: "Body (intro paragraph below hero)", name: "body", widget: "markdown", required: false }
 
   # ========== Auto vertical ==========
 
@@ -224,6 +233,7 @@ collections:
       - { label: "Hero image", name: "heroImage", widget: "image", required: false }
       - { label: "Tags", name: "tags", widget: "list", required: false }
       - { label: "Publish date", name: "publishDate", widget: "datetime", required: false }
+      - { label: "Updated date", name: "updatedDate", widget: "datetime", required: false }
       - { label: "Draft", name: "draft", widget: "boolean", default: false, required: false }
       - { label: "[SEO] Title override", name: "seoTitle", widget: "string", required: false }
       - { label: "[SEO] Description override", name: "seoDescription", widget: "text", required: false }
@@ -258,6 +268,7 @@ collections:
       - { label: "Minimum liability required", name: "minLiabilityRequired", widget: "string", required: false }
       - { label: "Description", name: "description", widget: "string", required: false }
       - { label: "Publish date", name: "publishDate", widget: "datetime", required: false }
+      - { label: "Updated date", name: "updatedDate", widget: "datetime", required: false }
       - { label: "Draft", name: "draft", widget: "boolean", default: false, required: false }
       - { label: "[SEO] Title override", name: "seoTitle", widget: "string", required: false }
       - { label: "[SEO] Description override", name: "seoDescription", widget: "text", required: false }
@@ -279,6 +290,7 @@ collections:
       - { label: "Short definition", name: "description", widget: "string", required: false }
       - { label: "Related terms", name: "relatedTerms", widget: "list", required: false }
       - { label: "Publish date", name: "publishDate", widget: "datetime", required: false }
+      - { label: "Updated date", name: "updatedDate", widget: "datetime", required: false }
       - { label: "Draft", name: "draft", widget: "boolean", default: false, required: false }
       - { label: "Full definition (body)", name: "body", widget: "markdown" }
 
@@ -295,6 +307,7 @@ collections:
       - { label: "Short answer (for indexes)", name: "description", widget: "text", required: false }
       - { label: "Category", name: "category", widget: "string", required: false }
       - { label: "Publish date", name: "publishDate", widget: "datetime", required: false }
+      - { label: "Updated date", name: "updatedDate", widget: "datetime", required: false }
       - { label: "Draft", name: "draft", widget: "boolean", default: false, required: false }
       - { label: "Full answer (body)", name: "body", widget: "markdown" }
 
@@ -446,6 +459,7 @@ collections:
       - { label: "Hero image", name: "heroImage", widget: "image", required: false }
       - { label: "Author", name: "author", widget: "string", required: false }
       - { label: "Publish date", name: "publishDate", widget: "datetime", required: true }
+      - { label: "Updated date", name: "updatedDate", widget: "datetime", required: false }
       - { label: "Draft", name: "draft", widget: "boolean", default: false, required: false }
       - { label: "[SEO] Title override", name: "seoTitle", widget: "string", required: false }
       - { label: "[SEO] Description override", name: "seoDescription", widget: "text", required: false }
@@ -465,7 +479,9 @@ collections:
       - { label: "Title", name: "title", widget: "string" }
       - { label: "Description", name: "description", widget: "string", required: false }
       - { label: "Layout", name: "layout", widget: "select", options: ["default", "narrow", "wide"], default: "default", required: false }
+      - { label: "Author", name: "author", widget: "string", required: false }
       - { label: "Publish date", name: "publishDate", widget: "datetime", required: false }
+      - { label: "Updated date", name: "updatedDate", widget: "datetime", required: false }
       - { label: "Draft", name: "draft", widget: "boolean", default: false, required: false }
       - { label: "[SEO] Title override", name: "seoTitle", widget: "string", required: false }
       - { label: "[SEO] Description override", name: "seoDescription", widget: "text", required: false }
