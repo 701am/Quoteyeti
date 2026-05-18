@@ -713,6 +713,92 @@ const travelOffers: VerticalOffers = {
 };
 
 // ============================================
+// HEALTH — MEDICARE SUB-VERTICAL
+// Shown on /health-insurance/quotes/thanks/ when plan_kind=Medicare
+// was selected in step 1 of the health flow.
+// ============================================
+const medicareOffers: VerticalOffers = {
+  primary: [
+    {
+      partnerId: "ehealth",
+      name: "eHealth Medicare",
+      headline: "Compare 13,000+ Medicare plans · licensed agents",
+      bullets: [
+        "Compare Advantage, Medigap, and Part D in one place",
+        "Licensed agents help you enroll at no extra cost",
+        "Plan finder filters by your prescriptions and doctors",
+      ],
+      badge: "Most plans",
+      ratePrefix: "From",
+      ratePrice: "$0/mo*",
+    },
+    {
+      partnerId: "humana",
+      name: "Humana",
+      headline: "#1 in Medicare Advantage · 4.4-star avg rating",
+      bullets: [
+        "Top-rated Medicare Advantage plans nationwide",
+        "Go365® wellness rewards built in",
+        "Many $0 premium plans with dental + vision included",
+      ],
+      badge: "Top rated",
+      ratePrefix: "From",
+      ratePrice: "$0/mo*",
+    },
+    {
+      partnerId: "united-healthcare",
+      name: "UnitedHealthcare / AARP",
+      headline: "AARP-endorsed · largest Medicare provider",
+      bullets: [
+        "AARP-endorsed plans for members",
+        "Largest Medicare Advantage enrollment in the US",
+        "Renew Active® fitness benefit included",
+      ],
+      ratePrefix: "From",
+      ratePrice: "$0/mo*",
+    },
+    {
+      partnerId: "aetna",
+      name: "Aetna Medicare",
+      headline: "CVS-affiliated · MinuteClinic access included",
+      bullets: [
+        "Discounts at CVS HealthHUB locations",
+        "$0 premium Advantage plans in most areas",
+        "Strong dental, vision, and hearing benefits",
+      ],
+      ratePrefix: "From",
+      ratePrice: "$0/mo*",
+    },
+  ],
+  secondary: [
+    {
+      partnerId: "blue-cross-blue-shield",
+      name: "Blue Cross Blue Shield Medicare",
+      headline: "Largest provider network · plans in all 50 states",
+      bullets: ["Largest hospital and doctor network in the US", "Multiple plan types per region"],
+      ratePrefix: "From",
+      ratePrice: "$0/mo*",
+    },
+    {
+      partnerId: "gohealth",
+      name: "GoHealth",
+      headline: "Medicare-specialized agency · personalized matching",
+      bullets: ["Specialized exclusively in Medicare", "Annual plan review service included"],
+      ratePrefix: "From",
+      ratePrice: "$0/mo*",
+    },
+    {
+      partnerId: "selectquote-senior",
+      name: "SelectQuote Senior",
+      headline: "Compare Medigap quotes from 20+ top carriers",
+      bullets: ["Compares Medicare Supplement plans nationwide", "Licensed senior insurance agents"],
+      ratePrefix: "From",
+      ratePrice: "$95/mo",
+    },
+  ],
+};
+
+// ============================================
 // Public registry
 // ============================================
 export const OFFERS: Record<VerticalKey, VerticalOffers> = {
@@ -725,3 +811,9 @@ export const OFFERS: Record<VerticalKey, VerticalOffers> = {
   pet: petOffers,
   travel: travelOffers,
 };
+
+// Sub-vertical offer sets (not keyed by VerticalKey).
+// These get used when the parent vertical's lead flow branches.
+export const SUB_OFFERS = {
+  medicare: medicareOffers,
+} as const;

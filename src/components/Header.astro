@@ -1,7 +1,13 @@
 ---
 import { NAV } from "~/data/nav";
-import { VERTICALS } from "~/data/verticals";
+import { VERTICALS, detectVertical } from "~/data/verticals";
 import ZipForm from "~/components/ZipForm.astro";
+
+// Detect which vertical the user is currently browsing so the header
+// CTA can adapt — "Get auto quotes" on /auto/*, "Get home quotes" on
+// /home-insurance/*, etc. Falls back to auto on non-vertical pages.
+const detected = detectVertical(Astro.url.pathname);
+const headerVerticalKey = detected?.key ?? "auto";
 ---
 
 <header class="site-header">
@@ -106,7 +112,7 @@ import ZipForm from "~/components/ZipForm.astro";
       </nav>
 
       <div class="site-header__actions">
-        <ZipForm variant="header" vertical="auto" />
+        <ZipForm variant="header" vertical={headerVerticalKey} />
 
         <button class="header__menu-toggle" aria-label="Open menu" aria-expanded="false" data-mobile-toggle>
           <span></span><span></span><span></span>

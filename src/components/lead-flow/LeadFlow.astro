@@ -329,14 +329,26 @@ const stepLayouts = config.steps.map((s) => layoutStep(s));
     });
 
     // Conditional fields
+    //   Supports two operators in data-show-if:
+    //     data-show-if="field=Value"   → show when field === Value
+    //     data-show-if="field!=Value"  → show when field !== Value (incl. unset)
     const conditionals = form.querySelectorAll("[data-show-if]");
     function evaluateConditionals() {
       conditionals.forEach((el) => {
         const expr = el.getAttribute("data-show-if");
         if (!expr) return;
-        const [fieldName, expected] = expr.split("=");
+        let fieldName, expected, negate = false;
+        if (expr.includes("!=")) {
+          [fieldName, expected] = expr.split("!=");
+          negate = true;
+        } else {
+          [fieldName, expected] = expr.split("=");
+        }
         const checked = form.querySelector(`input[name="${fieldName}"]:checked`);
-        if (checked && checked.value === expected) {
+        const fieldValue = checked ? checked.value : "";
+        const matches = fieldValue === expected;
+        const shouldShow = negate ? (!!fieldValue && !matches) : matches;
+        if (shouldShow) {
           el.classList.add("is-visible");
         } else {
           el.classList.remove("is-visible");
@@ -352,6 +364,35 @@ const stepLayouts = config.steps.map((s) => layoutStep(s));
     const incomingZip = params.get("zip");
     const zipInput = form.querySelector("[data-zip-input]");
     if (zipInput && incomingZip && /^\d{5}$/.test(incomingZip)) zipInput.value = incomingZip;
+
+    // Generic URL → field pre-selection.
+    //   /quotes/?plan_kind=Medicare       → pre-selects "Medicare" radio
+    //   /quotes/?vehicle_make=Toyota      → pre-selects Toyota in dropdown
+    // Skips zip (handled above) and form-control names.
+    const RESERVED = new Set(["zip", "utm_source", "utm_medium", "utm_campaign", "utm_term", "utm_content"]);
+    params.forEach((value, key) => {
+      if (RESERVED.has(key) || !value) return;
+      // Radio: find matching value and check it
+      const radio = form.querySelector(`input[type="radio"][name="${key}"][value="${value}"]`);
+      if (radio) {
+        radio.checked = true;
+        radio.dispatchEvent(new Event("change", { bubbles: true }));
+        return;
+      }
+      // Select: set value if option exists
+      const select = form.querySelector(`select[name="${key}"]`);
+      if (select && Array.from(select.options).some((o) => o.value === value)) {
+        select.value = value;
+        select.dispatchEvent(new Event("change", { bubbles: true }));
+        return;
+      }
+      // Text/email/tel/number/date input: set value
+      const input = form.querySelector(`input[name="${key}"]:not([type="radio"]):not([type="checkbox"]):not([type="hidden"])`);
+      if (input) {
+        input.value = value;
+        input.dispatchEvent(new Event("input", { bubbles: true }));
+      }
+    });
 
     // ZIP state hint — uses USPS 3-digit prefix → state.
     // Source: official USPS ZIP code prefix table.
@@ -446,6 +487,20 @@ const stepLayouts = config.steps.map((s) => layoutStep(s));
       const stepEl = form.querySelector(`.lead-step[data-step="${currentStep}"]`);
       if (stepEl && !validateStep(stepEl)) { e.preventDefault(); return; }
       if (tcpaTs) tcpaTs.value = new Date().toISOString();
+
+      // Forward branching context to the thanks page via query string.
+      // Netlify Forms doesn't pass POST data to the action URL by default,
+      // so we append key signals (plan_kind, zip) to the form's action
+      // right before submission. Thanks page reads them via Astro.url.searchParams.
+      const planKindEl = form.querySelector('input[name="plan_kind"]:checked');
+      const zipEl = form.querySelector('input[name="zip"]');
+      const forward = new URLSearchParams();
+      if (planKindEl && planKindEl.value) forward.set("plan_kind", planKindEl.value);
+      if (zipEl && zipEl.value) forward.set("zip", zipEl.value);
+      if (forward.toString()) {
+        const baseAction = form.getAttribute("action") || "/";
+        form.setAttribute("action", `${baseAction}?${forward.toString()}`);
+      }
     });
   }
 </script>

@@ -1,0 +1,719 @@
+---
+import BaseLayout from "~/layouts/BaseLayout.astro";
+import { VERTICALS } from "~/data/verticals";
+
+const vertical = VERTICALS.health;
+---
+
+<BaseLayout
+  title="Medicare Plans 2026 — Compare Medicare Advantage, Supplement & Part D"
+  description="Compare Medicare Advantage, Medicare Supplement (Medigap), and Part D plans from leading carriers. Independent research, no sales pressure."
+  pageType="article"
+  breadcrumbs={[
+    { name: "Home", url: "/" },
+    { name: "Health", url: "/health-insurance/" },
+    { name: "Medicare", url: "/health-insurance/medicare/" },
+  ]}
+  article={{
+    publishDate: "2026-01-15T00:00:00.000Z",
+    modifiedDate: new Date().toISOString(),
+    authorName: "QuoteYeti editorial",
+    tags: ["medicare", "medicare advantage", "medigap", "part d"],
+  }}
+  sectionOverride="health"
+>
+
+  <!-- ============== HERO ============== -->
+  <section class="medicare-hero">
+    <div class="container medicare-hero__inner">
+      <nav class="breadcrumbs" aria-label="Breadcrumb">
+        <a href="/">Home</a>
+        <span class="breadcrumbs__sep" aria-hidden="true">›</span>
+        <a href="/health-insurance/">Health</a>
+        <span class="breadcrumbs__sep" aria-hidden="true">›</span>
+        <span>Medicare</span>
+      </nav>
+
+      <div class="medicare-hero__grid">
+        <div class="medicare-hero__copy">
+          <p class="medicare-hero__eyebrow">Medicare · Independent research</p>
+          <h1 class="medicare-hero__h1">
+            Medicare <span class="serif-italic">made clear</span>.
+          </h1>
+          <p class="medicare-hero__lede">
+            Compare Medicare Advantage, Medicare Supplement (Medigap), and Part D prescription plans in one place. We rank by what matters — coverage, network, monthly cost, and customer satisfaction — and we never accept payment for placement.
+          </p>
+          <div class="medicare-hero__ctas">
+            <a href="/health-insurance/quotes/?plan_kind=Medicare" class="btn-pill btn-pill--accent">
+              <span>Compare Medicare plans</span>
+              <svg width="14" height="12" viewBox="0 0 14 12" fill="none" aria-hidden="true"><path d="M8 1l5 5-5 5M1 6h12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </a>
+            <a href="#guide" class="btn-tertiary">Start with the basics →</a>
+          </div>
+          <p class="medicare-hero__trust">
+            <svg viewBox="0 0 20 20" width="14" height="14" aria-hidden="true"><path d="M10 1l2.5 5.5L18 7l-4 4 1 6-5-3-5 3 1-6-4-4 5.5-.5L10 1z" fill="currentColor"/></svg>
+            <span>Free to compare · No SSN required · Licensed agents available</span>
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============== PLAN TYPES GRID ============== -->
+  <section class="medicare-plans">
+    <div class="container">
+      <header class="section-header">
+        <p class="eyebrow">Plan types</p>
+        <h2 class="section-heading">
+          The four kinds of <span class="serif-italic">Medicare coverage</span>.
+        </h2>
+        <p class="section-lede">
+          Original Medicare (Parts A and B) covers hospital and medical care. Most people add private coverage on top to fill the gaps. Here's how the options stack up.
+        </p>
+      </header>
+
+      <div class="plans-grid">
+        <article class="plan-card">
+          <p class="plan-card__label">Part C</p>
+          <h3 class="plan-card__name">Medicare Advantage</h3>
+          <p class="plan-card__price">
+            <span class="plan-card__from">From</span>
+            <span class="plan-card__amount">$0/mo</span>
+          </p>
+          <p class="plan-card__desc">
+            Bundled private coverage that replaces Original Medicare. Usually includes drug coverage, plus extras like dental, vision, and fitness.
+          </p>
+          <ul class="plan-card__list">
+            <li>Network-based (HMO or PPO)</li>
+            <li>Built-in prescription drug coverage</li>
+            <li>Often includes dental, vision, hearing</li>
+            <li>Out-of-pocket max protects you</li>
+          </ul>
+          <a href="/health-insurance/quotes/?plan_kind=Medicare&interest=Advantage" class="plan-card__cta">
+            Compare Advantage plans →
+          </a>
+        </article>
+
+        <article class="plan-card plan-card--featured">
+          <span class="plan-card__badge">Most popular</span>
+          <p class="plan-card__label">Medigap</p>
+          <h3 class="plan-card__name">Medicare Supplement</h3>
+          <p class="plan-card__price">
+            <span class="plan-card__from">From</span>
+            <span class="plan-card__amount">$120/mo</span>
+          </p>
+          <p class="plan-card__desc">
+            Works alongside Original Medicare to cover deductibles, coinsurance, and copays. See any doctor that accepts Medicare.
+          </p>
+          <ul class="plan-card__list">
+            <li>No network restrictions</li>
+            <li>Predictable monthly costs</li>
+            <li>Plans G and N are most popular</li>
+            <li>Add a Part D plan separately</li>
+          </ul>
+          <a href="/health-insurance/quotes/?plan_kind=Medicare&interest=Supplement" class="plan-card__cta">
+            Compare Medigap plans →
+          </a>
+        </article>
+
+        <article class="plan-card">
+          <p class="plan-card__label">Part D</p>
+          <h3 class="plan-card__name">Prescription Drug Plans</h3>
+          <p class="plan-card__price">
+            <span class="plan-card__from">From</span>
+            <span class="plan-card__amount">$15/mo</span>
+          </p>
+          <p class="plan-card__desc">
+            Standalone prescription coverage. Add to Original Medicare or a Medigap policy. Required if you don't have credible drug coverage elsewhere.
+          </p>
+          <ul class="plan-card__list">
+            <li>Tier-based drug pricing</li>
+            <li>Preferred pharmacy networks</li>
+            <li>Extra Help available for low income</li>
+            <li>Annual formulary changes</li>
+          </ul>
+          <a href="/health-insurance/quotes/?plan_kind=Medicare&interest=Part+D" class="plan-card__cta">
+            Compare Part D plans →
+          </a>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============== GUIDE / EXPLAINER ============== -->
+  <section class="medicare-guide" id="guide">
+    <div class="container">
+      <div class="guide-grid">
+        <div class="guide-aside">
+          <p class="eyebrow">Medicare basics</p>
+          <h2 class="section-heading">
+            What you need to <span class="serif-italic">know first</span>.
+          </h2>
+        </div>
+        <div class="guide-body">
+
+          <article class="guide-block">
+            <p class="guide-block__num">01</p>
+            <h3>When can I enroll?</h3>
+            <p>
+              Your Initial Enrollment Period starts 3 months before the month you turn 65, includes your birthday month, and runs 3 months after — a 7-month window. Missing it can cost you in lifetime late-enrollment penalties.
+            </p>
+            <ul class="guide-block__list">
+              <li><strong>Initial Enrollment Period</strong> — 7 months around your 65th birthday</li>
+              <li><strong>Annual Enrollment Period</strong> — Oct 15 through Dec 7 every year</li>
+              <li><strong>Medicare Advantage Open Enrollment</strong> — Jan 1 through Mar 31</li>
+              <li><strong>Special Enrollment Periods</strong> — for qualifying life events</li>
+            </ul>
+          </article>
+
+          <article class="guide-block">
+            <p class="guide-block__num">02</p>
+            <h3>Original Medicare vs. Medicare Advantage</h3>
+            <p>
+              Original Medicare (Parts A and B) is the federal program. Medicare Advantage (Part C) is the private alternative that bundles everything. Which one's right for you depends on whether you value freedom of choice (Original + Medigap) or all-in-one simplicity with extras (Advantage).
+            </p>
+          </article>
+
+          <article class="guide-block">
+            <p class="guide-block__num">03</p>
+            <h3>Do I need a Medigap policy?</h3>
+            <p>
+              If you choose Original Medicare, a Medicare Supplement (Medigap) plan fills in the deductibles, coinsurance, and copays — costs that can really add up. If you choose Medicare Advantage, you can't have a Medigap policy. The two systems are mutually exclusive.
+            </p>
+          </article>
+
+          <article class="guide-block">
+            <p class="guide-block__num">04</p>
+            <h3>What about prescription drugs?</h3>
+            <p>
+              Original Medicare doesn't cover most prescriptions, so you'll want a Part D plan. Most Medicare Advantage plans include drug coverage automatically. Check that your specific prescriptions are on the plan's formulary before you enroll.
+            </p>
+          </article>
+
+          <div class="guide-cta">
+            <p class="guide-cta__copy">
+              Ready to compare actual plans for your situation?
+            </p>
+            <a href="/health-insurance/quotes/?plan_kind=Medicare" class="btn-pill btn-pill--navy">
+              <span>Get Medicare quotes</span>
+              <svg width="14" height="12" viewBox="0 0 14 12" fill="none" aria-hidden="true"><path d="M8 1l5 5-5 5M1 6h12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </a>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============== FAQ ============== -->
+  <section class="medicare-faq">
+    <div class="container container--narrow">
+      <header class="section-header section-header--center">
+        <p class="eyebrow">Common questions</p>
+        <h2 class="section-heading">
+          Medicare <span class="serif-italic">FAQs</span>.
+        </h2>
+      </header>
+
+      <div class="faq-list">
+        <details class="faq-item">
+          <summary>
+            <span>What's the difference between Medicare Advantage and Medigap?</span>
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true"><path d="M2 5l5 5 5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </summary>
+          <p>Medicare Advantage (Part C) replaces Original Medicare with a private bundled plan. Medicare Supplement (Medigap) works alongside Original Medicare to cover the deductibles and copays Original Medicare leaves you with. You can have one or the other — not both.</p>
+        </details>
+
+        <details class="faq-item">
+          <summary>
+            <span>Can I switch between Advantage and Original Medicare later?</span>
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true"><path d="M2 5l5 5 5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </summary>
+          <p>Yes, but with caveats. You can switch during the Annual Enrollment Period (Oct 15 to Dec 7) or the Medicare Advantage Open Enrollment Period (Jan 1 to Mar 31). However, leaving Advantage for Original + Medigap may require medical underwriting in most states — meaning you could be denied or charged more based on health.</p>
+        </details>
+
+        <details class="faq-item">
+          <summary>
+            <span>How much does Medicare cost?</span>
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true"><path d="M2 5l5 5 5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </summary>
+          <p>Most people pay no premium for Part A. The standard Part B premium changes annually and can be higher based on income. Medicare Advantage plans range from $0/mo to over $150/mo. Medigap plans typically run $120–$300/mo depending on the plan letter, your state, and your age.</p>
+        </details>
+
+        <details class="faq-item">
+          <summary>
+            <span>What does Medicare not cover?</span>
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true"><path d="M2 5l5 5 5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </summary>
+          <p>Original Medicare doesn't cover most prescription drugs, dental, vision, hearing aids, long-term care, or care outside the US. Many Medicare Advantage plans add these benefits. For long-term care, look at separate long-term care insurance — it's a different product.</p>
+        </details>
+
+        <details class="faq-item">
+          <summary>
+            <span>Can I afford Medicare if I'm low-income?</span>
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true"><path d="M2 5l5 5 5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </summary>
+          <p>Yes — the Extra Help program (also called Low Income Subsidy or LIS) helps pay for Part D prescription costs. Medicare Savings Programs help pay Part B premiums and out-of-pocket costs. Eligibility is based on income and resources, and qualification rules vary by state.</p>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============== PRE-FOOTER CTA ============== -->
+  <section class="medicare-prefoot">
+    <div class="container">
+      <div class="prefoot-card">
+        <div class="prefoot-card__copy">
+          <p class="eyebrow eyebrow--light">Compare in minutes</p>
+          <h2 class="prefoot-card__h2">
+            See what <span class="serif-italic">Medicare</span> looks like for you.
+          </h2>
+          <p class="prefoot-card__lede">
+            Tell us a few things about your situation and we'll match you with Medicare carriers in your area. Free, takes about 90 seconds, no SSN required.
+          </p>
+        </div>
+        <div class="prefoot-card__cta-wrap">
+          <a href="/health-insurance/quotes/?plan_kind=Medicare" class="btn-pill btn-pill--accent btn-pill--xl">
+            <span>Get Medicare quotes</span>
+            <svg width="14" height="12" viewBox="0 0 14 12" fill="none" aria-hidden="true"><path d="M8 1l5 5-5 5M1 6h12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <style>
+    /* ===== HERO ===== */
+    .medicare-hero {
+      padding: var(--space-12) 0 var(--space-14);
+      background: linear-gradient(180deg, var(--color-alice) 0%, var(--color-white) 100%);
+    }
+    .medicare-hero__inner { max-width: 1080px; padding-inline: var(--space-5); }
+    .breadcrumbs { font-size: 0.875rem; color: var(--color-text-muted); margin-bottom: var(--space-7); }
+    .breadcrumbs a { color: var(--color-text-muted); text-decoration: none; }
+    .breadcrumbs a:hover { color: var(--color-malibu); }
+    .breadcrumbs__sep { margin: 0 var(--space-2); color: var(--color-ship-cove); }
+
+    .medicare-hero__copy { max-width: 700px; }
+    .medicare-hero__eyebrow {
+      display: inline-block;
+      font-family: var(--font-display);
+      font-size: 0.6875rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      color: #14A38B;
+      margin: 0 0 var(--space-4);
+    }
+    .medicare-hero__h1 {
+      font-family: var(--font-display);
+      font-size: clamp(2.5rem, 5.5vw, 4rem);
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      line-height: 1.02;
+      color: var(--color-resolution);
+      margin: 0 0 var(--space-5);
+    }
+    .medicare-hero__h1 .serif-italic {
+      font-family: var(--font-serif);
+      font-style: italic;
+      font-weight: 500;
+      color: #14A38B;
+    }
+    .medicare-hero__lede {
+      font-size: 1.1875rem;
+      line-height: 1.55;
+      color: var(--color-text-strong);
+      margin: 0 0 var(--space-7);
+      max-width: 620px;
+    }
+    .medicare-hero__ctas {
+      display: flex;
+      gap: var(--space-5);
+      align-items: center;
+      margin-bottom: var(--space-5);
+      flex-wrap: wrap;
+    }
+    .btn-tertiary {
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 0.9375rem;
+      color: var(--color-resolution);
+      text-decoration: none;
+      border-bottom: 1px dashed var(--color-ship-cove);
+      padding-bottom: 2px;
+      transition: color 0.15s, border-color 0.15s;
+    }
+    .btn-tertiary:hover { color: var(--color-malibu); border-bottom-color: var(--color-malibu); }
+    .medicare-hero__trust {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+      font-size: 0.8125rem;
+      color: var(--color-text-muted);
+      margin: var(--space-3) 0 0;
+    }
+    .medicare-hero__trust svg { color: #14A38B; flex-shrink: 0; }
+
+    /* ===== PLANS GRID ===== */
+    .medicare-plans { padding: var(--space-14) 0; }
+    .section-header { max-width: 720px; margin: 0 0 var(--space-10); }
+    .section-header--center { margin-inline: auto; text-align: center; }
+    .eyebrow {
+      display: inline-block;
+      font-family: var(--font-display);
+      font-size: 0.6875rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      color: #14A38B;
+      margin: 0 0 var(--space-3);
+    }
+    .eyebrow--light { color: #64BCE1; }
+    .section-heading {
+      font-family: var(--font-display);
+      font-size: clamp(1.875rem, 3.6vw, 2.5rem);
+      font-weight: 700;
+      letter-spacing: -0.025em;
+      line-height: 1.1;
+      color: var(--color-resolution);
+      margin: 0 0 var(--space-4);
+    }
+    .section-heading .serif-italic {
+      font-family: var(--font-serif);
+      font-style: italic;
+      font-weight: 500;
+      color: #14A38B;
+    }
+    .section-lede {
+      font-size: 1.0625rem;
+      line-height: 1.6;
+      color: var(--color-text-muted);
+      margin: 0;
+    }
+
+    .plans-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: var(--space-6);
+    }
+    @media (max-width: 920px) { .plans-grid { grid-template-columns: 1fr; } }
+
+    .plan-card {
+      background: var(--color-white);
+      border: 1px solid var(--color-border);
+      border-radius: 20px;
+      padding: var(--space-8) var(--space-7) var(--space-7);
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      transition: transform 0.3s, border-color 0.3s, box-shadow 0.3s;
+    }
+    .plan-card:hover {
+      transform: translateY(-4px);
+      border-color: #14A38B;
+      box-shadow: 0 16px 36px rgba(20, 163, 139, 0.10);
+    }
+    .plan-card--featured {
+      border-color: #14A38B;
+      box-shadow: 0 8px 24px rgba(20, 163, 139, 0.08);
+    }
+    .plan-card__badge {
+      position: absolute;
+      top: -10px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-family: var(--font-display);
+      font-size: 0.6875rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      color: var(--color-white);
+      background: #14A38B;
+      padding: 6px 14px;
+      border-radius: 100px;
+    }
+    .plan-card__label {
+      font-family: var(--font-display);
+      font-size: 0.6875rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      color: var(--color-text-muted);
+      margin: 0 0 var(--space-3);
+    }
+    .plan-card__name {
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 1.5rem;
+      letter-spacing: -0.02em;
+      color: var(--color-resolution);
+      margin: 0 0 var(--space-4);
+      line-height: 1.15;
+    }
+    .plan-card__price {
+      display: flex;
+      align-items: baseline;
+      gap: var(--space-2);
+      margin: 0 0 var(--space-5);
+      padding-bottom: var(--space-5);
+      border-bottom: 1px solid var(--color-border);
+    }
+    .plan-card__from {
+      font-family: var(--font-display);
+      font-size: 0.6875rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--color-text-muted);
+    }
+    .plan-card__amount {
+      font-family: var(--font-serif);
+      font-style: italic;
+      font-weight: 500;
+      font-size: 2.25rem;
+      letter-spacing: -0.03em;
+      color: var(--color-resolution);
+      line-height: 1;
+    }
+    .plan-card__desc {
+      font-size: 0.9375rem;
+      line-height: 1.55;
+      color: var(--color-text);
+      margin: 0 0 var(--space-5);
+    }
+    .plan-card__list {
+      list-style: none;
+      margin: 0 0 var(--space-7);
+      padding: 0;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-2);
+    }
+    .plan-card__list li {
+      font-size: 0.875rem;
+      line-height: 1.45;
+      color: var(--color-text);
+      padding-left: var(--space-5);
+      position: relative;
+    }
+    .plan-card__list li::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0.55em;
+      width: 5px;
+      height: 5px;
+      background: #14A38B;
+      border-radius: 50%;
+    }
+    .plan-card__cta {
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 0.875rem;
+      color: #14A38B;
+      text-decoration: none;
+      transition: gap 0.15s, color 0.15s;
+      margin-top: auto;
+    }
+    .plan-card__cta:hover { color: var(--color-resolution); }
+
+    /* ===== GUIDE ===== */
+    .medicare-guide {
+      padding: var(--space-14) 0;
+      background: var(--color-alice);
+    }
+    .guide-grid {
+      display: grid;
+      grid-template-columns: 320px 1fr;
+      gap: var(--space-10);
+    }
+    @media (max-width: 920px) { .guide-grid { grid-template-columns: 1fr; } }
+    .guide-aside { position: sticky; top: var(--space-10); align-self: start; }
+    @media (max-width: 920px) { .guide-aside { position: static; } }
+
+    .guide-block {
+      display: grid;
+      grid-template-columns: 56px 1fr;
+      gap: var(--space-5);
+      padding: var(--space-7) 0;
+      border-bottom: 1px solid var(--color-border);
+    }
+    .guide-block:first-child { padding-top: 0; }
+    .guide-block:last-of-type { border-bottom: 0; }
+    .guide-block__num {
+      font-family: var(--font-serif);
+      font-style: italic;
+      font-weight: 500;
+      font-size: 2.25rem;
+      line-height: 1;
+      color: #14A38B;
+      letter-spacing: -0.03em;
+      margin: 0;
+    }
+    .guide-block h3 {
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 1.25rem;
+      letter-spacing: -0.015em;
+      color: var(--color-resolution);
+      margin: 0 0 var(--space-3);
+      line-height: 1.25;
+    }
+    .guide-block p {
+      font-size: 1rem;
+      line-height: 1.6;
+      color: var(--color-text);
+      margin: 0;
+    }
+    .guide-block__list {
+      list-style: none;
+      margin: var(--space-4) 0 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-2);
+    }
+    .guide-block__list li {
+      font-size: 0.9375rem;
+      line-height: 1.55;
+      color: var(--color-text);
+      padding-left: var(--space-5);
+      position: relative;
+    }
+    .guide-block__list li::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0.6em;
+      width: 5px;
+      height: 5px;
+      background: #14A38B;
+      border-radius: 50%;
+    }
+    .guide-block__list strong { color: var(--color-resolution); font-weight: 700; }
+
+    .guide-cta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--space-5);
+      padding: var(--space-7);
+      background: var(--color-white);
+      border: 1px solid var(--color-border);
+      border-radius: 16px;
+      margin-top: var(--space-8);
+      flex-wrap: wrap;
+    }
+    .guide-cta__copy {
+      font-family: var(--font-display);
+      font-weight: 600;
+      font-size: 1.0625rem;
+      color: var(--color-resolution);
+      margin: 0;
+    }
+
+    /* ===== FAQ ===== */
+    .medicare-faq { padding: var(--space-14) 0; }
+    .container--narrow { max-width: 760px; padding-inline: var(--space-5); margin-inline: auto; }
+    .faq-list { display: flex; flex-direction: column; gap: var(--space-2); }
+    .faq-item {
+      background: var(--color-white);
+      border: 1px solid var(--color-border);
+      border-radius: 12px;
+      transition: border-color 0.15s;
+    }
+    .faq-item[open] { border-color: #14A38B; }
+    .faq-item summary {
+      cursor: pointer;
+      list-style: none;
+      padding: var(--space-5) var(--space-6);
+      font-family: var(--font-display);
+      font-weight: 600;
+      font-size: 1.0625rem;
+      color: var(--color-resolution);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: var(--space-4);
+    }
+    .faq-item summary::-webkit-details-marker { display: none; }
+    .faq-item summary svg {
+      color: var(--color-ship-cove);
+      transition: transform 0.25s, color 0.15s;
+      flex-shrink: 0;
+    }
+    .faq-item[open] summary svg { transform: rotate(180deg); color: #14A38B; }
+    .faq-item p {
+      padding: 0 var(--space-6) var(--space-6);
+      margin: 0;
+      font-size: 0.9375rem;
+      line-height: 1.65;
+      color: var(--color-text);
+    }
+
+    /* ===== PRE-FOOTER ===== */
+    .medicare-prefoot { padding: var(--space-10) 0 var(--space-16); }
+    .prefoot-card {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: var(--space-8);
+      align-items: center;
+      padding: var(--space-10) var(--space-10);
+      background: linear-gradient(135deg, var(--color-resolution) 0%, #1F3361 100%);
+      color: var(--color-white);
+      border-radius: 24px;
+      box-shadow: 0 12px 36px rgba(44, 69, 119, 0.18);
+    }
+    @media (max-width: 720px) {
+      .prefoot-card { grid-template-columns: 1fr; text-align: center; padding: var(--space-8); }
+    }
+    .prefoot-card__h2 {
+      font-family: var(--font-display);
+      font-size: clamp(1.75rem, 3.4vw, 2.25rem);
+      font-weight: 700;
+      letter-spacing: -0.025em;
+      color: var(--color-white);
+      margin: 0 0 var(--space-4);
+      line-height: 1.1;
+    }
+    .prefoot-card__h2 .serif-italic {
+      font-family: var(--font-serif);
+      font-style: italic;
+      font-weight: 500;
+      color: #64BCE1;
+    }
+    .prefoot-card__lede {
+      font-size: 1rem;
+      line-height: 1.55;
+      color: rgba(255, 255, 255, 0.85);
+      margin: 0;
+      max-width: 540px;
+    }
+    .btn-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-2);
+      padding: 14px 28px;
+      border-radius: 100px;
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 0.9375rem;
+      text-decoration: none;
+      border: 0;
+      cursor: pointer;
+      transition: transform 0.15s, filter 0.15s;
+    }
+    .btn-pill svg { transition: transform 0.2s; }
+    .btn-pill:hover svg { transform: translateX(3px); }
+    .btn-pill:hover { transform: translateY(-2px); filter: brightness(0.93); }
+    .btn-pill--navy { background: var(--color-resolution); color: var(--color-white); box-shadow: 0 4px 12px rgba(44, 69, 119, 0.15); }
+    .btn-pill--accent { background: #F46036; color: var(--color-white); box-shadow: 0 4px 12px rgba(244, 96, 54, 0.25); }
+    .btn-pill--xl { padding: 18px 36px; font-size: 1rem; white-space: nowrap; }
+
+    /* container utility (defensive — most layouts already have it) */
+    .container { max-width: 1200px; margin: 0 auto; padding-inline: var(--space-5); }
+  </style>
+
+</BaseLayout>

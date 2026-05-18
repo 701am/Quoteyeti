@@ -349,8 +349,14 @@ const businessFlow: FlowConfig = {
 };
 
 // ============================================
-// HEALTH INSURANCE
 // ============================================
+// HEALTH INSURANCE — with Medicare branching path
+// ============================================
+// Health insurance funnels through ONE flow. Step 1 asks the user
+// what kind of plan they're looking for. If they pick "Medicare,"
+// downstream steps show Medicare-specific questions and hide the
+// ACA-specific ones. Same Netlify form, same TCPA capture — the
+// branch flag (`plan_kind`) tells the partner adapter how to route.
 const healthFlow: FlowConfig = {
   slug: "health",
   verticalKey: "health",
@@ -360,25 +366,89 @@ const healthFlow: FlowConfig = {
   steps: [
     {
       heading: "Find {italic}health coverage{/italic} that fits.",
-      lede: "Start with your ZIP and household. Takes about 90 seconds.",
+      lede: "Start with what kind of plan you're looking for. Takes about 90 seconds.",
       fields: [
-        { name: "zip", label: "ZIP code", kind: "zip", required: true, autocomplete: "postal-code" },
-        { name: "household_size", label: "How many people need coverage?", kind: "pills", required: true, options: pills(["Just me","2","3","4","5+"]) },
-        { name: "dob", label: "Your date of birth", kind: "date", required: true, autocomplete: "bday", min: "1920-01-01", max: `${currentYear - 18}-12-31` },
+        // Plan-kind selector — drives the branching
+        { name: "plan_kind", label: "What kind of health plan are you looking for?", kind: "pills", required: true, options: pills([
+          "ACA / Marketplace","Medicare","Short-term","Just exploring",
+        ])},
+        { name: "zip", label: "ZIP code", kind: "zip", required: true, autocomplete: "postal-code", width: "half" },
+        { name: "dob", label: "Date of birth", kind: "date", required: true, autocomplete: "bday", min: "1920-01-01", max: `${currentYear - 18}-12-31`, width: "half" },
       ],
     },
+
+    // ============= STEP 2: SITUATION (branched) =============
     {
       heading: "Your {italic}situation{/italic}.",
-      lede: "These determine which paths (marketplace, employer, etc.) you qualify for.",
+      lede: "A few questions tailored to the kind of plan you're shopping for.",
       fields: [
-        { name: "employment_status", label: "Employment status", kind: "pills", required: true, options: pills(["Employed","Self-employed","Unemployed","Student","Retired"]) },
-        { name: "employer_coverage", label: "Is employer-sponsored coverage available to you?", kind: "yesno", required: true },
-        { name: "enrollment_urgency", label: "When do you need coverage?", kind: "pills", required: true, options: pills(["Immediately","Within 30 days","60+ days","Just exploring"]) },
+        // ---- Non-Medicare path: household + employment ----
+        {
+          name: "household_size",
+          label: "How many people need coverage?",
+          kind: "pills",
+          required: true,
+          options: pills(["Just me","2","3","4","5+"]),
+          showIf: "plan_kind!=Medicare",
+        },
+        {
+          name: "employment_status",
+          label: "Employment status",
+          kind: "pills",
+          required: true,
+          options: pills(["Employed","Self-employed","Unemployed","Student","Retired"]),
+          showIf: "plan_kind!=Medicare",
+        },
+        {
+          name: "employer_coverage",
+          label: "Is employer-sponsored coverage available to you?",
+          kind: "yesno",
+          required: true,
+          showIf: "plan_kind!=Medicare",
+        },
+
+        // ---- Medicare path: enrollment + plan type interest + drug needs ----
+        {
+          name: "medicare_enrollment_status",
+          label: "Where are you in Medicare enrollment?",
+          kind: "pills",
+          required: true,
+          options: pills([
+            "Already enrolled in Part A & B",
+            "Turning 65 soon",
+            "Eligible due to disability",
+            "Not yet enrolled",
+          ]),
+          showIf: "plan_kind=Medicare",
+        },
+        {
+          name: "medicare_plan_interest",
+          label: "What kind of Medicare plan interests you?",
+          kind: "pills",
+          required: true,
+          options: pills([
+            "Medicare Advantage (Part C)",
+            "Medicare Supplement (Medigap)",
+            "Part D (prescription drug only)",
+            "Not sure — show me everything",
+          ]),
+          showIf: "plan_kind=Medicare",
+        },
+        {
+          name: "medicare_prescription_needs",
+          label: "Do you currently take prescription drugs regularly?",
+          kind: "pills",
+          required: true,
+          options: pills(["No prescriptions","1–3 prescriptions","4+ prescriptions"]),
+          showIf: "plan_kind=Medicare",
+        },
       ],
     },
+
+    // ============= STEP 3: INCOME (shared, but contextualized) =============
     {
       heading: "Your {italic}income{/italic}.",
-      lede: "Used to estimate marketplace subsidy eligibility. Never reported to credit agencies.",
+      lede: "Used for subsidy and Extra Help eligibility estimates. Never reported to credit agencies.",
       fields: [
         { name: "household_income", label: "Estimated household income (annual)", kind: "select", required: true, options: [
           { value: "<30k", label: "Under $30,000" },
@@ -390,15 +460,70 @@ const healthFlow: FlowConfig = {
         ]},
       ],
     },
+
+    // ============= STEP 4: PLAN PREFERENCES (branched) =============
     {
       heading: "Plan {italic}preferences{/italic}.",
-      lede: "What kind of plan style works best for how you use healthcare?",
+      lede: "What matters most in the plan you choose?",
       fields: [
-        { name: "plan_priority", label: "Pick what matters most", kind: "pills", required: true, options: pills(["Low premium","Balanced","Low deductible"]) },
-        { name: "primary_care_usage", label: "How often do you see a doctor?", kind: "pills", required: true, options: pills(["Rarely","A few times a year","Monthly+"]) },
-        { name: "prescription_dependency", label: "Take any regular prescriptions?", kind: "yesno", required: true },
+        // ---- Non-Medicare preferences ----
+        {
+          name: "plan_priority",
+          label: "Pick what matters most",
+          kind: "pills",
+          required: true,
+          options: pills(["Low premium","Balanced","Low deductible"]),
+          showIf: "plan_kind!=Medicare",
+        },
+        {
+          name: "primary_care_usage",
+          label: "How often do you see a doctor?",
+          kind: "pills",
+          required: true,
+          options: pills(["Rarely","A few times a year","Monthly+"]),
+          showIf: "plan_kind!=Medicare",
+        },
+        {
+          name: "prescription_dependency",
+          label: "Take any regular prescriptions?",
+          kind: "yesno",
+          required: true,
+          showIf: "plan_kind!=Medicare",
+        },
+
+        // ---- Medicare preferences ----
+        {
+          name: "medicare_doctor_preference",
+          label: "Do you want to keep your current doctors?",
+          kind: "pills",
+          required: true,
+          options: pills([
+            "Yes — must keep my doctors",
+            "Prefer to, but flexible",
+            "I'm open to switching",
+          ]),
+          showIf: "plan_kind=Medicare",
+        },
+        {
+          name: "medicare_extras_interest",
+          label: "Interested in extras like dental, vision, or fitness?",
+          kind: "pills",
+          required: true,
+          options: pills(["Yes — important to me","Nice to have","Not important"]),
+          showIf: "plan_kind=Medicare",
+        },
+        {
+          name: "medicare_budget",
+          label: "Preferred monthly premium budget",
+          kind: "pills",
+          required: true,
+          options: pills(["$0/mo plans","Under $50/mo","$50–$150/mo","No budget — best value"]),
+          showIf: "plan_kind=Medicare",
+        },
       ],
     },
+
+    // ============= STEP 5: COVERAGE DETAILS (shared) =============
     {
       heading: "Coverage {italic}details{/italic}.",
       lede: "Last screen before contact.",

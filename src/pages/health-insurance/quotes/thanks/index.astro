@@ -3,14 +3,18 @@ import FunnelLayout from "~/layouts/FunnelLayout.astro";
 import PrimaryLeadSlot from "~/components/lead-flow/PrimaryLeadSlot.astro";
 import PartnerOffers from "~/components/lead-flow/PartnerOffers.astro";
 import { VERTICALS } from "~/data/verticals";
-import { OFFERS } from "~/data/partner-offers";
+import { OFFERS, SUB_OFFERS } from "~/data/partner-offers";
 
 const vertical = VERTICALS.health;
-const offers = OFFERS.health;
 
-// ZIP is available via the URL query string when Netlify redirects here
-// (e.g. ?zip=78701). We read it on the client and pass through to /go/
-// links so they can target partners by region.
+// Static-built pages can't read URL params at build time the way SSR can.
+// So we render BOTH offer sets here and use client-side JS to hide the
+// non-matching one when the page loads, based on ?plan_kind=Medicare
+// (or other branching values) in the URL. The Astro form-submit handler
+// (in LeadFlow.astro) appends plan_kind to the action URL so the user
+// lands here with the correct branch already in the query string.
+const acaOffers = OFFERS.health;
+const medicareOffers = SUB_OFFERS.medicare;
 const zip = Astro.url.searchParams.get("zip") ?? "";
 ---
 
@@ -39,29 +43,30 @@ const zip = Astro.url.searchParams.get("zip") ?? "";
 
   <section class="thanks-content">
     <div class="thanks-content__inner">
-
-      {/*
-        ============================================
-        PRIMARY LEAD — your custom agent integration
-        ============================================
-        TO WIRE: replace the placeholder card in
-        PrimaryLeadSlot.astro with your real buyer-adapter
-        response, or hide this section if the buyer declines.
-      */}
       <PrimaryLeadSlot vertical={vertical} />
 
-      {/*
-        ============================================
-        PARTNER OFFERS — MediaAlpha-style ad units
-        ============================================
-        Today: cards link to /go/<partnerId>/ which renders an
-        interstitial. When real partners are wired, swap the
-        PLACEHOLDER_TARGETS map in /go/[partner].astro to real URLs.
-      */}
-      <PartnerOffers vertical={vertical} offers={offers} zip={zip} />
-
+      {/* Both offer sets rendered — JS hides the non-matching one on load */}
+      <div data-offers-set="aca">
+        <PartnerOffers vertical={vertical} offers={acaOffers} zip={zip} />
+      </div>
+      <div data-offers-set="medicare" style="display:none">
+        <PartnerOffers vertical={vertical} offers={medicareOffers} zip={zip} />
+      </div>
     </div>
   </section>
+
+  <script>
+    // Switch offer sets based on ?plan_kind URL param.
+    // Falls back to the ACA set if no param is present.
+    const params = new URLSearchParams(window.location.search);
+    const planKind = params.get("plan_kind");
+    const acaSet = document.querySelector('[data-offers-set="aca"]');
+    const medicareSet = document.querySelector('[data-offers-set="medicare"]');
+    if (planKind === "Medicare" && acaSet && medicareSet) {
+      acaSet.style.display = "none";
+      medicareSet.style.display = "";
+    }
+  </script>
 
   <style>
     .thanks-hero {

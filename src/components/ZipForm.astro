@@ -181,7 +181,7 @@ const inputId = `zip-${variant}-${vertical}-${Math.random().toString(36).slice(2
       autocomplete="postal-code"
     />
     <button type="submit">
-      <span>Get quotes</span>
+      <span>{ctaLabel === "Get quotes" ? `Get ${v.short.toLowerCase()} quotes` : ctaLabel}</span>
       <svg width="11" height="9" viewBox="0 0 14 12" fill="none" aria-hidden="true">
         <path d="M8 1l5 5-5 5M1 6h12" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
       </svg>
