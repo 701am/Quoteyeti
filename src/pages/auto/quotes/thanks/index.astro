@@ -1,0 +1,239 @@
+---
+import BaseLayout from "~/layouts/BaseLayout.astro";
+---
+
+<BaseLayout
+  title="Thank You — Your Quotes Are On The Way"
+  description="We're connecting you with our partner network to compare auto insurance offers."
+  noindex={true}
+>
+
+  <section class="thanks-page">
+    <div class="container-narrow thanks-inner">
+
+      <div class="thanks-icon" aria-hidden="true">
+        <svg viewBox="0 0 64 64" width="64" height="64" fill="none">
+          <circle cx="32" cy="32" r="30" fill="#E8F3FA" stroke="#64BCE1" stroke-width="2"/>
+          <path d="M20 32l8 8 16-16" stroke="#64BCE1" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+
+      <p class="thanks-eyebrow">You're all set</p>
+      <h1 class="thanks-h1">
+        Thanks — we're <span class="serif-italic">on it</span>.
+      </h1>
+      <p class="thanks-lede">
+        We've received your information and are matching you with our partner network. Here's what happens next:
+      </p>
+
+      <ol class="thanks-steps">
+        <li class="thanks-step">
+          <div class="thanks-step__num">01</div>
+          <div class="thanks-step__body">
+            <h3>Check your inbox</h3>
+            <p>You'll receive offers from our partner network at the email you provided. The first usually arrives within 5 minutes.</p>
+          </div>
+        </li>
+        <li class="thanks-step">
+          <div class="thanks-step__num">02</div>
+          <div class="thanks-step__body">
+            <h3>You're in control</h3>
+            <p>Compare offers on your own time. You decide if and when to talk to a carrier — no pressure, no auto-routing.</p>
+          </div>
+        </li>
+        <li class="thanks-step">
+          <div class="thanks-step__num">03</div>
+          <div class="thanks-step__body">
+            <h3>Lock in your savings</h3>
+            <p>When you find a carrier you like, click through to complete your purchase. You can also bookmark this page for reference.</p>
+          </div>
+        </li>
+      </ol>
+
+      <div class="thanks-while-you-wait">
+        <p class="thanks-eyebrow">While you wait</p>
+        <h2>More from QuoteYeti</h2>
+        <div class="thanks-cards">
+          <a href="/auto/best/" class="thanks-card">
+            <p class="thanks-card__label">Read</p>
+            <h3>Best auto insurance carriers of 2026</h3>
+            <p>Independent rankings of every major US carrier — methodology you can audit.</p>
+            <span class="thanks-card__arrow">Read the rankings →</span>
+          </a>
+          <a href="/auto/" class="thanks-card">
+            <p class="thanks-card__label">Browse</p>
+            <h3>Auto insurance hub</h3>
+            <p>Guides, calculators, glossary, and carrier reviews — all in one place.</p>
+            <span class="thanks-card__arrow">Explore the hub →</span>
+          </a>
+          <a href="/blog/" class="thanks-card">
+            <p class="thanks-card__label">Latest</p>
+            <h3>The Dispatch</h3>
+            <p>Insurance news, analysis, and reporting from the QuoteYeti editorial team.</p>
+            <span class="thanks-card__arrow">Read the blog →</span>
+          </a>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <style>
+    .thanks-page {
+      padding-block: var(--space-16) var(--space-20);
+      background: linear-gradient(180deg, var(--color-alice) 0%, var(--color-white) 50%);
+      min-height: calc(100vh - 200px);
+    }
+    .thanks-inner { text-align: center; }
+    .thanks-icon { margin: 0 auto var(--space-6); }
+    .thanks-eyebrow {
+      display: inline-block;
+      font-family: var(--font-display);
+      font-size: 0.6875rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      color: var(--color-malibu);
+      margin: 0 0 var(--space-3);
+    }
+    .thanks-h1 {
+      font-family: var(--font-display);
+      font-size: clamp(2.25rem, 5vw, 3.5rem);
+      font-weight: 700;
+      letter-spacing: -0.025em;
+      line-height: 1.05;
+      color: var(--color-resolution);
+      margin: 0 0 var(--space-5);
+    }
+    .thanks-h1 .serif-italic {
+      font-family: var(--font-serif);
+      font-style: italic;
+      font-weight: 500;
+      color: var(--color-malibu);
+    }
+    .thanks-lede {
+      font-size: 1.125rem;
+      line-height: 1.6;
+      color: var(--color-text-strong);
+      max-width: 580px;
+      margin: 0 auto var(--space-12);
+    }
+
+    .thanks-steps {
+      list-style: none;
+      margin: 0 0 var(--space-16);
+      padding: 0;
+      text-align: left;
+      max-width: 580px;
+      margin-inline: auto;
+    }
+    .thanks-step {
+      display: grid;
+      grid-template-columns: 56px 1fr;
+      gap: var(--space-5);
+      align-items: flex-start;
+      padding: var(--space-6) 0;
+      border-bottom: 1px solid var(--color-border);
+    }
+    .thanks-step:last-child { border-bottom: 0; }
+    .thanks-step__num {
+      font-family: var(--font-serif);
+      font-style: italic;
+      font-weight: 500;
+      font-size: 2.25rem;
+      line-height: 1;
+      color: var(--color-malibu);
+      letter-spacing: -0.03em;
+    }
+    .thanks-step__body h3 {
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 1.125rem;
+      letter-spacing: -0.01em;
+      color: var(--color-resolution);
+      margin: 0 0 var(--space-2);
+      line-height: 1.2;
+    }
+    .thanks-step__body p {
+      font-size: 0.9375rem;
+      line-height: 1.6;
+      color: var(--color-text-muted);
+      margin: 0;
+    }
+
+    .thanks-while-you-wait {
+      padding-top: var(--space-12);
+      border-top: 1px solid var(--color-border);
+    }
+    .thanks-while-you-wait h2 {
+      font-family: var(--font-display);
+      font-size: clamp(1.5rem, 3vw, 2rem);
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: var(--color-resolution);
+      margin: 0 0 var(--space-8);
+    }
+    .thanks-cards {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: var(--space-5);
+      text-align: left;
+    }
+    .thanks-card {
+      display: flex;
+      flex-direction: column;
+      padding: var(--space-7) var(--space-6);
+      background: var(--color-white);
+      border: 1px solid var(--color-border);
+      border-radius: 16px;
+      text-decoration: none;
+      color: inherit;
+      transition: transform 0.3s, border-color 0.3s, box-shadow 0.3s;
+    }
+    .thanks-card:hover {
+      transform: translateY(-4px);
+      border-color: var(--color-malibu);
+      box-shadow: 0 16px 32px rgba(44, 69, 119, 0.08);
+    }
+    .thanks-card__label {
+      font-family: var(--font-display);
+      font-size: 0.6875rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      color: var(--color-malibu);
+      margin: 0 0 var(--space-3);
+    }
+    .thanks-card h3 {
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 1.125rem;
+      letter-spacing: -0.015em;
+      color: var(--color-resolution);
+      margin: 0 0 var(--space-3);
+      line-height: 1.25;
+    }
+    .thanks-card p {
+      font-size: 0.875rem;
+      line-height: 1.55;
+      color: var(--color-text-muted);
+      margin: 0 0 var(--space-5);
+      flex: 1;
+    }
+    .thanks-card__arrow {
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 0.8125rem;
+      color: var(--color-malibu);
+      transition: transform 0.15s;
+      display: inline-block;
+    }
+    .thanks-card:hover .thanks-card__arrow { transform: translateX(3px); }
+
+    @media (max-width: 720px) {
+      .thanks-cards { grid-template-columns: 1fr; }
+      .thanks-step__num { font-size: 1.75rem; }
+    }
+  </style>
+
+</BaseLayout>

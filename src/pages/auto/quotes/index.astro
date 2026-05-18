@@ -1,0 +1,955 @@
+---
+import BaseLayout from "~/layouts/BaseLayout.astro";
+import { VERTICALS } from "~/data/verticals";
+
+const v = VERTICALS.auto;
+
+// Vehicle make list — common US passenger vehicles. Sorted alphabetically.
+const VEHICLE_MAKES = [
+  "Acura", "Audi", "BMW", "Buick", "Cadillac", "Chevrolet", "Chrysler",
+  "Dodge", "Fiat", "Ford", "GMC", "Genesis", "Honda", "Hyundai", "Infiniti",
+  "Jaguar", "Jeep", "Kia", "Land Rover", "Lexus", "Lincoln", "Mazda",
+  "Mercedes-Benz", "Mini", "Mitsubishi", "Nissan", "Porsche", "Ram",
+  "Subaru", "Tesla", "Toyota", "Volkswagen", "Volvo", "Other"
+];
+
+// Year list (this year back to 1995)
+const currentYear = new Date().getFullYear();
+const VEHICLE_YEARS = Array.from({ length: currentYear - 1994 }, (_, i) => currentYear - i);
+
+const COMMON_CARRIERS = [
+  "Allstate", "American Family", "Erie", "Farmers", "GEICO", "Liberty Mutual",
+  "Mercury", "Nationwide", "Progressive", "Safeco", "State Farm", "Travelers",
+  "USAA", "Other", "Not currently insured",
+];
+---
+
+<BaseLayout
+  title="Get Auto Insurance Quotes — Compare Offers from Top Carriers"
+  description="Compare auto insurance quotes from top carriers in your area. Free, takes about 90 seconds, and you choose who contacts you."
+  noindex={true}
+  breadcrumbs={[
+    { name: "Home", url: "/" },
+    { name: "Auto", url: "/auto/" },
+    { name: "Get quotes", url: "/auto/quotes/" },
+  ]}
+>
+
+  <section class="quotes-page">
+    <div class="container-narrow">
+
+      <!-- Header / progress -->
+      <header class="quotes-header">
+        <a href="/auto/" class="quotes-back">← Back to auto insurance</a>
+        <div class="quotes-progress" aria-label="Form progress">
+          <div class="quotes-progress__bar"><div class="quotes-progress__fill" data-progress-fill style="width: 16%"></div></div>
+          <p class="quotes-progress__label"><span data-step-current>1</span> of <span data-step-total>6</span></p>
+        </div>
+      </header>
+
+      <!--
+        Netlify Forms requires a static form definition the bot can detect at
+        build time. We render a hidden "schema" form here so Netlify discovers
+        every field name. The visible multi-step form below submits to the
+        same form name and inherits the field schema.
+      -->
+      <form name="auto-quotes-lead" netlify netlify-honeypot="bot-field" hidden aria-hidden="true">
+        <input type="text" name="bot-field" />
+        <input type="text" name="zip" />
+        <input type="text" name="drivers_count" />
+        <input type="text" name="vehicle_year" />
+        <input type="text" name="vehicle_make" />
+        <input type="text" name="vehicle_model" />
+        <input type="text" name="vehicle_ownership" />
+        <input type="text" name="primary_use" />
+        <input type="text" name="annual_mileage" />
+        <input type="text" name="garaging" />
+        <input type="text" name="dob" />
+        <input type="text" name="marital_status" />
+        <input type="text" name="homeownership" />
+        <input type="text" name="currently_insured" />
+        <input type="text" name="current_carrier" />
+        <input type="text" name="years_with_carrier" />
+        <input type="text" name="incidents_3yr" />
+        <input type="text" name="license_status" />
+        <input type="text" name="first_name" />
+        <input type="text" name="last_name" />
+        <input type="email" name="email" />
+        <input type="tel" name="phone" />
+        <input type="text" name="tcpa_consent" />
+        <input type="text" name="tcpa_consent_text" />
+        <input type="text" name="tcpa_consent_timestamp" />
+        <input type="text" name="tcpa_consent_ip" />
+        <input type="text" name="tcpa_consent_ua" />
+        <input type="text" name="referrer" />
+        <input type="text" name="utm_source" />
+      </form>
+
+      <!-- ============ Visible multi-step form ============ -->
+      <form
+        class="quotes-form"
+        name="auto-quotes-lead"
+        method="POST"
+        data-netlify="true"
+        data-netlify-honeypot="bot-field"
+        action="/auto/quotes/thanks/"
+        data-quotes-form
+        novalidate
+      >
+        <input type="hidden" name="form-name" value="auto-quotes-lead" />
+        <p hidden><label>Leave this empty: <input name="bot-field" /></label></p>
+        <input type="hidden" name="tcpa_consent_text" data-tcpa-text-snapshot />
+        <input type="hidden" name="tcpa_consent_timestamp" data-tcpa-ts />
+        <input type="hidden" name="tcpa_consent_ua" data-tcpa-ua />
+        <input type="hidden" name="referrer" data-referrer />
+        <input type="hidden" name="utm_source" data-utm-source />
+
+        <!-- =============== STEP 1: ZIP + drivers =============== -->
+        <fieldset class="step is-active" data-step="1">
+          <p class="step__eyebrow">Step 1 of 6</p>
+          <h1 class="step__heading">Let's <span class="serif-italic">get started</span>.</h1>
+          <p class="step__lede">Confirm your ZIP and tell us how many drivers are in your household. Takes about 90 seconds total.</p>
+
+          <div class="field">
+            <label for="f-zip">ZIP code</label>
+            <input
+              id="f-zip"
+              name="zip"
+              type="text"
+              inputmode="numeric"
+              pattern="[0-9]{5}"
+              maxlength="5"
+              required
+              autocomplete="postal-code"
+              data-zip-input
+            />
+            <p class="field__hint" data-zip-state></p>
+          </div>
+
+          <div class="field">
+            <label for="f-drivers">Drivers in household</label>
+            <div class="choices" role="radiogroup" aria-label="Drivers in household">
+              {[1, 2, 3, 4].map((n) => (
+                <label class="choice">
+                  <input type="radio" name="drivers_count" value={n === 4 ? "4+" : String(n)} required />
+                  <span>{n === 4 ? "4+" : n}</span>
+                </label>
+              ))}
+            </div>
+          </div>
+
+          <div class="step__nav">
+            <button type="button" class="btn-pill btn-pill--navy" data-next>
+              <span>Continue</span>
+              <svg width="14" height="12" viewBox="0 0 14 12" fill="none" aria-hidden="true"><path d="M8 1l5 5-5 5M1 6h12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+          </div>
+        </fieldset>
+
+        <!-- =============== STEP 2: Vehicle =============== -->
+        <fieldset class="step" data-step="2">
+          <p class="step__eyebrow">Step 2 of 6</p>
+          <h2 class="step__heading">Tell us about your <span class="serif-italic">vehicle</span>.</h2>
+          <p class="step__lede">If you have more than one, start with your primary vehicle — you'll add more on the next screen.</p>
+
+          <div class="field-row">
+            <div class="field">
+              <label for="f-year">Year</label>
+              <select id="f-year" name="vehicle_year" required>
+                <option value="">Select…</option>
+                {VEHICLE_YEARS.map((y) => <option value={y}>{y}</option>)}
+              </select>
+            </div>
+            <div class="field">
+              <label for="f-make">Make</label>
+              <select id="f-make" name="vehicle_make" required>
+                <option value="">Select…</option>
+                {VEHICLE_MAKES.map((m) => <option value={m}>{m}</option>)}
+              </select>
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="f-model">Model</label>
+            <input id="f-model" name="vehicle_model" type="text" placeholder="e.g. Camry, F-150, Civic" required autocomplete="off" />
+          </div>
+
+          <div class="field">
+            <label>Ownership</label>
+            <div class="choices" role="radiogroup" aria-label="Ownership">
+              {["Owned", "Financed", "Leased"].map((opt) => (
+                <label class="choice">
+                  <input type="radio" name="vehicle_ownership" value={opt} required />
+                  <span>{opt}</span>
+                </label>
+              ))}
+            </div>
+          </div>
+
+          <div class="step__nav">
+            <button type="button" class="btn-text" data-prev>← Back</button>
+            <button type="button" class="btn-pill btn-pill--navy" data-next>
+              <span>Continue</span>
+              <svg width="14" height="12" viewBox="0 0 14 12" fill="none" aria-hidden="true"><path d="M8 1l5 5-5 5M1 6h12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+          </div>
+        </fieldset>
+
+        <!-- =============== STEP 3: Usage =============== -->
+        <fieldset class="step" data-step="3">
+          <p class="step__eyebrow">Step 3 of 6</p>
+          <h2 class="step__heading">How do you <span class="serif-italic">use it</span>?</h2>
+          <p class="step__lede">Usage is one of the biggest factors carriers use to set your rate.</p>
+
+          <div class="field">
+            <label>Primary use</label>
+            <div class="choices" role="radiogroup" aria-label="Primary use">
+              {["Commute", "Business", "Pleasure"].map((opt) => (
+                <label class="choice">
+                  <input type="radio" name="primary_use" value={opt} required />
+                  <span>{opt}</span>
+                </label>
+              ))}
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="f-mileage">Annual mileage</label>
+            <select id="f-mileage" name="annual_mileage" required>
+              <option value="">Select…</option>
+              <option value="0-5000">Under 5,000 miles</option>
+              <option value="5000-10000">5,000 – 10,000 miles</option>
+              <option value="10000-15000">10,000 – 15,000 miles</option>
+              <option value="15000+">15,000+ miles</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label>Where is it parked overnight?</label>
+            <div class="choices" role="radiogroup" aria-label="Garaging">
+              {["Garage", "Driveway", "Street", "Apartment lot"].map((opt) => (
+                <label class="choice">
+                  <input type="radio" name="garaging" value={opt} required />
+                  <span>{opt}</span>
+                </label>
+              ))}
+            </div>
+          </div>
+
+          <div class="step__nav">
+            <button type="button" class="btn-text" data-prev>← Back</button>
+            <button type="button" class="btn-pill btn-pill--navy" data-next>
+              <span>Continue</span>
+              <svg width="14" height="12" viewBox="0 0 14 12" fill="none" aria-hidden="true"><path d="M8 1l5 5-5 5M1 6h12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+          </div>
+        </fieldset>
+
+        <!-- =============== STEP 4: Driver basics =============== -->
+        <fieldset class="step" data-step="4">
+          <p class="step__eyebrow">Step 4 of 6</p>
+          <h2 class="step__heading">A few <span class="serif-italic">details about you</span>.</h2>
+          <p class="step__lede">Carriers use these to determine eligibility and discounts.</p>
+
+          <div class="field">
+            <label for="f-dob">Date of birth</label>
+            <input id="f-dob" name="dob" type="date" required autocomplete="bday" max={`${currentYear - 16}-12-31`} min="1920-01-01" />
+            <p class="field__hint">You must be at least 16 to request quotes.</p>
+          </div>
+
+          <div class="field">
+            <label>Marital status</label>
+            <div class="choices choices--wrap" role="radiogroup" aria-label="Marital status">
+              {["Single", "Married", "Divorced", "Widowed", "Separated"].map((opt) => (
+                <label class="choice">
+                  <input type="radio" name="marital_status" value={opt} required />
+                  <span>{opt}</span>
+                </label>
+              ))}
+            </div>
+          </div>
+
+          <div class="field">
+            <label>Homeownership</label>
+            <div class="choices" role="radiogroup" aria-label="Homeownership">
+              {["Own", "Rent", "Live with family"].map((opt) => (
+                <label class="choice">
+                  <input type="radio" name="homeownership" value={opt} required />
+                  <span>{opt}</span>
+                </label>
+              ))}
+            </div>
+          </div>
+
+          <div class="step__nav">
+            <button type="button" class="btn-text" data-prev>← Back</button>
+            <button type="button" class="btn-pill btn-pill--navy" data-next>
+              <span>Continue</span>
+              <svg width="14" height="12" viewBox="0 0 14 12" fill="none" aria-hidden="true"><path d="M8 1l5 5-5 5M1 6h12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+          </div>
+        </fieldset>
+
+        <!-- =============== STEP 5: Insurance history =============== -->
+        <fieldset class="step" data-step="5">
+          <p class="step__eyebrow">Step 5 of 6</p>
+          <h2 class="step__heading">Your <span class="serif-italic">insurance history</span>.</h2>
+          <p class="step__lede">Currently-insured drivers with clean records typically see the lowest rates.</p>
+
+          <div class="field">
+            <label>Are you currently insured?</label>
+            <div class="choices" role="radiogroup" aria-label="Currently insured">
+              <label class="choice"><input type="radio" name="currently_insured" value="Yes" required /><span>Yes</span></label>
+              <label class="choice"><input type="radio" name="currently_insured" value="No" required /><span>No</span></label>
+            </div>
+          </div>
+
+          <div class="field" data-show-if="currently_insured=Yes">
+            <label for="f-carrier">Current carrier</label>
+            <select id="f-carrier" name="current_carrier">
+              <option value="">Select…</option>
+              {COMMON_CARRIERS.map((c) => <option value={c}>{c}</option>)}
+            </select>
+          </div>
+
+          <div class="field" data-show-if="currently_insured=Yes">
+            <label for="f-years-carrier">Years with current carrier</label>
+            <select id="f-years-carrier" name="years_with_carrier">
+              <option value="">Select…</option>
+              <option value="<1">Less than 1 year</option>
+              <option value="1-3">1–3 years</option>
+              <option value="3-5">3–5 years</option>
+              <option value="5+">5+ years</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label>Accidents, tickets, or claims in the last 3 years?</label>
+            <div class="choices" role="radiogroup" aria-label="Incidents in last 3 years">
+              {["None", "1", "2", "3+"].map((opt) => (
+                <label class="choice">
+                  <input type="radio" name="incidents_3yr" value={opt} required />
+                  <span>{opt}</span>
+                </label>
+              ))}
+            </div>
+          </div>
+
+          <div class="field">
+            <label>License status</label>
+            <div class="choices" role="radiogroup" aria-label="License status">
+              {["Valid", "Suspended", "Permit", "International"].map((opt) => (
+                <label class="choice">
+                  <input type="radio" name="license_status" value={opt} required />
+                  <span>{opt}</span>
+                </label>
+              ))}
+            </div>
+          </div>
+
+          <div class="step__nav">
+            <button type="button" class="btn-text" data-prev>← Back</button>
+            <button type="button" class="btn-pill btn-pill--navy" data-next>
+              <span>Continue</span>
+              <svg width="14" height="12" viewBox="0 0 14 12" fill="none" aria-hidden="true"><path d="M8 1l5 5-5 5M1 6h12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+          </div>
+        </fieldset>
+
+        <!-- =============== STEP 6: Contact + TCPA consent =============== -->
+        <fieldset class="step" data-step="6">
+          <p class="step__eyebrow">Step 6 of 6 · Last one</p>
+          <h2 class="step__heading">Where should we send your <span class="serif-italic">offers</span>?</h2>
+          <p class="step__lede">We'll connect you with our partner network. You choose who you actually want to talk to — no spam from us.</p>
+
+          <div class="field-row">
+            <div class="field">
+              <label for="f-first">First name</label>
+              <input id="f-first" name="first_name" type="text" required autocomplete="given-name" />
+            </div>
+            <div class="field">
+              <label for="f-last">Last name</label>
+              <input id="f-last" name="last_name" type="text" required autocomplete="family-name" />
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="f-email">Email</label>
+            <input id="f-email" name="email" type="email" required autocomplete="email" />
+          </div>
+
+          <div class="field">
+            <label for="f-phone">Phone number</label>
+            <input id="f-phone" name="phone" type="tel" inputmode="tel" required autocomplete="tel" placeholder="(555) 555-5555" />
+            <p class="field__hint">Used by our partner network to send you offers. See consent below.</p>
+          </div>
+
+          <div class="tcpa-box">
+            <label class="tcpa-checkbox">
+              <input type="checkbox" name="tcpa_consent" value="yes" required data-tcpa-check />
+              <span class="tcpa-checkbox__box" aria-hidden="true">
+                <svg viewBox="0 0 16 16" width="11" height="11" fill="none"><path d="M3 8l3 3 7-7" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </span>
+              <span class="tcpa-checkbox__text" data-tcpa-text>
+                By clicking <strong>"See my offers"</strong> below, I provide my electronic signature and express written consent to be contacted by <strong>QuoteYeti</strong>, our partner <strong>EverQuote</strong>, and our <a href="/partners/" target="_blank" rel="noopener">network of licensed insurance carriers and agents</a> at the phone number and email I provided above, including via autodialer, pre-recorded messages, and text/SMS — even if my number is on a do-not-call list. Message/data rates may apply. Consent is not a condition of purchase. I can opt out at any time by replying STOP. I have read and agree to QuoteYeti's <a href="/privacy-policy/" target="_blank" rel="noopener">privacy policy</a> and <a href="/terms/" target="_blank" rel="noopener">terms of use</a>.
+              </span>
+            </label>
+          </div>
+
+          <div class="step__nav step__nav--final">
+            <button type="button" class="btn-text" data-prev>← Back</button>
+            <button type="submit" class="btn-pill btn-pill--accent">
+              <span>See my offers</span>
+              <svg width="14" height="12" viewBox="0 0 14 12" fill="none" aria-hidden="true"><path d="M8 1l5 5-5 5M1 6h12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+          </div>
+
+          <p class="trust-line">
+            <svg viewBox="0 0 20 20" width="14" height="14" aria-hidden="true"><path d="M10 1l2.5 5.5L18 7l-4 4 1 6-5-3-5 3 1-6-4-4 5.5-.5L10 1z" fill="currentColor"/></svg>
+            <span>Free · No SSN required · 256-bit encryption · You choose who contacts you</span>
+          </p>
+        </fieldset>
+
+      </form>
+    </div>
+  </section>
+
+  <style>
+    .quotes-page { padding-block: var(--space-10) var(--space-16); background: linear-gradient(180deg, var(--color-alice) 0%, var(--color-white) 30%); min-height: calc(100vh - 200px); }
+
+    .quotes-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: var(--space-10);
+      gap: var(--space-5);
+      flex-wrap: wrap;
+    }
+    .quotes-back {
+      font-family: var(--font-display);
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--color-text-muted);
+      text-decoration: none;
+      transition: color 0.15s;
+    }
+    .quotes-back:hover { color: var(--color-malibu); }
+
+    .quotes-progress { display: flex; align-items: center; gap: var(--space-3); flex: 1; max-width: 320px; }
+    .quotes-progress__bar {
+      flex: 1;
+      height: 6px;
+      background: var(--color-alice);
+      border-radius: 100px;
+      overflow: hidden;
+      border: 1px solid var(--color-border);
+    }
+    .quotes-progress__fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--color-malibu) 0%, #F46036 100%);
+      border-radius: 100px;
+      transition: width 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .quotes-progress__label {
+      font-family: var(--font-display);
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      color: var(--color-text-muted);
+      margin: 0;
+      white-space: nowrap;
+    }
+
+    /* Form base */
+    .quotes-form {
+      background: var(--color-white);
+      border: 1px solid var(--color-border);
+      border-radius: 20px;
+      padding: var(--space-10) var(--space-9);
+      box-shadow: 0 4px 24px rgba(44, 69, 119, 0.04);
+    }
+    .step {
+      display: none;
+      border: 0;
+      padding: 0;
+      margin: 0;
+      animation: stepFadeIn 0.3s ease-out;
+    }
+    .step.is-active { display: block; }
+    @keyframes stepFadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .step__eyebrow {
+      display: inline-block;
+      font-family: var(--font-display);
+      font-size: 0.6875rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      color: #F46036;
+      margin: 0 0 var(--space-4);
+    }
+    .step__heading {
+      font-family: var(--font-display);
+      font-size: clamp(1.75rem, 3.5vw, 2.25rem);
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      line-height: 1.1;
+      color: var(--color-resolution);
+      margin: 0 0 var(--space-4);
+    }
+    .step__heading .serif-italic {
+      font-family: var(--font-serif);
+      font-style: italic;
+      font-weight: 500;
+      color: var(--color-malibu);
+      letter-spacing: -0.01em;
+    }
+    .step__lede {
+      font-size: 1.0625rem;
+      line-height: 1.55;
+      color: var(--color-text-muted);
+      margin: 0 0 var(--space-8);
+    }
+
+    /* Fields */
+    .field { margin-bottom: var(--space-6); }
+    .field-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--space-5);
+      margin-bottom: var(--space-6);
+    }
+    .field-row .field { margin-bottom: 0; }
+    .field label {
+      display: block;
+      font-family: var(--font-display);
+      font-size: 0.8125rem;
+      font-weight: 700;
+      color: var(--color-resolution);
+      margin: 0 0 var(--space-2);
+      letter-spacing: 0.005em;
+    }
+    .field__hint {
+      font-size: 0.75rem;
+      color: var(--color-text-muted);
+      margin: var(--space-2) 0 0;
+      line-height: 1.4;
+    }
+    .field input[type="text"],
+    .field input[type="email"],
+    .field input[type="tel"],
+    .field input[type="date"],
+    .field select {
+      width: 100%;
+      padding: 14px 16px;
+      border: 1px solid var(--color-border);
+      border-radius: 10px;
+      font-family: inherit;
+      font-size: 1rem;
+      color: var(--color-resolution);
+      background: var(--color-white);
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+    .field input:focus, .field select:focus {
+      outline: none;
+      border-color: var(--color-malibu);
+      box-shadow: 0 0 0 3px rgba(100, 188, 225, 0.18);
+    }
+    .field input[aria-invalid="true"], .field select[aria-invalid="true"] {
+      border-color: #C02B0A;
+      box-shadow: 0 0 0 3px rgba(192, 43, 10, 0.12);
+    }
+
+    /* Radio-button "choice" pills */
+    .choices {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      gap: var(--space-2);
+    }
+    .choices--wrap { grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); }
+    .choice {
+      position: relative;
+      cursor: pointer;
+    }
+    .choice input {
+      position: absolute;
+      opacity: 0;
+      pointer-events: none;
+    }
+    .choice span {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 14px 12px;
+      border: 1px solid var(--color-border);
+      border-radius: 10px;
+      font-family: var(--font-display);
+      font-weight: 600;
+      font-size: 0.9375rem;
+      color: var(--color-resolution);
+      background: var(--color-white);
+      transition: all 0.18s ease;
+      text-align: center;
+    }
+    .choice:hover span { border-color: var(--color-malibu); background: var(--color-alice); }
+    .choice input:checked + span {
+      border-color: var(--color-malibu);
+      background: #E8F3FA;
+      color: var(--color-resolution);
+      box-shadow: inset 0 0 0 1px var(--color-malibu);
+    }
+    .choice input:focus-visible + span {
+      box-shadow: 0 0 0 3px rgba(100, 188, 225, 0.25);
+    }
+
+    /* Conditional fields */
+    [data-show-if] { display: none; }
+    [data-show-if].is-visible { display: block; animation: stepFadeIn 0.25s ease-out; }
+
+    /* TCPA box */
+    .tcpa-box {
+      background: var(--color-alice);
+      border: 1px solid var(--color-border);
+      border-radius: 12px;
+      padding: var(--space-5);
+      margin: var(--space-8) 0 var(--space-6);
+    }
+    .tcpa-checkbox {
+      display: grid;
+      grid-template-columns: 22px 1fr;
+      gap: var(--space-3);
+      cursor: pointer;
+      align-items: flex-start;
+    }
+    .tcpa-checkbox input {
+      position: absolute;
+      opacity: 0;
+      pointer-events: none;
+    }
+    .tcpa-checkbox__box {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 22px;
+      height: 22px;
+      border: 1.5px solid var(--color-ship-cove);
+      border-radius: 6px;
+      background: var(--color-white);
+      color: transparent;
+      transition: all 0.15s;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+    .tcpa-checkbox input:checked ~ .tcpa-checkbox__box {
+      background: var(--color-malibu);
+      border-color: var(--color-malibu);
+      color: var(--color-white);
+    }
+    .tcpa-checkbox input:focus-visible ~ .tcpa-checkbox__box {
+      box-shadow: 0 0 0 3px rgba(100, 188, 225, 0.25);
+    }
+    .tcpa-checkbox__text {
+      font-size: 0.75rem;
+      line-height: 1.55;
+      color: var(--color-text);
+    }
+    .tcpa-checkbox__text a {
+      color: var(--color-malibu);
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+    .tcpa-checkbox__text strong { color: var(--color-resolution); font-weight: 700; }
+
+    /* Nav row */
+    .step__nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: var(--space-3);
+      margin-top: var(--space-8);
+    }
+    .step__nav--final { margin-top: var(--space-4); }
+    .step[data-step="1"] .step__nav { justify-content: flex-end; }
+    .btn-text {
+      background: none;
+      border: 0;
+      cursor: pointer;
+      font-family: var(--font-display);
+      font-weight: 600;
+      font-size: 0.875rem;
+      color: var(--color-text-muted);
+      padding: var(--space-2) var(--space-3);
+      transition: color 0.15s;
+    }
+    .btn-text:hover { color: var(--color-resolution); }
+
+    /* Local btn-pill copies — page-scoped duplicates of the global tokens */
+    .btn-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-2);
+      padding: 14px 28px;
+      border-radius: 100px;
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 0.9375rem;
+      text-decoration: none;
+      border: 0;
+      cursor: pointer;
+      transition: transform 0.15s, box-shadow 0.15s, filter 0.15s;
+    }
+    .btn-pill svg { transition: transform 0.2s; }
+    .btn-pill:hover svg { transform: translateX(3px); }
+    .btn-pill:hover { transform: translateY(-2px); }
+    .btn-pill--navy { background: var(--color-resolution); color: var(--color-white); box-shadow: 0 4px 12px rgba(44, 69, 119, 0.15); }
+    .btn-pill--navy:hover { filter: brightness(0.93); }
+    .btn-pill--accent { background: #F46036; color: var(--color-white); box-shadow: 0 4px 12px rgba(244, 96, 54, 0.25); }
+    .btn-pill--accent:hover { filter: brightness(0.93); }
+    .btn-pill:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+    .trust-line {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+      justify-content: center;
+      font-size: 0.75rem;
+      color: var(--color-text-muted);
+      margin: var(--space-6) 0 0;
+      text-align: center;
+    }
+    .trust-line svg { color: var(--color-malibu); flex-shrink: 0; }
+
+    /* Mobile */
+    @media (max-width: 720px) {
+      .quotes-form { padding: var(--space-7) var(--space-5); }
+      .field-row { grid-template-columns: 1fr; }
+      .choices { grid-template-columns: repeat(2, 1fr); }
+      .step__heading { font-size: 1.5rem; }
+      .step__lede { font-size: 0.9375rem; }
+    }
+  </style>
+
+  <script>
+    // ============================================
+    // Multi-step controller
+    // ============================================
+    const form = document.querySelector("[data-quotes-form]");
+    if (form) {
+      const steps = Array.from(form.querySelectorAll(".step"));
+      const totalSteps = steps.length;
+      const progressFill = document.querySelector("[data-progress-fill]");
+      const currentSpan = document.querySelector("[data-step-current]");
+      const totalSpan = document.querySelector("[data-step-total]");
+      if (totalSpan) totalSpan.textContent = String(totalSteps);
+
+      let currentStep = 1;
+
+      function showStep(n) {
+        currentStep = n;
+        steps.forEach((s) => s.classList.remove("is-active"));
+        const target = form.querySelector(`.step[data-step="${n}"]`);
+        if (target) target.classList.add("is-active");
+        if (progressFill) progressFill.style.width = `${(n / totalSteps) * 100}%`;
+        if (currentSpan) currentSpan.textContent = String(n);
+        // Scroll into view smoothly on step change
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+
+      function getStepFields(stepEl) {
+        // All inputs/selects with names inside this step
+        return Array.from(stepEl.querySelectorAll("input[name], select[name]"))
+          .filter((el) => !el.hidden && el.type !== "hidden");
+      }
+
+      function validateStep(stepEl) {
+        const fields = getStepFields(stepEl);
+        let valid = true;
+        const seenRadioGroups = new Set();
+        for (const field of fields) {
+          // Radio groups: check that at least one in the group is checked
+          if (field.type === "radio") {
+            if (seenRadioGroups.has(field.name)) continue;
+            seenRadioGroups.add(field.name);
+            const group = stepEl.querySelectorAll(`input[name="${field.name}"]`);
+            const checked = Array.from(group).some((r) => r.checked);
+            if (!checked && field.required) {
+              valid = false;
+              group.forEach((r) => {
+                const span = r.nextElementSibling;
+                if (span) span.style.borderColor = "#C02B0A";
+              });
+            }
+            continue;
+          }
+          // Skip conditional fields that are hidden
+          const wrapper = field.closest("[data-show-if]");
+          if (wrapper && !wrapper.classList.contains("is-visible")) continue;
+          // Required check + native validity
+          if (field.required && !field.value.trim()) {
+            field.setAttribute("aria-invalid", "true");
+            valid = false;
+          } else if (!field.checkValidity()) {
+            field.setAttribute("aria-invalid", "true");
+            valid = false;
+          } else {
+            field.removeAttribute("aria-invalid");
+          }
+        }
+        if (!valid) {
+          // Focus the first invalid input
+          const firstInvalid = stepEl.querySelector("[aria-invalid='true']") || stepEl.querySelector("input, select");
+          if (firstInvalid) firstInvalid.focus();
+        }
+        return valid;
+      }
+
+      // Wire next/prev buttons
+      form.querySelectorAll("[data-next]").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const stepEl = form.querySelector(`.step[data-step="${currentStep}"]`);
+          if (stepEl && validateStep(stepEl)) {
+            showStep(Math.min(currentStep + 1, totalSteps));
+          }
+        });
+      });
+      form.querySelectorAll("[data-prev]").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          showStep(Math.max(currentStep - 1, 1));
+        });
+      });
+
+      // Clear invalid state on input
+      form.addEventListener("input", (e) => {
+        const t = e.target;
+        if (t && (t.tagName === "INPUT" || t.tagName === "SELECT")) {
+          t.removeAttribute("aria-invalid");
+        }
+      });
+      // Clear radio invalid state on change
+      form.addEventListener("change", (e) => {
+        const t = e.target;
+        if (t && t.type === "radio") {
+          const group = form.querySelectorAll(`input[name="${t.name}"]`);
+          group.forEach((r) => {
+            const span = r.nextElementSibling;
+            if (span) span.style.borderColor = "";
+          });
+        }
+      });
+
+      // ============================================
+      // Conditional fields (show/hide based on another field's value)
+      // Format: data-show-if="field_name=Value"
+      // ============================================
+      const conditionals = form.querySelectorAll("[data-show-if]");
+      function evaluateConditionals() {
+        conditionals.forEach((el) => {
+          const expr = el.getAttribute("data-show-if");
+          if (!expr) return;
+          const [fieldName, expected] = expr.split("=");
+          const checked = form.querySelector(`input[name="${fieldName}"]:checked`);
+          if (checked && checked.value === expected) {
+            el.classList.add("is-visible");
+            // Make any required fields inside actually required
+            el.querySelectorAll("[data-required-when-shown]").forEach((f) => f.setAttribute("required", ""));
+          } else {
+            el.classList.remove("is-visible");
+            el.querySelectorAll("input, select").forEach((f) => {
+              f.removeAttribute("required");
+              f.value = "";
+            });
+          }
+        });
+      }
+      form.addEventListener("change", evaluateConditionals);
+      evaluateConditionals();
+
+      // ============================================
+      // Pre-fill ZIP from URL (?zip=78701)
+      // ============================================
+      const params = new URLSearchParams(window.location.search);
+      const incomingZip = params.get("zip");
+      const zipInput = form.querySelector("[data-zip-input]");
+      if (zipInput && incomingZip && /^\d{5}$/.test(incomingZip)) {
+        zipInput.value = incomingZip;
+      }
+
+      // ============================================
+      // ZIP → State lookup (visual feedback only — uses first 3 digits)
+      // Source: USPS ZIP prefix → state map (abbreviated common cases)
+      // ============================================
+      const ZIP_PREFIX_STATE = {
+        "0": "MA/NH/VT/CT/RI/NJ", "1": "NY/NJ/PA", "2": "DC/VA/MD/NC/SC/WV",
+        "3": "FL/GA/AL/TN/MS", "4": "MI/IN/KY/OH", "5": "WI/MN/IA/MT/ND/SD",
+        "6": "IL/KS/MO/NE", "7": "TX/AR/OK/LA", "8": "CO/WY/UT/NM/AZ/NV/ID",
+        "9": "CA/OR/WA/AK/HI",
+      };
+      const zipState = document.querySelector("[data-zip-state]");
+      if (zipInput && zipState) {
+        zipInput.addEventListener("input", () => {
+          const v = zipInput.value;
+          if (v.length === 5 && /^\d{5}$/.test(v)) {
+            const prefix = v[0];
+            zipState.textContent = `Looks good — comparing rates in ${ZIP_PREFIX_STATE[prefix] || "your area"}.`;
+            zipState.style.color = "var(--color-malibu)";
+          } else if (v.length > 0) {
+            zipState.textContent = "";
+          }
+        });
+        // Trigger once for pre-filled value
+        if (zipInput.value) zipInput.dispatchEvent(new Event("input"));
+      }
+
+      // ============================================
+      // Phone format helper (XXX) XXX-XXXX
+      // ============================================
+      const phoneInput = form.querySelector('input[name="phone"]');
+      if (phoneInput) {
+        phoneInput.addEventListener("input", (e) => {
+          const digits = e.target.value.replace(/\D/g, "").slice(0, 10);
+          let formatted = digits;
+          if (digits.length > 6) formatted = `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6)}`;
+          else if (digits.length > 3) formatted = `(${digits.slice(0, 3)}) ${digits.slice(3)}`;
+          else if (digits.length > 0) formatted = `(${digits}`;
+          e.target.value = formatted;
+        });
+      }
+
+      // ============================================
+      // TCPA consent audit — snapshot the exact text shown to the user
+      // ============================================
+      const tcpaText = document.querySelector("[data-tcpa-text]");
+      const tcpaSnapshot = document.querySelector("[data-tcpa-text-snapshot]");
+      const tcpaTs = document.querySelector("[data-tcpa-ts]");
+      const tcpaUa = document.querySelector("[data-tcpa-ua]");
+      if (tcpaText && tcpaSnapshot) {
+        tcpaSnapshot.value = tcpaText.textContent.trim().replace(/\s+/g, " ");
+      }
+      if (tcpaUa) tcpaUa.value = navigator.userAgent;
+
+      // Capture referrer + utm_source for attribution
+      const referrerInput = document.querySelector("[data-referrer]");
+      const utmInput = document.querySelector("[data-utm-source]");
+      if (referrerInput) referrerInput.value = document.referrer || "direct";
+      if (utmInput) utmInput.value = params.get("utm_source") || "";
+
+      // ============================================
+      // Submit handler — stamp consent timestamp at the moment of submit
+      // ============================================
+      form.addEventListener("submit", (e) => {
+        const stepEl = form.querySelector(`.step[data-step="${currentStep}"]`);
+        if (stepEl && !validateStep(stepEl)) {
+          e.preventDefault();
+          return;
+        }
+        // Stamp the exact UTC timestamp of consent
+        if (tcpaTs) tcpaTs.value = new Date().toISOString();
+        // Let Netlify Forms handle submission via the form's action attribute
+      });
+    }
+  </script>
+
+</BaseLayout>
