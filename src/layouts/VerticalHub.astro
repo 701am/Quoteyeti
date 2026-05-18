@@ -247,12 +247,20 @@ const featuredPosts = relatedPosts.length >= 3
             </h2>
             <p class="vreviews__lede">Independent reviews of the major {vertical.short.toLowerCase()} insurance carriers — ratings, pros, cons, and where they actually win vs. where they don't.</p>
           </div>
-          <a href={`${vertical.path}reviews/`} class="vreviews__view-all">
-            See all reviews
-            <svg width="14" height="12" viewBox="0 0 14 12" fill="none" aria-hidden="true">
-              <path d="M8 1l5 5-5 5M1 6h12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-          </a>
+          <div class="vreviews__view-all-group">
+            <a href={`${vertical.path}compare/`} class="vreviews__view-all vreviews__view-all--secondary">
+              Compare carriers
+              <svg width="14" height="12" viewBox="0 0 14 12" fill="none" aria-hidden="true">
+                <path d="M8 1l5 5-5 5M1 6h12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </a>
+            <a href={`${vertical.path}reviews/`} class="vreviews__view-all">
+              See all reviews
+              <svg width="14" height="12" viewBox="0 0 14 12" fill="none" aria-hidden="true">
+                <path d="M8 1l5 5-5 5M1 6h12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </a>
+          </div>
         </header>
         <div class="vreviews__grid">
           {reviews.map((review: any) => (
@@ -992,6 +1000,9 @@ const featuredPosts = relatedPosts.length >= 3
       margin: 0;
       line-height: 1.55;
     }
+    .vreviews__view-all-group {
+      display: flex; gap: var(--space-2); flex-wrap: wrap; align-self: end;
+    }
     .vreviews__view-all,
     .vguides__view-all,
     .vstates__view-all,
@@ -1012,6 +1023,16 @@ const featuredPosts = relatedPosts.length >= 3
       white-space: nowrap;
       transition: border-color 0.15s, background 0.15s, color 0.15s, transform 0.15s;
       align-self: end;
+    }
+    .vreviews__view-all--secondary {
+      background: var(--section-accent);
+      border-color: var(--section-accent);
+      color: var(--color-white);
+    }
+    .vreviews__view-all--secondary:hover {
+      background: var(--color-resolution) !important;
+      border-color: var(--color-resolution) !important;
+      color: var(--color-white) !important;
     }
     .vreviews__view-all:hover,
     .vguides__view-all:hover,

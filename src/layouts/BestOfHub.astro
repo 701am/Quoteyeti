@@ -61,18 +61,23 @@ const topCarrier = carriers[0];
         <img src={vertical.icon} alt="" width="18" height="18" />
         {vertical.label}
       </p>
-      <h1>{hero.headline.split(" of ")[0]}<span class="serif-italic"> of {hero.headline.split(" of ")[1] ?? "2026"}</span></h1>
-      <p class="best-hero__lede">{hero.lede}</p>
-    </div>
-  </section>
-
-  <!-- ============== BYLINE — E-E-A-T attribution ============== -->
-  <section class="best-byline-wrap">
-    <div class="container">
       <ContentByline
+        variant="inline"
         publishDate="2026-01-15T00:00:00.000Z"
         updatedDate={new Date()}
       />
+      <h1>{hero.headline.split(" of ")[0]}<span class="serif-italic"> of {hero.headline.split(" of ")[1] ?? "2026"}</span></h1>
+      <p class="best-hero__lede">{hero.lede}</p>
+
+      <div class="best-hero__cta">
+        <ZipForm
+          variant="band"
+          vertical={vertical.key}
+          eyebrow={`Top-rated ${vertical.short.toLowerCase()} carriers`}
+          heading="Get a quote from the carriers ranked here"
+          lede="Drop your ZIP. We'll show you what the best-rated carriers charge for your profile."
+        />
+      </div>
     </div>
   </section>
 
@@ -310,6 +315,12 @@ const topCarrier = carriers[0];
     .best-byline-wrap {
       padding-block: var(--space-6) 0;
       background: var(--color-white);
+    }
+
+    /* Inline hero CTA */
+    .best-hero__cta {
+      margin-top: var(--space-6);
+      max-width: 720px;
     }
 
     /* Layout */
@@ -746,5 +757,188 @@ const topCarrier = carriers[0];
       { rootMargin: "-100px 0px -65% 0px", threshold: 0 }
     );
     sections.forEach(({ section }) => tocObserver.observe(section));
+  </script>
+
+  <!-- ============== Sticky bottom ZIP CTA bar (desktop-only) ============== -->
+  <!--
+    NerdWallet-style fixed bar pinned to bottom of viewport. Closeable via X.
+    - Hidden on mobile (sticky bars hurt mobile UX — phones already get a
+      mobile-friendly band CTA in the hero)
+    - Dismiss state persists per-session via sessionStorage
+    - Appears after the user scrolls past the hero (rootMargin tweak)
+  -->
+  <aside class="bestbar" id="bestbar" data-vertical={vertical.key} hidden>
+    <div class="bestbar__inner container">
+      <div class="bestbar__copy">
+        <span class="bestbar__eyebrow">Compare in 60 seconds</span>
+        <span class="bestbar__heading">See your {vertical.short.toLowerCase()} insurance rate from top carriers</span>
+      </div>
+      <form class="bestbar__form" action={`${vertical.path}quotes/`} method="get" novalidate>
+        <label class="sr-only" for="bestbar-zip">ZIP code</label>
+        <input
+          id="bestbar-zip"
+          name="zip"
+          type="text"
+          inputmode="numeric"
+          pattern="[0-9]{5}"
+          maxlength="5"
+          placeholder="ZIP code"
+          required
+          autocomplete="postal-code"
+        />
+        <button type="submit" class="bestbar__cta">
+          <span>Get quotes</span>
+          <svg width="12" height="10" viewBox="0 0 14 12" fill="none" aria-hidden="true">
+            <path d="M8 1l5 5-5 5M1 6h12" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+      </form>
+      <button class="bestbar__close" type="button" aria-label="Close" data-bestbar-close>
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+          <path d="M2 2l10 10M12 2L2 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </button>
+    </div>
+  </aside>
+
+  <style is:global>
+    /* Sticky bar: hidden by default, JS reveals after scroll. Desktop only. */
+    .bestbar {
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      z-index: 90;
+      background: #FFFFFF;
+      border-top: 1px solid var(--color-border);
+      box-shadow: 0 -8px 24px rgba(0,0,0,0.08);
+      padding-block: 14px;
+      transform: translateY(100%);
+      transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .bestbar.is-visible { transform: translateY(0); }
+    .bestbar[hidden] { display: none; }
+    .bestbar__inner {
+      display: grid;
+      grid-template-columns: 1fr auto auto;
+      align-items: center;
+      gap: var(--space-5);
+    }
+    .bestbar__copy { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+    .bestbar__eyebrow {
+      font-family: var(--font-display);
+      font-size: 0.6875rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      color: var(--color-malibu);
+    }
+    .bestbar__heading {
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 1rem;
+      color: var(--color-resolution);
+      line-height: 1.3;
+      letter-spacing: -0.005em;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .bestbar__form {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+    .bestbar__form input {
+      width: 140px;
+      padding: 10px 14px;
+      border: 1.5px solid var(--color-border);
+      border-radius: 8px;
+      font: inherit;
+      font-size: 0.9375rem;
+      font-family: var(--font-display);
+      font-weight: 600;
+      color: var(--color-resolution);
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+    .bestbar__form input:focus {
+      outline: none;
+      border-color: var(--color-malibu);
+      box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-malibu) 25%, transparent);
+    }
+    .bestbar__cta {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 10px 18px;
+      background: var(--color-resolution);
+      color: var(--color-white);
+      border: none;
+      border-radius: 8px;
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 0.875rem;
+      cursor: pointer;
+      transition: background 0.15s, transform 0.15s;
+      white-space: nowrap;
+    }
+    .bestbar__cta:hover { background: var(--color-malibu); transform: translateY(-1px); }
+    .bestbar__close {
+      width: 32px; height: 32px;
+      display: inline-flex; align-items: center; justify-content: center;
+      background: transparent;
+      border: 1px solid var(--color-border);
+      border-radius: 8px;
+      color: var(--color-text-muted);
+      cursor: pointer;
+      transition: background 0.15s, color 0.15s, border-color 0.15s;
+    }
+    .bestbar__close:hover {
+      background: var(--color-alice);
+      color: var(--color-resolution);
+      border-color: var(--color-resolution);
+    }
+
+    /* Hide on mobile — the hero already shows a band CTA there */
+    @media (max-width: 768px) {
+      .bestbar { display: none !important; }
+    }
+
+    /* Push footer up a bit when the bar is visible so footer-strip isn't hidden */
+    body.bestbar-visible .site-footer { padding-bottom: 76px; }
+  </style>
+
+  <script>
+    (function () {
+      const bar = document.getElementById("bestbar");
+      if (!bar) return;
+      // Desktop only check
+      if (window.matchMedia("(max-width: 768px)").matches) return;
+      // Honor session-dismiss
+      const KEY = "bestbar-dismissed";
+      if (sessionStorage.getItem(KEY) === "1") return;
+
+      bar.hidden = false;
+
+      // Reveal after the hero scrolls past
+      let revealed = false;
+      const reveal = () => {
+        if (revealed) return;
+        if (window.scrollY > 400) {
+          bar.classList.add("is-visible");
+          document.body.classList.add("bestbar-visible");
+          revealed = true;
+        }
+      };
+      reveal();
+      window.addEventListener("scroll", reveal, { passive: true });
+
+      // Close button
+      const close = bar.querySelector("[data-bestbar-close]");
+      if (close) {
+        close.addEventListener("click", () => {
+          bar.classList.remove("is-visible");
+          document.body.classList.remove("bestbar-visible");
+          sessionStorage.setItem(KEY, "1");
+          setTimeout(() => { bar.hidden = true; }, 350);
+        });
+      }
+    })();
   </script>
 </BaseLayout>

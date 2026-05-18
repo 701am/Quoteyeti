@@ -111,6 +111,13 @@ const remainingTakeaways = takeaways.slice(1);
             <img src={vertical.icon} alt="" width="18" height="18" />
             {vertical.label} Review
           </p>
+          <ContentByline
+            variant="inline"
+            author={carrier.author?.name}
+            reviewer={carrier.editor?.name}
+            publishDate={carrier.updated}
+            updatedDate={carrier.updated}
+          />
           <h1 class="review-hero__h1">
             {carrier.name} <span class="serif-italic">{vertical.label}</span> Review
           </h1>
@@ -124,18 +131,6 @@ const remainingTakeaways = takeaways.slice(1);
           <path d="M9 1l6 6-6 6M1 7h14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
       </a>
-    </div>
-  </section>
-
-  <!-- ============== BYLINE — author/reviewer/data scientist with verification ============== -->
-  <section class="review-byline-wrap">
-    <div class="container">
-      <ContentByline
-        author={carrier.author?.name}
-        reviewer={carrier.editor?.name}
-        publishDate={carrier.updated}
-        updatedDate={carrier.updated}
-      />
     </div>
   </section>
 

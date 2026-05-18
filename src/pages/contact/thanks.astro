@@ -1,0 +1,65 @@
+---
+import BaseLayout from "~/layouts/BaseLayout.astro";
+---
+
+<BaseLayout
+  title="Message received — QuoteYeti"
+  description="We received your message. The QuoteYeti team will respond within two business days."
+  noindex={true}
+  breadcrumbs={[
+    { name: "Home", url: "/" },
+    { name: "Contact", url: "/contact/" },
+    { name: "Thanks", url: "/contact/thanks/" },
+  ]}
+>
+  <section class="thanks">
+    <div class="container container--narrow">
+      <div class="thanks__inner">
+        <div class="thanks__icon" aria-hidden="true">
+          <svg width="56" height="56" viewBox="0 0 24 24" fill="none">
+            <circle cx="12" cy="12" r="11" fill="#14A38B"/>
+            <path d="M7 12.5l3 3 7-7" stroke="#FFFFFF" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <p class="eyebrow">Message received</p>
+        <h1>Thanks — we'll be in <span class="serif-italic">touch</span>.</h1>
+        <p class="thanks__lede">
+          Your message landed in our editorial inbox. A real person on the QuoteYeti team will read it and respond within two business days.
+        </p>
+
+        <div class="thanks__next">
+          <h2>While you're here</h2>
+          <ul>
+            <li><a href="/about/team/">Meet the editorial team</a></li>
+            <li><a href="/methodology/">Read how we research carriers</a></li>
+            <li><a href="/blog/">Browse The Dispatch</a></li>
+            <li><a href="/">Compare insurance rates</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <style>
+    .container--narrow { max-width: 720px; margin: 0 auto; padding: 0 var(--space-4); }
+    .thanks { padding-block: var(--space-16) var(--space-20); background: linear-gradient(180deg, var(--color-alice) 0%, var(--color-white) 100%); min-height: 60vh; }
+    .thanks__inner { text-align: center; }
+    .thanks__icon { display: inline-flex; margin-bottom: var(--space-6); }
+    .serif-italic { font-family: var(--font-serif, "Plantin", Georgia, serif); font-style: italic; font-weight: 500; color: var(--color-malibu); }
+    .eyebrow { display: inline-block; font-family: var(--font-display); font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.16em; color: #14A38B; margin: 0 0 var(--space-3); }
+    .thanks h1 { font-size: clamp(2.25rem, 4.5vw, 3.5rem); letter-spacing: -0.03em; line-height: 1.05; margin: 0 0 var(--space-5); color: var(--color-resolution); }
+    .thanks__lede { font-size: 1.125rem; color: var(--color-text-strong); line-height: 1.6; margin: 0 0 var(--space-10); }
+
+    .thanks__next { padding-top: var(--space-8); border-top: 1px solid var(--color-border); text-align: left; max-width: 480px; margin: 0 auto; }
+    .thanks__next h2 { font-family: var(--font-display); font-weight: 700; font-size: 1.125rem; letter-spacing: -0.015em; color: var(--color-resolution); margin: 0 0 var(--space-4); text-align: center; }
+    .thanks__next ul { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: var(--space-2); }
+    .thanks__next li a {
+      display: block; padding: var(--space-3) var(--space-4);
+      background: var(--color-white); border: 1px solid var(--color-border); border-radius: 8px;
+      color: var(--color-resolution); text-decoration: none;
+      font-family: var(--font-display); font-weight: 600; font-size: 0.9375rem;
+      transition: border-color 0.15s, transform 0.15s;
+    }
+    .thanks__next li a:hover { border-color: var(--color-malibu); transform: translateX(3px); color: var(--color-malibu); }
+  </style>
+</BaseLayout>

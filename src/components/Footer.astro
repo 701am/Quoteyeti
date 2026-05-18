@@ -88,10 +88,34 @@ const cols = footer.columns.slice(0, 3);
     </div>
   </section>
 
+  <!-- ============== Independent-platform disclaimer ============== -->
+  <section class="footer-disclaimer">
+    <div class="container footer-disclaimer__inner">
+      <details class="footer-disclaimer__details">
+        <summary class="footer-disclaimer__btn" aria-label="Important disclaimers">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+            <path d="M12 8v5M12 16.01l.01-.011" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+          <span>Disclaimers</span>
+          <span class="footer-disclaimer__chev" aria-hidden="true">▾</span>
+        </summary>
+        <div class="footer-disclaimer__body" role="note">
+          <p>
+            QuoteYeti.com is an independent comparison platform, not a licensed insurance broker or carrier. We do not sell policies or bind coverage. We simply connect you with top U.S. providers to help you compare personalized rates.
+          </p>
+          <p class="footer-disclaimer__sub">
+            QuoteYeti receives compensation from carriers and licensed partners when consumers obtain quotes through our platform. This compensation does not influence our editorial reviews, rankings, or recommendations — see our <a href="/methodology/">methodology</a> and <a href="/editorial/">editorial standards</a>. Insurance availability, rates, and terms vary by state and applicant.
+          </p>
+        </div>
+      </details>
+    </div>
+  </section>
+
   <!-- ============== Bottom bar ============== -->
   <section class="footer-bottom">
     <div class="container footer-bottom__inner">
-      <p class="footer-bottom__copy">© {year} QuoteYeti. All rights reserved.</p>
+      <p class="footer-bottom__copy">© {year} QuoteYeti LLC. All rights reserved.</p>
       <nav class="footer-bottom__legal" aria-label="Legal">
         <a href="/privacy-policy/">Privacy</a>
         <a href="/terms/">Terms</a>
@@ -330,6 +354,78 @@ const cols = footer.columns.slice(0, 3);
     line-height: 1.4;
   }
   .footer-main__col li a:hover { color: var(--color-malibu); }
+
+  /* ============================================
+     Independent-platform disclaimer
+  ============================================ */
+  .footer-disclaimer {
+    background: #142340;
+    color: rgba(255, 255, 255, 0.55);
+    padding-block: var(--space-5);
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+    font-size: 0.75rem;
+  }
+  .footer-disclaimer__inner {
+    display: flex;
+    justify-content: center;
+  }
+  .footer-disclaimer__details {
+    position: relative;
+    max-width: 720px;
+    width: 100%;
+  }
+  .footer-disclaimer__btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    cursor: pointer;
+    list-style: none;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 100px;
+    color: rgba(255, 255, 255, 0.7);
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 0.6875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    transition: background 0.15s, color 0.15s, border-color 0.15s;
+    user-select: none;
+  }
+  .footer-disclaimer__btn::-webkit-details-marker { display: none; }
+  .footer-disclaimer__btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--color-white);
+    border-color: rgba(255, 255, 255, 0.2);
+  }
+  .footer-disclaimer__chev { font-size: 0.625rem; transition: transform 0.2s; opacity: 0.7; }
+  .footer-disclaimer__details[open] .footer-disclaimer__chev { transform: rotate(180deg); }
+
+  .footer-disclaimer__body {
+    margin-top: var(--space-3);
+    padding: var(--space-5);
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 10px;
+    line-height: 1.65;
+  }
+  .footer-disclaimer__body p {
+    margin: 0;
+    color: rgba(255, 255, 255, 0.75);
+  }
+  .footer-disclaimer__body p + p {
+    margin-top: var(--space-3);
+  }
+  .footer-disclaimer__sub {
+    font-size: 0.6875rem !important;
+    color: rgba(255, 255, 255, 0.55) !important;
+  }
+  .footer-disclaimer__body a {
+    color: var(--color-malibu);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
 
   /* ============================================
      Bottom bar

@@ -1,0 +1,279 @@
+---
+import BaseLayout from "~/layouts/BaseLayout.astro";
+
+// Netlify Forms requires a static HTML form for build-time detection.
+// We render a hidden duplicate form for that, and the JS-enabled form below
+// posts via fetch to /, which Netlify intercepts and routes to the form
+// handler. The hidden one is non-interactive (display:none on the wrapper).
+---
+
+<BaseLayout
+  title="Contact QuoteYeti"
+  description="Get in touch with the QuoteYeti team — editorial corrections, partnership inquiries, press requests, or general questions."
+  breadcrumbs={[
+    { name: "Home", url: "/" },
+    { name: "Contact", url: "/contact/" },
+  ]}
+>
+  <!--
+    Netlify forms detection placeholder.
+    The 'data-netlify="true"' attribute tells Netlify to register this form
+    at build time. We use 'netlify-honeypot="bot-field"' as a spam-trap.
+    This hidden form is required because Astro's JSX doesn't render the
+    raw attribute names Netlify scans for unless we keep the real form
+    intact (we do — see below).
+  -->
+
+  <section class="contact-hero">
+    <div class="container container--narrow">
+      <nav class="breadcrumbs" aria-label="Breadcrumb">
+        <a href="/">Home</a>
+        <span class="breadcrumbs__sep" aria-hidden="true">›</span>
+        <span aria-current="page">Contact</span>
+      </nav>
+      <p class="eyebrow">Contact us</p>
+      <h1>Get in <span class="serif-italic">touch</span>.</h1>
+      <p class="contact-hero__lede">
+        Editorial correction, partnership inquiry, press request, or just have a question? We read every message and respond within two business days.
+      </p>
+    </div>
+  </section>
+
+  <section class="contact-grid">
+    <div class="container container--narrow">
+      <div class="contact-layout">
+
+        <!-- Left rail: contact reasons -->
+        <aside class="contact-reasons">
+          <h2>What's this about?</h2>
+          <p class="contact-reasons__lede">A few common reasons people reach out — pick what fits in the form, and we'll route it to the right person.</p>
+
+          <ul class="contact-reasons__list">
+            <li>
+              <span class="contact-reasons__icon" aria-hidden="true">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M3 6l9 7 9-7M3 6v12a1 1 0 001 1h16a1 1 0 001-1V6M3 6h18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </span>
+              <div>
+                <strong>Editorial correction</strong>
+                <p>Spotted an inaccuracy? Tell us where — page URL plus what's wrong. We fix and credit corrections within 48 hours.</p>
+              </div>
+            </li>
+            <li>
+              <span class="contact-reasons__icon" aria-hidden="true">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M16 2v4M8 2v4M3 10h18M5 4h14a2 2 0 012 2v14a2 2 0 01-2 2H5a2 2 0 01-2-2V6a2 2 0 012-2z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </span>
+              <div>
+                <strong>Press / media request</strong>
+                <p>Interviews, expert quotes, data licensing, or commentary on insurance industry developments.</p>
+              </div>
+            </li>
+            <li>
+              <span class="contact-reasons__icon" aria-hidden="true">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M21 16v-2a4 4 0 00-4-4h-1m4 6v-2a4 4 0 00-4-4h-1M9 16v-2a4 4 0 014-4h1m-4 6v-2a4 4 0 014-4h1M3 16v-2a4 4 0 014-4h1M16 6a3 3 0 11-6 0 3 3 0 016 0z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </span>
+              <div>
+                <strong>Carrier / partnership</strong>
+                <p>Insurance carriers and lead-buying partners — see our <a href="/partners/">partner page</a> first, then drop a note here.</p>
+              </div>
+            </li>
+            <li>
+              <span class="contact-reasons__icon" aria-hidden="true">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/><path d="M9.5 9a2.5 2.5 0 015 0c0 1-1 1.5-2 2-1 .5-1.5 1-1.5 2M12 17h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+              </span>
+              <div>
+                <strong>General question</strong>
+                <p>Not sure where to start? Send it here and we'll route it appropriately.</p>
+              </div>
+            </li>
+          </ul>
+
+          <div class="contact-reasons__note">
+            <p><strong>Looking for actual quotes?</strong> The contact form is for editorial and partnership inquiries only. To compare insurance rates, use the <a href="/auto/">quote tools</a> on any vertical hub.</p>
+          </div>
+        </aside>
+
+        <!-- Right rail: form -->
+        <div class="contact-form-wrap">
+          <h2>Send us a message</h2>
+
+          <!--
+            Netlify Forms — the required attributes:
+              - name="contact"            → form name shown in Netlify dashboard
+              - method="POST"             → required
+              - data-netlify="true"       → tells Netlify to register at build
+              - data-netlify-honeypot     → name of spam-trap field below
+              - action="/contact/thanks/" → where to redirect on success
+            The hidden <input name="form-name"> is REQUIRED for Netlify to
+            associate the submission with this form. The honeypot field is
+            visually hidden but bots fill it; Netlify drops those.
+          -->
+          <form
+            class="contact-form"
+            name="contact"
+            method="POST"
+            data-netlify="true"
+            data-netlify-honeypot="bot-field"
+            action="/contact/thanks/"
+          >
+            <input type="hidden" name="form-name" value="contact" />
+
+            <!-- Honeypot: invisible to humans, irresistible to bots -->
+            <p class="contact-form__hp" aria-hidden="true">
+              <label>Don't fill this out if you're human: <input name="bot-field" tabindex="-1" autocomplete="off" /></label>
+            </p>
+
+            <div class="contact-form__row">
+              <div class="contact-form__field">
+                <label for="contact-name">Your name <span aria-hidden="true">*</span></label>
+                <input id="contact-name" type="text" name="name" required autocomplete="name" />
+              </div>
+              <div class="contact-form__field">
+                <label for="contact-email">Email <span aria-hidden="true">*</span></label>
+                <input id="contact-email" type="email" name="email" required autocomplete="email" />
+              </div>
+            </div>
+
+            <div class="contact-form__field">
+              <label for="contact-topic">What's this about? <span aria-hidden="true">*</span></label>
+              <select id="contact-topic" name="topic" required>
+                <option value="">Pick one</option>
+                <option value="editorial">Editorial correction</option>
+                <option value="press">Press / media request</option>
+                <option value="partnership">Carrier / partnership inquiry</option>
+                <option value="general">General question</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
+
+            <div class="contact-form__field">
+              <label for="contact-url">Page URL (optional)</label>
+              <input id="contact-url" type="url" name="page_url" placeholder="https://www.quoteyeti.com/..." />
+              <small>If you're reporting an editorial correction, paste the URL of the page.</small>
+            </div>
+
+            <div class="contact-form__field">
+              <label for="contact-message">Message <span aria-hidden="true">*</span></label>
+              <textarea id="contact-message" name="message" rows="6" required></textarea>
+            </div>
+
+            <button type="submit" class="contact-form__submit">
+              Send message
+              <svg width="14" height="12" viewBox="0 0 14 12" fill="none" aria-hidden="true">
+                <path d="M8 1l5 5-5 5M1 6h12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </button>
+
+            <p class="contact-form__fine">
+              We respond within two business days. Your email goes to our editorial inbox only — we don't add you to any marketing list and we never share contact info with third parties.
+            </p>
+          </form>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <style>
+    .container--narrow { max-width: 1080px; margin: 0 auto; padding: 0 var(--space-4); }
+    .breadcrumbs { font-size: 0.8125rem; color: var(--color-text-muted); margin-bottom: var(--space-5); display: flex; align-items: center; gap: var(--space-2); }
+    .breadcrumbs a { color: var(--color-text-muted); text-decoration: none; }
+    .breadcrumbs a:hover { color: var(--color-malibu); }
+    .breadcrumbs__sep { opacity: 0.4; }
+    .serif-italic { font-family: var(--font-serif, "Plantin", Georgia, serif); font-style: italic; font-weight: 500; color: var(--color-malibu); }
+    .eyebrow { display: inline-block; font-family: var(--font-display); font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.16em; color: var(--color-malibu); margin: 0 0 var(--space-3); }
+
+    .contact-hero { padding-block: var(--space-14) var(--space-10); background: linear-gradient(180deg, var(--color-alice) 0%, var(--color-white) 100%); }
+    .contact-hero h1 { font-size: clamp(2.25rem, 4.5vw, 3.5rem); letter-spacing: -0.03em; line-height: 1.05; margin: 0 0 var(--space-4); color: var(--color-resolution); }
+    .contact-hero__lede { font-size: 1.1875rem; color: var(--color-text-strong); line-height: 1.6; margin: 0; max-width: 620px; }
+
+    .contact-grid { padding-block: var(--space-10) var(--space-20); background: var(--color-white); }
+    .contact-layout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--space-12);
+      align-items: start;
+    }
+
+    .contact-reasons h2 { font-family: var(--font-display); font-weight: 700; font-size: 1.5rem; letter-spacing: -0.015em; color: var(--color-resolution); margin: 0 0 var(--space-3); }
+    .contact-reasons__lede { font-size: 0.9375rem; color: var(--color-text); line-height: 1.55; margin: 0 0 var(--space-6); }
+
+    .contact-reasons__list { list-style: none; margin: 0 0 var(--space-8); padding: 0; display: flex; flex-direction: column; gap: var(--space-5); }
+    .contact-reasons__list li { display: flex; gap: var(--space-4); align-items: flex-start; padding: var(--space-4); border-radius: 10px; background: var(--color-alice); transition: background 0.15s; }
+    .contact-reasons__list li:hover { background: color-mix(in srgb, var(--color-malibu) 8%, var(--color-alice)); }
+    .contact-reasons__icon { flex-shrink: 0; width: 36px; height: 36px; display: inline-flex; align-items: center; justify-content: center; background: var(--color-white); color: var(--color-malibu); border-radius: 8px; border: 1px solid var(--color-border); }
+    .contact-reasons__list strong { font-family: var(--font-display); font-weight: 700; font-size: 1rem; color: var(--color-resolution); display: block; margin-bottom: 2px; }
+    .contact-reasons__list p { font-size: 0.875rem; line-height: 1.5; color: var(--color-text); margin: 0; }
+    .contact-reasons__list a { color: var(--color-malibu); text-decoration: underline; text-underline-offset: 3px; }
+
+    .contact-reasons__note { padding: var(--space-5); border-left: 3px solid var(--color-malibu); background: color-mix(in srgb, var(--color-malibu) 6%, transparent); border-radius: 0 8px 8px 0; }
+    .contact-reasons__note p { font-size: 0.875rem; line-height: 1.55; color: var(--color-text); margin: 0; }
+    .contact-reasons__note a { color: var(--color-malibu); text-decoration: underline; text-underline-offset: 3px; }
+    .contact-reasons__note strong { color: var(--color-resolution); }
+
+    .contact-form-wrap {
+      padding: var(--space-8);
+      background: var(--color-white);
+      border: 1px solid var(--color-border);
+      border-radius: 14px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.04);
+    }
+    .contact-form-wrap h2 { font-family: var(--font-display); font-weight: 700; font-size: 1.5rem; letter-spacing: -0.015em; color: var(--color-resolution); margin: 0 0 var(--space-6); }
+
+    .contact-form { display: flex; flex-direction: column; gap: var(--space-5); }
+    .contact-form__row { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-4); }
+    .contact-form__field { display: flex; flex-direction: column; gap: 6px; }
+    .contact-form__field label { font-family: var(--font-display); font-weight: 600; font-size: 0.8125rem; color: var(--color-resolution); }
+    .contact-form__field label span { color: #D14545; }
+    .contact-form__field input,
+    .contact-form__field select,
+    .contact-form__field textarea {
+      padding: 12px 14px;
+      border: 1.5px solid var(--color-border);
+      border-radius: 8px;
+      font: inherit;
+      font-size: 0.9375rem;
+      background: var(--color-white);
+      color: var(--color-resolution);
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+    .contact-form__field input:focus,
+    .contact-form__field select:focus,
+    .contact-form__field textarea:focus {
+      outline: none;
+      border-color: var(--color-malibu);
+      box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-malibu) 25%, transparent);
+    }
+    .contact-form__field textarea { resize: vertical; min-height: 120px; }
+    .contact-form__field small { font-size: 0.75rem; color: var(--color-text-muted); margin-top: 2px; }
+
+    .contact-form__hp { display: none !important; }
+
+    .contact-form__submit {
+      display: inline-flex; align-items: center; justify-content: center; gap: var(--space-2);
+      padding: 14px 24px;
+      background: var(--color-resolution);
+      color: var(--color-white);
+      border: none;
+      border-radius: 100px;
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 0.9375rem;
+      cursor: pointer;
+      transition: background 0.15s, transform 0.15s, box-shadow 0.15s;
+      align-self: flex-start;
+    }
+    .contact-form__submit:hover {
+      background: var(--color-malibu);
+      transform: translateY(-1px);
+      box-shadow: 0 8px 20px rgba(100, 188, 225, 0.35);
+    }
+    .contact-form__submit svg { transition: transform 0.15s; }
+    .contact-form__submit:hover svg { transform: translateX(3px); }
+
+    .contact-form__fine { font-size: 0.75rem; color: var(--color-text-muted); line-height: 1.55; margin: 0; }
+
+    @media (max-width: 900px) {
+      .contact-layout { grid-template-columns: 1fr; gap: var(--space-8); }
+      .contact-form__row { grid-template-columns: 1fr; }
+    }
+  </style>
+</BaseLayout>

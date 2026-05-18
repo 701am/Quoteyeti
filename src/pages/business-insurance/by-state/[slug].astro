@@ -1,6 +1,7 @@
 ---
 import BaseLayout from "~/layouts/BaseLayout.astro";
 import ContentByline from "~/components/ContentByline.astro";
+import ZipForm from "~/components/ZipForm.astro";
 import { getCollection, render } from "astro:content";
 import { VERTICALS } from "~/data/verticals";
 
@@ -47,6 +48,13 @@ const effectivePublished = d.publishDate ?? effectiveUpdated;
           <img src={v.icon} alt="" width="18" height="18" />
           <span>{v.label} · State Guide</span>
         </p>
+        <ContentByline
+          variant="inline"
+          author={d.author}
+          publishDate={effectivePublished}
+          updatedDate={effectiveUpdated}
+          showData={true}
+        />
         <h1>{d.title}</h1>
         {d.description && <p class="entry-hero__lede">{d.description}</p>}
         {(d.state || d.averageRate || d.minLiabilityRequired) && (
@@ -56,17 +64,18 @@ const effectivePublished = d.publishDate ?? effectiveUpdated;
             {d.minLiabilityRequired && <li><strong>Min liability:</strong> {d.minLiabilityRequired}</li>}
           </ul>
         )}
+
+        <div class="entry-hero__cta">
+          <ZipForm
+            variant="band"
+            vertical={v.key}
+            eyebrow={d.state ? `${d.state} rates` : "Compare in 60s"}
+            heading={`See your real ${v.short.toLowerCase()} insurance rate${d.state ? ` in ${d.state}` : ""}`}
+            lede="State-specific quotes from top carriers. No phone calls."
+          />
+        </div>
       </div>
     </header>
-
-    <div class="container">
-      <ContentByline
-        author={d.author}
-        publishDate={effectivePublished}
-        updatedDate={effectiveUpdated}
-        showData={true}
-      />
-    </div>
 
     <div class="container-narrow entry-body"><Content /></div>
   </article>
@@ -114,6 +123,7 @@ const effectivePublished = d.publishDate ?? effectiveUpdated;
       border: 1px solid var(--color-border);
     }
     .entry-hero__facts strong { color: var(--section-accent); margin-right: var(--space-2); }
+    .entry-hero__cta { margin-top: var(--space-6); max-width: 720px; }
     .entry-body {
       padding-block: var(--space-12) var(--space-20);
       font-size: 1.0625rem; line-height: 1.7;

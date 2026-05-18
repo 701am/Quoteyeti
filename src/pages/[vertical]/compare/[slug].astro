@@ -1,0 +1,616 @@
+---
+/**
+ * Carrier comparison page — US News-style side-by-side.
+ *
+ * Route: /<vertical>/compare/<a>-vs-<b>/ and /<vertical>/compare/<a>-vs-<b>-vs-<c>/
+ *
+ * Strategy:
+ *   - We generate ALL 2-carrier permutations within a vertical (C(n, 2))
+ *   - For 3-carrier triples, we only generate combos involving the top-3
+ *     ranked carriers per vertical to keep build time reasonable while
+ *     covering the highest-search-volume queries
+ *
+ * The page itself works the same way regardless of count (2 or 3 carriers).
+ */
+import BaseLayout from "~/layouts/BaseLayout.astro";
+import ContentByline from "~/components/ContentByline.astro";
+import ZipForm from "~/components/ZipForm.astro";
+import { getCollection } from "astro:content";
+import { VERTICAL_LIST, VERTICALS, type VerticalKey } from "~/data/verticals";
+
+export async function getStaticPaths() {
+  const allPaths: any[] = [];
+
+  for (const v of VERTICAL_LIST) {
+    let reviews: any[] = [];
+    try {
+      reviews = await getCollection(`${v.key}-reviews` as any, ({ data }: any) => !data.draft);
+    } catch {
+      continue;
+    }
+    if (reviews.length < 2) continue;
+
+    // Sort by overall score, top first (some have overallRank, prefer that)
+    reviews.sort((a: any, b: any) => {
+      const ra = a.data.overallRank ?? 99;
+      const rb = b.data.overallRank ?? 99;
+      if (ra !== rb) return ra - rb;
+      return (b.data.overallScore ?? 0) - (a.data.overallScore ?? 0);
+    });
+
+    // All unordered pairs — slug order is alphabetical so URLs are canonical
+    for (let i = 0; i < reviews.length; i++) {
+      for (let j = i + 1; j < reviews.length; j++) {
+        const slugs = [reviews[i].id, reviews[j].id].sort();
+        const compareSlug = slugs.join("-vs-");
+        // Preserve the carrier order in props: highest-ranked first, so the
+        // comparison reads "best vs runner-up" left to right.
+        const ordered = [reviews[i], reviews[j]]; // already rank-sorted from above
+        allPaths.push({
+          params: { vertical: v.slug, slug: compareSlug },
+          props: { vertical: v, carriers: ordered },
+        });
+      }
+    }
+
+    // Triples only involving top 3 carriers
+    const topThree = reviews.slice(0, 3);
+    if (topThree.length === 3) {
+      const [a, b, c] = topThree;
+      const slugs = [a.id, b.id, c.id].sort();
+      allPaths.push({
+        params: { vertical: v.slug, slug: slugs.join("-vs-") },
+        props: { vertical: v, carriers: [a, b, c] },
+      });
+    }
+
+    // Top-1 + top-2 + tail combos (covers realistic "best vs second vs niche")
+    if (reviews.length >= 4) {
+      const top = reviews[0];
+      const second = reviews[1];
+      const tail = reviews.slice(2, Math.min(reviews.length, 6));
+      for (const c of tail) {
+        if (c.id === second.id) continue;
+        const slugs = [top.id, second.id, c.id].sort();
+        allPaths.push({
+          params: { vertical: v.slug, slug: slugs.join("-vs-") },
+          props: { vertical: v, carriers: [top, second, c] },
+        });
+      }
+    }
+  }
+
+  return allPaths;
+}
+
+const { vertical, carriers } = Astro.props as { vertical: any; carriers: any[] };
+const v = VERTICALS[vertical.key as VerticalKey];
+
+// Title: "GEICO vs State Farm Car Insurance Comparison (2026)"
+const carrierNames = carriers.map((c) => c.data.company);
+const titleNames = carrierNames.join(" vs ");
+const pageTitle = `${titleNames} ${v.label} Comparison`;
+const pageDesc = `Compare ${carrierNames.join(", ")} ${v.short.toLowerCase()} insurance side by side — overall ratings, cost, coverage, customer experience, pros, cons, and what they're each best for.`;
+
+// Build a unified set of rating categories (some carriers have different
+// ratings categories — union them and fall back to "—" for missing ones)
+const ratingCategorySet = new Set<string>();
+for (const c of carriers) {
+  for (const r of c.data.ratings ?? []) {
+    ratingCategorySet.add(r.category);
+  }
+}
+const ratingCategories = [...ratingCategorySet];
+
+function getRating(carrier: any, category: string): { score: number; rank?: number } | null {
+  for (const r of carrier.data.ratings ?? []) {
+    if (r.category === category) return r;
+  }
+  return null;
+}
+
+// Pick a "winner" call-out at the top: highest overallScore
+const ranked = [...carriers].sort((a, b) => (b.data.overallScore ?? 0) - (a.data.overallScore ?? 0));
+const winner = ranked[0];
+const winnerScoreDiff = ranked.length > 1 ? (ranked[0].data.overallScore - ranked[1].data.overallScore) : 0;
+
+// Compute "best for" labels for each carrier (use first takeaway as the hook,
+// or fall back to their positioning)
+function bestForLabel(c: any): string {
+  const t = c.data.takeaways?.[0];
+  if (t && t.length < 80) return t;
+  return c.data.positioning?.split(".")[0] ?? "";
+}
+
+// Determine if all carriers have cost data — if so we can show a cost row
+const allHaveAvgAnnual = carriers.every((c) => c.data.avgAnnual);
+const allHaveAvgMonthly = carriers.every((c) => c.data.avgMonthly);
+---
+
+<BaseLayout
+  title={pageTitle}
+  description={pageDesc}
+  pageType="article"
+  breadcrumbs={[
+    { name: "Home", url: "/" },
+    { name: v.short, url: v.path },
+    { name: "Compare", url: `${v.path}compare/` },
+    { name: titleNames, url: Astro.url.pathname },
+  ]}
+  article={{
+    publishDate: new Date().toISOString(),
+    modifiedDate: new Date().toISOString(),
+    tags: [v.short, "Carrier comparison", ...carrierNames],
+  }}
+>
+  <article class="compare">
+    <header class="compare-hero" style={`--c-accent: ${v.accent}; --c-accent-soft: ${v.accentSoft};`}>
+      <div class="container">
+        <nav class="breadcrumbs" aria-label="Breadcrumb">
+          <a href="/">Home</a>
+          <span class="breadcrumbs__sep" aria-hidden="true">›</span>
+          <a href={v.path}>{v.short}</a>
+          <span class="breadcrumbs__sep" aria-hidden="true">›</span>
+          <a href={`${v.path}compare/`}>Compare</a>
+          <span class="breadcrumbs__sep" aria-hidden="true">›</span>
+          <span aria-current="page">{titleNames}</span>
+        </nav>
+        <p class="eyebrow">
+          <img src={v.icon} alt="" width="18" height="18" />
+          {v.label} Comparison
+        </p>
+        <ContentByline
+          variant="inline"
+          publishDate={new Date()}
+          updatedDate={new Date()}
+        />
+        <h1>
+          {carriers.map((c, i) => (
+            <>
+              <span class="compare-hero__name">{c.data.company}</span>
+              {i < carriers.length - 1 && <span class="compare-hero__vs">vs</span>}
+            </>
+          ))}
+        </h1>
+        <p class="compare-hero__lede">
+          Side-by-side comparison of {titleNames} {v.short.toLowerCase()} insurance — ratings, cost, coverage, customer experience, pros, cons.
+        </p>
+
+        <div class="compare-hero__cta">
+          <ZipForm
+            variant="band"
+            vertical={v.key}
+            eyebrow="Compare your actual rate"
+            heading={`See what ${carrierNames.length > 2 ? "these carriers" : "each one"} charges for your profile`}
+            lede="Drop your ZIP. We'll pull live rates from these carriers and others."
+          />
+        </div>
+      </div>
+    </header>
+
+    <!-- ============== Quick verdict ============== -->
+    <section class="compare-verdict">
+      <div class="container">
+        <div class="compare-verdict__inner">
+          <p class="compare-verdict__eyebrow">Quick verdict</p>
+          <p class="compare-verdict__body">
+            {winner.data.company} {winnerScoreDiff > 0.3 ? "comes out clearly ahead" : winnerScoreDiff > 0.05 ? "edges ahead" : "is essentially tied with"} {ranked.length > 1 ? ranked.slice(1).map((c) => c.data.company).join(" and ") : ""} in our overall scoring — but each carrier wins on different dimensions. See the breakdown below before deciding.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============== HEAD-TO-HEAD comparison table ============== -->
+    <section class="compare-section">
+      <div class="container">
+        <h2 class="compare-section__title">Head-to-head</h2>
+        <p class="compare-section__lede">Overall scores, key facts, and what each is known for.</p>
+
+        <div class="compare-table-wrap">
+          <table class="compare-table">
+            <thead>
+              <tr>
+                <th class="compare-table__label">&nbsp;</th>
+                {carriers.map((c) => (
+                  <th class="compare-table__carrier-head">
+                    <a href={`${v.path}reviews/${c.id}/`} class="compare-table__carrier-link">
+                      <div class="compare-table__carrier-name">{c.data.company}</div>
+                      <div class="compare-table__carrier-meta">
+                        {c.data.foundedYear && <span>Est. {c.data.foundedYear}</span>}
+                      </div>
+                    </a>
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="compare-table__label">Overall score</td>
+                {carriers.map((c) => {
+                  const score = c.data.overallScore;
+                  const isWinner = c.id === winner.id;
+                  return (
+                    <td class={`compare-table__cell ${isWinner ? "is-winner" : ""}`}>
+                      <div class="compare-table__score">
+                        <span class="compare-table__score-num">{score.toFixed(2)}</span>
+                        <span class="compare-table__score-of">/5</span>
+                      </div>
+                      <div class="compare-table__stars" aria-label={`${score} out of 5 stars`}>
+                        {[1, 2, 3, 4, 5].map((n) => (
+                          <span class={`compare-table__star ${score >= n ? "is-full" : score >= n - 0.5 ? "is-half" : ""}`}>★</span>
+                        ))}
+                      </div>
+                      {isWinner && <span class="compare-table__winner-tag">Highest overall</span>}
+                    </td>
+                  );
+                })}
+              </tr>
+
+              {carriers.some((c) => c.data.overallRank) && (
+                <tr>
+                  <td class="compare-table__label">National rank</td>
+                  {carriers.map((c) => (
+                    <td class="compare-table__cell">
+                      {c.data.overallRank ? `#${c.data.overallRank}` : "—"}
+                    </td>
+                  ))}
+                </tr>
+              )}
+
+              {allHaveAvgAnnual && (
+                <tr>
+                  <td class="compare-table__label">Avg. annual rate</td>
+                  {carriers.map((c) => (
+                    <td class="compare-table__cell">
+                      <strong>{c.data.avgAnnual}</strong>
+                      {c.data.differenceFromAvg && (
+                        <div class="compare-table__sub">{c.data.differenceFromAvg}</div>
+                      )}
+                    </td>
+                  ))}
+                </tr>
+              )}
+
+              {allHaveAvgMonthly && (
+                <tr>
+                  <td class="compare-table__label">Avg. monthly</td>
+                  {carriers.map((c) => (
+                    <td class="compare-table__cell">{c.data.avgMonthly}</td>
+                  ))}
+                </tr>
+              )}
+
+              <tr>
+                <td class="compare-table__label">Best for</td>
+                {carriers.map((c) => (
+                  <td class="compare-table__cell compare-table__cell--text">
+                    {bestForLabel(c)}
+                  </td>
+                ))}
+              </tr>
+
+              <tr>
+                <td class="compare-table__label">Read full review</td>
+                {carriers.map((c) => (
+                  <td class="compare-table__cell">
+                    <a href={`${v.path}reviews/${c.id}/`} class="compare-table__review-link">
+                      {c.data.company} review →
+                    </a>
+                  </td>
+                ))}
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============== Rating breakdown ============== -->
+    {ratingCategories.length > 0 && (
+      <section class="compare-section compare-section--alt">
+        <div class="container">
+          <h2 class="compare-section__title">Rating breakdown</h2>
+          <p class="compare-section__lede">How each carrier scores on the dimensions we weight.</p>
+
+          <div class="compare-table-wrap">
+            <table class="compare-table">
+              <thead>
+                <tr>
+                  <th class="compare-table__label">Category</th>
+                  {carriers.map((c) => (
+                    <th class="compare-table__carrier-head">
+                      <span class="compare-table__carrier-name">{c.data.company}</span>
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {ratingCategories.map((cat) => {
+                  const scores = carriers.map((c) => getRating(c, cat));
+                  const topScore = Math.max(...scores.map((s) => s?.score ?? 0));
+                  return (
+                    <tr>
+                      <td class="compare-table__label">{cat}</td>
+                      {scores.map((s, i) => {
+                        const isCatLeader = s && s.score === topScore && topScore > 0;
+                        return (
+                          <td class={`compare-table__cell ${isCatLeader ? "is-leader" : ""}`}>
+                            {s ? (
+                              <>
+                                <strong>{s.score.toFixed(2)}</strong>
+                                {s.rank && <span class="compare-table__sub"> · #{s.rank}</span>}
+                              </>
+                            ) : "—"}
+                          </td>
+                        );
+                      })}
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+    )}
+
+    <!-- ============== Pros / cons side by side ============== -->
+    <section class="compare-section">
+      <div class="container">
+        <h2 class="compare-section__title">Pros and cons, side by side</h2>
+        <p class="compare-section__lede">What each carrier wins on, and where each one falls short.</p>
+
+        <div class={`compare-proscons compare-proscons--${carriers.length}`}>
+          {carriers.map((c) => (
+            <div class="compare-proscon">
+              <div class="compare-proscon__head">
+                <h3>{c.data.company}</h3>
+                <a href={`${v.path}reviews/${c.id}/`} class="compare-proscon__link">Full review →</a>
+              </div>
+              <div class="compare-proscon__group">
+                <h4 class="compare-proscon__sub compare-proscon__sub--pros">Pros</h4>
+                <ul>
+                  {(c.data.pros ?? []).slice(0, 5).map((p: string) => (
+                    <li>
+                      <svg width="14" height="14" viewBox="0 0 14 14" fill="none" class="compare-proscon__icon compare-proscon__icon--pos" aria-hidden="true">
+                        <circle cx="7" cy="7" r="7" fill="currentColor"/>
+                        <path d="M3.8 7.2l2 2 4.4-4.4" stroke="#FFFFFF" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+                      </svg>
+                      <span>{p}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              <div class="compare-proscon__group">
+                <h4 class="compare-proscon__sub compare-proscon__sub--cons">Cons</h4>
+                <ul>
+                  {(c.data.cons ?? []).slice(0, 5).map((p: string) => (
+                    <li>
+                      <svg width="14" height="14" viewBox="0 0 14 14" fill="none" class="compare-proscon__icon compare-proscon__icon--neg" aria-hidden="true">
+                        <circle cx="7" cy="7" r="7" fill="currentColor"/>
+                        <path d="M3.5 7h7" stroke="#FFFFFF" stroke-width="1.8" stroke-linecap="round"/>
+                      </svg>
+                      <span>{p}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <!-- ============== Coverage at a glance ============== -->
+    <section class="compare-section compare-section--alt">
+      <div class="container">
+        <h2 class="compare-section__title">Coverage at a glance</h2>
+        <p class="compare-section__lede">What each carrier offers in standard policies.</p>
+
+        <div class={`compare-coverage compare-coverage--${carriers.length}`}>
+          {carriers.map((c) => (
+            <div class="compare-coverage__card">
+              <h3>{c.data.company}</h3>
+              {c.data.coverageSummary && <p class="compare-coverage__summary">{c.data.coverageSummary}</p>}
+              {(c.data.coverageAddOns ?? []).length > 0 && (
+                <>
+                  <h4>Add-on coverage</h4>
+                  <ul>
+                    {(c.data.coverageAddOns ?? []).slice(0, 5).map((a: any) => (
+                      <li>
+                        <strong>{a.name}</strong>
+                        {a.covers && <span> — {a.covers}</span>}
+                      </li>
+                    ))}
+                  </ul>
+                </>
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <!-- ============== Bottom line ============== -->
+    <section class="compare-section">
+      <div class="container">
+        <h2 class="compare-section__title">The bottom line</h2>
+        <div class={`compare-bottomline compare-bottomline--${carriers.length}`}>
+          {carriers.map((c) => (
+            <div class="compare-bottomline__card">
+              <h3>{c.data.company}</h3>
+              {c.data.bottomLine && <p>{c.data.bottomLine}</p>}
+              <a href={`${v.path}reviews/${c.id}/`} class="compare-bottomline__cta">
+                Read the full {c.data.company} review
+                <svg width="14" height="12" viewBox="0 0 14 12" fill="none" aria-hidden="true">
+                  <path d="M8 1l5 5-5 5M1 6h12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </a>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <!-- ============== Final CTA ============== -->
+    <section class="compare-finalcta">
+      <div class="container container--narrow">
+        <p class="eyebrow">Stop comparing. Start saving.</p>
+        <h2>The only number that matters is <span class="serif-italic">your</span> rate.</h2>
+        <p class="compare-finalcta__lede">Rate charts are useful, but your actual quote depends on your ZIP, your record, and your vehicle. Drop your ZIP — we'll pull real rates from these carriers and others.</p>
+        <div class="compare-finalcta__cta">
+          <ZipForm variant="band" vertical={v.key} eyebrow="60 seconds" heading="Get your personalized rates" lede="From the carriers shown above and others." />
+        </div>
+      </div>
+    </section>
+  </article>
+
+  <style>
+    .breadcrumbs { font-size: 0.8125rem; color: var(--color-text-muted); margin-bottom: var(--space-5); display: flex; align-items: center; gap: var(--space-2); flex-wrap: wrap; }
+    .breadcrumbs a { color: var(--color-text-muted); text-decoration: none; }
+    .breadcrumbs a:hover { color: var(--c-accent, var(--color-malibu)); }
+    .breadcrumbs__sep { opacity: 0.4; }
+    .container--narrow { max-width: 760px; margin: 0 auto; padding: 0 var(--space-4); }
+    .serif-italic { font-family: var(--font-serif, "Plantin", Georgia, serif); font-style: italic; font-weight: 500; color: var(--c-accent, var(--color-malibu)); }
+    .eyebrow { display: inline-flex; align-items: center; gap: 8px; font-family: var(--font-display); font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.14em; color: var(--c-accent, var(--color-malibu)); margin: 0 0 var(--space-3); padding: 4px 12px; background: var(--c-accent-soft, var(--color-alice)); border-radius: 100px; }
+
+    .compare-hero { padding-block: var(--space-12) var(--space-12); background: linear-gradient(180deg, var(--c-accent-soft, var(--color-alice)) 0%, var(--color-white) 100%); }
+    .compare-hero h1 {
+      font-size: clamp(2.25rem, 5vw, 4rem);
+      letter-spacing: -0.03em;
+      line-height: 1;
+      margin: var(--space-2) 0 var(--space-5);
+      color: var(--color-resolution);
+      display: flex;
+      flex-wrap: wrap;
+      align-items: baseline;
+      gap: var(--space-3) var(--space-4);
+    }
+    .compare-hero__name { font-weight: 800; }
+    .compare-hero__vs {
+      font-family: var(--font-serif, "Plantin", Georgia, serif);
+      font-style: italic; font-weight: 500;
+      color: var(--c-accent);
+      font-size: 0.7em;
+    }
+    .compare-hero__lede { font-size: 1.1875rem; color: var(--color-text-strong); line-height: 1.55; margin: 0 0 var(--space-6); max-width: 720px; }
+    .compare-hero__cta { max-width: 720px; }
+
+    .compare-verdict { padding-block: var(--space-8); background: var(--color-white); border-bottom: 1px solid var(--color-border); }
+    .compare-verdict__inner { max-width: 920px; margin: 0 auto; padding: var(--space-5) var(--space-6); border-left: 4px solid var(--c-accent); background: var(--color-alice); border-radius: 0 10px 10px 0; }
+    .compare-verdict__eyebrow { font-family: var(--font-display); font-size: 0.6875rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.14em; color: var(--c-accent); margin: 0 0 var(--space-2); }
+    .compare-verdict__body { font-size: 1.0625rem; line-height: 1.6; color: var(--color-text); margin: 0; }
+
+    .compare-section { padding-block: var(--space-14); background: var(--color-white); }
+    .compare-section--alt { background: var(--color-alice); }
+    .compare-section__title { font-family: var(--font-display); font-weight: 700; font-size: clamp(1.75rem, 3vw, 2.25rem); letter-spacing: -0.025em; line-height: 1.1; color: var(--color-resolution); margin: 0 0 var(--space-3); }
+    .compare-section__lede { font-size: 1.0625rem; color: var(--color-text); line-height: 1.55; margin: 0 0 var(--space-8); max-width: 720px; }
+
+    /* Comparison table */
+    .compare-table-wrap { overflow-x: auto; border-radius: 14px; border: 1px solid var(--color-border); background: var(--color-white); }
+    .compare-table { width: 100%; border-collapse: collapse; }
+    .compare-table th, .compare-table td { padding: var(--space-4) var(--space-5); text-align: left; border-bottom: 1px solid var(--color-border); }
+    .compare-table tr:last-child td { border-bottom: 0; }
+    .compare-table__label { font-family: var(--font-display); font-weight: 700; font-size: 0.875rem; color: var(--color-resolution); background: var(--color-alice); width: 180px; vertical-align: top; }
+    .compare-table__carrier-head { background: var(--color-resolution); color: var(--color-white); font-family: var(--font-display); padding-block: var(--space-3); }
+    .compare-table__carrier-link { display: block; color: var(--color-white); text-decoration: none; }
+    .compare-table__carrier-link:hover .compare-table__carrier-name { color: var(--c-accent); }
+    .compare-table__carrier-name { font-weight: 800; font-size: 1.0625rem; letter-spacing: -0.01em; }
+    .compare-table__carrier-meta { font-size: 0.75rem; color: rgba(255,255,255,0.7); margin-top: 2px; font-weight: 400; }
+    .compare-table__cell { font-size: 0.9375rem; color: var(--color-text); vertical-align: top; }
+    .compare-table__cell.is-winner, .compare-table__cell.is-leader {
+      background: color-mix(in srgb, var(--c-accent) 8%, transparent);
+      position: relative;
+    }
+    .compare-table__cell--text { line-height: 1.5; }
+    .compare-table__sub { font-size: 0.8125rem; color: var(--color-text-muted); margin-top: 2px; }
+    .compare-table__score { display: flex; align-items: baseline; gap: 2px; }
+    .compare-table__score-num { font-family: var(--font-display); font-weight: 800; font-size: 1.625rem; color: var(--c-accent); letter-spacing: -0.025em; }
+    .compare-table__score-of { font-family: var(--font-display); font-weight: 600; font-size: 0.875rem; color: var(--color-text-muted); }
+    .compare-table__stars { display: flex; gap: 1px; font-size: 1rem; line-height: 1; color: var(--color-border); margin-top: 4px; }
+    .compare-table__star.is-full { color: var(--c-accent); }
+    .compare-table__star.is-half {
+      background: linear-gradient(90deg, var(--c-accent) 50%, var(--color-border) 50%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .compare-table__winner-tag {
+      display: inline-block;
+      margin-top: var(--space-2);
+      padding: 3px 10px;
+      background: var(--c-accent);
+      color: var(--color-white);
+      font-family: var(--font-display);
+      font-size: 0.6875rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      border-radius: 100px;
+    }
+    .compare-table__review-link {
+      font-family: var(--font-display); font-weight: 700; font-size: 0.875rem;
+      color: var(--c-accent); text-decoration: none;
+    }
+    .compare-table__review-link:hover { text-decoration: underline; text-underline-offset: 3px; }
+
+    /* Pros / cons grid */
+    .compare-proscons { display: grid; gap: var(--space-5); }
+    .compare-proscons--2 { grid-template-columns: 1fr 1fr; }
+    .compare-proscons--3 { grid-template-columns: 1fr 1fr 1fr; }
+    .compare-proscon { padding: var(--space-6); background: var(--color-white); border: 1px solid var(--color-border); border-radius: 14px; }
+    .compare-proscon__head { display: flex; justify-content: space-between; align-items: baseline; gap: var(--space-3); margin-bottom: var(--space-5); padding-bottom: var(--space-4); border-bottom: 2px solid var(--c-accent); }
+    .compare-proscon__head h3 { font-family: var(--font-display); font-weight: 700; font-size: 1.25rem; margin: 0; color: var(--color-resolution); }
+    .compare-proscon__link { font-family: var(--font-display); font-weight: 700; font-size: 0.75rem; color: var(--c-accent); text-decoration: none; }
+    .compare-proscon__link:hover { text-decoration: underline; text-underline-offset: 3px; }
+    .compare-proscon__group + .compare-proscon__group { margin-top: var(--space-5); }
+    .compare-proscon__sub { font-family: var(--font-display); font-weight: 700; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.12em; margin: 0 0 var(--space-3); }
+    .compare-proscon__sub--pros { color: #14A38B; }
+    .compare-proscon__sub--cons { color: #C06C84; }
+    .compare-proscon__group ul { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: var(--space-2); }
+    .compare-proscon__group li { display: flex; gap: var(--space-2); align-items: flex-start; font-size: 0.9375rem; line-height: 1.5; color: var(--color-text); }
+    .compare-proscon__icon { flex-shrink: 0; margin-top: 3px; }
+    .compare-proscon__icon--pos { color: #14A38B; }
+    .compare-proscon__icon--neg { color: #C06C84; }
+
+    /* Coverage cards */
+    .compare-coverage { display: grid; gap: var(--space-5); }
+    .compare-coverage--2 { grid-template-columns: 1fr 1fr; }
+    .compare-coverage--3 { grid-template-columns: 1fr 1fr 1fr; }
+    .compare-coverage__card { padding: var(--space-6); background: var(--color-white); border: 1px solid var(--color-border); border-radius: 14px; }
+    .compare-coverage__card h3 { font-family: var(--font-display); font-weight: 700; font-size: 1.25rem; margin: 0 0 var(--space-3); color: var(--color-resolution); padding-bottom: var(--space-3); border-bottom: 2px solid var(--c-accent); display: inline-block; }
+    .compare-coverage__summary { font-size: 0.9375rem; line-height: 1.55; color: var(--color-text); margin: 0 0 var(--space-4); }
+    .compare-coverage__card h4 { font-family: var(--font-display); font-weight: 700; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.14em; color: var(--color-text-muted); margin: 0 0 var(--space-3); }
+    .compare-coverage__card ul { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: var(--space-2); }
+    .compare-coverage__card li { font-size: 0.875rem; line-height: 1.5; color: var(--color-text); padding-left: var(--space-3); border-left: 2px solid var(--c-accent-soft); }
+    .compare-coverage__card li strong { color: var(--color-resolution); display: block; }
+
+    /* Bottom line */
+    .compare-bottomline { display: grid; gap: var(--space-5); }
+    .compare-bottomline--2 { grid-template-columns: 1fr 1fr; }
+    .compare-bottomline--3 { grid-template-columns: 1fr 1fr 1fr; }
+    .compare-bottomline__card { padding: var(--space-6); background: var(--color-alice); border-radius: 14px; }
+    .compare-bottomline__card h3 { font-family: var(--font-display); font-weight: 700; font-size: 1.25rem; margin: 0 0 var(--space-3); color: var(--color-resolution); }
+    .compare-bottomline__card p { font-size: 0.9375rem; line-height: 1.6; color: var(--color-text); margin: 0 0 var(--space-5); }
+    .compare-bottomline__cta { display: inline-flex; align-items: center; gap: 6px; font-family: var(--font-display); font-weight: 700; font-size: 0.875rem; color: var(--c-accent); text-decoration: none; }
+    .compare-bottomline__cta:hover { text-decoration: underline; text-underline-offset: 3px; }
+    .compare-bottomline__cta svg { transition: transform 0.2s; }
+    .compare-bottomline__cta:hover svg { transform: translateX(3px); }
+
+    /* Final CTA */
+    .compare-finalcta { padding-block: var(--space-16); background: var(--color-alice); text-align: center; }
+    .compare-finalcta h2 { font-size: clamp(2rem, 4vw, 2.75rem); letter-spacing: -0.025em; line-height: 1.1; margin: 0 0 var(--space-5); color: var(--color-resolution); }
+    .compare-finalcta__lede { font-size: 1.0625rem; line-height: 1.6; color: var(--color-text); margin: 0 auto var(--space-8); max-width: 600px; }
+    .compare-finalcta__cta { max-width: 640px; margin: 0 auto; }
+
+    @media (max-width: 880px) {
+      .compare-proscons--2, .compare-proscons--3,
+      .compare-coverage--2, .compare-coverage--3,
+      .compare-bottomline--2, .compare-bottomline--3 {
+        grid-template-columns: 1fr;
+      }
+      .compare-table__label { width: 120px; font-size: 0.8125rem; padding: var(--space-3); }
+      .compare-table__cell { font-size: 0.875rem; padding: var(--space-3); }
+    }
+  </style>
+</BaseLayout>

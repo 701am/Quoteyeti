@@ -1,6 +1,7 @@
 ---
 import BaseLayout from "~/layouts/BaseLayout.astro";
 import ContentByline from "~/components/ContentByline.astro";
+import ZipForm from "~/components/ZipForm.astro";
 import { getCollection, render } from "astro:content";
 import { VERTICALS } from "~/data/verticals";
 
@@ -51,19 +52,27 @@ const effectivePublished = d.publishDate ?? effectiveUpdated;
           <span>{d.brand ?? d.title}</span>
         </nav>
         <p class="eyebrow">Auto Insurance · Brand Guide</p>
+        <ContentByline
+          variant="inline"
+          author={d.author}
+          publishDate={effectivePublished}
+          updatedDate={effectiveUpdated}
+          showData={true}
+        />
         <h1>{d.title}</h1>
         {d.description && <p class="entry-hero__lede">{d.description}</p>}
+
+        <div class="entry-hero__cta">
+          <ZipForm
+            variant="band"
+            vertical="auto"
+            eyebrow={`${d.brand ?? "Vehicle"} rates`}
+            heading={`Find the cheapest ${d.brand ?? "vehicle"} insurance in your area`}
+            lede="Rates vary by carrier. Drop your ZIP to compare what each one quotes you."
+          />
+        </div>
       </div>
     </header>
-
-    <div class="container">
-      <ContentByline
-        author={d.author}
-        publishDate={effectivePublished}
-        updatedDate={effectiveUpdated}
-        showData={true}
-      />
-    </div>
 
     <div class="container-narrow entry-body">
       <Content />
@@ -83,6 +92,7 @@ const effectivePublished = d.publishDate ?? effectiveUpdated;
     .breadcrumbs a { color: var(--color-text-muted); }
     .breadcrumbs a:hover { color: var(--section-accent); }
     .entry-hero__lede { font-size: 1.25rem; color: var(--color-text-strong); margin-top: var(--space-4); }
+    .entry-hero__cta { margin-top: var(--space-6); max-width: 720px; }
     .entry-body { padding-block: var(--space-12) var(--space-20); font-size: 1.0625rem; line-height: 1.7; }
     .entry-body :global(h2) { margin-top: var(--space-12); margin-bottom: var(--space-5); }
     .entry-body :global(h3) { margin-top: var(--space-8); margin-bottom: var(--space-4); }

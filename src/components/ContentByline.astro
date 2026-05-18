@@ -34,7 +34,14 @@ interface Props {
   updatedDate?: string | Date;
   /** Optional read-time estimate (e.g. "8 min read"). */
   readTime?: string;
-  /** When true, render a condensed version (just names, no avatars/dates). */
+  /** Visual style:
+   *  - "card" (default) — full Bankrate-style card with avatars + trust panel
+   *  - "compact" — smaller avatars, no role-sub line, no trust panel
+   *  - "inline" — MoneyGeek-style horizontal strip: "Updated · Written by NAME ✓ · Reviewed by NAME ✓"
+   *                meant to render at the very top of the article hero, before H1
+   */
+  variant?: "card" | "compact" | "inline";
+  /** Back-compat alias for variant="compact" */
   compact?: boolean;
 }
 
@@ -45,8 +52,12 @@ const {
   publishDate,
   updatedDate,
   readTime,
+  variant,
   compact = false,
 } = Astro.props;
+
+// Resolve final variant (back-compat: compact prop → variant="compact")
+const v: "card" | "compact" | "inline" = variant ?? (compact ? "compact" : "card");
 
 const writer: Author = resolveAuthor(author);
 const reviewerAuthor: Author = resolveAuthor(reviewer, DEFAULT_BYLINE.reviewer);
@@ -68,7 +79,85 @@ const updatedFmt = fmtDate(updatedDate);
 const showUpdated = updatedFmt && publishedFmt !== updatedFmt;
 ---
 
-<aside class={`byline ${compact ? "byline--compact" : ""}`} aria-label="Authors and review credits">
+{v === "inline" && (
+  <div class="byline-inline" aria-label="Authors and review credits">
+    <div class="byline-inline__row">
+      {publishedFmt && (
+        <span class="byline-inline__date">
+          <svg width="11" height="11" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+            <rect x="2" y="3" width="10" height="9" rx="1.5" stroke="currentColor" stroke-width="1.4" fill="none"/>
+            <path d="M2 6h10M5 1.5v2M9 1.5v2" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+          </svg>
+          <span>{showUpdated ? "Updated" : "Published"}: <strong>{showUpdated ? updatedFmt : publishedFmt}</strong></span>
+        </span>
+      )}
+
+      <span class="byline-inline__sep" aria-hidden="true">·</span>
+
+      <span class="byline-inline__person" data-role="writer">
+        <span class="byline-inline__label">Written by</span>
+        <a href={`/about/team/${writer.slug}/`} class="byline-inline__name">
+          {writer.name}
+          <span class="byline-inline__check" aria-label="Verified writer">
+            <svg width="11" height="11" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+              <circle cx="7" cy="7" r="7" fill="currentColor"/>
+              <path d="M3.8 7.2l2 2 4.4-4.4" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+            </svg>
+          </span>
+        </a>
+      </span>
+
+      <span class="byline-inline__sep" aria-hidden="true">·</span>
+
+      <span class="byline-inline__person" data-role="reviewer">
+        <span class="byline-inline__label">Reviewed by</span>
+        <a href={`/about/team/${reviewerAuthor.slug}/`} class="byline-inline__name">
+          {reviewerAuthor.name}
+          <span class="byline-inline__check" aria-label="Verified reviewer">
+            <svg width="11" height="11" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+              <circle cx="7" cy="7" r="7" fill="currentColor"/>
+              <path d="M3.8 7.2l2 2 4.4-4.4" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+            </svg>
+          </span>
+        </a>
+      </span>
+
+      {shouldShowData && (
+        <>
+          <span class="byline-inline__sep" aria-hidden="true">·</span>
+          <span class="byline-inline__person" data-role="data">
+            <span class="byline-inline__label">Data by</span>
+            <a href={`/about/team/${dataAuthor.slug}/`} class="byline-inline__name">
+              {dataAuthor.name}
+              <span class="byline-inline__check" aria-label="Verified data analyst">
+                <svg width="11" height="11" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+                  <circle cx="7" cy="7" r="7" fill="currentColor"/>
+                  <path d="M3.8 7.2l2 2 4.4-4.4" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+                </svg>
+              </span>
+            </a>
+          </span>
+        </>
+      )}
+
+      <details class="byline-inline__trust">
+        <summary aria-label="Why trust QuoteYeti">
+          <svg width="11" height="11" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+            <path d="M7 1l5 2v4c0 3-2.5 5.5-5 6-2.5-.5-5-3-5-6V3l5-2z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round" fill="none"/>
+            <path d="M5 7l1.5 1.5L9.5 5.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+          </svg>
+          <span>Why trust QuoteYeti</span>
+        </summary>
+        <div class="byline-inline__trust-body">
+          <p>QuoteYeti's editorial team has spent 30+ combined years researching insurance markets. Every piece is written by named writers, reviewed by our editor-in-chief against the <a href="/methodology/">QuoteYeti methodology</a>, and rate-heavy content is verified by our data team. No paid placements. <a href="/editorial/">Read our editorial standards →</a></p>
+        </div>
+      </details>
+    </div>
+  </div>
+)}
+
+{v !== "inline" && (
+<aside class={`byline ${v === "compact" ? "byline--compact" : ""}`} aria-label="Authors and review credits">
   <div class="byline__people">
     <!-- WRITER -->
     <div class="byline__person" data-role="writer">
@@ -93,7 +182,7 @@ const showUpdated = updatedFmt && publishedFmt !== updatedFmt;
             </svg>
           </span>
         </a>
-        {!compact && <span class="byline__role-sub">{writer.role}</span>}
+        {v !== "compact" && <span class="byline__role-sub">{writer.role}</span>}
       </div>
     </div>
 
@@ -120,7 +209,7 @@ const showUpdated = updatedFmt && publishedFmt !== updatedFmt;
             </svg>
           </span>
         </a>
-        {!compact && <span class="byline__role-sub">{reviewerAuthor.role}</span>}
+        {v !== "compact" && <span class="byline__role-sub">{reviewerAuthor.role}</span>}
       </div>
     </div>
 
@@ -148,13 +237,13 @@ const showUpdated = updatedFmt && publishedFmt !== updatedFmt;
               </svg>
             </span>
           </a>
-          {!compact && <span class="byline__role-sub">{dataAuthor.role}</span>}
+          {v !== "compact" && <span class="byline__role-sub">{dataAuthor.role}</span>}
         </div>
       </div>
     )}
   </div>
 
-  {(publishedFmt || updatedFmt || readTime) && !compact && (
+  {(publishedFmt || updatedFmt || readTime) && v !== "compact" && (
     <div class="byline__timestamps">
       {publishedFmt && (
         <span class="byline__date">
@@ -186,7 +275,7 @@ const showUpdated = updatedFmt && publishedFmt !== updatedFmt;
     </div>
   )}
 
-  {!compact && (
+  {v !== "compact" && (
     <details class="byline__trust">
       <summary class="byline__trust-summary">
         <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
@@ -207,6 +296,7 @@ const showUpdated = updatedFmt && publishedFmt !== updatedFmt;
     </details>
   )}
 </aside>
+)}
 
 <style>
   /* ============================================
@@ -393,6 +483,110 @@ const showUpdated = updatedFmt && publishedFmt !== updatedFmt;
     .byline__timestamps {
       flex-direction: column;
       gap: var(--space-2);
+    }
+  }
+
+  /* ============================================
+     Inline variant — MoneyGeek-style strip above H1
+  ============================================ */
+  .byline-inline {
+    font-family: var(--font-display);
+    font-size: 0.8125rem;
+    line-height: 1.4;
+    color: var(--color-text-muted);
+    margin: 0 0 var(--space-5);
+    padding-bottom: var(--space-4);
+    border-bottom: 1px solid var(--color-border);
+  }
+  .byline-inline__row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2);
+    row-gap: 6px;
+  }
+  .byline-inline__date {
+    display: inline-flex; align-items: center; gap: 6px;
+  }
+  .byline-inline__date strong {
+    color: var(--color-resolution); font-weight: 600;
+  }
+  .byline-inline__sep {
+    color: var(--color-text-muted); opacity: 0.45; user-select: none;
+  }
+  .byline-inline__person {
+    display: inline-flex; align-items: center; gap: 6px;
+  }
+  .byline-inline__label {
+    color: var(--color-text-muted);
+  }
+  .byline-inline__name {
+    display: inline-flex; align-items: center; gap: 4px;
+    color: var(--color-resolution);
+    font-weight: 600;
+    text-decoration: none;
+    border-bottom: 1px solid transparent;
+    transition: border-color 0.15s, color 0.15s;
+  }
+  .byline-inline__name:hover {
+    color: var(--color-malibu);
+    border-bottom-color: currentColor;
+  }
+  .byline-inline__check {
+    display: inline-flex; align-items: center;
+    color: var(--color-malibu);
+  }
+  [data-role="writer"] .byline-inline__check { color: #64BCE1; }
+  [data-role="reviewer"] .byline-inline__check { color: #2C4577; }
+  [data-role="data"] .byline-inline__check { color: #14A38B; }
+
+  .byline-inline__trust {
+    margin-left: auto;
+    position: relative;
+  }
+  .byline-inline__trust summary {
+    display: inline-flex; align-items: center; gap: 6px;
+    cursor: pointer;
+    list-style: none;
+    color: var(--color-resolution);
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 4px;
+    background: var(--color-alice);
+    transition: background 0.15s;
+  }
+  .byline-inline__trust summary::-webkit-details-marker { display: none; }
+  .byline-inline__trust summary:hover { background: color-mix(in srgb, var(--color-malibu) 12%, transparent); }
+  .byline-inline__trust-body {
+    position: absolute;
+    top: calc(100% + 6px);
+    right: 0;
+    width: 360px;
+    max-width: calc(100vw - 32px);
+    background: var(--color-white);
+    border: 1px solid var(--color-border);
+    border-radius: 10px;
+    box-shadow: 0 12px 28px rgba(0,0,0,0.12);
+    padding: var(--space-4);
+    z-index: 10;
+    font-size: 0.8125rem;
+    line-height: 1.55;
+    color: var(--color-text);
+    font-weight: normal;
+  }
+  .byline-inline__trust-body p { margin: 0; }
+  .byline-inline__trust-body a {
+    color: var(--color-malibu);
+    text-decoration: underline; text-underline-offset: 3px;
+  }
+
+  @media (max-width: 700px) {
+    .byline-inline__trust {
+      margin-left: 0;
+      width: 100%;
+    }
+    .byline-inline__trust-body {
+      left: 0; right: auto; width: 100%;
     }
   }
 </style>

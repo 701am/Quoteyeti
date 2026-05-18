@@ -1,6 +1,7 @@
 ---
 import BaseLayout from "~/layouts/BaseLayout.astro";
 import ContentByline from "~/components/ContentByline.astro";
+import ZipForm from "~/components/ZipForm.astro";
 import { getCollection, render } from "astro:content";
 
 export async function getStaticPaths() {
@@ -11,6 +12,20 @@ export async function getStaticPaths() {
 const { entry } = Astro.props;
 const { Content } = await render(entry);
 const d = entry.data;
+
+// Map the post category to the most relevant vertical for the hero CTA.
+// Falls back to auto since that's our highest-intent vertical.
+const ctaVerticalMap: Record<string, string> = {
+  "Auto": "auto", "Auto insurance": "auto",
+  "Home": "home", "Home insurance": "home",
+  "Life": "life", "Life insurance": "life",
+  "Business": "business", "Business insurance": "business",
+  "Health": "health", "Health insurance": "health",
+  "Renters": "renters", "Renters insurance": "renters",
+  "Pet": "pet", "Pet insurance": "pet",
+  "Travel": "travel", "Travel insurance": "travel",
+};
+const ctaVertical = (ctaVerticalMap[d.category ?? ""] ?? "auto") as any;
 ---
 
 <BaseLayout
@@ -38,18 +53,21 @@ const d = entry.data;
           <a href="/">Home</a> › <a href="/blog/">The Dispatch</a> › <span>{d.title}</span>
         </nav>
         {d.category && <p class="eyebrow">{d.category}</p>}
+        <ContentByline
+          variant="inline"
+          author={d.author}
+          publishDate={d.publishDate}
+          updatedDate={d.updatedDate}
+        />
         <h1>{d.title}</h1>
         {d.excerpt && <p class="entry-hero__lede">{d.excerpt}</p>}
+
+        <!-- Hero ZipForm CTA — adapts to post category -->
+        <div class="entry-hero__cta">
+          <ZipForm variant="band" vertical={ctaVertical} eyebrow="Get quotes" heading="Compare rates while you're here" lede="Drop your ZIP — see actual rates in your area in 60 seconds." />
+        </div>
       </div>
     </header>
-
-    <div class="container-narrow">
-      <ContentByline
-        author={d.author}
-        publishDate={d.publishDate}
-        updatedDate={d.updatedDate}
-      />
-    </div>
 
     <div class="container-narrow entry-body"><Content /></div>
   </article>
@@ -59,8 +77,13 @@ const d = entry.data;
     .breadcrumbs { font-size: 0.875rem; color: var(--color-text-muted); margin-bottom: var(--space-5); }
     .breadcrumbs a { color: var(--color-text-muted); }
     .breadcrumbs a:hover { color: var(--color-malibu); }
+    .eyebrow {
+      display: inline-block; font-family: var(--font-display); font-size: 0.75rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.14em; color: var(--color-malibu); margin: 0 0 var(--space-3);
+    }
     .entry-hero h1 { margin: var(--space-3) 0 var(--space-4); font-size: clamp(2rem, 4vw, 3rem); line-height: 1.1; letter-spacing: -0.025em; }
-    .entry-hero__lede { font-size: 1.1875rem; color: var(--color-text-strong); line-height: 1.55; margin: 0; max-width: 640px; }
+    .entry-hero__lede { font-size: 1.1875rem; color: var(--color-text-strong); line-height: 1.55; margin: 0 0 var(--space-5); max-width: 640px; }
+    .entry-hero__cta { margin-top: var(--space-6); max-width: 640px; }
     .entry-body { padding-block: var(--space-8) var(--space-20); font-size: 1.0625rem; line-height: 1.7; }
     .entry-body :global(h2) { margin-top: var(--space-10); margin-bottom: var(--space-5); }
     .entry-body :global(h3) { margin-top: var(--space-8); margin-bottom: var(--space-4); }

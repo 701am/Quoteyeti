@@ -1,6 +1,7 @@
 ---
 import BaseLayout from "~/layouts/BaseLayout.astro";
 import ContentByline from "~/components/ContentByline.astro";
+import ZipForm from "~/components/ZipForm.astro";
 import { getCollection, render } from "astro:content";
 import { VERTICALS } from "~/data/verticals";
 
@@ -44,17 +45,21 @@ const v = VERTICALS.home;
           <img src={v.icon} alt="" width="18" height="18" />
           <span>{v.label} Guide</span>
         </p>
+        <ContentByline
+          variant="inline"
+          author={d.author}
+          publishDate={d.publishDate}
+          updatedDate={d.updatedDate}
+        />
         <h1>{d.title}</h1>
         {d.description && <p class="guide-hero__lede">{d.description}</p>}
+
+        <!-- Hero ZipForm CTA — fast conversion path -->
+        <div class="guide-hero__cta">
+          <ZipForm variant="band" vertical={v.key} eyebrow="Compare rates" heading={`Get personalized ${v.short.toLowerCase()} insurance quotes`} lede="Drop your ZIP. We'll show you what real coverage costs in your area." />
+        </div>
       </div>
     </header>
-    <div class="container-narrow">
-      <ContentByline
-        author={d.author}
-        publishDate={d.publishDate}
-        updatedDate={d.updatedDate}
-      />
-    </div>
     <div class="container-narrow guide-body"><Content /></div>
   </article>
 
@@ -94,6 +99,10 @@ const v = VERTICALS.home;
       color: var(--color-text-strong);
       line-height: 1.55;
       margin: 0 0 var(--space-5);
+    }
+    .guide-hero__cta {
+      margin-top: var(--space-6);
+      max-width: 640px;
     }
     .guide-body {
       padding-block: var(--space-12) var(--space-20);

@@ -52,6 +52,7 @@ function panel(
           { label: `Compare all ${shortName} insurance`, href: basePath },
           { label: `Cheapest ${shortName} insurance`, href: `${basePath}cheapest/` },
           { label: `Best ${shortName} insurance`, href: `${basePath}best/` },
+          { label: `Carrier vs. carrier`, href: `${basePath}compare/` },
           { label: `${shortName} insurance by state`, href: `${basePath}by-state/` },
         ],
       },
