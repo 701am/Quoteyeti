@@ -23,7 +23,6 @@ export interface Vertical {
   accent: string;           // tertiary accent color for this section
   accentSoft: string;       // tinted background variant
   icon: string;             // /assets/images/icons/*.svg
-  heroYeti: string;         // /assets/images/yetis/*.png — large featured graphic
   tagline: string;          // shown in hero + footer CTA band
   description: string;      // 1–2 sentences for explore-grid cards
 }
@@ -38,7 +37,6 @@ export const VERTICALS: Record<VerticalKey, Vertical> = {
     accent: "#F46036",         // QuoteYeti orange — keeps brand signature
     accentSoft: "#FCF0EF",
     icon: "/assets/images/icons/auto.svg",
-    heroYeti: "/assets/images/yetis/yeti-auto.png",
     tagline: "Your coverage, simplified.",
     description: "Compare car insurance rates from top insurers and find coverage that fits your budget and driving needs.",
   },
@@ -51,7 +49,6 @@ export const VERTICALS: Record<VerticalKey, Vertical> = {
     accent: "#8FB339",         // sage green — warmth, hearth
     accentSoft: "#F1F6E5",
     icon: "/assets/images/icons/home.svg",
-    heroYeti: "/assets/images/yetis/yeti-home.png",
     tagline: "Protect what matters most.",
     description: "Discover which insurers offer the best rates in your area and what coverage your home needs.",
   },
@@ -64,7 +61,6 @@ export const VERTICALS: Record<VerticalKey, Vertical> = {
     accent: "#6B5B95",         // muted plum — gravitas, restraint
     accentSoft: "#EFEDF3",
     icon: "/assets/images/icons/life.svg",
-    heroYeti: "/assets/images/yetis/yeti-life.png",
     tagline: "Coverage for the people who count on you.",
     description: "Compare term and whole life policies to find affordable protection for your family's future.",
   },
@@ -77,7 +73,6 @@ export const VERTICALS: Record<VerticalKey, Vertical> = {
     accent: "#2E5266",         // slate blue — steady, professional
     accentSoft: "#E8EEF1",
     icon: "/assets/images/icons/business.svg",
-    heroYeti: "/assets/images/yeti-hero.svg",
     tagline: "The right coverage for the work you do.",
     description: "Protect your business with the right coverage at competitive rates from trusted insurers.",
   },
@@ -90,7 +85,6 @@ export const VERTICALS: Record<VerticalKey, Vertical> = {
     accent: "#14A38B",         // teal — clinical but calm
     accentSoft: "#E3F4F0",
     icon: "/assets/images/icons/health.svg",
-    heroYeti: "/assets/images/yetis/yeti-health.png",
     tagline: "Care that fits your life.",
     description: "Compare plans, understand your options, and find coverage that fits your healthcare needs and budget.",
   },
@@ -103,7 +97,6 @@ export const VERTICALS: Record<VerticalKey, Vertical> = {
     accent: "#E8A87C",         // peach — lightness, affordability
     accentSoft: "#FBF1E9",
     icon: "/assets/images/icons/renters.svg",
-    heroYeti: "/assets/images/yeti-hero.svg",
     tagline: "Affordable protection for what you've got.",
     description: "Find budget-friendly protection for your belongings and learn which policy features matter most.",
   },
@@ -116,7 +109,6 @@ export const VERTICALS: Record<VerticalKey, Vertical> = {
     accent: "#C06C84",         // dusty rose — warmth, personality
     accentSoft: "#F5E8ED",
     icon: "/assets/images/icons/pet.svg",
-    heroYeti: "/assets/images/yetis/yeti-pet.png",
     tagline: "Because they're family too.",
     description: "Learn about the best affordable plans that cover accidents, illnesses, and routine care for your pet.",
   },
@@ -129,7 +121,6 @@ export const VERTICALS: Record<VerticalKey, Vertical> = {
     accent: "#355C7D",         // horizon blue — movement, distance
     accentSoft: "#E5EBF1",
     icon: "/assets/images/icons/travel.svg",
-    heroYeti: "/assets/images/yetis/yeti-travel.png",
     tagline: "Cover the unexpected, wherever you go.",
     description: "Find affordable plans that cover trip cancellations, medical costs, and travel delays.",
   },

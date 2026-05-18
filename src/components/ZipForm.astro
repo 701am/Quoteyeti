@@ -194,12 +194,12 @@ const inputId = `zip-${variant}-${vertical}-${Math.random().toString(36).slice(2
     <p class="zipcta__picker-eyebrow">{eyebrow ?? "Compare in seconds"}</p>
     <h4 class="zipcta__picker-heading">{heading ?? "What are you insuring?"}</h4>
     <div class="zipcta__picker-grid" role="radiogroup" aria-label="Choose insurance type">
-      {VERTICAL_LIST.map((vert, i) => (
+      {VERTICAL_LIST.map((vert) => (
         <button
           type="button"
-          class={`zipcta__picker-btn${i === 0 ? " is-active" : ""}`}
+          class={`zipcta__picker-btn${vert.key === vertical ? " is-active" : ""}`}
           role="radio"
-          aria-checked={i === 0 ? "true" : "false"}
+          aria-checked={vert.key === vertical ? "true" : "false"}
           data-vert-key={vert.key}
           data-vert-path={vert.path}
           style={`--btn-accent: ${vert.accent}; --btn-accent-soft: ${vert.accentSoft};`}
@@ -209,7 +209,7 @@ const inputId = `zip-${variant}-${vertical}-${Math.random().toString(36).slice(2
         </button>
       ))}
     </div>
-    <form class="zipcta__picker-form" action={`${VERTICAL_LIST[0].path}quotes/`} method="get" novalidate data-zip-picker-form>
+    <form class="zipcta__picker-form" action={formAction} method="get" novalidate data-zip-picker-form>
       <div class="zipcta__picker-input-group">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
           <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
