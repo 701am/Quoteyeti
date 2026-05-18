@@ -353,23 +353,68 @@ const stepLayouts = config.steps.map((s) => layoutStep(s));
     const zipInput = form.querySelector("[data-zip-input]");
     if (zipInput && incomingZip && /^\d{5}$/.test(incomingZip)) zipInput.value = incomingZip;
 
-    // ZIP state hint
-    const ZIP_PREFIX_STATE = {
-      "0": "MA/NH/VT/CT/RI/NJ", "1": "NY/NJ/PA", "2": "DC/VA/MD/NC/SC/WV",
-      "3": "FL/GA/AL/TN/MS", "4": "MI/IN/KY/OH", "5": "WI/MN/IA/MT/ND/SD",
-      "6": "IL/KS/MO/NE", "7": "TX/AR/OK/LA", "8": "CO/WY/UT/NM/AZ/NV/ID",
-      "9": "CA/OR/WA/AK/HI",
-    };
-    const zipState = document.querySelector("[data-zip-state]");
+    // ZIP state hint — uses USPS 3-digit prefix → state.
+    // Source: official USPS ZIP code prefix table.
+    // Returns a SINGLE state for any valid 5-digit ZIP, or null.
+    function zipToState(zip) {
+      if (!/^\d{5}$/.test(zip)) return null;
+      const p = parseInt(zip.slice(0, 3), 10);
+      // Each entry: [startPrefix, endPrefix, stateCode]
+      const ranges = [
+        [0, 4, "PR"], [5, 9, "PR"],
+        [10, 27, "MA"], [28, 29, "RI"], [30, 38, "NH"],
+        [39, 49, "ME"], [50, 54, "VT"],
+        [55, 59, "MA"], [60, 69, "CT"],
+        [70, 89, "NJ"],
+        [100, 149, "NY"], [150, 196, "PA"], [197, 199, "DE"],
+        [200, 205, "DC"], [206, 219, "MD"], [220, 246, "VA"],
+        [247, 268, "WV"], [270, 289, "NC"], [290, 299, "SC"],
+        [300, 319, "GA"], [320, 339, "FL"], [340, 342, "FL"],
+        [344, 344, "FL"], [346, 347, "FL"], [349, 349, "FL"],
+        [350, 369, "AL"], [370, 385, "TN"], [386, 397, "MS"],
+        [398, 399, "GA"],
+        [400, 427, "KY"], [430, 459, "OH"], [460, 479, "IN"],
+        [480, 499, "MI"],
+        [500, 528, "IA"], [530, 549, "WI"], [550, 567, "MN"],
+        [570, 577, "SD"], [580, 588, "ND"], [590, 599, "MT"],
+        [600, 629, "IL"], [630, 658, "MO"], [660, 679, "KS"],
+        [680, 693, "NE"],
+        [700, 714, "LA"], [716, 729, "AR"], [730, 749, "OK"],
+        [750, 799, "TX"], [800, 816, "CO"], [820, 831, "WY"],
+        [832, 838, "ID"], [840, 847, "UT"], [850, 865, "AZ"],
+        [870, 884, "NM"], [889, 898, "NV"],
+        [900, 961, "CA"], [967, 968, "HI"], [970, 979, "OR"],
+        [980, 994, "WA"], [995, 999, "AK"],
+      ];
+      for (const [start, end, state] of ranges) {
+        if (p >= start && p <= end) return state;
+      }
+      return null;
+    }
+
+    const zipState = form.querySelector("[data-zip-state]");
     if (zipInput && zipState) {
-      zipInput.addEventListener("input", () => {
+      const updateHint = () => {
         const v = zipInput.value;
+        if (v.length === 0) {
+          zipState.textContent = "";
+          return;
+        }
         if (v.length === 5 && /^\d{5}$/.test(v)) {
-          zipState.textContent = `Looks good — comparing rates in ${ZIP_PREFIX_STATE[v[0]] || "your area"}.`;
-          zipState.style.color = "var(--color-malibu)";
-        } else if (v.length > 0) zipState.textContent = "";
-      });
-      if (zipInput.value) zipInput.dispatchEvent(new Event("input"));
+          const state = zipToState(v);
+          if (state) {
+            zipState.textContent = `Comparing rates in ${state}.`;
+            zipState.style.color = "var(--color-malibu)";
+          } else {
+            zipState.textContent = "";
+          }
+        } else {
+          zipState.textContent = "";
+        }
+      };
+      zipInput.addEventListener("input", updateHint);
+      // Run once on load to handle pre-filled values
+      updateHint();
     }
 
     // Phone format
@@ -405,7 +450,7 @@ const stepLayouts = config.steps.map((s) => layoutStep(s));
   }
 </script>
 
-<style>
+<style is:global>
   .lead-flow {
     padding: var(--space-10) var(--space-5) var(--space-12);
   }
