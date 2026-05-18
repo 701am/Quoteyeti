@@ -23,6 +23,8 @@ const vertical = VERTICALS.health;
   sectionOverride="health"
 >
 
+  <div class="medicare-page">
+
   <!-- ============== HERO ============== -->
   <section class="medicare-hero">
     <div class="container medicare-hero__inner">
@@ -282,6 +284,8 @@ const vertical = VERTICALS.health;
     </div>
   </section>
 
+  </div><!-- /.medicare-page -->
+
   <style>
     /* ===== HERO ===== */
     .medicare-hero {
@@ -289,10 +293,10 @@ const vertical = VERTICALS.health;
       background: linear-gradient(180deg, var(--color-alice) 0%, var(--color-white) 100%);
     }
     .medicare-hero__inner { max-width: 1080px; padding-inline: var(--space-5); }
-    .breadcrumbs { font-size: 0.875rem; color: var(--color-text-muted); margin-bottom: var(--space-7); }
-    .breadcrumbs a { color: var(--color-text-muted); text-decoration: none; }
-    .breadcrumbs a:hover { color: var(--color-malibu); }
-    .breadcrumbs__sep { margin: 0 var(--space-2); color: var(--color-ship-cove); }
+    .medicare-page .breadcrumbs { font-size: 0.875rem; color: var(--color-text-muted); margin-bottom: var(--space-7); }
+    .medicare-page .breadcrumbs a { color: var(--color-text-muted); text-decoration: none; }
+    .medicare-page .breadcrumbs a:hover { color: var(--color-malibu); }
+    .medicare-page .breadcrumbs__sep { margin: 0 var(--space-2); color: var(--color-ship-cove); }
 
     .medicare-hero__copy { max-width: 700px; }
     .medicare-hero__eyebrow {
@@ -334,7 +338,7 @@ const vertical = VERTICALS.health;
       margin-bottom: var(--space-5);
       flex-wrap: wrap;
     }
-    .btn-tertiary {
+    .medicare-page .btn-tertiary {
       font-family: var(--font-display);
       font-weight: 700;
       font-size: 0.9375rem;
@@ -344,7 +348,7 @@ const vertical = VERTICALS.health;
       padding-bottom: 2px;
       transition: color 0.15s, border-color 0.15s;
     }
-    .btn-tertiary:hover { color: var(--color-malibu); border-bottom-color: var(--color-malibu); }
+    .medicare-page .btn-tertiary:hover { color: var(--color-malibu); border-bottom-color: var(--color-malibu); }
     .medicare-hero__trust {
       display: flex;
       align-items: center;
@@ -357,9 +361,9 @@ const vertical = VERTICALS.health;
 
     /* ===== PLANS GRID ===== */
     .medicare-plans { padding: var(--space-14) 0; }
-    .section-header { max-width: 720px; margin: 0 0 var(--space-10); }
-    .section-header--center { margin-inline: auto; text-align: center; }
-    .eyebrow {
+    .medicare-page .section-header { max-width: 720px; margin: 0 0 var(--space-10); }
+    .medicare-page .section-header--center { margin-inline: auto; text-align: center; }
+    .medicare-page .eyebrow {
       display: inline-block;
       font-family: var(--font-display);
       font-size: 0.6875rem;
@@ -369,8 +373,8 @@ const vertical = VERTICALS.health;
       color: #14A38B;
       margin: 0 0 var(--space-3);
     }
-    .eyebrow--light { color: #64BCE1; }
-    .section-heading {
+    .medicare-page .eyebrow--light { color: #64BCE1; }
+    .medicare-page .section-heading {
       font-family: var(--font-display);
       font-size: clamp(1.875rem, 3.6vw, 2.5rem);
       font-weight: 700;
@@ -379,13 +383,13 @@ const vertical = VERTICALS.health;
       color: var(--color-resolution);
       margin: 0 0 var(--space-4);
     }
-    .section-heading .serif-italic {
+    .medicare-page .section-heading .serif-italic {
       font-family: var(--font-serif);
       font-style: italic;
       font-weight: 500;
       color: #14A38B;
     }
-    .section-lede {
+    .medicare-page .section-lede {
       font-size: 1.0625rem;
       line-height: 1.6;
       color: var(--color-text-muted);
@@ -616,16 +620,16 @@ const vertical = VERTICALS.health;
 
     /* ===== FAQ ===== */
     .medicare-faq { padding: var(--space-14) 0; }
-    .container--narrow { max-width: 760px; padding-inline: var(--space-5); margin-inline: auto; }
-    .faq-list { display: flex; flex-direction: column; gap: var(--space-2); }
-    .faq-item {
+    .medicare-page .container--narrow { max-width: 760px; padding-inline: var(--space-5); margin-inline: auto; }
+    .medicare-page .faq-list { display: flex; flex-direction: column; gap: var(--space-2); }
+    .medicare-page .faq-item {
       background: var(--color-white);
       border: 1px solid var(--color-border);
       border-radius: 12px;
       transition: border-color 0.15s;
     }
-    .faq-item[open] { border-color: #14A38B; }
-    .faq-item summary {
+    .medicare-page .faq-item[open] { border-color: #14A38B; }
+    .medicare-page .faq-item summary {
       cursor: pointer;
       list-style: none;
       padding: var(--space-5) var(--space-6);
@@ -638,14 +642,14 @@ const vertical = VERTICALS.health;
       align-items: center;
       gap: var(--space-4);
     }
-    .faq-item summary::-webkit-details-marker { display: none; }
-    .faq-item summary svg {
+    .medicare-page .faq-item summary::-webkit-details-marker { display: none; }
+    .medicare-page .faq-item summary svg {
       color: var(--color-ship-cove);
       transition: transform 0.25s, color 0.15s;
       flex-shrink: 0;
     }
-    .faq-item[open] summary svg { transform: rotate(180deg); color: #14A38B; }
-    .faq-item p {
+    .medicare-page .faq-item[open] summary svg { transform: rotate(180deg); color: #14A38B; }
+    .medicare-page .faq-item p {
       padding: 0 var(--space-6) var(--space-6);
       margin: 0;
       font-size: 0.9375rem;
@@ -691,7 +695,7 @@ const vertical = VERTICALS.health;
       margin: 0;
       max-width: 540px;
     }
-    .btn-pill {
+    .medicare-page .btn-pill {
       display: inline-flex;
       align-items: center;
       gap: var(--space-2);
@@ -705,15 +709,15 @@ const vertical = VERTICALS.health;
       cursor: pointer;
       transition: transform 0.15s, filter 0.15s;
     }
-    .btn-pill svg { transition: transform 0.2s; }
-    .btn-pill:hover svg { transform: translateX(3px); }
-    .btn-pill:hover { transform: translateY(-2px); filter: brightness(0.93); }
-    .btn-pill--navy { background: var(--color-resolution); color: var(--color-white); box-shadow: 0 4px 12px rgba(44, 69, 119, 0.15); }
-    .btn-pill--accent { background: #F46036; color: var(--color-white); box-shadow: 0 4px 12px rgba(244, 96, 54, 0.25); }
-    .btn-pill--xl { padding: 18px 36px; font-size: 1rem; white-space: nowrap; }
+    .medicare-page .btn-pill svg { transition: transform 0.2s; }
+    .medicare-page .btn-pill:hover svg { transform: translateX(3px); }
+    .medicare-page .btn-pill:hover { transform: translateY(-2px); filter: brightness(0.93); }
+    .medicare-page .btn-pill--navy { background: var(--color-resolution); color: var(--color-white); box-shadow: 0 4px 12px rgba(44, 69, 119, 0.15); }
+    .medicare-page .btn-pill--accent { background: #F46036; color: var(--color-white); box-shadow: 0 4px 12px rgba(244, 96, 54, 0.25); }
+    .medicare-page .btn-pill--xl { padding: 18px 36px; font-size: 1rem; white-space: nowrap; }
 
     /* container utility (defensive — most layouts already have it) */
-    .container { max-width: 1200px; margin: 0 auto; padding-inline: var(--space-5); }
+    .medicare-page .container { max-width: 1200px; margin: 0 auto; padding-inline: var(--space-5); }
   </style>
 
 </BaseLayout>
