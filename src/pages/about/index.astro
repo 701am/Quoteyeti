@@ -54,28 +54,52 @@ const howWeWork = [
   },
 ];
 
-// Placeholder team — David can swap in real people later. Each card gets a distinct accent.
+// Team — real people behind the operation.
 const team = [
   {
-    name: "The Editorial Team",
-    role: "Writers & analysts",
-    bio: "Licensed insurance experts, financial journalists, and former underwriters. Every page on QuoteYeti is reviewed by at least two of them before it goes live.",
-    accent: "#64BCE1",
-    initials: "ED",
+    name: "David Krug",
+    role: "Founder & CEO",
+    initials: "DK",
+    location: "United States",
+    accent: "#F46036",         // orange
+    accentSoft: "#FDF1EB",
+    credentials: [
+      "20-year career in higher education & lead generation",
+      "Former Director of SEO at Quote.com",
+      "Former Director of SEO at BestCarInsurance",
+      "Operator of multiple top-ranked education research properties",
+    ],
+    quote: "QuoteYeti exists because the legacy comparison sites stopped doing the homework. We're putting the research back.",
   },
   {
-    name: "The Engineering Team",
-    role: "Builders & data wranglers",
-    bio: "We built our own rating engine, our own data pipeline, and our own publishing tools — so we can move fast and stay independent of vendor lock-in.",
-    accent: "#F46036",
-    initials: "EN",
+    name: "Rai Antonio",
+    role: "VP of Editorial",
+    initials: "RA",
+    location: "Cebu, Philippines",
+    accent: "#64BCE1",         // malibu
+    accentSoft: "#EAF6FB",
+    credentials: [
+      "10-year veteran in higher education content",
+      "MBA holder",
+      "Specialist in financial & insurance content",
+      "Leads editorial review across all 8 verticals",
+    ],
+    quote: "Every page on QuoteYeti goes through editorial review before it goes live. No exceptions — not even when the data is small.",
   },
   {
-    name: "The Strategy Team",
-    role: "Coverage & partnerships",
-    bio: "We work with carriers on commission-based partnerships, but never on placement. Our team negotiates terms, never editorial influence.",
-    accent: "#8FB339",
-    initials: "ST",
+    name: "Felix Lucero",
+    role: "VP of Technology",
+    initials: "FL",
+    location: "Guadalajara, Mexico",
+    accent: "#8FB339",         // sage green
+    accentSoft: "#F1F6E5",
+    credentials: [
+      "Astro & modern web framework specialist",
+      "Architect of QuoteYeti's proprietary lead-flow system",
+      "Data scientist with focus on insurance pricing models",
+      "Builds the tooling that keeps our rankings independent",
+    ],
+    quote: "The platform is the proof. Our lead flow, our rating engine, our data pipeline — we built it ourselves so nothing in the rankings is for sale.",
   },
 ];
 ---
@@ -293,20 +317,63 @@ const team = [
           <span class="serif-italic">research</span>.
         </h2>
         <p class="team__lede">
-          QuoteYeti is built and operated by a small, dedicated team of editors, analysts, and engineers. No outsourcing. No ghostwriting. No AI-generated content.
+          QuoteYeti is built and operated by a small, dedicated team of editors, analysts, and engineers across three time zones. No outsourcing. No ghostwriting. No AI-generated content.
         </p>
       </header>
       <div class="team__grid">
         {team.map((member) => (
-          <article class="team-card" style={`--team-accent: ${member.accent};`}>
-            <div class="team-card__top">
-              <div class="team-card__badge" aria-hidden="true">
-                <span>{member.initials}</span>
-              </div>
-              <p class="team-card__role">{member.role}</p>
+          <article
+            class="team-card"
+            style={`--team-accent: ${member.accent}; --team-accent-soft: ${member.accentSoft};`}
+          >
+            <!-- Top monogram band -->
+            <div class="team-card__monogram" aria-hidden="true">
+              <span class="team-card__monogram-text">{member.initials}</span>
+              <svg class="team-card__monogram-pattern" viewBox="0 0 200 120" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                  <pattern id={`pattern-${member.initials}`} x="0" y="0" width="20" height="20" patternUnits="userSpaceOnUse">
+                    <circle cx="10" cy="10" r="1" fill="currentColor" opacity="0.4" />
+                  </pattern>
+                </defs>
+                <rect width="200" height="120" fill={`url(#pattern-${member.initials})`} />
+              </svg>
             </div>
-            <h3 class="team-card__name">{member.name}</h3>
-            <p class="team-card__bio">{member.bio}</p>
+
+            <!-- Body -->
+            <div class="team-card__body">
+              <p class="team-card__role">{member.role}</p>
+              <h3 class="team-card__name">{member.name}</h3>
+              <p class="team-card__location">
+                <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true">
+                  <path
+                    d="M8 1.5c-2.8 0-5 2.2-5 5 0 3.7 5 8 5 8s5-4.3 5-8c0-2.8-2.2-5-5-5zm0 7a2 2 0 1 1 0-4 2 2 0 0 1 0 4z"
+                    fill="currentColor"
+                  />
+                </svg>
+                <span>{member.location}</span>
+              </p>
+
+              <div class="team-card__divider" aria-hidden="true"></div>
+
+              <p class="team-card__credentials-label">Credentials</p>
+              <ul class="team-card__credentials">
+                {member.credentials.map((c) => (
+                  <li>
+                    <svg viewBox="0 0 12 12" width="10" height="10" aria-hidden="true">
+                      <path d="M2 6l3 3 5-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+                    </svg>
+                    <span>{c}</span>
+                  </li>
+                ))}
+              </ul>
+
+              <blockquote class="team-card__quote">
+                <svg class="team-card__quote-mark" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+                  <path d="M6 17h3l2-4V7H5v6h3l-2 4zm8 0h3l2-4V7h-6v6h3l-2 4z" fill="currentColor"/>
+                </svg>
+                <p>{member.quote}</p>
+              </blockquote>
+            </div>
           </article>
         ))}
       </div>
@@ -889,11 +956,23 @@ const team = [
     .team {
       padding-block: var(--space-24);
       background: var(--color-alice);
+      position: relative;
+      overflow: hidden;
+    }
+    .team::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background-image:
+        radial-gradient(circle at 15% 20%, rgba(100, 188, 225, 0.06) 0%, transparent 40%),
+        radial-gradient(circle at 85% 80%, rgba(244, 96, 54, 0.04) 0%, transparent 40%);
+      pointer-events: none;
     }
     .team__header {
       text-align: center;
       max-width: 720px;
-      margin: 0 auto var(--space-12);
+      margin: 0 auto var(--space-14);
+      position: relative;
     }
     .team__header h2 {
       font-size: clamp(2.25rem, 4vw, 3rem);
@@ -909,67 +988,202 @@ const team = [
     .team__grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: var(--space-6);
+      gap: var(--space-7);
+      position: relative;
     }
+
+    /* ==== Team card ==== */
     .team-card {
-      padding: var(--space-8) var(--space-7);
       background: var(--color-white);
       border: 1px solid var(--color-border);
-      border-radius: 16px;
-      transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+      border-radius: 20px;
+      overflow: hidden;
+      transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.35s ease, border-color 0.35s ease;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+    .team-card::before {
+      /* Subtle top accent strip */
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: var(--team-accent);
+      z-index: 2;
     }
     .team-card:hover {
-      transform: translateY(-4px);
+      transform: translateY(-6px);
       border-color: var(--team-accent);
-      box-shadow: 0 16px 32px rgba(44, 69, 119, 0.08);
+      box-shadow: 0 24px 48px -12px rgba(44, 69, 119, 0.18);
     }
-    .team-card__top {
+    .team-card:hover .team-card__monogram-text {
+      transform: scale(1.04);
+    }
+
+    /* ==== Monogram band ==== */
+    .team-card__monogram {
+      position: relative;
+      height: 140px;
+      background: linear-gradient(135deg, var(--team-accent) 0%, color-mix(in srgb, var(--team-accent) 75%, #2C4577) 100%);
       display: flex;
       align-items: center;
-      gap: var(--space-3);
-      margin-bottom: var(--space-6);
-    }
-    .team-card__badge {
-      display: inline-flex;
-      align-items: center;
       justify-content: center;
-      width: 40px;
-      height: 40px;
-      border-radius: 10px;
-      background: var(--team-accent);
-      flex-shrink: 0;
+      overflow: hidden;
+      color: rgba(255, 255, 255, 0.18);
     }
-    .team-card__badge span {
-      font-family: var(--font-display);
-      font-weight: 700;
-      font-size: 0.875rem;
+    .team-card__monogram-text {
+      font-family: var(--font-serif);
+      font-style: italic;
+      font-weight: 500;
+      font-size: 4.5rem;
       color: var(--color-white);
-      letter-spacing: 0.02em;
+      letter-spacing: -0.02em;
       line-height: 1;
+      position: relative;
+      z-index: 1;
+      text-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
+      transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .team-card__monogram-pattern {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      color: var(--color-white);
+    }
+
+    /* ==== Body ==== */
+    .team-card__body {
+      padding: var(--space-7) var(--space-7) var(--space-8);
+      display: flex;
+      flex-direction: column;
+      flex: 1;
     }
     .team-card__role {
       font-family: var(--font-display);
       font-size: 0.6875rem;
       font-weight: 700;
       text-transform: uppercase;
-      letter-spacing: 0.18em;
+      letter-spacing: 0.16em;
       color: var(--team-accent);
-      margin: 0;
+      margin: 0 0 var(--space-2);
     }
     .team-card__name {
       font-family: var(--font-display);
       font-weight: 700;
-      font-size: 1.5rem;
-      margin: 0 0 var(--space-4);
-      letter-spacing: -0.02em;
+      font-size: 1.625rem;
+      margin: 0 0 var(--space-3);
+      letter-spacing: -0.022em;
       color: var(--color-resolution);
-      line-height: 1.2;
+      line-height: 1.15;
     }
-    .team-card__bio {
-      font-size: 1rem;
-      line-height: 1.65;
+    .team-card__location {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-2);
+      font-size: 0.875rem;
       color: var(--color-text-muted);
       margin: 0;
+    }
+    .team-card__location svg {
+      color: var(--team-accent);
+      flex-shrink: 0;
+    }
+
+    .team-card__divider {
+      height: 1px;
+      background: linear-gradient(
+        90deg,
+        transparent,
+        var(--color-border) 20%,
+        var(--color-border) 80%,
+        transparent
+      );
+      margin: var(--space-6) 0;
+    }
+
+    .team-card__credentials-label {
+      font-family: var(--font-display);
+      font-size: 0.6875rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      color: var(--color-resolution);
+      margin: 0 0 var(--space-4);
+    }
+    .team-card__credentials {
+      list-style: none;
+      padding: 0;
+      margin: 0 0 var(--space-6);
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-3);
+    }
+    .team-card__credentials li {
+      display: flex;
+      align-items: flex-start;
+      gap: var(--space-3);
+      font-size: 0.9375rem;
+      line-height: 1.5;
+      color: var(--color-resolution);
+    }
+    .team-card__credentials li svg {
+      flex-shrink: 0;
+      margin-top: 5px;
+      color: var(--color-white);
+      background: var(--team-accent);
+      border-radius: 50%;
+      padding: 3px;
+      box-sizing: content-box;
+      width: 10px;
+      height: 10px;
+    }
+
+    .team-card__quote {
+      margin: auto 0 0;
+      padding: var(--space-5) var(--space-5) var(--space-5) var(--space-6);
+      background: var(--team-accent-soft);
+      border-left: 3px solid var(--team-accent);
+      border-radius: 0 10px 10px 0;
+      position: relative;
+    }
+    .team-card__quote-mark {
+      position: absolute;
+      top: var(--space-3);
+      right: var(--space-4);
+      color: var(--team-accent);
+      opacity: 0.35;
+    }
+    .team-card__quote p {
+      font-family: var(--font-serif);
+      font-style: italic;
+      font-weight: 400;
+      font-size: 0.9375rem;
+      line-height: 1.55;
+      color: var(--color-resolution);
+      margin: 0;
+    }
+
+    @media (max-width: 1024px) {
+      .team__grid { grid-template-columns: repeat(2, 1fr); }
+      .team__grid .team-card:nth-child(3) {
+        grid-column: span 2;
+        max-width: calc(50% - var(--space-4));
+        margin: 0 auto;
+      }
+    }
+    @media (max-width: 720px) {
+      .team__grid { grid-template-columns: 1fr; gap: var(--space-6); }
+      .team__grid .team-card:nth-child(3) {
+        grid-column: span 1;
+        max-width: none;
+      }
+      .team-card__monogram { height: 120px; }
+      .team-card__monogram-text { font-size: 3.75rem; }
+      .team-card__body { padding: var(--space-6); }
     }
 
     /* ============================================

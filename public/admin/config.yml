@@ -26,37 +26,22 @@ logo_url: "/assets/images/quoteyeti-logo.svg"
 # YAML anchors keep the config readable.
 # =================================================================
 
-# SEO object — shared across most collections
-seo_fields: &seo_fields
-  label: "SEO"
-  name: "seo"
-  widget: "object"
-  collapsed: true
-  required: false
-  fields:
-    - { label: "SEO title", name: "seoTitle", widget: "string", required: false }
-    - { label: "SEO description", name: "seoDescription", widget: "text", required: false }
-    - { label: "Canonical URL", name: "canonical", widget: "string", required: false }
-    - { label: "OpenGraph image", name: "ogImage", widget: "image", required: false }
-    - { label: "No-index this page", name: "noindex", widget: "boolean", default: false, required: false }
-
 # Rich review fields — used by all 8 vertical review collections.
-# Mirror reviewSchema in src/content.config.ts and ReviewLayout.astro props.
+# FLAT structure (no nested objects) so the YAML Decap writes matches
+# what src/content.config.ts (Zod) expects and what the existing
+# markdown files use. Decap labels carry the visual grouping via prefixes
+# like "[Carrier]" / "[Ratings]" / "[Cost]" — editors scan for those.
 review_fields: &review_fields
   - { label: "Title (page title)", name: "title", widget: "string" }
   - { label: "Description (used in indexes & SEO)", name: "description", widget: "string", required: false }
 
-  - label: "Carrier info"
-    name: "carrierInfo"
-    widget: "object"
-    collapsed: false
-    fields:
-      - { label: "Company name", name: "company", widget: "string" }
-      - { label: "Company logo", name: "companyLogo", widget: "image", required: false }
-      - { label: "Founded year", name: "foundedYear", widget: "number", required: false }
-      - { label: "Website URL", name: "websiteUrl", widget: "string", required: false }
-      - { label: "Phone number", name: "phoneNumber", widget: "string", required: false }
-      - { label: "Address", name: "address", widget: "string", required: false }
+  # ----- Carrier identification -----
+  - { label: "[Carrier] Company name", name: "company", widget: "string" }
+  - { label: "[Carrier] Company logo", name: "companyLogo", widget: "image", required: false }
+  - { label: "[Carrier] Founded year", name: "foundedYear", widget: "number", required: false }
+  - { label: "[Carrier] Website URL", name: "websiteUrl", widget: "string", required: false }
+  - { label: "[Carrier] Phone number", name: "phoneNumber", widget: "string", required: false }
+  - { label: "[Carrier] Address", name: "address", widget: "string", required: false }
 
   - { label: "Positioning statement (hero subhead)", name: "positioning", widget: "text", hint: "One-sentence summary that appears in the page hero. Example: 'GEICO is the fourth-best car insurance company in the nation due to its affordable rates.'" }
 
@@ -68,52 +53,39 @@ review_fields: &review_fields
     hint: "3-5 bullet points shown at the top of the review with check icons."
     field: { label: "Takeaway", name: "takeaway", widget: "text" }
 
-  - label: "Ratings"
-    name: "ratingsBlock"
-    widget: "object"
-    collapsed: false
+  # ----- Ratings -----
+  - { label: "[Ratings] Overall score (0-5)", name: "overallScore", widget: "number", min: 0, max: 5, step: 0.01 }
+  - { label: "[Ratings] Overall national rank (optional)", name: "overallRank", widget: "number", required: false }
+  - label: "[Ratings] Score breakdown"
+    name: "ratings"
+    widget: "list"
     fields:
-      - { label: "Overall score (0-5)", name: "overallScore", widget: "number", min: 0, max: 5, step: 0.01 }
-      - { label: "Overall national rank (optional)", name: "overallRank", widget: "number", required: false }
-      - label: "Score breakdown"
-        name: "ratings"
-        widget: "list"
-        fields:
-          - { label: "Category (e.g. 'Customer experience')", name: "category", widget: "string" }
-          - { label: "Score (0-5)", name: "score", widget: "number", min: 0, max: 5, step: 0.01 }
-          - { label: "Rank (optional)", name: "rank", widget: "number", required: false }
+      - { label: "Category (e.g. 'Customer experience')", name: "category", widget: "string" }
+      - { label: "Score (0-5)", name: "score", widget: "number", min: 0, max: 5, step: 0.01 }
+      - { label: "Rank (optional)", name: "rank", widget: "number", required: false }
 
-  - label: "Cost section"
-    name: "costBlock"
-    widget: "object"
-    collapsed: true
+  # ----- Cost section -----
+  - { label: "[Cost] Cost summary (intro paragraph)", name: "costSummary", widget: "text", required: false }
+  - { label: "[Cost] Avg monthly premium (display string)", name: "avgMonthly", widget: "string", required: false, hint: "e.g. '$286'" }
+  - { label: "[Cost] Avg annual premium (display string)", name: "avgAnnual", widget: "string", required: false, hint: "e.g. '$3,434'" }
+  - { label: "[Cost] Difference from national average", name: "differenceFromAvg", widget: "string", required: false, hint: "e.g. '-17%'" }
+  - label: "[Cost] Cost by driver/buyer category"
+    name: "costByCategory"
+    widget: "list"
     required: false
     fields:
-      - { label: "Cost summary (intro paragraph)", name: "costSummary", widget: "text", required: false }
-      - { label: "Avg monthly premium (display string)", name: "avgMonthly", widget: "string", required: false, hint: "e.g. '$286'" }
-      - { label: "Avg annual premium (display string)", name: "avgAnnual", widget: "string", required: false, hint: "e.g. '$3,434'" }
-      - { label: "Difference from national average", name: "differenceFromAvg", widget: "string", required: false, hint: "e.g. '-17%'" }
-      - label: "Cost by driver/buyer category"
-        name: "costByCategory"
-        widget: "list"
-        required: false
-        fields:
-          - { label: "Category (e.g. 'Adult drivers')", name: "category", widget: "string" }
-          - { label: "Minimum coverage rate", name: "minimum", widget: "string" }
-          - { label: "Full coverage rate", name: "full", widget: "string" }
-          - { label: "Rank (optional)", name: "rank", widget: "number", required: false }
+      - { label: "Category (e.g. 'Adult drivers')", name: "category", widget: "string" }
+      - { label: "Minimum coverage rate", name: "minimum", widget: "string" }
+      - { label: "Full coverage rate", name: "full", widget: "string" }
+      - { label: "Rank (optional)", name: "rank", widget: "number", required: false }
 
-  - label: "Customer experience"
-    name: "cxBlock"
-    widget: "object"
-    collapsed: true
-    required: false
-    fields:
-      - { label: "Customer experience summary", name: "cxSummary", widget: "text", required: false }
-      - { label: "Buying process", name: "cxBuying", widget: "text", required: false }
-      - { label: "Policy management", name: "cxPolicyManagement", widget: "text", required: false }
-      - { label: "Claims experience", name: "cxClaims", widget: "text", required: false }
+  # ----- Customer experience -----
+  - { label: "[CX] Customer experience summary", name: "cxSummary", widget: "text", required: false }
+  - { label: "[CX] Buying process", name: "cxBuying", widget: "text", required: false }
+  - { label: "[CX] Policy management", name: "cxPolicyManagement", widget: "text", required: false }
+  - { label: "[CX] Claims experience", name: "cxClaims", widget: "text", required: false }
 
+  # ----- Industry ratings -----
   - label: "Industry ratings"
     name: "industryRatings"
     widget: "list"
@@ -124,6 +96,7 @@ review_fields: &review_fields
       - { label: "Score", name: "score", widget: "string" }
       - { label: "Overview", name: "overview", widget: "text" }
 
+  # ----- Discounts (mostly auto) -----
   - label: "Discounts (mostly auto)"
     name: "discounts"
     widget: "list"
@@ -133,22 +106,18 @@ review_fields: &review_fields
       - { label: "Average savings", name: "amount", widget: "string" }
       - { label: "Eligibility", name: "eligibility", widget: "text" }
 
-  - label: "Coverage"
-    name: "coverageBlock"
-    widget: "object"
-    collapsed: true
+  # ----- Coverage -----
+  - { label: "[Coverage] Coverage summary (intro paragraph)", name: "coverageSummary", widget: "text", required: false }
+  - label: "[Coverage] Coverage add-ons"
+    name: "coverageAddOns"
+    widget: "list"
     required: false
     fields:
-      - { label: "Coverage summary (intro paragraph)", name: "coverageSummary", widget: "text", required: false }
-      - label: "Coverage add-ons"
-        name: "coverageAddOns"
-        widget: "list"
-        required: false
-        fields:
-          - { label: "Add-on name", name: "name", widget: "string" }
-          - { label: "What it covers", name: "covers", widget: "text" }
-          - { label: "Key features (optional)", name: "features", widget: "text", required: false }
+      - { label: "Add-on name", name: "name", widget: "string" }
+      - { label: "What it covers", name: "covers", widget: "text" }
+      - { label: "Key features (optional)", name: "features", widget: "text", required: false }
 
+  # ----- Pros / Cons / Bottom line -----
   - label: "Pros"
     name: "pros"
     widget: "list"
@@ -161,6 +130,7 @@ review_fields: &review_fields
 
   - { label: "Bottom line (HTML allowed)", name: "bottomLine", widget: "text", required: false, hint: "Closing summary. You can include <p> tags." }
 
+  # ----- FAQs -----
   - label: "FAQs"
     name: "faqs"
     widget: "list"
@@ -169,22 +139,17 @@ review_fields: &review_fields
       - { label: "Question", name: "q", widget: "string" }
       - { label: "Answer", name: "a", widget: "text" }
 
-  - label: "Methodology"
-    name: "methodologyBlock"
-    widget: "object"
-    collapsed: true
+  # ----- Methodology -----
+  - { label: "[Methodology] Methodology intro", name: "methodologyIntro", widget: "text", required: false }
+  - label: "[Methodology] Weighting factors"
+    name: "methodologyFactors"
+    widget: "list"
     required: false
+    hint: "3 factors typical. Each weight is shown as a large number (e.g. '60%')."
     fields:
-      - { label: "Methodology intro", name: "methodologyIntro", widget: "text", required: false }
-      - label: "Weighting factors"
-        name: "methodologyFactors"
-        widget: "list"
-        required: false
-        hint: "3 factors typical. Each weight is shown as a large number (e.g. '60%')."
-        fields:
-          - { label: "Label (e.g. 'Cost')", name: "label", widget: "string" }
-          - { label: "Weight (e.g. '60%')", name: "weight", widget: "string" }
-          - { label: "Description", name: "description", widget: "text" }
+      - { label: "Label (e.g. 'Cost')", name: "label", widget: "string" }
+      - { label: "Weight (e.g. '60%')", name: "weight", widget: "string" }
+      - { label: "Description", name: "description", widget: "text" }
 
   - { label: "Author bio (overrides default)", name: "authorBio", widget: "text", required: false }
   - { label: "Author byline", name: "author", widget: "string", required: false }
@@ -192,7 +157,11 @@ review_fields: &review_fields
   - { label: "Publish date", name: "publishDate", widget: "datetime", required: false }
   - { label: "Updated date", name: "updatedDate", widget: "datetime", required: false }
   - { label: "Draft", name: "draft", widget: "boolean", default: false, required: false }
-  - *seo_fields
+  - { label: "[SEO] Title override", name: "seoTitle", widget: "string", required: false }
+  - { label: "[SEO] Description override", name: "seoDescription", widget: "text", required: false }
+  - { label: "[SEO] Canonical URL", name: "canonical", widget: "string", required: false }
+  - { label: "[SEO] OpenGraph image", name: "ogImage", widget: "image", required: false }
+  - { label: "[SEO] No-index this page", name: "noindex", widget: "boolean", default: false, required: false }
   - { label: "Body (supplemental editorial content below structured sections)", name: "body", widget: "markdown" }
 
 # Generic vertical-guide fields
@@ -203,7 +172,11 @@ guide_fields: &guide_fields
   - { label: "Hero image", name: "heroImage", widget: "image", required: false }
   - { label: "Publish date", name: "publishDate", widget: "datetime", required: false }
   - { label: "Draft", name: "draft", widget: "boolean", default: false, required: false }
-  - *seo_fields
+  - { label: "[SEO] Title override", name: "seoTitle", widget: "string", required: false }
+  - { label: "[SEO] Description override", name: "seoDescription", widget: "text", required: false }
+  - { label: "[SEO] Canonical URL", name: "canonical", widget: "string", required: false }
+  - { label: "[SEO] OpenGraph image", name: "ogImage", widget: "image", required: false }
+  - { label: "[SEO] No-index this page", name: "noindex", widget: "boolean", default: false, required: false }
   - { label: "Body", name: "body", widget: "markdown" }
 
 # =================================================================
@@ -252,7 +225,11 @@ collections:
       - { label: "Tags", name: "tags", widget: "list", required: false }
       - { label: "Publish date", name: "publishDate", widget: "datetime", required: false }
       - { label: "Draft", name: "draft", widget: "boolean", default: false, required: false }
-      - *seo_fields
+      - { label: "[SEO] Title override", name: "seoTitle", widget: "string", required: false }
+      - { label: "[SEO] Description override", name: "seoDescription", widget: "text", required: false }
+      - { label: "[SEO] Canonical URL", name: "canonical", widget: "string", required: false }
+      - { label: "[SEO] OpenGraph image", name: "ogImage", widget: "image", required: false }
+      - { label: "[SEO] No-index this page", name: "noindex", widget: "boolean", default: false, required: false }
       - { label: "Body", name: "body", widget: "markdown" }
 
   - name: "auto-reviews"
@@ -282,7 +259,11 @@ collections:
       - { label: "Description", name: "description", widget: "string", required: false }
       - { label: "Publish date", name: "publishDate", widget: "datetime", required: false }
       - { label: "Draft", name: "draft", widget: "boolean", default: false, required: false }
-      - *seo_fields
+      - { label: "[SEO] Title override", name: "seoTitle", widget: "string", required: false }
+      - { label: "[SEO] Description override", name: "seoDescription", widget: "text", required: false }
+      - { label: "[SEO] Canonical URL", name: "canonical", widget: "string", required: false }
+      - { label: "[SEO] OpenGraph image", name: "ogImage", widget: "image", required: false }
+      - { label: "[SEO] No-index this page", name: "noindex", widget: "boolean", default: false, required: false }
       - { label: "Body", name: "body", widget: "markdown" }
 
   - name: "auto-glossary"
@@ -466,7 +447,11 @@ collections:
       - { label: "Author", name: "author", widget: "string", required: false }
       - { label: "Publish date", name: "publishDate", widget: "datetime", required: true }
       - { label: "Draft", name: "draft", widget: "boolean", default: false, required: false }
-      - *seo_fields
+      - { label: "[SEO] Title override", name: "seoTitle", widget: "string", required: false }
+      - { label: "[SEO] Description override", name: "seoDescription", widget: "text", required: false }
+      - { label: "[SEO] Canonical URL", name: "canonical", widget: "string", required: false }
+      - { label: "[SEO] OpenGraph image", name: "ogImage", widget: "image", required: false }
+      - { label: "[SEO] No-index this page", name: "noindex", widget: "boolean", default: false, required: false }
       - { label: "Body", name: "body", widget: "markdown" }
 
   - name: "pages"
@@ -482,5 +467,9 @@ collections:
       - { label: "Layout", name: "layout", widget: "select", options: ["default", "narrow", "wide"], default: "default", required: false }
       - { label: "Publish date", name: "publishDate", widget: "datetime", required: false }
       - { label: "Draft", name: "draft", widget: "boolean", default: false, required: false }
-      - *seo_fields
+      - { label: "[SEO] Title override", name: "seoTitle", widget: "string", required: false }
+      - { label: "[SEO] Description override", name: "seoDescription", widget: "text", required: false }
+      - { label: "[SEO] Canonical URL", name: "canonical", widget: "string", required: false }
+      - { label: "[SEO] OpenGraph image", name: "ogImage", widget: "image", required: false }
+      - { label: "[SEO] No-index this page", name: "noindex", widget: "boolean", default: false, required: false }
       - { label: "Body", name: "body", widget: "markdown" }
