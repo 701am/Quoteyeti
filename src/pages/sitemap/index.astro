@@ -3,115 +3,180 @@ import BaseLayout from "~/layouts/BaseLayout.astro";
 import { getCollection } from "astro:content";
 import { VERTICAL_LIST, type Vertical } from "~/data/verticals";
 
-// Pull every review for every vertical so we can list real carriers
-const reviewCollections: Record<string, any[]> = {
-  auto: await getCollection("auto-reviews", ({ data }) => !data.draft),
-  home: await getCollection("home-reviews", ({ data }) => !data.draft),
-  life: await getCollection("life-reviews", ({ data }) => !data.draft),
-  business: await getCollection("business-reviews", ({ data }) => !data.draft),
-  health: await getCollection("health-reviews", ({ data }) => !data.draft),
-  renters: await getCollection("renters-reviews", ({ data }) => !data.draft),
-  pet: await getCollection("pet-reviews", ({ data }) => !data.draft),
-  travel: await getCollection("travel-reviews", ({ data }) => !data.draft),
-};
+// ============================================================
+// Pull ALL live content for each vertical.
+// Drafts are excluded.
+// ============================================================
 
-// Sort each by carrier name
-for (const key of Object.keys(reviewCollections)) {
-  reviewCollections[key].sort((a, b) => {
-    const aN = (a.data.company ?? a.data.title ?? "").toString();
-    const bN = (b.data.company ?? b.data.title ?? "").toString();
+async function safeCollection(name: string) {
+  try {
+    return await getCollection(name as any, ({ data }: any) => !data.draft);
+  } catch {
+    return [];
+  }
+}
+
+const reviews: Record<string, any[]> = {};
+const guides: Record<string, any[]> = {};
+const locations: Record<string, any[]> = {};
+
+for (const v of VERTICAL_LIST) {
+  reviews[v.key] = await safeCollection(`${v.key}-reviews`);
+  // Guides collection is registered as bare vertical key for non-auto verticals
+  if (v.key !== "auto") {
+    guides[v.key] = await safeCollection(v.key);
+  } else {
+    guides[v.key] = [];
+  }
+  // Locations exist for auto, home, life, business
+  if (["auto", "home", "life", "business"].includes(v.key)) {
+    locations[v.key] = await safeCollection(`${v.key}-locations`);
+  } else {
+    locations[v.key] = [];
+  }
+}
+
+// Auto-specific collections
+const autoBrands = await safeCollection("auto-brands");
+const autoFaqs = await safeCollection("auto-faqs");
+const autoGlossary = await safeCollection("auto-glossary");
+
+// Sort helpers
+function sortByTitle(arr: any[]) {
+  return arr.sort((a, b) => {
+    const aN = (a.data.company ?? a.data.title ?? a.data.state ?? "").toString();
+    const bN = (b.data.company ?? b.data.title ?? b.data.state ?? "").toString();
     return aN.localeCompare(bN);
   });
 }
+for (const key of Object.keys(reviews)) sortByTitle(reviews[key]);
+for (const key of Object.keys(guides)) sortByTitle(guides[key]);
+for (const key of Object.keys(locations)) sortByTitle(locations[key]);
+sortByTitle(autoBrands);
+sortByTitle(autoFaqs);
+sortByTitle(autoGlossary);
 
-// For each vertical, build a tidy column tree
-interface SectionColumn {
+// Blog posts (newest first)
+const posts = (await safeCollection("posts")).sort((a, b) => {
+  const aD = a.data.publishDate?.valueOf() ?? 0;
+  const bD = b.data.publishDate?.valueOf() ?? 0;
+  return bD - aD;
+});
+
+// ============================================================
+// Per-vertical column tree. Every URL must be live.
+// ============================================================
+
+interface SmColumn {
   title: string;
   links: { label: string; href: string }[];
 }
 
-function columnsFor(v: Vertical): SectionColumn[] {
-  const reviews = reviewCollections[v.key] ?? [];
-  const cols: SectionColumn[] = [
+function columnsFor(v: Vertical): SmColumn[] {
+  const vReviews = reviews[v.key] ?? [];
+  const vGuides = guides[v.key] ?? [];
+  const vLocations = locations[v.key] ?? [];
+  const isCore = ["auto", "home", "life", "business"].includes(v.key);
+
+  const cols: SmColumn[] = [
     {
-      title: "Compare & rank",
+      title: "Compare",
       links: [
         { label: `${v.short} insurance overview`, href: v.path },
         { label: `Best ${v.short.toLowerCase()} insurance`, href: `${v.path}best/` },
-        { label: `Cheapest ${v.short.toLowerCase()} insurance`, href: `${v.path}cheapest/` },
-        { label: `${v.short} insurance by state`, href: `${v.path}by-state/` },
+        ...(isCore ? [{ label: `Cheapest ${v.short.toLowerCase()} insurance`, href: `${v.path}cheapest/` }] : []),
+        ...(vLocations.length > 0 ? [{ label: `${v.short} insurance by state`, href: `${v.path}by-state/` }] : []),
         { label: `Get ${v.short.toLowerCase()} quotes`, href: `${v.path}quotes/` },
-      ],
-    },
-    {
-      title: "Tools",
-      links: [
-        { label: `${v.short} insurance calculator`, href: `${v.path}calculator/` },
-        { label: "How much do I need?", href: `${v.path}how-much-do-i-need/` },
-        { label: "Coverage estimator", href: `${v.path}coverage-estimator/` },
-      ],
-    },
-    {
-      title: "Coverage 101",
-      links: [
-        { label: "How it works", href: `${v.path}how-it-works/` },
-        { label: "Types of coverage", href: `${v.path}coverage-types/` },
-        { label: "Common discounts", href: `${v.path}discounts/` },
-        { label: "Frequently asked questions", href: `${v.path}faqs/` },
       ],
     },
   ];
 
-  // Carrier reviews column
-  const reviewLinks = reviews.length > 0
-    ? [
-        { label: `All ${v.short.toLowerCase()} reviews`, href: `${v.path}reviews/` },
-        ...reviews.map((r: any) => ({
-          label: `${r.data.company ?? r.data.title} review`,
-          href: `${v.path}reviews/${r.id}/`,
-        })),
-      ]
-    : [{ label: `${v.short} carrier reviews`, href: `${v.path}reviews/` }];
+  if (isCore) {
+    cols.push({
+      title: "Plan your coverage",
+      links: [
+        { label: "How much do I need?", href: `${v.path}how-much-do-i-need/` },
+        { label: "Types of coverage", href: `${v.path}coverage-types/` },
+        { label: "Common discounts", href: `${v.path}discounts/` },
+      ],
+    });
+  }
 
-  cols.push({
-    title: "Carrier reviews",
-    links: reviewLinks,
-  });
+  const answersLinks: { label: string; href: string }[] = [];
+  if (vGuides.length > 0) {
+    answersLinks.push({ label: `${v.short} guides (${vGuides.length})`, href: `${v.path}guides/` });
+  }
+  if (v.key === "auto") {
+    answersLinks.push({ label: "Auto FAQs", href: "/auto/faqs/" });
+    answersLinks.push({ label: "Auto glossary", href: "/auto/glossary/" });
+  } else if (isCore) {
+    answersLinks.push({ label: `${v.short} FAQs`, href: `${v.path}faqs/` });
+  }
+  if (answersLinks.length > 0) {
+    cols.push({ title: "Get answers", links: answersLinks });
+  }
+
+  if (vReviews.length > 0) {
+    const reviewLinks: { label: string; href: string }[] = [
+      { label: `All ${v.short.toLowerCase()} reviews`, href: `${v.path}reviews/` },
+      ...vReviews.slice(0, 8).map((r: any) => ({
+        label: r.data.company ?? r.data.title,
+        href: `${v.path}reviews/${r.id}/`,
+      })),
+    ];
+    cols.push({ title: "Carrier reviews", links: reviewLinks });
+  }
 
   return cols;
 }
 
-// Resources & Company link groups for the bottom section
-const resourceGroups = [
+// ============================================================
+// Hero stats
+// ============================================================
+const totalGuides = Object.values(guides).reduce((s, arr) => s + arr.length, 0);
+const totalReviews = Object.values(reviews).reduce((s, arr) => s + arr.length, 0);
+const totalLocations = Object.values(locations).reduce((s, arr) => s + arr.length, 0);
+const totalBlogPosts = posts.length;
+
+// ============================================================
+// Resources & Company groups for the bottom of the sitemap.
+// ============================================================
+
+const resourceGroups: SmColumn[] = [
   {
-    title: "Insurance basics",
+    title: "Cross-vertical",
     links: [
-      { label: "Insurance 101", href: "/insurance/" },
       { label: "Glossary", href: "/glossary/" },
       { label: "All FAQs", href: "/faqs/" },
-      { label: "Insurance statistics", href: "/resources/statistics/" },
-    ],
-  },
-  {
-    title: "Tools & calculators",
-    links: [
-      { label: "All calculators", href: "/calculators/" },
-      { label: "Compare carriers head-to-head", href: "/compare/" },
-      { label: "Best by state", href: "/best-by-state/" },
+      { label: "Methodology", href: "/methodology/" },
+      { label: "Editorial standards", href: "/editorial/" },
     ],
   },
   {
     title: "Editorial",
     links: [
       { label: "The Dispatch (blog)", href: "/blog/" },
-      { label: "The YetiLetter (newsletter)", href: "/newsletter/" },
-      { label: "Editorial standards", href: "/editorial/" },
-      { label: "Press room", href: "/press/" },
+      ...posts.slice(0, 6).map((p: any) => ({
+        label: p.data.title,
+        href: `/blog/${p.id}/`,
+      })),
     ],
+  },
+  {
+    title: "Auto brands",
+    links: autoBrands.length > 0
+      ? [
+          { label: "All car brands", href: "/auto/brands/" },
+          ...autoBrands.slice(0, 8).map((b: any) => ({
+            label: b.data.title?.replace(/ Car Insurance Rates?$/i, "") ?? b.id,
+            href: `/auto/brands/${b.id}/`,
+          })),
+        ]
+      : [{ label: "Car brands", href: "/auto/brands/" }],
   },
 ];
 
-const companyGroups = [
+const companyGroups: SmColumn[] = [
   {
     title: "About QuoteYeti",
     links: [
@@ -125,7 +190,7 @@ const companyGroups = [
     links: [
       { label: "Contact", href: "/contact/" },
       { label: "Partner with us", href: "/partners/" },
-      { label: "Careers", href: "/careers/" },
+      { label: "Newsletter", href: "/newsletter/" },
     ],
   },
   {
@@ -134,24 +199,16 @@ const companyGroups = [
       { label: "Privacy policy", href: "/privacy-policy/" },
       { label: "Terms of use", href: "/terms/" },
       { label: "Accessibility", href: "/accessibility/" },
-      { label: "Sitemap", href: "/sitemap/" },
+      { label: "Sitemap (you are here)", href: "/sitemap/" },
     ],
   },
 ];
-
-// Total link count for the hero stat
-const totalLinks = VERTICAL_LIST.reduce((sum, v) => {
-  return sum + columnsFor(v).reduce((s, c) => s + c.links.length, 0);
-}, 0)
-  + resourceGroups.reduce((s, g) => s + g.links.length, 0)
-  + companyGroups.reduce((s, g) => s + g.links.length, 0);
 ---
 
 <BaseLayout
   title="Sitemap — Every QuoteYeti page, organized"
-  description="Browse every page on QuoteYeti — eight insurance verticals, carrier reviews, calculators, guides, and resources."
+  description="Browse every page on QuoteYeti — eight insurance verticals, carrier reviews, guides, state pages, and resources, all in one place."
 >
-
   <!-- ============== HERO ============== -->
   <section class="sm-hero">
     <div class="sm-hero__topo" aria-hidden="true"></div>
@@ -167,7 +224,7 @@ const totalLinks = VERTICAL_LIST.reduce((sum, v) => {
         <span class="serif-italic">map</span>.
       </h1>
       <p class="sm-hero__lede">
-        Eight insurance verticals. Every guide, calculator, review, and resource — organized by category. Click anywhere to dive in.
+        Eight insurance verticals. Every guide, review, state page, and blog post — organized by category. Click anywhere to dive in.
       </p>
 
       <div class="sm-hero__stats">
@@ -176,12 +233,20 @@ const totalLinks = VERTICAL_LIST.reduce((sum, v) => {
           <span class="sm-hero__stat-label">Verticals</span>
         </div>
         <div class="sm-hero__stat">
-          <span class="sm-hero__stat-num">{totalLinks}+</span>
-          <span class="sm-hero__stat-label">Pages</span>
+          <span class="sm-hero__stat-num">{totalReviews}</span>
+          <span class="sm-hero__stat-label">Carrier reviews</span>
         </div>
         <div class="sm-hero__stat">
-          <span class="sm-hero__stat-num">{Object.values(reviewCollections).flat().length}</span>
-          <span class="sm-hero__stat-label">Carrier reviews</span>
+          <span class="sm-hero__stat-num">{totalGuides}</span>
+          <span class="sm-hero__stat-label">Guides</span>
+        </div>
+        <div class="sm-hero__stat">
+          <span class="sm-hero__stat-num">{totalLocations}</span>
+          <span class="sm-hero__stat-label">State pages</span>
+        </div>
+        <div class="sm-hero__stat">
+          <span class="sm-hero__stat-num">{totalBlogPosts}</span>
+          <span class="sm-hero__stat-label">Blog posts</span>
         </div>
       </div>
 
@@ -192,6 +257,14 @@ const totalLinks = VERTICAL_LIST.reduce((sum, v) => {
             <span>{v.short}</span>
           </a>
         ))}
+        <a href="#states" class="sm-chip sm-chip--neutral">
+          <span class="sm-chip__dot"></span>
+          <span>States</span>
+        </a>
+        <a href="#dispatch" class="sm-chip sm-chip--neutral">
+          <span class="sm-chip__dot"></span>
+          <span>Dispatch</span>
+        </a>
         <a href="#resources" class="sm-chip sm-chip--neutral">
           <span class="sm-chip__dot"></span>
           <span>Resources</span>
@@ -229,16 +302,15 @@ const totalLinks = VERTICAL_LIST.reduce((sum, v) => {
                 </h2>
               </div>
               <a href={v.path} class="sm-vertical__cta">
-                <span>Visit {v.short.toLowerCase()} hub</span>
+                <span>Explore {v.short.toLowerCase()}</span>
                 <svg width="14" height="12" viewBox="0 0 14 12" fill="none" aria-hidden="true">
-                  <path d="M8 1l5 5-5 5M1 6h12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M8 1l5 5-5 5M1 6h12" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
                 </svg>
               </a>
             </div>
-            <p class="sm-vertical__tagline">{v.tagline}</p>
           </header>
 
-          <div class="sm-vertical__grid">
+          <div class={`sm-vertical__grid sm-vertical__grid--cols-${cols.length}`}>
             {cols.map((col) => (
               <div class="sm-column">
                 <h3 class="sm-column__title">{col.title}</h3>
@@ -247,8 +319,8 @@ const totalLinks = VERTICAL_LIST.reduce((sum, v) => {
                     <li>
                       <a href={link.href}>
                         <span>{link.label}</span>
-                        <svg class="sm-column__arrow" width="10" height="8" viewBox="0 0 10 8" fill="none" aria-hidden="true">
-                          <path d="M6 1l3 3-3 3M1 4h8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        <svg class="sm-column__arrow" width="10" height="8" viewBox="0 0 14 12" fill="none" aria-hidden="true">
+                          <path d="M8 1l5 5-5 5M1 6h12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                         </svg>
                       </a>
                     </li>
@@ -257,24 +329,105 @@ const totalLinks = VERTICAL_LIST.reduce((sum, v) => {
               </div>
             ))}
           </div>
+
+          {guides[v.key] && guides[v.key].length > 0 && (
+            <div class="sm-extras">
+              <h3 class="sm-extras__title">All {v.short} guides</h3>
+              <ul class="sm-extras__grid">
+                {guides[v.key].map((g: any) => (
+                  <li>
+                    <a href={`${v.path}guides/${g.id}/`}>
+                      {g.data.title}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
         </div>
       </section>
     );
   })}
 
-  <!-- ============== RESOURCES ============== -->
-  <section id="resources" class="sm-bonus">
+  <!-- ============== STATES SECTION ============== -->
+  <section id="states" class="sm-bonus sm-bonus--states">
     <div class="container">
       <header class="sm-bonus__header">
         <span class="sm-bonus__num">09</span>
         <div>
-          <p class="sm-bonus__eyebrow">Cross-category</p>
-          <h2>
-            Resources &
-            <span class="serif-italic">reading</span>
-          </h2>
+          <p class="sm-bonus__eyebrow">Every state page</p>
+          <h2>By <span class="serif-italic">state</span></h2>
+          <p class="sm-bonus__lede">{totalLocations} state-specific pages across auto, home, and life insurance — covering rates, regulations, and carrier availability.</p>
         </div>
       </header>
+
+      <div class="sm-bonus__grid sm-bonus__grid--states">
+        {["auto", "home", "life"].map((key) => {
+          const v = VERTICAL_LIST.find((vv) => vv.key === key)!;
+          const locs = locations[key] ?? [];
+          return locs.length > 0 ? (
+            <div class="sm-column" style={`--v-accent: ${v.accent};`}>
+              <h3 class="sm-column__title">{v.short} by state</h3>
+              <ul>
+                <li>
+                  <a href={`${v.path}by-state/`}>
+                    <strong>All {v.short.toLowerCase()} state guides →</strong>
+                  </a>
+                </li>
+                {locs.map((loc: any) => (
+                  <li>
+                    <a href={`${v.path}by-state/${loc.id}/`}>
+                      {loc.data.state ?? loc.data.title}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ) : null;
+        })}
+      </div>
+    </div>
+  </section>
+
+  <!-- ============== BLOG / DISPATCH SECTION ============== -->
+  {posts.length > 0 && (
+    <section id="dispatch" class="sm-bonus">
+      <div class="container">
+        <header class="sm-bonus__header">
+          <span class="sm-bonus__num">10</span>
+          <div>
+            <p class="sm-bonus__eyebrow">The Dispatch</p>
+            <h2>Every <span class="serif-italic">blog</span> post</h2>
+            <p class="sm-bonus__lede">Evergreen insurance reporting, money moves, and reality checks. {posts.length} posts and counting.</p>
+          </div>
+        </header>
+
+        <ul class="sm-extras__grid sm-extras__grid--posts">
+          {posts.map((p: any) => (
+            <li>
+              <a href={`/blog/${p.id}/`}>
+                {p.data.category && <span class="sm-extras__tag">{p.data.category}</span>}
+                <span class="sm-extras__post-title">{p.data.title}</span>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </section>
+  )}
+
+  <!-- ============== RESOURCES SECTION ============== -->
+  <section id="resources" class="sm-bonus sm-bonus--alt">
+    <div class="container">
+      <header class="sm-bonus__header">
+        <span class="sm-bonus__num">11</span>
+        <div>
+          <p class="sm-bonus__eyebrow">Cross-vertical resources</p>
+          <h2>Tools & <span class="serif-italic">references</span></h2>
+          <p class="sm-bonus__lede">The glossary, FAQs, methodology, and editorial standards that anchor everything else.</p>
+        </div>
+      </header>
+
       <div class="sm-bonus__grid">
         {resourceGroups.map((group) => (
           <div class="sm-column">
@@ -284,8 +437,8 @@ const totalLinks = VERTICAL_LIST.reduce((sum, v) => {
                 <li>
                   <a href={link.href}>
                     <span>{link.label}</span>
-                    <svg class="sm-column__arrow" width="10" height="8" viewBox="0 0 10 8" fill="none" aria-hidden="true">
-                      <path d="M6 1l3 3-3 3M1 4h8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    <svg class="sm-column__arrow" width="10" height="8" viewBox="0 0 14 12" fill="none" aria-hidden="true">
+                      <path d="M8 1l5 5-5 5M1 6h12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                     </svg>
                   </a>
                 </li>
@@ -297,20 +450,19 @@ const totalLinks = VERTICAL_LIST.reduce((sum, v) => {
     </div>
   </section>
 
-  <!-- ============== COMPANY ============== -->
+  <!-- ============== COMPANY SECTION (DARK) ============== -->
   <section id="company" class="sm-bonus sm-bonus--dark">
     <div class="sm-bonus__topo" aria-hidden="true"></div>
     <div class="container">
       <header class="sm-bonus__header">
-        <span class="sm-bonus__num">10</span>
+        <span class="sm-bonus__num">12</span>
         <div>
-          <p class="sm-bonus__eyebrow">Behind the scenes</p>
-          <h2>
-            About
-            <span class="serif-italic">QuoteYeti</span>
-          </h2>
+          <p class="sm-bonus__eyebrow">Company</p>
+          <h2>About <span class="serif-italic">QuoteYeti</span></h2>
+          <p class="sm-bonus__lede">Independent insurance research. No paid placement. No relentless sales calls.</p>
         </div>
       </header>
+
       <div class="sm-bonus__grid">
         {companyGroups.map((group) => (
           <div class="sm-column sm-column--dark">
@@ -320,8 +472,8 @@ const totalLinks = VERTICAL_LIST.reduce((sum, v) => {
                 <li>
                   <a href={link.href}>
                     <span>{link.label}</span>
-                    <svg class="sm-column__arrow" width="10" height="8" viewBox="0 0 10 8" fill="none" aria-hidden="true">
-                      <path d="M6 1l3 3-3 3M1 4h8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    <svg class="sm-column__arrow" width="10" height="8" viewBox="0 0 14 12" fill="none" aria-hidden="true">
+                      <path d="M8 1l5 5-5 5M1 6h12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                     </svg>
                   </a>
                 </li>
@@ -335,259 +487,171 @@ const totalLinks = VERTICAL_LIST.reduce((sum, v) => {
 
   <!-- ============== FINAL CTA ============== -->
   <section class="sm-final">
-    <div class="container sm-final__inner">
-      <p class="eyebrow">Need something specific?</p>
-      <h2>
-        Can't find what you're
-        <span class="serif-italic">looking for?</span>
-      </h2>
-      <p class="sm-final__lede">
-        Try our search, or drop us a line at <a href="mailto:hello@quoteyeti.com">hello@quoteyeti.com</a>.
-      </p>
-      <a href="/" class="btn-pill btn-pill--navy">
-        <span>Back to home</span>
-        <svg width="16" height="14" viewBox="0 0 16 14" fill="none" aria-hidden="true">
-          <path d="M9 1l6 6-6 6M1 7h14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-      </a>
+    <div class="container">
+      <div class="sm-final__inner">
+        <h2>
+          Ready to <span class="serif-italic">start</span>?
+        </h2>
+        <p class="sm-final__lede">
+          We compare quotes across <a href="/auto/">auto</a>, <a href="/home-insurance/">home</a>, <a href="/life-insurance/">life</a>, <a href="/business-insurance/">business</a>, <a href="/health-insurance/">health</a>, <a href="/renters-insurance/">renters</a>, <a href="/pet-insurance/">pet</a>, and <a href="/travel-insurance/">travel</a> insurance — all in one place.
+        </p>
+        <a href="/auto/quotes/" class="sm-final__cta">
+          <span>Get auto quotes</span>
+          <svg width="14" height="12" viewBox="0 0 14 12" fill="none" aria-hidden="true">
+            <path d="M8 1l5 5-5 5M1 6h12" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </a>
+      </div>
     </div>
   </section>
 
   <style>
-    /* ============================================
-       Shared
-    ============================================ */
-    .serif-italic {
-      font-family: var(--font-serif, "Plantin", Georgia, serif);
-      font-style: italic;
-      font-weight: 500;
-      letter-spacing: -0.01em;
-    }
-    .eyebrow {
-      display: inline-block;
-      font-family: var(--font-display);
-      font-size: 0.75rem; font-weight: 700;
-      text-transform: uppercase; letter-spacing: 0.18em;
-      color: var(--color-malibu);
-      margin: 0 0 var(--space-4);
-    }
-
-    /* ============================================
-       Hero
-    ============================================ */
+    /* HERO */
     .sm-hero {
       position: relative;
-      padding-block: var(--space-20) var(--space-16);
+      padding-block: var(--space-20) var(--space-14);
       background: linear-gradient(180deg, var(--color-alice) 0%, var(--color-white) 100%);
       overflow: hidden;
     }
     .sm-hero__topo {
       position: absolute; inset: 0;
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1200' height='800' viewBox='0 0 1200 800'%3E%3Cg fill='none' stroke='%232C4577' stroke-width='0.5' stroke-opacity='0.05'%3E%3Cpath d='M0,400 Q300,300 600,400 T1200,400'/%3E%3Cpath d='M0,360 Q300,260 600,360 T1200,360'/%3E%3Cpath d='M0,440 Q300,340 600,440 T1200,440'/%3E%3Cpath d='M0,320 Q300,220 600,320 T1200,320'/%3E%3Cpath d='M0,480 Q300,380 600,480 T1200,480'/%3E%3C/g%3E%3C/svg%3E");
+      background-image:
+        radial-gradient(ellipse 80% 60% at 80% 30%, color-mix(in srgb, var(--color-malibu) 12%, transparent) 0%, transparent 60%),
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='800' height='600' viewBox='0 0 800 600'%3E%3Cg fill='none' stroke='%232C4577' stroke-width='0.5' stroke-opacity='0.05'%3E%3Cpath d='M0,300 Q200,200 400,300 T800,300'/%3E%3Cpath d='M0,260 Q200,160 400,260 T800,260'/%3E%3Cpath d='M0,340 Q200,240 400,340 T800,340'/%3E%3C/g%3E%3C/svg%3E");
       pointer-events: none;
     }
     .sm-hero .container { position: relative; }
     .breadcrumbs {
-      font-size: 0.8125rem;
-      color: var(--color-text-muted);
+      font-size: 0.8125rem; color: var(--color-text-muted);
       margin-bottom: var(--space-5);
       display: flex; align-items: center; gap: var(--space-2);
-      flex-wrap: wrap;
     }
-    .breadcrumbs a {
-      color: var(--color-text-muted);
-      text-decoration: none;
-      transition: color 0.15s;
-    }
+    .breadcrumbs a { color: var(--color-text-muted); text-decoration: none; }
     .breadcrumbs a:hover { color: var(--color-malibu); }
     .breadcrumbs__sep { opacity: 0.4; }
-
+    .eyebrow {
+      display: inline-flex; align-items: center; gap: var(--space-2);
+      font-family: var(--font-display); font-size: 0.75rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.14em;
+      color: var(--color-malibu);
+      background: var(--color-white);
+      padding: var(--space-2) var(--space-4);
+      border-radius: 100px;
+      margin: 0 0 var(--space-5);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    }
     .sm-hero h1 {
-      font-size: clamp(3rem, 7vw, 5.5rem);
-      letter-spacing: -0.035em;
-      line-height: 0.98;
-      margin-bottom: var(--space-6);
-      color: var(--color-resolution);
+      font-size: clamp(2.5rem, 5vw, 4rem);
+      letter-spacing: -0.03em; line-height: 1;
+      margin: 0 0 var(--space-5);
     }
-    .sm-hero h1 .serif-italic { color: var(--color-malibu); }
+    .serif-italic {
+      font-family: var(--font-serif, "Plantin", Georgia, serif);
+      font-style: italic; font-weight: 500;
+      color: var(--color-malibu);
+    }
     .sm-hero__lede {
-      font-size: 1.25rem;
-      color: var(--color-text-strong);
-      line-height: 1.55;
-      max-width: 620px;
-      margin-bottom: var(--space-10);
+      font-size: 1.25rem; color: var(--color-text-strong);
+      max-width: 640px; line-height: 1.55;
+      margin: 0 0 var(--space-10);
     }
-
-    /* Hero stats row */
     .sm-hero__stats {
-      display: flex;
-      gap: var(--space-10);
-      margin-bottom: var(--space-10);
-      padding-bottom: var(--space-8);
+      display: flex; flex-wrap: wrap; gap: var(--space-8);
+      padding: var(--space-6) 0; margin-bottom: var(--space-8);
+      border-top: 1px solid var(--color-border);
       border-bottom: 1px solid var(--color-border);
-      flex-wrap: wrap;
     }
     .sm-hero__stat { display: flex; flex-direction: column; gap: 4px; }
     .sm-hero__stat-num {
-      font-family: var(--font-serif, "Plantin", Georgia, serif);
-      font-style: italic;
-      font-weight: 500;
-      font-size: 3rem;
-      line-height: 1;
-      color: var(--color-resolution);
-      letter-spacing: -0.04em;
+      font-family: var(--font-display); font-weight: 800;
+      font-size: 2.5rem; letter-spacing: -0.02em;
+      color: var(--color-resolution); line-height: 1;
     }
     .sm-hero__stat-label {
-      font-family: var(--font-display);
-      font-size: 0.75rem; font-weight: 700;
+      font-family: var(--font-display); font-size: 0.75rem; font-weight: 700;
       text-transform: uppercase; letter-spacing: 0.14em;
       color: var(--color-text-muted);
     }
-
-    /* Jump-to chips */
-    .sm-hero__chips {
-      display: flex;
-      flex-wrap: wrap;
-      gap: var(--space-2);
-    }
+    .sm-hero__chips { display: flex; flex-wrap: wrap; gap: var(--space-2); }
     .sm-chip {
-      display: inline-flex;
-      align-items: center;
-      gap: var(--space-2);
-      padding: 0.625rem 1.25rem;
+      display: inline-flex; align-items: center; gap: var(--space-2);
+      padding: 8px 14px;
       background: var(--color-white);
       border: 1px solid var(--color-border);
       border-radius: 100px;
-      text-decoration: none;
-      font-family: var(--font-display);
-      font-weight: 600;
-      font-size: 0.875rem;
-      color: var(--color-resolution);
-      transition: all 0.2s ease;
-    }
-    .sm-chip__dot {
-      width: 8px; height: 8px;
-      background: var(--chip-accent, var(--color-malibu));
-      border-radius: 50%;
-      transition: transform 0.2s ease;
+      text-decoration: none; color: var(--color-text);
+      font-family: var(--font-display); font-size: 0.8125rem; font-weight: 600;
+      transition: transform 0.15s, border-color 0.15s, background 0.15s;
     }
     .sm-chip:hover {
-      background: var(--chip-accent, var(--color-malibu));
+      transform: translateY(-1px);
       border-color: var(--chip-accent, var(--color-malibu));
-      color: var(--color-white);
-      transform: translateY(-2px);
-      box-shadow: 0 6px 16px rgba(44, 69, 119, 0.10);
+      background: var(--chip-accent-soft, var(--color-alice));
     }
-    .sm-chip:hover .sm-chip__dot { background: var(--color-white); transform: scale(1.3); }
-    .sm-chip--neutral { --chip-accent: var(--color-resolution); }
+    .sm-chip__dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--chip-accent, var(--color-malibu));
+    }
 
-    /* ============================================
-       Vertical sections
-    ============================================ */
+    /* VERTICAL SECTIONS */
     .sm-vertical {
-      padding-block: var(--space-20);
+      padding-block: var(--space-16);
       background: var(--color-white);
-      position: relative;
       scroll-margin-top: 80px;
     }
-    .sm-vertical--alt {
-      background: var(--color-alice);
-    }
-    .sm-vertical::before {
-      content: "";
-      position: absolute;
-      top: 0; left: 0; right: 0;
-      height: 1px;
-      background: linear-gradient(90deg,
-        transparent 0%,
-        var(--v-accent) 20%,
-        var(--v-accent) 80%,
-        transparent 100%);
-      opacity: 0.4;
-    }
-
-    .sm-vertical__header {
-      margin-bottom: var(--space-12);
-      padding-bottom: var(--space-8);
-      border-bottom: 1px solid var(--color-border);
-    }
+    .sm-vertical--alt { background: var(--color-alice); }
+    .sm-vertical__header { margin-bottom: var(--space-10); }
     .sm-vertical__heading-line {
       display: grid;
       grid-template-columns: auto 1fr auto;
-      gap: var(--space-6);
-      align-items: center;
+      gap: var(--space-6); align-items: center;
+      padding-bottom: var(--space-6);
+      border-bottom: 2px solid var(--v-accent);
     }
     .sm-vertical__num {
       font-family: var(--font-serif, "Plantin", Georgia, serif);
-      font-style: italic;
-      font-weight: 500;
-      font-size: 5rem;
-      line-height: 0.9;
+      font-style: italic; font-weight: 500;
+      font-size: 4rem; line-height: 0.9;
       color: var(--v-accent);
-      letter-spacing: -0.04em;
-      opacity: 0.6;
+      letter-spacing: -0.04em; opacity: 0.7;
     }
-    .sm-vertical__heading-text { min-width: 0; }
     .sm-vertical__eyebrow {
-      display: inline-flex;
-      align-items: center;
-      gap: var(--space-2);
-      font-family: var(--font-display);
-      font-size: 0.6875rem; font-weight: 700;
-      text-transform: uppercase; letter-spacing: 0.18em;
+      display: inline-flex; align-items: center; gap: var(--space-2);
+      font-family: var(--font-display); font-size: 0.6875rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.16em;
       color: var(--v-accent);
       margin: 0 0 var(--space-2);
     }
     .sm-vertical h2 {
-      font-size: clamp(2rem, 3.5vw, 2.75rem);
-      letter-spacing: -0.025em;
-      line-height: 1.05;
-      margin: 0;
-      color: var(--color-resolution);
+      font-size: clamp(1.875rem, 3vw, 2.5rem);
+      letter-spacing: -0.025em; line-height: 1.05;
+      margin: 0; color: var(--color-resolution);
     }
     .sm-vertical h2 .serif-italic { color: var(--v-accent); }
-    .sm-vertical__tagline {
-      font-family: var(--font-serif, "Plantin", Georgia, serif);
-      font-style: italic;
-      font-size: 1.125rem;
-      color: var(--color-text-muted);
-      margin: var(--space-5) 0 0;
-      max-width: 540px;
-    }
     .sm-vertical__cta {
-      display: inline-flex;
-      align-items: center;
-      gap: var(--space-2);
+      display: inline-flex; align-items: center; gap: var(--space-2);
       padding: 0.75rem 1.25rem;
-      background: var(--v-accent);
-      color: var(--color-white);
-      border-radius: 100px;
-      text-decoration: none;
-      font-family: var(--font-display);
-      font-weight: 700;
-      font-size: 0.8125rem;
-      letter-spacing: 0.02em;
+      background: var(--v-accent); color: var(--color-white);
+      border-radius: 100px; text-decoration: none;
+      font-family: var(--font-display); font-weight: 700;
+      font-size: 0.8125rem; letter-spacing: 0.02em;
       box-shadow: 0 4px 12px color-mix(in srgb, var(--v-accent) 30%, transparent);
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      transition: transform 0.2s, box-shadow 0.2s;
       white-space: nowrap;
     }
     .sm-vertical__cta:hover {
       transform: translateY(-2px);
       box-shadow: 0 8px 20px color-mix(in srgb, var(--v-accent) 40%, transparent);
     }
-    .sm-vertical__cta svg { transition: transform 0.2s ease; }
+    .sm-vertical__cta svg { transition: transform 0.2s; }
     .sm-vertical__cta:hover svg { transform: translateX(3px); }
+    .sm-vertical__grid { display: grid; gap: var(--space-8); }
+    .sm-vertical__grid--cols-4 { grid-template-columns: repeat(4, 1fr); }
+    .sm-vertical__grid--cols-3 { grid-template-columns: repeat(3, 1fr); }
+    .sm-vertical__grid--cols-2 { grid-template-columns: repeat(2, 1fr); }
+    .sm-vertical__grid--cols-1 { grid-template-columns: 1fr; }
 
-    /* Vertical's 4-column link tree */
-    .sm-vertical__grid {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: var(--space-8);
-    }
-
-    /* ============================================
-       Column (reusable for vertical + bonus sections)
-    ============================================ */
+    /* COLUMN (reusable) */
     .sm-column { min-width: 0; }
     .sm-column__title {
       font-family: var(--font-display);
@@ -601,23 +665,16 @@ const totalLinks = VERTICAL_LIST.reduce((sum, v) => {
       min-width: 70%;
     }
     .sm-column ul {
-      list-style: none;
-      margin: 0;
-      padding: 0;
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
+      list-style: none; margin: 0; padding: 0;
+      display: flex; flex-direction: column; gap: 2px;
     }
     .sm-column li a {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
+      display: flex; align-items: center; justify-content: space-between;
       gap: var(--space-3);
       padding: var(--space-2) 0;
       color: var(--color-text);
       text-decoration: none;
-      font-size: 0.9375rem;
-      line-height: 1.4;
+      font-size: 0.9375rem; line-height: 1.4;
       transition: color 0.15s, padding 0.15s;
       border-bottom: 1px solid transparent;
     }
@@ -626,43 +683,88 @@ const totalLinks = VERTICAL_LIST.reduce((sum, v) => {
       padding-left: 4px;
     }
     .sm-column__arrow {
-      flex-shrink: 0;
-      opacity: 0;
+      flex-shrink: 0; opacity: 0;
       transform: translateX(-4px);
       transition: opacity 0.2s, transform 0.2s;
     }
     .sm-column li a:hover .sm-column__arrow {
-      opacity: 1;
-      transform: translateX(0);
+      opacity: 1; transform: translateX(0);
     }
 
-    /* ============================================
-       Bonus sections (Resources, Company)
-    ============================================ */
+    /* EXTRAS (guides + posts) */
+    .sm-extras {
+      margin-top: var(--space-10);
+      padding-top: var(--space-8);
+      border-top: 1px solid var(--color-border);
+    }
+    .sm-extras__title {
+      font-family: var(--font-display);
+      font-size: 0.6875rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.18em;
+      color: var(--color-text-muted);
+      margin: 0 0 var(--space-5);
+    }
+    .sm-extras__grid {
+      list-style: none; margin: 0; padding: 0;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: var(--space-3);
+    }
+    .sm-extras__grid li a {
+      display: block;
+      padding: var(--space-3) var(--space-4);
+      background: var(--color-white);
+      border: 1px solid var(--color-border);
+      border-radius: 8px;
+      text-decoration: none; color: var(--color-text);
+      font-size: 0.875rem; line-height: 1.4;
+      transition: border-color 0.15s, transform 0.15s;
+    }
+    .sm-extras__grid li a:hover {
+      border-color: var(--v-accent, var(--color-malibu));
+      transform: translateY(-1px);
+      color: var(--v-accent, var(--color-malibu));
+    }
+    .sm-extras__grid--posts li a {
+      display: flex; flex-direction: column; gap: 4px;
+    }
+    .sm-extras__tag {
+      display: inline-block;
+      font-family: var(--font-display);
+      font-size: 0.625rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.12em;
+      color: var(--color-malibu);
+    }
+    .sm-extras__post-title {
+      font-size: 0.9375rem; font-weight: 500;
+      color: var(--color-resolution); line-height: 1.35;
+    }
+
+    /* BONUS SECTIONS */
     .sm-bonus {
-      padding-block: var(--space-20);
+      padding-block: var(--space-16);
       background: var(--color-white);
       position: relative;
       scroll-margin-top: 80px;
     }
+    .sm-bonus--alt { background: var(--color-alice); }
+    .sm-bonus--states {
+      background: linear-gradient(180deg, var(--color-white) 0%, var(--color-alice) 100%);
+    }
     .sm-bonus__header {
       display: grid;
       grid-template-columns: auto 1fr;
-      gap: var(--space-6);
-      align-items: center;
-      margin-bottom: var(--space-12);
-      padding-bottom: var(--space-8);
+      gap: var(--space-6); align-items: center;
+      margin-bottom: var(--space-10);
+      padding-bottom: var(--space-6);
       border-bottom: 1px solid var(--color-border);
     }
     .sm-bonus__num {
       font-family: var(--font-serif, "Plantin", Georgia, serif);
-      font-style: italic;
-      font-weight: 500;
-      font-size: 5rem;
-      line-height: 0.9;
+      font-style: italic; font-weight: 500;
+      font-size: 4rem; line-height: 0.9;
       color: var(--color-malibu);
-      letter-spacing: -0.04em;
-      opacity: 0.6;
+      letter-spacing: -0.04em; opacity: 0.6;
     }
     .sm-bonus__eyebrow {
       font-family: var(--font-display);
@@ -672,20 +774,24 @@ const totalLinks = VERTICAL_LIST.reduce((sum, v) => {
       margin: 0 0 var(--space-2);
     }
     .sm-bonus h2 {
-      font-size: clamp(2rem, 3.5vw, 2.75rem);
-      letter-spacing: -0.025em;
-      line-height: 1.05;
-      margin: 0;
+      font-size: clamp(1.875rem, 3vw, 2.5rem);
+      letter-spacing: -0.025em; line-height: 1.05;
+      margin: 0 0 var(--space-3);
       color: var(--color-resolution);
     }
     .sm-bonus h2 .serif-italic { color: var(--color-malibu); }
+    .sm-bonus__lede {
+      font-size: 1rem; color: var(--color-text-muted);
+      margin: 0; max-width: 600px;
+    }
     .sm-bonus__grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
       gap: var(--space-8);
     }
+    .sm-bonus__grid--states { grid-template-columns: repeat(3, 1fr); }
 
-    /* Dark variant for Company section */
+    /* Dark variant */
     .sm-bonus--dark {
       background: linear-gradient(135deg, var(--color-resolution) 0%, #1F3258 100%);
       color: var(--color-white);
@@ -704,40 +810,32 @@ const totalLinks = VERTICAL_LIST.reduce((sum, v) => {
     .sm-bonus--dark .sm-bonus__eyebrow { color: var(--color-malibu); }
     .sm-bonus--dark h2 { color: var(--color-white); }
     .sm-bonus--dark h2 .serif-italic { color: var(--color-malibu); }
+    .sm-bonus--dark .sm-bonus__lede { color: rgba(255,255,255,0.7); }
     .sm-column--dark .sm-column__title {
       color: var(--color-white);
       border-bottom-color: var(--color-malibu);
     }
-    .sm-column--dark li a {
-      color: rgba(255,255,255,0.78);
-    }
-    .sm-column--dark li a:hover {
-      color: var(--color-malibu);
-    }
+    .sm-column--dark li a { color: rgba(255,255,255,0.78); }
+    .sm-column--dark li a:hover { color: var(--color-malibu); }
 
-    /* ============================================
-       Final CTA
-    ============================================ */
+    /* FINAL CTA */
     .sm-final {
-      padding-block: var(--space-24);
-      background: linear-gradient(180deg, var(--color-white) 0%, var(--color-alice) 100%);
+      padding-block: var(--space-20);
+      background: linear-gradient(180deg, var(--color-alice) 0%, var(--color-white) 100%);
       text-align: center;
     }
-    .sm-final__inner {
-      max-width: 640px;
-    }
+    .sm-final__inner { max-width: 640px; margin: 0 auto; }
     .sm-final h2 {
       font-size: clamp(2.25rem, 4vw, 3rem);
-      letter-spacing: -0.025em;
-      line-height: 1.1;
-      margin-bottom: var(--space-5);
+      letter-spacing: -0.025em; line-height: 1.1;
+      margin: 0 0 var(--space-5);
     }
     .sm-final h2 .serif-italic { color: var(--color-malibu); }
     .sm-final__lede {
       font-size: 1.125rem;
       color: var(--color-text-strong);
       line-height: 1.6;
-      margin-bottom: var(--space-8);
+      margin: 0 0 var(--space-8);
     }
     .sm-final__lede a {
       color: var(--color-malibu);
@@ -745,35 +843,55 @@ const totalLinks = VERTICAL_LIST.reduce((sum, v) => {
       text-underline-offset: 3px;
     }
     .sm-final__lede a:hover { color: var(--color-resolution); }
+    .sm-final__cta {
+      display: inline-flex; align-items: center; gap: var(--space-2);
+      padding: 1rem 1.75rem;
+      background: var(--color-resolution); color: var(--color-white);
+      border-radius: 100px; text-decoration: none;
+      font-family: var(--font-display); font-weight: 700;
+      font-size: 0.9375rem;
+      box-shadow: 0 8px 20px rgba(44, 69, 119, 0.25);
+      transition: background 0.18s, color 0.18s, transform 0.15s;
+    }
+    .sm-final__cta:hover {
+      background: var(--color-malibu);
+      color: var(--color-resolution);
+      transform: translateY(-1px);
+    }
+    .sm-final__cta svg { transition: transform 0.2s; }
+    .sm-final__cta:hover svg { transform: translateX(3px); }
 
-    /* ============================================
-       Responsive
-    ============================================ */
+    /* RESPONSIVE */
     @media (max-width: 1100px) {
-      .sm-vertical__grid { grid-template-columns: repeat(2, 1fr); }
+      .sm-vertical__grid--cols-4 { grid-template-columns: repeat(2, 1fr); }
     }
     @media (max-width: 850px) {
       .sm-vertical__heading-line { grid-template-columns: auto 1fr; }
       .sm-vertical__cta { grid-column: 1 / -1; justify-self: start; margin-top: var(--space-3); }
+      .sm-vertical__grid--cols-3 { grid-template-columns: repeat(2, 1fr); }
       .sm-bonus__grid { grid-template-columns: 1fr; gap: var(--space-6); }
-      .sm-hero__stats { gap: var(--space-6); }
-      .sm-hero__stat-num { font-size: 2.25rem; }
-      .sm-vertical, .sm-bonus { padding-block: var(--space-14); }
+      .sm-bonus__grid--states { grid-template-columns: 1fr; }
+      .sm-hero__stats { gap: var(--space-5); }
+      .sm-hero__stat-num { font-size: 1.875rem; }
+      .sm-vertical, .sm-bonus { padding-block: var(--space-12); }
     }
     @media (max-width: 600px) {
       .sm-hero { padding-block: var(--space-12) var(--space-10); }
       .sm-hero h1 { font-size: 2.5rem; }
       .sm-hero__lede { font-size: 1.0625rem; }
-      .sm-vertical__grid { grid-template-columns: 1fr; gap: var(--space-6); }
+      .sm-vertical__grid--cols-4,
+      .sm-vertical__grid--cols-3,
+      .sm-vertical__grid--cols-2 { grid-template-columns: 1fr; gap: var(--space-6); }
       .sm-vertical__heading-line { grid-template-columns: 1fr; gap: var(--space-3); }
-      .sm-vertical__num { font-size: 3.5rem; }
-      .sm-vertical h2 { font-size: 1.75rem; }
+      .sm-vertical__num { font-size: 3rem; }
+      .sm-vertical h2 { font-size: 1.625rem; }
       .sm-bonus__header { grid-template-columns: 1fr; }
-      .sm-bonus__num { font-size: 3.5rem; }
-      .sm-bonus h2 { font-size: 1.75rem; }
+      .sm-bonus__num { font-size: 3rem; }
+      .sm-bonus h2 { font-size: 1.625rem; }
       .sm-vertical, .sm-bonus { padding-block: var(--space-10); }
       .sm-final { padding-block: var(--space-14); }
       .sm-final h2 { font-size: 1.875rem; }
+      .sm-extras__grid { grid-template-columns: 1fr; }
     }
   </style>
 </BaseLayout>

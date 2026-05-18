@@ -1,13 +1,11 @@
 ---
 import { NAV } from "~/data/nav";
 import { VERTICALS, detectVertical } from "~/data/verticals";
-import ZipForm from "~/components/ZipForm.astro";
 
 // Detect which vertical the user is currently browsing so the header
 // CTA can adapt — "Get auto quotes" on /auto/*, "Get home quotes" on
 // /home-insurance/*, etc. Falls back to auto on non-vertical pages.
 const detected = detectVertical(Astro.url.pathname);
-const headerVerticalKey = detected?.key ?? "auto";
 ---
 
 <header class="site-header">
@@ -112,7 +110,15 @@ const headerVerticalKey = detected?.key ?? "auto";
       </nav>
 
       <div class="site-header__actions">
-        <ZipForm variant="header" vertical={headerVerticalKey} />
+        <a
+          href={`${detected?.path ?? "/auto/"}quotes/`}
+          class="header__cta"
+        >
+          <span>Get {detected?.short.toLowerCase() ?? "auto"} quotes</span>
+          <svg width="12" height="10" viewBox="0 0 14 12" fill="none" aria-hidden="true">
+            <path d="M8 1l5 5-5 5M1 6h12" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </a>
 
         <button class="header__menu-toggle" aria-label="Open menu" aria-expanded="false" data-mobile-toggle>
           <span></span><span></span><span></span>
@@ -137,7 +143,16 @@ const headerVerticalKey = detected?.key ?? "auto";
       </header>
 
       <div class="mobile-menu__zip">
-        <ZipForm variant="picker" eyebrow="Get a quote" heading="What are you insuring?" ctaLabel="Continue" />
+        <a
+          href={`${detected?.path ?? "/auto/"}quotes/`}
+          class="mobile-menu__zip-cta"
+          data-mobile-close
+        >
+          <span>Get {detected?.short.toLowerCase() ?? "auto"} quotes</span>
+          <svg width="14" height="12" viewBox="0 0 14 12" fill="none" aria-hidden="true">
+            <path d="M8 1l5 5-5 5M1 6h12" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </a>
       </div>
 
       <nav class="mobile-menu__nav" aria-label="Mobile navigation">
@@ -549,27 +564,39 @@ const headerVerticalKey = detected?.key ?? "auto";
     color: var(--color-malibu);
   }
 
-  /* ZIP CTA at the top */
+  /* ZIP CTA at the top of the mobile drawer */
   .mobile-menu__zip {
-    padding: var(--space-6);
+    padding: var(--space-5) var(--space-6);
     background: linear-gradient(180deg, var(--color-alice) 0%, var(--color-white) 100%);
     border-bottom: 1px solid var(--color-border);
   }
-  /* The picker variant has its own max-width; widen for the drawer */
-  .mobile-menu__zip :global(.zipcta--picker) {
-    max-width: 100%;
-    padding: var(--space-5);
-    box-shadow: 0 4px 16px rgba(44, 69, 119, 0.08);
+  .mobile-menu__zip-cta {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2);
+    width: 100%;
+    padding: 14px 20px;
+    background: var(--color-resolution);
+    color: var(--color-white);
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 0.9375rem;
+    letter-spacing: 0.005em;
+    border-radius: 100px;
+    text-decoration: none;
+    transition: background 0.18s, color 0.18s, transform 0.15s;
   }
-  .mobile-menu__zip :global(.zipcta__picker-grid) {
-    grid-template-columns: repeat(4, 1fr);
-    gap: 5px;
+  .mobile-menu__zip-cta:hover,
+  .mobile-menu__zip-cta:focus-visible {
+    background: var(--color-malibu);
+    color: var(--color-resolution);
   }
-  @media (max-width: 380px) {
-    .mobile-menu__zip :global(.zipcta__picker-grid) {
-      grid-template-columns: repeat(2, 1fr);
-    }
+  .mobile-menu__zip-cta:active {
+    transform: translateY(1px);
   }
+  .mobile-menu__zip-cta svg { transition: transform 0.2s; }
+  .mobile-menu__zip-cta:hover svg { transform: translateX(3px); }
 
   /* Nav */
   .mobile-menu__nav {
@@ -749,12 +776,17 @@ const headerVerticalKey = detected?.key ?? "auto";
       grid-template-columns: auto 1fr auto;
       gap: var(--space-4);
     }
-    .megamenu, :global(.zipcta--header) { display: none; }
+    .megamenu { display: none; }
     .header__menu-toggle { display: flex; }
     .site-header__actions {
       justify-content: flex-end;
       grid-column: 3;
     }
+  }
+  @media (max-width: 720px) {
+    /* Below tablet — hide the inline CTA, leave only the hamburger.
+       The mobile drawer has its own CTA at the top. */
+    .header__cta { display: none; }
   }
   @media (max-width: 600px) {
     .megamenu__columns { grid-template-columns: 1fr; }
