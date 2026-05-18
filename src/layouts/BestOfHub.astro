@@ -33,6 +33,18 @@ const topCarrier = carriers[0];
 <BaseLayout
   title={`Best ${vertical.label} Companies of 2026`}
   description={`Compare the best ${vertical.short.toLowerCase()} insurance companies based on rates, customer satisfaction, and coverage.`}
+  pageType="article"
+  breadcrumbs={[
+    { name: "Home", url: "/" },
+    { name: vertical.short, url: vertical.path },
+    { name: `Best ${vertical.short}`, url: `${vertical.path}best/` },
+  ]}
+  article={{
+    publishDate: "2026-01-15T00:00:00.000Z",
+    modifiedDate: new Date().toISOString(),
+    authorName: "QuoteYeti editorial",
+    tags: [`${vertical.short.toLowerCase()} insurance`, "carrier rankings", "best of 2026"],
+  }}
 >
 
   <!-- ============== HERO ============== -->

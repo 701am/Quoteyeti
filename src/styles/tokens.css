@@ -280,3 +280,20 @@ a:hover { color: var(--color-link-hover); }
   color: var(--color-text-muted);
   margin-bottom: var(--space-3);
 }
+
+/* ================================================================
+   Autolink — Wikipedia-style intra-vertical first-mention links
+   injected by the rehype-autolink-quoteyeti plugin.
+   ================================================================ */
+.autolink {
+  color: var(--section-accent);
+  text-decoration: underline;
+  text-decoration-style: dotted;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+  transition: color 0.15s ease, text-decoration-style 0.15s ease;
+}
+.autolink:hover {
+  color: var(--color-resolution);
+  text-decoration-style: solid;
+}

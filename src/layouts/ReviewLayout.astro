@@ -69,6 +69,20 @@ const remainingTakeaways = takeaways.slice(1);
 <BaseLayout
   title={`${carrier.name} ${vertical.label} Review (2026)`}
   description={carrier.headline}
+  pageType="review"
+  breadcrumbs={[
+    { name: "Home", url: "/" },
+    { name: vertical.short, url: vertical.path },
+    { name: "Reviews", url: `${vertical.path}reviews/` },
+    { name: carrier.name, url: Astro.url.pathname },
+  ]}
+  review={{
+    carrierName: carrier.name,
+    score: ratings.overall,
+    publishDate: carrier.updated,
+    modifiedDate: carrier.updated,
+    authorName: carrier.author?.name ?? "QuoteYeti editorial",
+  }}
 >
 
   <!-- ============== HERO ============== -->

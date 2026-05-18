@@ -7,6 +7,8 @@
     "start": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
+    "check:seo": "node scripts/seo-check.mjs",
+    "build:check": "astro build && node scripts/seo-check.mjs",
     "astro": "astro",
     "migrate": "node scripts/migrate-wp.mjs",
     "migrate:dry": "node scripts/migrate-wp.mjs --dry-run"
@@ -17,7 +19,8 @@
     "@astrojs/sitemap": "^3.2.0",
     "@tailwindcss/vite": "^4.0.0",
     "astro": "^5.0.0",
-    "tailwindcss": "^4.0.0"
+    "tailwindcss": "^4.0.0",
+    "unist-util-visit": "^5.1.0"
   },
   "devDependencies": {
     "@types/node": "^22.0.0",

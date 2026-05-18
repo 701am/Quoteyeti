@@ -13,7 +13,24 @@ const d = entry.data;
 const date = d.publishDate ? new Date(d.publishDate).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" }) : null;
 ---
 
-<BaseLayout title={d.seoTitle ?? d.title} description={d.seoDescription ?? d.description} ogImage={d.ogImage ?? d.heroImage}>
+<BaseLayout
+  title={d.seoTitle ?? d.title}
+  description={d.seoDescription ?? d.description ?? d.excerpt ?? ""}
+  ogImage={d.ogImage ?? d.heroImage}
+  pageType="article"
+  breadcrumbs={[
+    { name: "Home", url: "/" },
+    { name: "The Dispatch", url: "/blog/" },
+    { name: d.title, url: `/blog/${entry.id}/` },
+  ]}
+  article={{
+    publishDate: d.publishDate ? new Date(d.publishDate).toISOString() : new Date().toISOString(),
+    modifiedDate: d.updatedDate ? new Date(d.updatedDate).toISOString() : (d.publishDate ? new Date(d.publishDate).toISOString() : new Date().toISOString()),
+    authorName: d.author ?? "QuoteYeti editorial",
+    imageUrl: d.heroImage,
+    tags: d.category ? [d.category] : [],
+  }}
+>
   <article>
     <header class="entry-hero">
       <div class="container-narrow">

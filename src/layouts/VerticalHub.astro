@@ -22,8 +22,12 @@ const { vertical, hero, pillars, calculators = [], subtopics = [], faqs = [] } =
 ---
 
 <BaseLayout
-  title={`${vertical.label} - QuoteYeti`}
-  description={vertical.description}
+  title={`${vertical.label}: Compare Carriers, Costs & Coverage`}
+  description={`${vertical.description} Compare independent reviews of top ${vertical.short.toLowerCase()} insurance carriers, costs, and coverage options — no paid placement.`}
+  breadcrumbs={[
+    { name: "Home", url: "/" },
+    { name: vertical.label, url: vertical.path },
+  ]}
 >
 
   <!-- ============== HERO ============== -->

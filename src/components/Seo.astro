@@ -1,0 +1,268 @@
+---
+/**
+ * QuoteYeti Seo component
+ *
+ * One component for all head metadata: title, description, canonical, OG,
+ * Twitter, robots, and a linked JSON-LD @graph.
+ *
+ * Following joost.blog/astro-seo-complete-guide/.
+ */
+
+import { detectVertical } from "~/data/verticals";
+
+const SITE_URL = "https://www.quoteyeti.com";
+const SITE_NAME = "QuoteYeti";
+const ORG_NAME = "QuoteYeti";
+const ORG_DESCRIPTION =
+  "Independent insurance research — auto, home, life, business, health, renters, pet, and travel. No paid placement.";
+
+export interface BreadcrumbItem {
+  name: string;
+  url: string;
+}
+
+export interface ReviewData {
+  carrierName: string;
+  score: number;
+  bestFor?: string;
+  publishDate: string;
+  modifiedDate?: string;
+  authorName?: string;
+}
+
+export interface ArticleData {
+  publishDate: string;
+  modifiedDate?: string;
+  authorName?: string;
+  imageUrl?: string;
+  tags?: string[];
+}
+
+interface Props {
+  title: string;
+  description: string;
+  canonical?: string;
+  ogImage?: string;
+  ogImageAlt?: string;
+  noindex?: boolean;
+  pageType?: "website" | "article" | "review" | "default";
+  breadcrumbs?: BreadcrumbItem[];
+  article?: ArticleData;
+  review?: ReviewData;
+}
+
+function stripUtm(href: string): string {
+  try {
+    const u = new URL(href);
+    const remove: string[] = [];
+    u.searchParams.forEach((_, key) => {
+      if (key.startsWith("utm_") || ["gclid", "fbclid", "msclkid", "ref"].includes(key)) {
+        remove.push(key);
+      }
+    });
+    remove.forEach((k) => u.searchParams.delete(k));
+    return u.toString();
+  } catch {
+    return href;
+  }
+}
+
+const {
+  title,
+  description: rawDescription,
+  canonical = stripUtm(Astro.url.href),
+  ogImage = `${SITE_URL}/assets/images/og-default.png`,
+  ogImageAlt = "QuoteYeti — independent insurance research",
+  noindex = false,
+  pageType = "default",
+  breadcrumbs,
+  article,
+  review,
+} = Astro.props;
+
+// Clamp description to SERP-safe range (Google typically shows ~155-170 chars).
+// Trim at the last word boundary under 158, append ellipsis if cut.
+function clampDescription(desc: string): string {
+  if (!desc) return desc;
+  const MAX = 158;
+  if (desc.length <= MAX) return desc;
+  const slice = desc.slice(0, MAX);
+  const lastSpace = slice.lastIndexOf(" ");
+  return (lastSpace > 100 ? slice.slice(0, lastSpace) : slice).replace(/[.,;:]$/, "") + "…";
+}
+
+const description = clampDescription(rawDescription);
+
+const fullTitle = title.includes(SITE_NAME) ? title : `${title} · ${SITE_NAME}`;
+const detectedVertical = detectVertical(Astro.url.pathname);
+
+// IDs for linked graph
+const websiteId = `${SITE_URL}/#website`;
+const orgId = `${SITE_URL}/#organization`;
+const webpageId = `${canonical}#webpage`;
+const breadcrumbsId = `${canonical}#breadcrumbs`;
+
+const graph: any[] = [];
+
+graph.push({
+  "@type": "Organization",
+  "@id": orgId,
+  name: ORG_NAME,
+  url: SITE_URL,
+  description: ORG_DESCRIPTION,
+  logo: {
+    "@type": "ImageObject",
+    "@id": `${SITE_URL}/#logo`,
+    url: `${SITE_URL}/assets/images/quoteyeti-logo.svg`,
+    caption: ORG_NAME,
+  },
+  publishingPrinciples: `${SITE_URL}/editorial/`,
+  knowsAbout: [
+    "auto insurance",
+    "home insurance",
+    "life insurance",
+    "business insurance",
+    "health insurance",
+    "renters insurance",
+    "pet insurance",
+    "travel insurance",
+  ],
+});
+
+graph.push({
+  "@type": "WebSite",
+  "@id": websiteId,
+  url: SITE_URL,
+  name: SITE_NAME,
+  description: ORG_DESCRIPTION,
+  publisher: { "@id": orgId },
+  inLanguage: "en-US",
+});
+
+if (pageType === "review" && review) {
+  graph.push({
+    "@type": "Review",
+    "@id": `${canonical}#review`,
+    url: canonical,
+    name: title,
+    description: description,
+    reviewRating: {
+      "@type": "Rating",
+      ratingValue: review.score.toFixed(2),
+      bestRating: "5",
+      worstRating: "1",
+    },
+    itemReviewed: {
+      "@type": "InsuranceAgency",
+      name: review.carrierName,
+    },
+    author: {
+      "@type": "Organization",
+      "@id": orgId,
+      name: review.authorName ?? ORG_NAME,
+    },
+    publisher: { "@id": orgId },
+    datePublished: review.publishDate,
+    dateModified: review.modifiedDate ?? review.publishDate,
+    isPartOf: { "@id": websiteId },
+  });
+} else if (pageType === "article" && article) {
+  graph.push({
+    "@type": "Article",
+    "@id": `${canonical}#article`,
+    url: canonical,
+    headline: title,
+    description: description,
+    image: article.imageUrl ?? ogImage,
+    datePublished: article.publishDate,
+    dateModified: article.modifiedDate ?? article.publishDate,
+    author: {
+      "@type": "Organization",
+      "@id": orgId,
+      name: article.authorName ?? ORG_NAME,
+    },
+    publisher: { "@id": orgId },
+    mainEntityOfPage: { "@id": webpageId },
+    keywords: article.tags?.join(", "),
+    isPartOf: { "@id": websiteId },
+  });
+}
+
+graph.push({
+  "@type": "WebPage",
+  "@id": webpageId,
+  url: canonical,
+  name: fullTitle,
+  description: description,
+  isPartOf: { "@id": websiteId },
+  about: detectedVertical ? { "@type": "Thing", name: detectedVertical.label } : undefined,
+  primaryImageOfPage: { "@type": "ImageObject", url: ogImage },
+  inLanguage: "en-US",
+  ...(breadcrumbs && breadcrumbs.length > 0
+    ? { breadcrumb: { "@id": breadcrumbsId } }
+    : {}),
+});
+
+if (breadcrumbs && breadcrumbs.length > 0) {
+  graph.push({
+    "@type": "BreadcrumbList",
+    "@id": breadcrumbsId,
+    itemListElement: breadcrumbs.map((b, i) => ({
+      "@type": "ListItem",
+      position: i + 1,
+      name: b.name,
+      item: b.url.startsWith("http") ? b.url : `${SITE_URL}${b.url}`,
+    })),
+  });
+}
+
+const jsonLdGraph = {
+  "@context": "https://schema.org",
+  "@graph": graph,
+};
+---
+
+<title>{fullTitle}</title>
+<meta name="description" content={description} />
+<link rel="canonical" href={canonical} />
+
+{
+  noindex ? (
+    <meta name="robots" content="noindex, nofollow" />
+  ) : (
+    <meta
+      name="robots"
+      content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1"
+    />
+  )
+}
+
+<meta property="og:type" content={pageType === "article" || pageType === "review" ? "article" : "website"} />
+<meta property="og:site_name" content={SITE_NAME} />
+<meta property="og:title" content={fullTitle} />
+<meta property="og:description" content={description} />
+<meta property="og:url" content={canonical} />
+<meta property="og:image" content={ogImage} />
+<meta property="og:image:alt" content={ogImageAlt} />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:locale" content="en_US" />
+
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:site" content="@quoteyeti" />
+
+{
+  article && (
+    <>
+      <meta property="article:published_time" content={article.publishDate} />
+      <meta property="article:modified_time" content={article.modifiedDate ?? article.publishDate} />
+      {article.authorName && <meta property="article:author" content={article.authorName} />}
+      {article.tags?.map((tag) => <meta property="article:tag" content={tag} />)}
+    </>
+  )
+}
+
+<script type="application/ld+json" set:html={JSON.stringify(jsonLdGraph)} />
+
+<link rel="sitemap" type="application/xml" href="/sitemap-index.xml" />
+<link rel="alternate" type="application/rss+xml" title="QuoteYeti · The Dispatch" href="/feed.xml" />

@@ -2,33 +2,40 @@
 import "~/styles/tokens.css";
 import Header from "~/components/Header.astro";
 import Footer from "~/components/Footer.astro";
+import Seo, { type BreadcrumbItem, type ArticleData, type ReviewData } from "~/components/Seo.astro";
 import { detectVertical } from "~/data/verticals";
 
 interface Props {
   title: string;
   description?: string;
   ogImage?: string;
+  ogImageAlt?: string;
   canonical?: string;
   noindex?: boolean;
-  /** Override section detection. Useful for utility pages that should adopt a specific vertical's accent. */
+  pageType?: "website" | "article" | "review" | "default";
+  breadcrumbs?: BreadcrumbItem[];
+  article?: ArticleData;
+  review?: ReviewData;
   sectionOverride?: import("~/data/verticals").VerticalKey | null;
 }
 
 const {
   title,
   description = "QuoteYeti helps you compare insurance — auto, home, life, business, health, renters, pet, and travel — without the sales pressure.",
-  ogImage = "/assets/images/hero-peaks.svg",
-  canonical = Astro.url.href,
+  ogImage,
+  ogImageAlt,
+  canonical,
   noindex = false,
+  pageType = "default",
+  breadcrumbs,
+  article,
+  review,
   sectionOverride,
 } = Astro.props;
 
 const detectedVertical = detectVertical(Astro.url.pathname);
 const sectionKey = sectionOverride !== undefined ? sectionOverride : detectedVertical?.key;
 const sectionAttr = sectionKey ?? "default";
-
-const siteName = "QuoteYeti";
-const fullTitle = title.includes(siteName) ? title : `${title} · ${siteName}`;
 ---
 
 <!doctype html>
@@ -36,18 +43,19 @@ const fullTitle = title.includes(siteName) ? title : `${title} · ${siteName}`;
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>{fullTitle}</title>
-    <meta name="description" content={description} />
-    <link rel="canonical" href={canonical} />
-    {noindex && <meta name="robots" content="noindex, nofollow" />}
 
-    <meta property="og:type" content="website" />
-    <meta property="og:site_name" content={siteName} />
-    <meta property="og:title" content={fullTitle} />
-    <meta property="og:description" content={description} />
-    <meta property="og:image" content={new URL(ogImage, Astro.site).href} />
-    <meta property="og:url" content={canonical} />
-    <meta name="twitter:card" content="summary_large_image" />
+    <Seo
+      title={title}
+      description={description}
+      canonical={canonical}
+      ogImage={ogImage}
+      ogImageAlt={ogImageAlt}
+      noindex={noindex}
+      pageType={pageType}
+      breadcrumbs={breadcrumbs}
+      article={article}
+      review={review}
+    />
 
     <link rel="icon" type="image/svg+xml" href="/assets/images/footprint.svg" />
 
