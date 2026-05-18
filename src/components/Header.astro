@@ -115,36 +115,80 @@ import ZipForm from "~/components/ZipForm.astro";
     </div>
   </div>
 
-  <div class="mobile-drawer" data-mobile-drawer hidden>
-    <ul class="mobile-drawer__list">
-      {NAV.map((entry) => (
-        <li class="mobile-drawer__item">
-          {entry.href && !entry.panel ? (
-            <a href={entry.href} class="mobile-drawer__top">{entry.label}</a>
-          ) : (
-            <details class="mobile-drawer__details">
-              <summary>{entry.label}</summary>
-              {entry.panel && (
-                <div class="mobile-drawer__panel">
-                  {entry.panel.columns.map((col) => (
-                    <div class="mobile-drawer__col">
-                      <p class="mobile-drawer__col-title">{col.title}</p>
-                      <ul>
-                        {col.links.map((link) => <li><a href={link.href}>{link.label}</a></li>)}
-                      </ul>
+  <!-- Mobile menu — backdrop scrim + slide-in panel from right -->
+  <div class="mobile-menu" data-mobile-drawer aria-hidden="true">
+    <div class="mobile-menu__scrim" data-mobile-scrim aria-hidden="true"></div>
+    <aside class="mobile-menu__panel" role="dialog" aria-modal="true" aria-label="Site menu">
+      <header class="mobile-menu__top">
+        <a href="/" class="mobile-menu__brand" data-mobile-close>
+          <img src="/assets/images/quoteyeti-logo.svg" alt="QuoteYeti" class="mobile-menu__logo" />
+        </a>
+        <button class="mobile-menu__close" data-mobile-close aria-label="Close menu">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+            <path d="M4 4l12 12M16 4L4 16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+        </button>
+      </header>
+
+      <div class="mobile-menu__zip">
+        <ZipForm variant="picker" eyebrow="Get a quote" heading="What are you insuring?" ctaLabel="Continue" />
+      </div>
+
+      <nav class="mobile-menu__nav" aria-label="Mobile navigation">
+        <ul class="mobile-menu__list">
+          {NAV.map((entry) => (
+            <li class="mobile-menu__item">
+              {entry.href && !entry.panel ? (
+                <a href={entry.href} class="mobile-menu__top-link" data-mobile-close>
+                  <span>{entry.label}</span>
+                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+                    <path d="M5 2l5 5-5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </a>
+              ) : (
+                <details class="mobile-menu__details">
+                  <summary>
+                    <span>{entry.label}</span>
+                    <svg class="mobile-menu__chev" width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+                      <path d="M2 5l5 5 5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                  </summary>
+                  {entry.panel && (
+                    <div class="mobile-menu__panel-body">
+                      {entry.panel.columns.map((col) => (
+                        <div class="mobile-menu__col">
+                          <p class="mobile-menu__col-title">{col.title}</p>
+                          <ul>
+                            {col.links.map((link) => (
+                              <li>
+                                <a href={link.href} data-mobile-close>{link.label}</a>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      ))}
+                      {entry.panel.featured?.cta && (
+                        <a href={entry.panel.featured.cta.href} class="mobile-menu__featured" data-mobile-close>
+                          <span>{entry.panel.featured.cta.label}</span>
+                          <svg width="14" height="12" viewBox="0 0 14 12" fill="none" aria-hidden="true">
+                            <path d="M8 1l5 5-5 5M1 6h12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                          </svg>
+                        </a>
+                      )}
                     </div>
-                  ))}
-                  <a href={entry.panel.featured.cta.href} class="mobile-drawer__cta">
-                    {entry.panel.featured.cta.label} →
-                  </a>
-                </div>
+                  )}
+                </details>
               )}
-            </details>
-          )}
-        </li>
-      ))}
-    </ul>
-    <a href="/auto/quotes/" class="mobile-drawer__cta-primary">Get quotes →</a>
+            </li>
+          ))}
+        </ul>
+      </nav>
+
+      <footer class="mobile-menu__footer">
+        <p class="mobile-menu__footer-eyebrow">Independent insurance research</p>
+        <p class="mobile-menu__footer-text">No paid placement. No relentless sales calls.</p>
+      </footer>
+    </aside>
   </div>
 </header>
 
@@ -414,56 +458,278 @@ import ZipForm from "~/components/ZipForm.astro";
     transform: translateY(-7px) rotate(-45deg);
   }
 
-  /* ---- Mobile drawer ---- */
-  .mobile-drawer {
-    position: absolute; top: calc(var(--header-height) + 4px); left: 0; right: 0;
+  /* ============================================
+     Mobile menu — backdrop scrim + slide-in panel
+  ============================================ */
+  .mobile-menu {
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    pointer-events: none;
+    visibility: hidden;
+  }
+  .mobile-menu.is-open {
+    pointer-events: auto;
+    visibility: visible;
+  }
+  .mobile-menu__scrim {
+    position: absolute;
+    inset: 0;
+    background: rgba(44, 69, 119, 0.45);
+    backdrop-filter: blur(2px);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+  .mobile-menu.is-open .mobile-menu__scrim {
+    opacity: 1;
+  }
+  .mobile-menu__panel {
+    position: absolute;
+    top: 0; right: 0; bottom: 0;
+    width: min(420px, 100vw);
     background: var(--color-white);
-    border-top: 1px solid var(--color-border);
-    box-shadow: 0 12px 36px rgba(44, 69, 119, 0.12);
-    padding: var(--space-6);
-    max-height: calc(100vh - var(--header-height));
+    box-shadow: -8px 0 32px rgba(44, 69, 119, 0.15);
+    transform: translateX(100%);
+    transition: transform 0.32s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    flex-direction: column;
     overflow-y: auto;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
   }
-  .mobile-drawer__list { list-style: none; margin: 0; padding: 0; }
-  .mobile-drawer__details summary {
-    cursor: pointer; padding: var(--space-4) 0;
-    font-family: var(--font-display); font-weight: 600; font-size: 1.0625rem;
-    color: var(--color-resolution);
+  .mobile-menu.is-open .mobile-menu__panel {
+    transform: translateX(0);
+  }
+
+  /* Top bar */
+  .mobile-menu__top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--space-5) var(--space-6);
     border-bottom: 1px solid var(--color-border);
-    display: flex; justify-content: space-between; align-items: center;
+    position: sticky;
+    top: 0;
+    background: var(--color-white);
+    z-index: 2;
+  }
+  .mobile-menu__brand {
+    display: inline-flex;
+    text-decoration: none;
+    flex-shrink: 0;
+  }
+  .mobile-menu__logo {
+    height: 32px;
+    width: auto;
+    display: block;
+  }
+  .mobile-menu__close {
+    background: var(--color-alice);
+    border: 1px solid var(--color-border);
+    border-radius: 10px;
+    width: 40px;
+    height: 40px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-resolution);
+    cursor: pointer;
+    transition: background 0.2s, border-color 0.2s;
+  }
+  .mobile-menu__close:hover {
+    background: var(--color-white);
+    border-color: var(--color-malibu);
+    color: var(--color-malibu);
+  }
+
+  /* ZIP CTA at the top */
+  .mobile-menu__zip {
+    padding: var(--space-6);
+    background: linear-gradient(180deg, var(--color-alice) 0%, var(--color-white) 100%);
+    border-bottom: 1px solid var(--color-border);
+  }
+  /* The picker variant has its own max-width; widen for the drawer */
+  .mobile-menu__zip :global(.zipcta--picker) {
+    max-width: 100%;
+    padding: var(--space-5);
+    box-shadow: 0 4px 16px rgba(44, 69, 119, 0.08);
+  }
+  .mobile-menu__zip :global(.zipcta__picker-grid) {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 5px;
+  }
+  @media (max-width: 380px) {
+    .mobile-menu__zip :global(.zipcta__picker-grid) {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  /* Nav */
+  .mobile-menu__nav {
+    padding: var(--space-4) var(--space-6) var(--space-6);
+    flex: 1;
+  }
+  .mobile-menu__list {
     list-style: none;
+    margin: 0;
+    padding: 0;
   }
-  .mobile-drawer__details summary::-webkit-details-marker { display: none; }
-  .mobile-drawer__details summary::after { content: "+"; font-size: 1.5rem; color: var(--color-malibu); font-weight: 400; line-height: 1; }
-  .mobile-drawer__details[open] summary::after { content: "−"; }
-  .mobile-drawer__panel { padding: var(--space-4) 0 var(--space-6); }
-  .mobile-drawer__col-title {
+  .mobile-menu__item + .mobile-menu__item {
+    border-top: 1px solid var(--color-border);
+  }
+
+  .mobile-menu__top-link {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--space-5) 0;
     font-family: var(--font-display);
-    font-size: 0.6875rem; font-weight: 700;
-    text-transform: uppercase; letter-spacing: 0.14em;
-    color: var(--color-text-muted);
-    margin: var(--space-4) 0 var(--space-2);
-  }
-  .mobile-drawer__col ul { list-style: none; margin: 0; padding: 0; }
-  .mobile-drawer__col li a { display: block; padding: var(--space-2) 0; color: var(--color-text-strong); text-decoration: none; font-size: 0.9375rem; }
-  .mobile-drawer__cta { display: inline-block; margin-top: var(--space-4); font-family: var(--font-display); font-weight: 700; color: var(--color-malibu); text-decoration: none; }
-  .mobile-drawer__top {
-    display: block; padding: var(--space-4) 0;
-    font-family: var(--font-display); font-weight: 600; font-size: 1.0625rem;
+    font-weight: 600;
+    font-size: 1.0625rem;
     color: var(--color-resolution);
-    border-bottom: 1px solid var(--color-border);
     text-decoration: none;
+    transition: color 0.15s;
   }
-  .mobile-drawer__cta-primary {
-    display: flex; align-items: center; justify-content: center; gap: var(--space-2);
-    margin-top: var(--space-6); width: 100%;
-    background: var(--color-resolution);
-    color: var(--color-white);
-    padding: 1rem 1.5rem;
-    border-radius: 100px;
-    font-family: var(--font-display); font-weight: 700;
-    font-size: 0.9375rem;
+  .mobile-menu__top-link:hover { color: var(--color-malibu); }
+  .mobile-menu__top-link svg {
+    color: var(--color-ship-cove);
+    transition: transform 0.2s, color 0.15s;
+  }
+  .mobile-menu__top-link:hover svg {
+    color: var(--color-malibu);
+    transform: translateX(3px);
+  }
+
+  .mobile-menu__details {
+    --indicator: var(--color-ship-cove);
+  }
+  .mobile-menu__details summary {
+    cursor: pointer;
+    list-style: none;
+    padding: var(--space-5) 0;
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 1.0625rem;
+    color: var(--color-resolution);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: color 0.15s;
+  }
+  .mobile-menu__details summary:hover { color: var(--color-malibu); }
+  .mobile-menu__details summary::-webkit-details-marker { display: none; }
+  .mobile-menu__chev {
+    color: var(--indicator);
+    transition: transform 0.25s ease, color 0.15s;
+    flex-shrink: 0;
+  }
+  .mobile-menu__details[open] .mobile-menu__chev {
+    transform: rotate(180deg);
+    color: var(--color-malibu);
+  }
+
+  .mobile-menu__panel-body {
+    padding: 0 0 var(--space-5);
+    animation: mobileMenuExpand 0.25s ease-out;
+  }
+  @keyframes mobileMenuExpand {
+    from { opacity: 0; transform: translateY(-4px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .mobile-menu__col {
+    padding-bottom: var(--space-4);
+  }
+  .mobile-menu__col + .mobile-menu__col {
+    padding-top: var(--space-4);
+    border-top: 1px dashed var(--color-border);
+  }
+  .mobile-menu__col-title {
+    font-family: var(--font-display);
+    font-size: 0.6875rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.16em;
+    color: var(--color-text-muted);
+    margin: 0 0 var(--space-3);
+  }
+  .mobile-menu__col ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .mobile-menu__col li a {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-2) 0;
+    color: var(--color-text-strong);
     text-decoration: none;
+    font-size: 0.9375rem;
+    transition: color 0.15s, padding-left 0.15s;
+  }
+  .mobile-menu__col li a::before {
+    content: "";
+    width: 4px;
+    height: 4px;
+    background: var(--color-malibu);
+    border-radius: 50%;
+    opacity: 0;
+    transition: opacity 0.15s;
+  }
+  .mobile-menu__col li a:hover {
+    color: var(--color-malibu);
+    padding-left: 4px;
+  }
+  .mobile-menu__col li a:hover::before {
+    opacity: 1;
+  }
+
+  .mobile-menu__featured {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    margin-top: var(--space-3);
+    padding: var(--space-3) var(--space-5);
+    background: var(--color-alice);
+    border: 1px solid var(--color-border);
+    border-radius: 100px;
+    color: var(--color-resolution);
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 0.8125rem;
+    text-decoration: none;
+    transition: background 0.2s, border-color 0.2s, color 0.2s;
+  }
+  .mobile-menu__featured:hover {
+    background: var(--color-malibu);
+    border-color: var(--color-malibu);
+    color: var(--color-white);
+  }
+  .mobile-menu__featured svg { transition: transform 0.2s; }
+  .mobile-menu__featured:hover svg { transform: translateX(3px); }
+
+  /* Footer */
+  .mobile-menu__footer {
+    padding: var(--space-6);
+    background: var(--color-alice);
+    border-top: 1px solid var(--color-border);
+    margin-top: auto;
+  }
+  .mobile-menu__footer-eyebrow {
+    font-family: var(--font-display);
+    font-size: 0.6875rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.16em;
+    color: var(--color-malibu);
+    margin: 0 0 var(--space-2);
+  }
+  .mobile-menu__footer-text {
+    font-size: 0.875rem;
+    color: var(--color-text-muted);
+    margin: 0;
+    line-height: 1.5;
   }
 
   @media (max-width: 1100px) {
@@ -544,11 +810,43 @@ import ZipForm from "~/components/ZipForm.astro";
     hideImmediate(activeIndex);
   });
 
+  // ---- Mobile menu ----
   const mobileToggle = document.querySelector<HTMLButtonElement>("[data-mobile-toggle]");
-  const mobileDrawer = document.querySelector<HTMLDivElement>("[data-mobile-drawer]");
+  const mobileDrawer = document.querySelector<HTMLElement>("[data-mobile-drawer]");
+  const mobileScrim = document.querySelector<HTMLElement>("[data-mobile-scrim]");
+  const mobileCloseEls = document.querySelectorAll<HTMLElement>("[data-mobile-close]");
+
+  function openMobileMenu() {
+    if (!mobileDrawer || !mobileToggle) return;
+    mobileDrawer.classList.add("is-open");
+    mobileDrawer.setAttribute("aria-hidden", "false");
+    mobileToggle.setAttribute("aria-expanded", "true");
+    mobileToggle.setAttribute("aria-label", "Close menu");
+    document.body.style.overflow = "hidden";
+  }
+  function closeMobileMenu() {
+    if (!mobileDrawer || !mobileToggle) return;
+    mobileDrawer.classList.remove("is-open");
+    mobileDrawer.setAttribute("aria-hidden", "true");
+    mobileToggle.setAttribute("aria-expanded", "false");
+    mobileToggle.setAttribute("aria-label", "Open menu");
+    document.body.style.overflow = "";
+  }
+
   mobileToggle?.addEventListener("click", () => {
-    const expanded = mobileToggle.getAttribute("aria-expanded") === "true";
-    mobileToggle.setAttribute("aria-expanded", String(!expanded));
-    if (mobileDrawer) mobileDrawer.hidden = expanded;
+    if (mobileDrawer?.classList.contains("is-open")) {
+      closeMobileMenu();
+    } else {
+      openMobileMenu();
+    }
+  });
+
+  mobileScrim?.addEventListener("click", closeMobileMenu);
+  mobileCloseEls.forEach((el) => el.addEventListener("click", closeMobileMenu));
+
+  document.addEventListener("keydown", (e: KeyboardEvent) => {
+    if (e.key === "Escape" && mobileDrawer?.classList.contains("is-open")) {
+      closeMobileMenu();
+    }
   });
 </script>

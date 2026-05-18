@@ -38,10 +38,16 @@
   --section-accent-soft: #FCF0EF;
   --section-text-on-accent: var(--color-white);
 
-  /* ---- Typography ---- */
-  --font-display: "sofia-pro", "Source Sans 3", system-ui, sans-serif;
-  --font-serif:   "plantin", "Source Serif 4", Georgia, serif;
-  --font-body:    "proxima-nova", "Inter", system-ui, sans-serif;
+  /* ---- Typography ----
+     Stacks ordered so that whichever provider is loaded wins:
+     - With Typekit:  sofia-pro / plantin / proxima-nova render first
+     - With Google:   Mona Sans / Source Serif 4 / Inter render first
+     - With neither (offline / blocked):  system font fallbacks kick in
+     This lets us flip PUBLIC_FONT_PROVIDER at build time without touching
+     any other CSS. */
+  --font-display: "sofia-pro", "Mona Sans", "Source Sans 3", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-serif:   "plantin", "Source Serif 4", "Source Serif Pro", Georgia, "Times New Roman", serif;
+  --font-body:    "proxima-nova", "Inter", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
 
   /* ---- Type scale ---- */
   --fs-h1:   3.25rem;

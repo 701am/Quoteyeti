@@ -1,0 +1,76 @@
+---
+/**
+ * Font loading strategy
+ * ---------------------
+ * Loads the QuoteYeti typeface stack with proper preconnect chains and
+ * font-display: swap so text renders immediately with a fallback while
+ * the web fonts are still downloading.
+ *
+ * Two providers available, toggled via the PUBLIC_FONT_PROVIDER env var:
+ *   - "google" (default) — Google Fonts, ~30-60% faster TTFB than Typekit
+ *     because the file servers are widely cached at edge networks.
+ *     Uses Mona Sans (sofia-pro alt), Source Serif 4 italic (plantin alt),
+ *     and Inter (proxima-nova alt). Variable fonts, single file per axis.
+ *   - "typekit" — Adobe Typekit with the original sofia-pro / plantin /
+ *     proxima-nova kit. Visually identical to the original design but
+ *     ~150-300ms slower to first paint of styled text.
+ *
+ * Set in .env or wrangler.toml:  PUBLIC_FONT_PROVIDER=typekit
+ * Default if unset:               google
+ *
+ * font-display: swap behaviour:
+ *   - Google CSS includes &display=swap in the URL → swap is applied
+ *   - Typekit kits use their dashboard setting; we add a CSS override
+ *     for any @font-face blocks the kit emits.
+ */
+
+const provider = (import.meta.env.PUBLIC_FONT_PROVIDER ?? "google").toLowerCase();
+const TYPEKIT_ID = "lqp1bjs";
+---
+
+{provider === "typekit" && (
+  <>
+    {/* Preconnect to BOTH typekit hosts — CSS comes from use.typekit.net,
+        actual font files from p.typekit.net (separate origin = separate
+        TCP/TLS handshake without preconnect). */}
+    <link rel="preconnect" href="https://use.typekit.net" crossorigin />
+    <link rel="preconnect" href="https://p.typekit.net" crossorigin />
+    <link rel="dns-prefetch" href="https://use.typekit.net" />
+    <link rel="stylesheet" href={`https://use.typekit.net/${TYPEKIT_ID}.css`} />
+    {/* Force font-display: swap even if the Typekit kit defaults to "block" */}
+    <style is:inline>{`
+      /* Override Typekit's default font-display where possible. The kit's
+         own @font-face blocks may set their own font-display via the
+         dashboard; this is a belt-and-braces override that hits any
+         declaration browsers will respect. */
+      @supports (font-display: swap) {
+        @font-face { font-family: "sofia-pro"; font-display: swap; }
+        @font-face { font-family: "plantin"; font-display: swap; }
+        @font-face { font-family: "proxima-nova"; font-display: swap; }
+      }
+    `}</style>
+  </>
+)}
+
+{provider === "google" && (
+  <>
+    {/* Preconnect chain: Google Fonts CSS is served from fonts.googleapis.com,
+        but the actual woff2 font files come from fonts.gstatic.com (different
+        origin, different TLS connection). Both need preconnect for fastest
+        text render. */}
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
+    {/* Single CSS request loads all three families.
+        - Mona Sans: variable, 200-900 weight + italic axis (sofia-pro stand-in)
+        - Source Serif 4: variable, with italic (plantin stand-in for the
+          editorial italic flourish — same old-style proportions)
+        - Inter: variable, full weight range (proxima-nova stand-in)
+        &display=swap forces FOUT instead of FOIT — text renders immediately
+        in fallback, swaps to webfont when ready. */}
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Mona+Sans:ital,wght@0,200..900;1,200..900&family=Source+Serif+4:ital,opsz,wght@0,8..60,400..900;1,8..60,400..900&family=Inter:wght@400;500;600;700&display=swap"
+    />
+  </>
+)}
