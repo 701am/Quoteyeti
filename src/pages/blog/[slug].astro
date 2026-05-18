@@ -1,5 +1,6 @@
 ---
 import BaseLayout from "~/layouts/BaseLayout.astro";
+import ContentByline from "~/components/ContentByline.astro";
 import { getCollection, render } from "astro:content";
 
 export async function getStaticPaths() {
@@ -10,7 +11,6 @@ export async function getStaticPaths() {
 const { entry } = Astro.props;
 const { Content } = await render(entry);
 const d = entry.data;
-const date = d.publishDate ? new Date(d.publishDate).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" }) : null;
 ---
 
 <BaseLayout
@@ -26,7 +26,7 @@ const date = d.publishDate ? new Date(d.publishDate).toLocaleDateString("en-US",
   article={{
     publishDate: d.publishDate ? new Date(d.publishDate).toISOString() : new Date().toISOString(),
     modifiedDate: d.updatedDate ? new Date(d.updatedDate).toISOString() : (d.publishDate ? new Date(d.publishDate).toISOString() : new Date().toISOString()),
-    authorName: d.author ?? "QuoteYeti editorial",
+    authorName: d.author,
     imageUrl: d.heroImage,
     tags: d.category ? [d.category] : [],
   }}
@@ -39,21 +39,29 @@ const date = d.publishDate ? new Date(d.publishDate).toLocaleDateString("en-US",
         </nav>
         {d.category && <p class="eyebrow">{d.category}</p>}
         <h1>{d.title}</h1>
-        <p class="entry-hero__meta">
-          {date && <span>{date}</span>}
-          {d.author && <span> · {d.author}</span>}
-        </p>
+        {d.excerpt && <p class="entry-hero__lede">{d.excerpt}</p>}
       </div>
     </header>
+
+    <div class="container-narrow">
+      <ContentByline
+        author={d.author}
+        publishDate={d.publishDate}
+        updatedDate={d.updatedDate}
+      />
+    </div>
+
     <div class="container-narrow entry-body"><Content /></div>
   </article>
+
   <style>
-    .entry-hero { padding-block: var(--space-12) var(--space-10); background: var(--color-alice); }
+    .entry-hero { padding-block: var(--space-12) var(--space-8); background: var(--color-alice); }
     .breadcrumbs { font-size: 0.875rem; color: var(--color-text-muted); margin-bottom: var(--space-5); }
     .breadcrumbs a { color: var(--color-text-muted); }
     .breadcrumbs a:hover { color: var(--color-malibu); }
-    .entry-hero__meta { color: var(--color-text-muted); font-size: 0.9375rem; margin-top: var(--space-3); }
-    .entry-body { padding-block: var(--space-10) var(--space-20); font-size: 1.0625rem; line-height: 1.7; }
+    .entry-hero h1 { margin: var(--space-3) 0 var(--space-4); font-size: clamp(2rem, 4vw, 3rem); line-height: 1.1; letter-spacing: -0.025em; }
+    .entry-hero__lede { font-size: 1.1875rem; color: var(--color-text-strong); line-height: 1.55; margin: 0; max-width: 640px; }
+    .entry-body { padding-block: var(--space-8) var(--space-20); font-size: 1.0625rem; line-height: 1.7; }
     .entry-body :global(h2) { margin-top: var(--space-10); margin-bottom: var(--space-5); }
     .entry-body :global(h3) { margin-top: var(--space-8); margin-bottom: var(--space-4); }
     .entry-body :global(p) { margin-bottom: var(--space-5); }

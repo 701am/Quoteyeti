@@ -1,0 +1,431 @@
+---
+import BaseLayout from "~/layouts/BaseLayout.astro";
+import { AUTHORS, AUTHOR_LIST } from "~/data/authors";
+import { VERTICAL_LIST } from "~/data/verticals";
+import { getCollection } from "astro:content";
+
+export async function getStaticPaths() {
+  return AUTHOR_LIST.map((a) => ({
+    params: { slug: a.slug },
+    props: { author: a },
+  }));
+}
+
+const { author } = Astro.props;
+
+// ============================================================
+// Pull live content this author worked on for the contributions list.
+// Default attribution: Rai writes, David reviews, Felix is credited
+// for data on rate-heavy pages. So:
+//   - Rai's profile lists ~everything we publish.
+//   - David's profile lists everything he reviewed (which is everything).
+//   - Felix's profile is anchored to rate/data pages.
+// ============================================================
+async function safe(name: string) {
+  try {
+    return await getCollection(name as any, ({ data }: any) => !data.draft);
+  } catch {
+    return [];
+  }
+}
+
+const allReviews: any[] = [];
+const allGuides: any[] = [];
+const allLocations: any[] = [];
+const allBrands: any[] = [];
+const allPosts = await safe("posts");
+
+for (const v of VERTICAL_LIST) {
+  const reviews = await safe(`${v.key}-reviews`);
+  reviews.forEach((r: any) => allReviews.push({ ...r, _vertical: v }));
+
+  if (v.key !== "auto") {
+    const guides = await safe(v.key);
+    guides.forEach((g: any) => allGuides.push({ ...g, _vertical: v }));
+  }
+
+  if (["auto", "home", "life", "business"].includes(v.key)) {
+    const locs = await safe(`${v.key}-locations`);
+    locs.forEach((l: any) => allLocations.push({ ...l, _vertical: v }));
+  }
+}
+const brands = await safe("auto-brands");
+brands.forEach((b: any) => allBrands.push(b));
+
+// Determine which buckets to show based on role
+const isWriter = author.slug === "rai-antonio";
+const isReviewer = author.slug === "david-krug";
+const isData = author.slug === "felix-lucero";
+
+// Sort posts by publish date
+const sortedPosts = [...allPosts].sort((a: any, b: any) => (b.data.publishDate?.valueOf() ?? 0) - (a.data.publishDate?.valueOf() ?? 0));
+
+const profileUrl = `https://www.quoteyeti.com/about/team/${author.slug}/`;
+
+// Build the additional Person JSON-LD specifically for the profile page
+// (this is in addition to what Seo.astro emits for Article schemas)
+const personSchema = {
+  "@context": "https://schema.org",
+  "@type": "Person",
+  "@id": `${profileUrl}#person`,
+  name: author.name,
+  jobTitle: author.role,
+  description: author.bio,
+  url: profileUrl,
+  image: `https://www.quoteyeti.com${author.avatar}`,
+  knowsAbout: author.expertise,
+  sameAs: author.sameAs?.map((s) => s.url) ?? [],
+  worksFor: {
+    "@type": "Organization",
+    "@id": "https://www.quoteyeti.com/#organization",
+    name: "QuoteYeti",
+  },
+  alumniOf: author.credentials,
+  mainEntityOfPage: profileUrl,
+};
+---
+
+<BaseLayout
+  title={`${author.name} — ${author.role} at QuoteYeti`}
+  description={author.bio.slice(0, 158)}
+  ogImage={author.avatar}
+  breadcrumbs={[
+    { name: "Home", url: "/" },
+    { name: "About", url: "/about/" },
+    { name: "Team", url: "/about/team/" },
+    { name: author.name, url: `/about/team/${author.slug}/` },
+  ]}
+>
+  <!-- Person JSON-LD — anchored to this profile URL so Google
+       sees this as the canonical Person record referenced from
+       every Article/Review byline. -->
+  <script slot="head" type="application/ld+json" set:html={JSON.stringify(personSchema)} />
+
+  <article class="profile">
+    <section class="profile-hero" style={`--p-accent: ${author.accent ?? "#64BCE1"};`}>
+      <div class="container">
+        <nav class="breadcrumbs" aria-label="Breadcrumb">
+          <a href="/">Home</a>
+          <span class="breadcrumbs__sep" aria-hidden="true">›</span>
+          <a href="/about/">About</a>
+          <span class="breadcrumbs__sep" aria-hidden="true">›</span>
+          <a href="/about/team/">Team</a>
+          <span class="breadcrumbs__sep" aria-hidden="true">›</span>
+          <span aria-current="page">{author.name}</span>
+        </nav>
+
+        <div class="profile-hero__grid">
+          <div class="profile-hero__avatar">
+            <img src={author.avatar} alt={author.name} width="180" height="180" fetchpriority="high" />
+            <span class="profile-hero__check" aria-label="Verified team member">
+              <svg width="32" height="32" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+                <circle cx="7" cy="7" r="7" fill="currentColor"/>
+                <path d="M3.8 7.2l2 2 4.4-4.4" stroke="#FFFFFF" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+              </svg>
+            </span>
+          </div>
+
+          <div class="profile-hero__copy">
+            <p class="eyebrow">{author.role}</p>
+            <h1>{author.name}</h1>
+            <p class="profile-hero__title">{author.title}</p>
+
+            {(author.yearsExperience !== undefined || author.expertise.length > 0) && (
+              <div class="profile-hero__facts">
+                {author.yearsExperience !== undefined && (
+                  <div class="profile-fact">
+                    <span class="profile-fact__num">{author.yearsExperience}+</span>
+                    <span class="profile-fact__label">years experience</span>
+                  </div>
+                )}
+                <div class="profile-fact">
+                  <span class="profile-fact__num">{author.expertise.length}</span>
+                  <span class="profile-fact__label">areas of focus</span>
+                </div>
+                {author.sameAs && author.sameAs.length > 0 && (
+                  <div class="profile-fact profile-fact--social">
+                    {author.sameAs.map((link) => (
+                      <a href={link.url} class="profile-fact__link" target="_blank" rel="noopener noreferrer">
+                        <span>{link.label}</span>
+                        <svg width="11" height="11" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+                          <path d="M4 3h7v7M11 3L4 10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                      </a>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="profile-bio">
+      <div class="container container--narrow">
+        <p class="profile-bio__body">{author.bio}</p>
+
+        {author.credentials && author.credentials.length > 0 && (
+          <div class="profile-credentials">
+            <h2>Credentials</h2>
+            <ul>
+              {author.credentials.map((c) => (
+                <li>
+                  <span class="profile-credentials__check" aria-hidden="true">
+                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                      <circle cx="7" cy="7" r="7" fill="currentColor"/>
+                      <path d="M3.8 7.2l2 2 4.4-4.4" stroke="#FFFFFF" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+                    </svg>
+                  </span>
+                  <span>{c}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
+        <div class="profile-expertise">
+          <h2>Areas of expertise</h2>
+          <div class="profile-expertise__chips">
+            {author.expertise.map((e) => (
+              <span class="profile-expertise__chip">{e}</span>
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
+
+    {/* CONTRIBUTIONS — different mix per role */}
+    <section class="profile-contributions">
+      <div class="container">
+        <header class="profile-contributions__header">
+          <p class="eyebrow">Recent work</p>
+          <h2>
+            {isWriter && <>What {author.name.split(" ")[0]} has been <span class="serif-italic">writing</span></>}
+            {isReviewer && <>Editorial work {author.name.split(" ")[0]} has <span class="serif-italic">reviewed</span></>}
+            {isData && <>Data work {author.name.split(" ")[0]} has <span class="serif-italic">verified</span></>}
+          </h2>
+        </header>
+
+        {/* Blog posts — show for writer and reviewer */}
+        {(isWriter || isReviewer) && sortedPosts.length > 0 && (
+          <div class="profile-section">
+            <h3>From The Dispatch</h3>
+            <ul class="profile-list">
+              {sortedPosts.slice(0, 10).map((p: any) => (
+                <li>
+                  <a href={`/blog/${p.id}/`}>
+                    <span class="profile-list__title">{p.data.title}</span>
+                    {p.data.category && <span class="profile-list__meta">{p.data.category}</span>}
+                  </a>
+                </li>
+              ))}
+            </ul>
+            {sortedPosts.length > 10 && (
+              <a href="/blog/" class="profile-section__more">All {sortedPosts.length} Dispatch posts →</a>
+            )}
+          </div>
+        )}
+
+        {/* Guides — for writer and reviewer */}
+        {(isWriter || isReviewer) && allGuides.length > 0 && (
+          <div class="profile-section">
+            <h3>In-depth guides ({allGuides.length})</h3>
+            <ul class="profile-list profile-list--grid">
+              {allGuides.slice(0, 12).map((g: any) => (
+                <li>
+                  <a href={`${g._vertical.path}guides/${g.id}/`}>
+                    <span class="profile-list__cat" style={`color: ${g._vertical.accent};`}>{g._vertical.short}</span>
+                    <span class="profile-list__title">{g.data.title}</span>
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
+        {/* Carrier reviews — all roles */}
+        {allReviews.length > 0 && (
+          <div class="profile-section">
+            <h3>Carrier reviews ({allReviews.length})</h3>
+            <ul class="profile-list profile-list--grid">
+              {allReviews.slice(0, 12).map((r: any) => (
+                <li>
+                  <a href={`${r._vertical.path}reviews/${r.id}/`}>
+                    <span class="profile-list__cat" style={`color: ${r._vertical.accent};`}>{r._vertical.short}</span>
+                    <span class="profile-list__title">{r.data.company ?? r.data.title}</span>
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
+        {/* State pages + brands — emphasized for Felix */}
+        {isData && allLocations.length > 0 && (
+          <div class="profile-section">
+            <h3>State rate analyses ({allLocations.length})</h3>
+            <ul class="profile-list profile-list--grid">
+              {allLocations.slice(0, 12).map((l: any) => (
+                <li>
+                  <a href={`${l._vertical.path}by-state/${l.id}/`}>
+                    <span class="profile-list__cat" style={`color: ${l._vertical.accent};`}>{l._vertical.short}</span>
+                    <span class="profile-list__title">{l.data.state ?? l.data.title}</span>
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
+        {isData && allBrands.length > 0 && (
+          <div class="profile-section">
+            <h3>Vehicle rate datasets</h3>
+            <ul class="profile-list profile-list--grid">
+              {allBrands.slice(0, 8).map((b: any) => (
+                <li>
+                  <a href={`/auto/brands/${b.id}/`}>
+                    <span class="profile-list__cat" style="color: #F46036;">Auto</span>
+                    <span class="profile-list__title">{(b.data.brand ?? b.data.title ?? "").replace(/ Car Insurance.*$/i, "")}</span>
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+      </div>
+    </section>
+
+    <section class="profile-final">
+      <div class="container">
+        <div class="profile-final__inner">
+          <h2>
+            More from
+            <span class="serif-italic">QuoteYeti</span>
+          </h2>
+          <p>
+            See the full <a href="/about/team/">editorial team</a>, our <a href="/methodology/">research methodology</a>, or browse <a href="/sitemap/">every page on the site</a>.
+          </p>
+        </div>
+      </div>
+    </section>
+  </article>
+
+  <style>
+    .breadcrumbs { font-size: 0.8125rem; color: var(--color-text-muted); margin-bottom: var(--space-6); display: flex; align-items: center; gap: var(--space-2); flex-wrap: wrap; }
+    .breadcrumbs a { color: var(--color-text-muted); text-decoration: none; }
+    .breadcrumbs a:hover { color: var(--p-accent, var(--color-malibu)); }
+    .breadcrumbs__sep { opacity: 0.4; }
+
+    .serif-italic { font-family: var(--font-serif, "Plantin", Georgia, serif); font-style: italic; font-weight: 500; color: var(--p-accent, var(--color-malibu)); }
+    .eyebrow { display: inline-block; font-family: var(--font-display); font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.16em; color: var(--p-accent, var(--color-malibu)); margin: 0 0 var(--space-3); }
+
+    .profile-hero {
+      padding-block: var(--space-12) var(--space-16);
+      background: linear-gradient(135deg, color-mix(in srgb, var(--p-accent) 8%, var(--color-alice)) 0%, var(--color-white) 100%);
+    }
+    .profile-hero__grid { display: grid; grid-template-columns: auto 1fr; gap: var(--space-10); align-items: center; }
+
+    .profile-hero__avatar { position: relative; }
+    .profile-hero__avatar img { width: 180px; height: 180px; border-radius: 50%; display: block; box-shadow: 0 12px 32px rgba(0,0,0,0.12); }
+    .profile-hero__check {
+      position: absolute;
+      bottom: 4px;
+      right: 4px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 40px;
+      height: 40px;
+      background: var(--color-white);
+      border-radius: 50%;
+      color: var(--p-accent);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+
+    .profile-hero h1 {
+      font-size: clamp(2.25rem, 4.5vw, 3.5rem);
+      letter-spacing: -0.03em;
+      line-height: 1.05;
+      margin: 0 0 var(--space-3);
+      color: var(--color-resolution);
+    }
+    .profile-hero__title {
+      font-family: var(--font-display);
+      font-size: 1.0625rem;
+      color: var(--color-text-strong);
+      margin: 0 0 var(--space-6);
+      line-height: 1.5;
+    }
+    .profile-hero__facts { display: flex; flex-wrap: wrap; gap: var(--space-8); align-items: center; padding-top: var(--space-5); border-top: 1px solid color-mix(in srgb, var(--p-accent) 25%, transparent); }
+    .profile-fact { display: flex; flex-direction: column; gap: 2px; }
+    .profile-fact__num { font-family: var(--font-display); font-weight: 800; font-size: 1.5rem; letter-spacing: -0.025em; color: var(--p-accent); line-height: 1; }
+    .profile-fact__label { font-family: var(--font-display); font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.14em; color: var(--color-text-muted); }
+    .profile-fact--social { flex-direction: row; gap: var(--space-3); }
+    .profile-fact__link { display: inline-flex; align-items: center; gap: 6px; padding: 8px 14px; background: var(--color-white); border: 1px solid var(--color-border); border-radius: 100px; font-family: var(--font-display); font-weight: 700; font-size: 0.8125rem; color: var(--color-resolution); text-decoration: none; transition: border-color 0.15s, transform 0.15s; }
+    .profile-fact__link:hover { border-color: var(--p-accent); color: var(--p-accent); transform: translateY(-1px); }
+    @media (max-width: 760px) {
+      .profile-hero__grid { grid-template-columns: 1fr; gap: var(--space-6); text-align: left; }
+      .profile-hero__avatar img { width: 140px; height: 140px; }
+    }
+
+    .profile-bio { padding-block: var(--space-12); background: var(--color-white); }
+    .container--narrow { max-width: 760px; margin: 0 auto; padding: 0 var(--space-4); }
+    .profile-bio__body { font-size: 1.125rem; line-height: 1.7; color: var(--color-text); margin: 0 0 var(--space-10); }
+
+    .profile-credentials,
+    .profile-expertise { padding-top: var(--space-8); margin-top: var(--space-8); border-top: 1px solid var(--color-border); }
+    .profile-credentials h2,
+    .profile-expertise h2 {
+      font-family: var(--font-display); font-weight: 700;
+      font-size: 1.125rem; letter-spacing: -0.01em;
+      color: var(--color-resolution); margin: 0 0 var(--space-5);
+    }
+    .profile-credentials ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--space-3); }
+    .profile-credentials li { display: flex; gap: var(--space-3); align-items: flex-start; font-size: 1rem; line-height: 1.5; }
+    .profile-credentials__check { display: inline-flex; color: var(--p-accent); flex-shrink: 0; margin-top: 3px; }
+
+    .profile-expertise__chips { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+    .profile-expertise__chip {
+      display: inline-block;
+      padding: 6px 14px;
+      background: color-mix(in srgb, var(--p-accent) 12%, transparent);
+      color: var(--p-accent);
+      border-radius: 100px;
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 0.8125rem;
+    }
+
+    .profile-contributions { padding-block: var(--space-16); background: var(--color-alice); }
+    .profile-contributions__header { text-align: center; max-width: 720px; margin: 0 auto var(--space-12); }
+    .profile-contributions__header h2 {
+      font-size: clamp(1.875rem, 3.5vw, 2.5rem);
+      letter-spacing: -0.025em;
+      line-height: 1.1;
+      margin: 0;
+      color: var(--color-resolution);
+    }
+
+    .profile-section { margin-bottom: var(--space-10); padding: var(--space-7); background: var(--color-white); border: 1px solid var(--color-border); border-radius: 14px; }
+    .profile-section h3 { font-family: var(--font-display); font-weight: 700; font-size: 1.125rem; letter-spacing: -0.01em; color: var(--color-resolution); margin: 0 0 var(--space-5); padding-bottom: var(--space-3); border-bottom: 2px solid var(--p-accent); display: inline-block; }
+    .profile-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 2px; }
+    .profile-list--grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-2); }
+    .profile-list li a { display: flex; flex-direction: column; gap: 4px; padding: var(--space-3) var(--space-4); border-radius: 8px; text-decoration: none; color: var(--color-text); transition: background 0.15s; }
+    .profile-list li a:hover { background: var(--color-alice); color: var(--p-accent); }
+    .profile-list__cat { font-family: var(--font-display); font-size: 0.625rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.14em; }
+    .profile-list__title { font-size: 0.9375rem; font-weight: 500; color: var(--color-resolution); line-height: 1.35; }
+    .profile-list__meta { font-size: 0.75rem; color: var(--color-text-muted); }
+    .profile-section__more { display: inline-block; margin-top: var(--space-4); font-family: var(--font-display); font-weight: 700; font-size: 0.875rem; color: var(--p-accent); text-decoration: none; }
+    .profile-section__more:hover { text-decoration: underline; text-underline-offset: 3px; }
+    @media (max-width: 700px) {
+      .profile-list--grid { grid-template-columns: 1fr; }
+    }
+
+    .profile-final { padding-block: var(--space-16); background: var(--color-white); }
+    .profile-final__inner { max-width: 640px; margin: 0 auto; text-align: center; }
+    .profile-final h2 { font-size: clamp(2rem, 4vw, 2.75rem); letter-spacing: -0.025em; line-height: 1.1; margin: 0 0 var(--space-5); color: var(--color-resolution); }
+    .profile-final p { font-size: 1.0625rem; line-height: 1.65; color: var(--color-text); margin: 0; }
+    .profile-final a { color: var(--p-accent, var(--color-malibu)); text-decoration: underline; text-underline-offset: 3px; }
+  </style>
+</BaseLayout>

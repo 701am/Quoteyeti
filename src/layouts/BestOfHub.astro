@@ -1,5 +1,6 @@
 ---
 import BaseLayout from "~/layouts/BaseLayout.astro";
+import ContentByline from "~/components/ContentByline.astro";
 import ZipForm from "~/components/ZipForm.astro";
 import type { Vertical } from "~/data/verticals";
 
@@ -42,7 +43,6 @@ const topCarrier = carriers[0];
   article={{
     publishDate: "2026-01-15T00:00:00.000Z",
     modifiedDate: new Date().toISOString(),
-    authorName: "QuoteYeti editorial",
     tags: [`${vertical.short.toLowerCase()} insurance`, "carrier rankings", "best of 2026"],
   }}
 >
@@ -63,6 +63,16 @@ const topCarrier = carriers[0];
       </p>
       <h1>{hero.headline.split(" of ")[0]}<span class="serif-italic"> of {hero.headline.split(" of ")[1] ?? "2026"}</span></h1>
       <p class="best-hero__lede">{hero.lede}</p>
+    </div>
+  </section>
+
+  <!-- ============== BYLINE — E-E-A-T attribution ============== -->
+  <section class="best-byline-wrap">
+    <div class="container">
+      <ContentByline
+        publishDate="2026-01-15T00:00:00.000Z"
+        updatedDate={new Date()}
+      />
     </div>
   </section>
 
@@ -294,6 +304,12 @@ const topCarrier = carriers[0];
       font-style: italic;
       font-weight: 500;
       color: var(--section-accent);
+    }
+
+    /* Byline strip between hero and main body */
+    .best-byline-wrap {
+      padding-block: var(--space-6) 0;
+      background: var(--color-white);
     }
 
     /* Layout */

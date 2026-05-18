@@ -1,5 +1,6 @@
 ---
 import BaseLayout from "~/layouts/BaseLayout.astro";
+import ContentByline from "~/components/ContentByline.astro";
 import { getCollection, render } from "astro:content";
 import { VERTICALS } from "~/data/verticals";
 
@@ -14,13 +15,30 @@ export async function getStaticPaths() {
 const { entry } = Astro.props;
 const { Content } = await render(entry);
 const v = VERTICALS.auto;
+const d = entry.data;
+
+const effectiveUpdated = d.updatedDate ?? d.publishDate ?? new Date();
+const effectivePublished = d.publishDate ?? effectiveUpdated;
 ---
 
 <BaseLayout
-  title={entry.data.seoTitle ?? entry.data.title}
-  description={entry.data.seoDescription ?? entry.data.description}
-  ogImage={entry.data.ogImage ?? entry.data.heroImage}
-  noindex={entry.data.noindex}
+  title={d.seoTitle ?? d.title}
+  description={d.seoDescription ?? d.description}
+  ogImage={d.ogImage ?? d.heroImage}
+  pageType="article"
+  noindex={d.noindex}
+  breadcrumbs={[
+    { name: "Home", url: "/" },
+    { name: "Auto", url: "/auto/" },
+    { name: "Brands", url: "/auto/brands/" },
+    { name: d.brand ?? d.title, url: `/auto/brands/${entry.id}/` },
+  ]}
+  article={{
+    publishDate: new Date(effectivePublished).toISOString(),
+    modifiedDate: new Date(effectiveUpdated).toISOString(),
+    authorName: d.author,
+    tags: ["Auto", d.brand ?? "Brand"],
+  }}
 >
 
   <article class="entry-article">
@@ -30,13 +48,22 @@ const v = VERTICALS.auto;
           <a href="/">Home</a> ›
           <a href="/auto/">Auto</a> ›
           <a href="/auto/brands/">Brands</a> ›
-          <span>{entry.data.brand ?? entry.data.title}</span>
+          <span>{d.brand ?? d.title}</span>
         </nav>
         <p class="eyebrow">Auto Insurance · Brand Guide</p>
-        <h1>{entry.data.title}</h1>
-        {entry.data.description && <p class="entry-hero__lede">{entry.data.description}</p>}
+        <h1>{d.title}</h1>
+        {d.description && <p class="entry-hero__lede">{d.description}</p>}
       </div>
     </header>
+
+    <div class="container">
+      <ContentByline
+        author={d.author}
+        publishDate={effectivePublished}
+        updatedDate={effectiveUpdated}
+        showData={true}
+      />
+    </div>
 
     <div class="container-narrow entry-body">
       <Content />

@@ -1,5 +1,6 @@
 ---
 import BaseLayout from "~/layouts/BaseLayout.astro";
+import ContentByline from "~/components/ContentByline.astro";
 import ZipForm from "~/components/ZipForm.astro";
 import type { Vertical } from "~/data/verticals";
 
@@ -33,6 +34,12 @@ interface Props {
   /** SEO overrides */
   seoTitle?: string;
   seoDescription?: string;
+  /** Optional author/reviewer override (defaults to Rai/David) */
+  author?: string;
+  reviewer?: string;
+  /** Optional publish/update dates */
+  publishDate?: string | Date;
+  updatedDate?: string | Date;
 }
 
 const {
@@ -46,17 +53,34 @@ const {
   showCTA = true,
   seoTitle,
   seoDescription,
+  author,
+  reviewer,
+  publishDate,
+  updatedDate,
 } = Astro.props;
+
+// Default updated date to today if none provided — these are evergreen
+// support pages, so a recent date keeps them from looking stale.
+const effectiveUpdated = updatedDate ?? new Date();
+const effectivePublished = publishDate ?? effectiveUpdated;
 ---
 
 <BaseLayout
   title={seoTitle ?? `${headline} | ${vertical.label}`}
   description={seoDescription ?? lede}
+  pageType="article"
   breadcrumbs={[
     { name: "Home", url: "/" },
     { name: vertical.short, url: vertical.path },
     { name: topic, url: Astro.url.pathname },
   ]}
+  article={{
+    publishDate: new Date(effectivePublished).toISOString(),
+    modifiedDate: new Date(effectiveUpdated).toISOString(),
+    authorName: author,
+    reviewerName: reviewer,
+    tags: [vertical.short, topic],
+  }}
 >
   <article class="topic">
     <header class="topic__hero">
@@ -76,6 +100,15 @@ const {
         <p class="topic__lede">{lede}</p>
       </div>
     </header>
+
+    <div class="container">
+      <ContentByline
+        author={author}
+        reviewer={reviewer}
+        publishDate={effectivePublished}
+        updatedDate={effectiveUpdated}
+      />
+    </div>
 
     <div class="topic__body">
       <div class="container container--narrow">

@@ -1,5 +1,6 @@
 ---
 import BaseLayout from "~/layouts/BaseLayout.astro";
+import ContentByline from "~/components/ContentByline.astro";
 import { getCollection, render } from "astro:content";
 import { VERTICALS } from "~/data/verticals";
 
@@ -12,7 +13,6 @@ const { entry } = Astro.props;
 const { Content } = await render(entry);
 const d = entry.data;
 const v = VERTICALS.health;
-const date = d.publishDate ? new Date(d.publishDate).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" }) : null;
 ---
 
 <BaseLayout
@@ -46,12 +46,15 @@ const date = d.publishDate ? new Date(d.publishDate).toLocaleDateString("en-US",
         </p>
         <h1>{d.title}</h1>
         {d.description && <p class="guide-hero__lede">{d.description}</p>}
-        <p class="guide-hero__meta">
-          {date && <span>Updated {date}</span>}
-          {d.author && <span> · {d.author}</span>}
-        </p>
       </div>
     </header>
+    <div class="container-narrow">
+      <ContentByline
+        author={d.author}
+        publishDate={d.publishDate}
+        updatedDate={d.updatedDate}
+      />
+    </div>
     <div class="container-narrow guide-body"><Content /></div>
   </article>
 
@@ -91,11 +94,6 @@ const date = d.publishDate ? new Date(d.publishDate).toLocaleDateString("en-US",
       color: var(--color-text-strong);
       line-height: 1.55;
       margin: 0 0 var(--space-5);
-    }
-    .guide-hero__meta {
-      color: var(--color-text-muted);
-      font-size: 0.9375rem;
-      margin: 0;
     }
     .guide-body {
       padding-block: var(--space-12) var(--space-20);

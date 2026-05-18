@@ -1,5 +1,6 @@
 ---
 import BaseLayout from "~/layouts/BaseLayout.astro";
+import ContentByline from "~/components/ContentByline.astro";
 import ZipForm from "~/components/ZipForm.astro";
 import type { Vertical } from "~/data/verticals";
 
@@ -81,7 +82,8 @@ const remainingTakeaways = takeaways.slice(1);
     score: ratings.overall,
     publishDate: carrier.updated,
     modifiedDate: carrier.updated,
-    authorName: carrier.author?.name ?? "QuoteYeti editorial",
+    authorName: carrier.author?.name,
+    reviewerName: carrier.editor?.name,
   }}
 >
 
@@ -113,12 +115,6 @@ const remainingTakeaways = takeaways.slice(1);
             {carrier.name} <span class="serif-italic">{vertical.label}</span> Review
           </h1>
           <p class="review-hero__positioning">{carrier.headline}</p>
-
-          <div class="review-hero__meta">
-            <span class="review-hero__updated">Updated {carrier.updated}</span>
-            {carrier.author && <span class="review-hero__byline">By {carrier.author.name}</span>}
-            {carrier.editor && <span class="review-hero__byline">Edited by {carrier.editor.name}</span>}
-          </div>
         </div>
       </div>
 
@@ -128,6 +124,18 @@ const remainingTakeaways = takeaways.slice(1);
           <path d="M9 1l6 6-6 6M1 7h14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
       </a>
+    </div>
+  </section>
+
+  <!-- ============== BYLINE — author/reviewer/data scientist with verification ============== -->
+  <section class="review-byline-wrap">
+    <div class="container">
+      <ContentByline
+        author={carrier.author?.name}
+        reviewer={carrier.editor?.name}
+        publishDate={carrier.updated}
+        updatedDate={carrier.updated}
+      />
     </div>
   </section>
 
@@ -564,20 +572,13 @@ const remainingTakeaways = takeaways.slice(1);
       max-width: 720px;
       line-height: 1.55;
     }
-    .review-hero__meta {
-      display: flex; flex-wrap: wrap; gap: var(--space-5);
-      font-size: 0.875rem;
-      color: var(--color-text-muted);
-    }
-    .review-hero__updated::before {
-      content: ""; display: inline-block;
-      width: 14px; height: 14px;
-      background: var(--section-accent);
-      border-radius: 50%;
-      margin-right: 8px;
-      vertical-align: -2px;
-    }
     .review-hero__cta { margin-top: var(--space-5); }
+
+    /* Byline strip lives between hero and the two-column body. */
+    .review-byline-wrap {
+      padding-block: var(--space-6) 0;
+      background: var(--color-white);
+    }
 
     /* ==================================================
        Two-column layout

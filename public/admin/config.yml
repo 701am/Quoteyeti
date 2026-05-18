@@ -152,8 +152,26 @@ review_fields: &review_fields
       - { label: "Description", name: "description", widget: "text" }
 
   - { label: "Author bio (overrides default)", name: "authorBio", widget: "text", required: false }
-  - { label: "Author byline", name: "author", widget: "string", required: false }
-  - { label: "Editor", name: "editor", widget: "string", required: false }
+  - label: "Author (writer)"
+    name: "author"
+    widget: "select"
+    required: false
+    default: "Rai Antonio"
+    hint: "Pick the writer. Defaults to Rai Antonio if blank."
+    options:
+      - { label: "Rai Antonio (Senior Staff Writer)", value: "Rai Antonio" }
+      - { label: "David Krug (Editor-in-Chief)", value: "David Krug" }
+      - { label: "Felix Lucero (Data Scientist)", value: "Felix Lucero" }
+  - label: "Editor / Reviewer"
+    name: "editor"
+    widget: "select"
+    required: false
+    default: "David Krug"
+    hint: "Pick the editor who reviewed this piece. Defaults to David Krug."
+    options:
+      - { label: "David Krug (Editor-in-Chief)", value: "David Krug" }
+      - { label: "Rai Antonio (Senior Staff Writer)", value: "Rai Antonio" }
+      - { label: "Felix Lucero (Data Scientist)", value: "Felix Lucero" }
   - { label: "Publish date", name: "publishDate", widget: "datetime", required: false }
   - { label: "Updated date", name: "updatedDate", widget: "datetime", required: false }
   - { label: "Draft", name: "draft", widget: "boolean", default: false, required: false }
@@ -175,7 +193,24 @@ guide_fields: &guide_fields
     required: false
   - { label: "Subcategory", name: "subcategory", widget: "string", required: false }
   - { label: "Hero image", name: "heroImage", widget: "image", required: false }
-  - { label: "Author", name: "author", widget: "string", required: false }
+  - label: "Author (writer)"
+    name: "author"
+    widget: "select"
+    required: false
+    default: "Rai Antonio"
+    options:
+      - { label: "Rai Antonio (Senior Staff Writer)", value: "Rai Antonio" }
+      - { label: "David Krug (Editor-in-Chief)", value: "David Krug" }
+      - { label: "Felix Lucero (Data Scientist)", value: "Felix Lucero" }
+  - label: "Reviewer / Editor"
+    name: "reviewer"
+    widget: "select"
+    required: false
+    default: "David Krug"
+    options:
+      - { label: "David Krug (Editor-in-Chief)", value: "David Krug" }
+      - { label: "Rai Antonio (Senior Staff Writer)", value: "Rai Antonio" }
+      - { label: "Felix Lucero (Data Scientist)", value: "Felix Lucero" }
   - { label: "Publish date", name: "publishDate", widget: "datetime", required: false }
   - { label: "Updated date", name: "updatedDate", widget: "datetime", required: false }
   - { label: "Draft", name: "draft", widget: "boolean", default: false, required: false }
@@ -484,7 +519,24 @@ collections:
       - { label: "Category", name: "category", widget: "string", required: false }
       - { label: "Tags", name: "tags", widget: "list", required: false }
       - { label: "Hero image", name: "heroImage", widget: "image", required: false }
-      - { label: "Author", name: "author", widget: "string", required: false }
+      - label: "Author (writer)"
+        name: "author"
+        widget: "select"
+        required: false
+        default: "Rai Antonio"
+        options:
+          - { label: "Rai Antonio (Senior Staff Writer)", value: "Rai Antonio" }
+          - { label: "David Krug (Editor-in-Chief)", value: "David Krug" }
+          - { label: "Felix Lucero (Data Scientist)", value: "Felix Lucero" }
+      - label: "Reviewer / Editor"
+        name: "reviewer"
+        widget: "select"
+        required: false
+        default: "David Krug"
+        options:
+          - { label: "David Krug (Editor-in-Chief)", value: "David Krug" }
+          - { label: "Rai Antonio (Senior Staff Writer)", value: "Rai Antonio" }
+          - { label: "Felix Lucero (Data Scientist)", value: "Felix Lucero" }
       - { label: "Publish date", name: "publishDate", widget: "datetime", required: true }
       - { label: "Updated date", name: "updatedDate", widget: "datetime", required: false }
       - { label: "Draft", name: "draft", widget: "boolean", default: false, required: false }
@@ -506,7 +558,15 @@ collections:
       - { label: "Title", name: "title", widget: "string" }
       - { label: "Description", name: "description", widget: "string", required: false }
       - { label: "Layout", name: "layout", widget: "select", options: ["default", "narrow", "wide"], default: "default", required: false }
-      - { label: "Author", name: "author", widget: "string", required: false }
+      - label: "Author (writer)"
+        name: "author"
+        widget: "select"
+        required: false
+        default: "Rai Antonio"
+        options:
+          - { label: "Rai Antonio (Senior Staff Writer)", value: "Rai Antonio" }
+          - { label: "David Krug (Editor-in-Chief)", value: "David Krug" }
+          - { label: "Felix Lucero (Data Scientist)", value: "Felix Lucero" }
       - { label: "Publish date", name: "publishDate", widget: "datetime", required: false }
       - { label: "Updated date", name: "updatedDate", widget: "datetime", required: false }
       - { label: "Draft", name: "draft", widget: "boolean", default: false, required: false }

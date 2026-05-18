@@ -9,6 +9,7 @@
  */
 
 import { detectVertical } from "~/data/verticals";
+import { resolveAuthor, DEFAULT_BYLINE, isDataHeavyPage, AUTHORS, type Author } from "~/data/authors";
 
 const SITE_URL = "https://www.quoteyeti.com";
 const SITE_NAME = "QuoteYeti";
@@ -27,13 +28,19 @@ export interface ReviewData {
   bestFor?: string;
   publishDate: string;
   modifiedDate?: string;
+  /** Author name or slug. Falls back to default writer (Rai Antonio). */
   authorName?: string;
+  /** Reviewer name or slug. Falls back to default reviewer (David Krug). */
+  reviewerName?: string;
 }
 
 export interface ArticleData {
   publishDate: string;
   modifiedDate?: string;
+  /** Author name or slug. Falls back to default writer (Rai Antonio). */
   authorName?: string;
+  /** Reviewer name or slug. Falls back to default reviewer (David Krug). */
+  reviewerName?: string;
   imageUrl?: string;
   tags?: string[];
 }
@@ -96,6 +103,27 @@ const description = clampDescription(rawDescription);
 const fullTitle = title.includes(SITE_NAME) ? title : `${title} · ${SITE_NAME}`;
 const detectedVertical = detectVertical(Astro.url.pathname);
 
+/**
+ * Convert an Author record into a Schema.org Person node for JSON-LD.
+ * Same @id across the site = crawlers treat all pages as referencing
+ * one canonical Person (the team-profile page is that anchor).
+ */
+function toPersonNode(person: Author, siteUrl: string, publisherId: string) {
+  const profileUrl = `${siteUrl}/about/team/${person.slug}/`;
+  return {
+    "@type": "Person",
+    "@id": `${profileUrl}#person`,
+    name: person.name,
+    jobTitle: person.role,
+    description: person.bio,
+    url: profileUrl,
+    image: person.avatar ? `${siteUrl}${person.avatar}` : undefined,
+    knowsAbout: person.expertise,
+    sameAs: person.sameAs?.map((s) => s.url),
+    worksFor: { "@id": publisherId },
+  };
+}
+
 // IDs for linked graph
 const websiteId = `${SITE_URL}/#website`;
 const orgId = `${SITE_URL}/#organization`;
@@ -140,6 +168,20 @@ graph.push({
 });
 
 if (pageType === "review" && review) {
+  // Resolve writer + reviewer to Person records
+  const writer = resolveAuthor(review.authorName);
+  const reviewerPerson = resolveAuthor(review.reviewerName, DEFAULT_BYLINE.reviewer);
+  const writerId = `${SITE_URL}/about/team/${writer.slug}/#person`;
+  const reviewerId = `${SITE_URL}/about/team/${reviewerPerson.slug}/#person`;
+  const includeData = isDataHeavyPage(Astro.url.pathname);
+  const dataPerson = DEFAULT_BYLINE.data;
+  const dataId = `${SITE_URL}/about/team/${dataPerson.slug}/#person`;
+
+  // Push the Person nodes (idempotent — same @id across pages references same person)
+  graph.push(toPersonNode(writer, SITE_URL, orgId));
+  if (reviewerPerson.slug !== writer.slug) graph.push(toPersonNode(reviewerPerson, SITE_URL, orgId));
+  if (includeData) graph.push(toPersonNode(dataPerson, SITE_URL, orgId));
+
   graph.push({
     "@type": "Review",
     "@id": `${canonical}#review`,
@@ -156,17 +198,29 @@ if (pageType === "review" && review) {
       "@type": "InsuranceAgency",
       name: review.carrierName,
     },
-    author: {
-      "@type": "Organization",
-      "@id": orgId,
-      name: review.authorName ?? ORG_NAME,
-    },
+    author: { "@id": writerId },
+    reviewedBy: { "@id": reviewerId },
+    editor: { "@id": reviewerId },
+    ...(includeData ? { contributor: { "@id": dataId } } : {}),
     publisher: { "@id": orgId },
     datePublished: review.publishDate,
     dateModified: review.modifiedDate ?? review.publishDate,
     isPartOf: { "@id": websiteId },
   });
 } else if (pageType === "article" && article) {
+  // Resolve writer + reviewer to Person records
+  const writer = resolveAuthor(article.authorName);
+  const reviewerPerson = resolveAuthor(article.reviewerName, DEFAULT_BYLINE.reviewer);
+  const writerId = `${SITE_URL}/about/team/${writer.slug}/#person`;
+  const reviewerId = `${SITE_URL}/about/team/${reviewerPerson.slug}/#person`;
+  const includeData = isDataHeavyPage(Astro.url.pathname);
+  const dataPerson = DEFAULT_BYLINE.data;
+  const dataId = `${SITE_URL}/about/team/${dataPerson.slug}/#person`;
+
+  graph.push(toPersonNode(writer, SITE_URL, orgId));
+  if (reviewerPerson.slug !== writer.slug) graph.push(toPersonNode(reviewerPerson, SITE_URL, orgId));
+  if (includeData) graph.push(toPersonNode(dataPerson, SITE_URL, orgId));
+
   graph.push({
     "@type": "Article",
     "@id": `${canonical}#article`,
@@ -176,11 +230,10 @@ if (pageType === "review" && review) {
     image: article.imageUrl ?? ogImage,
     datePublished: article.publishDate,
     dateModified: article.modifiedDate ?? article.publishDate,
-    author: {
-      "@type": "Organization",
-      "@id": orgId,
-      name: article.authorName ?? ORG_NAME,
-    },
+    author: { "@id": writerId },
+    reviewedBy: { "@id": reviewerId },
+    editor: { "@id": reviewerId },
+    ...(includeData ? { contributor: { "@id": dataId } } : {}),
     publisher: { "@id": orgId },
     mainEntityOfPage: { "@id": webpageId },
     keywords: article.tags?.join(", "),

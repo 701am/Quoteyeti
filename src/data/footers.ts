@@ -70,6 +70,7 @@ export const DEFAULT_FOOTER: SectionFooter = {
       title: "Company",
       links: [
         { label: "About", href: "/about/" },
+        { label: "Editorial team", href: "/about/team/" },
         { label: "Press", href: "/press/" },
         { label: "Contact", href: "/contact/" },
         { label: "Partner with us", href: "/partners/" },

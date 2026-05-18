@@ -1,5 +1,6 @@
 ---
 import BaseLayout from "~/layouts/BaseLayout.astro";
+import ContentByline from "~/components/ContentByline.astro";
 import { getCollection, render } from "astro:content";
 import { VERTICALS } from "~/data/verticals";
 
@@ -12,17 +13,29 @@ const { entry } = Astro.props;
 const { Content } = await render(entry);
 const d = entry.data;
 const v = VERTICALS.business;
+
+// State pages are rate-heavy → Article schema with Felix auto-credited as
+// the data scientist (via isDataHeavyPage URL match in Seo.astro).
+const effectiveUpdated = d.updatedDate ?? d.publishDate ?? new Date();
+const effectivePublished = d.publishDate ?? effectiveUpdated;
 ---
 
 <BaseLayout
   title={d.seoTitle ?? d.title}
   description={d.seoDescription ?? d.description ?? ""}
+  pageType="article"
   breadcrumbs={[
     { name: "Home", url: "/" },
     { name: v.short, url: v.path },
     { name: "By state", url: `${v.path}by-state/` },
     { name: d.title, url: `${v.path}by-state/${entry.id}/` },
   ]}
+  article={{
+    publishDate: new Date(effectivePublished).toISOString(),
+    modifiedDate: new Date(effectiveUpdated).toISOString(),
+    authorName: d.author,
+    tags: [v.short, d.state ?? "State guide"],
+  }}
 >
   <article>
     <header class="entry-hero">
@@ -45,6 +58,16 @@ const v = VERTICALS.business;
         )}
       </div>
     </header>
+
+    <div class="container">
+      <ContentByline
+        author={d.author}
+        publishDate={effectivePublished}
+        updatedDate={effectiveUpdated}
+        showData={true}
+      />
+    </div>
+
     <div class="container-narrow entry-body"><Content /></div>
   </article>
 
