@@ -1,55 +1,80 @@
 ---
 import FunnelLayout from "~/layouts/FunnelLayout.astro";
+import PrimaryLeadSlot from "~/components/lead-flow/PrimaryLeadSlot.astro";
+import PartnerOffers from "~/components/lead-flow/PartnerOffers.astro";
+import { VERTICALS } from "~/data/verticals";
+import { OFFERS } from "~/data/partner-offers";
+
+const vertical = VERTICALS.pet;
+const offers = OFFERS.pet;
+
+// ZIP is available via the URL query string when Netlify redirects here
+// (e.g. ?zip=78701). We read it on the client and pass through to /go/
+// links so they can target partners by region.
+const zip = Astro.url.searchParams.get("zip") ?? "";
 ---
 
 <FunnelLayout
-  title="Thank You — Your Pet Insurance Quotes Are On The Way"
-  description="We'll match you with our partner network of pet insurance providers."
+  title="Thank You — Your Pet Insurance Offers"
+  description="Compare offers from our partner network for pet insurance."
   noindex={true}
 >
-  <section class="thanks-page">
-    <div class="thanks-inner">
-      <div class="thanks-icon" aria-hidden="true">
-        <svg viewBox="0 0 64 64" width="64" height="64" fill="none">
+  <section class="thanks-hero">
+    <div class="thanks-hero__inner">
+      <div class="thanks-hero__icon" aria-hidden="true">
+        <svg viewBox="0 0 64 64" width="56" height="56" fill="none">
           <circle cx="32" cy="32" r="30" fill="#E8F3FA" stroke="#64BCE1" stroke-width="2"/>
           <path d="M20 32l8 8 16-16" stroke="#64BCE1" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
       </div>
-      <p class="thanks-eyebrow">You're all set</p>
-      <h1 class="thanks-h1">Thanks — we're <span class="serif-italic">on it</span>.</h1>
-      <p class="thanks-lede">We'll match you with our partner network of pet insurance providers. Here's what happens next:</p>
+      <p class="thanks-hero__eyebrow">You're all set</p>
+      <h1 class="thanks-hero__h1">
+        Thanks — we're <span class="serif-italic">on it</span>.
+      </h1>
+      <p class="thanks-hero__lede">
+        Our top agent match is being assigned now. While that happens, here are partner offers based on what you told us.
+      </p>
+    </div>
+  </section>
 
-      <ol class="thanks-steps">
-        <li class="thanks-step">
-          <div class="thanks-step__num">01</div>
-          <div class="thanks-step__body">
-            <h3>Check your inbox</h3>
-            <p>You'll receive offers from our partner network at the email you provided. The first usually arrives within a few minutes.</p>
-          </div>
-        </li>
-        <li class="thanks-step">
-          <div class="thanks-step__num">02</div>
-          <div class="thanks-step__body">
-            <h3>You're in control</h3>
-            <p>Compare offers on your own time. You decide if and when to talk to a carrier — no pressure, no auto-routing.</p>
-          </div>
-        </li>
-        <li class="thanks-step">
-          <div class="thanks-step__num">03</div>
-          <div class="thanks-step__body">
-            <h3>Lock in your coverage</h3>
-            <p>When you find a provider you like, click through to complete your purchase directly with them.</p>
-          </div>
-        </li>
-      </ol>
+  <section class="thanks-content">
+    <div class="thanks-content__inner">
+
+      {/*
+        ============================================
+        PRIMARY LEAD — your custom agent integration
+        ============================================
+        TO WIRE: replace the placeholder card in
+        PrimaryLeadSlot.astro with your real buyer-adapter
+        response, or hide this section if the buyer declines.
+      */}
+      <PrimaryLeadSlot vertical={vertical} />
+
+      {/*
+        ============================================
+        PARTNER OFFERS — MediaAlpha-style ad units
+        ============================================
+        Today: cards link to /go/<partnerId>/ which renders an
+        interstitial. When real partners are wired, swap the
+        PLACEHOLDER_TARGETS map in /go/[partner].astro to real URLs.
+      */}
+      <PartnerOffers vertical={vertical} offers={offers} zip={zip} />
+
     </div>
   </section>
 
   <style>
-    .thanks-page { padding: var(--space-12) var(--space-5) var(--space-16); }
-    .thanks-inner { max-width: 640px; margin: 0 auto; text-align: center; }
-    .thanks-icon { margin: 0 auto var(--space-6); }
-    .thanks-eyebrow {
+    .thanks-hero {
+      background: linear-gradient(180deg, var(--color-alice) 0%, transparent 100%);
+      padding: var(--space-12) var(--space-5) var(--space-10);
+      text-align: center;
+    }
+    .thanks-hero__inner {
+      max-width: 640px;
+      margin: 0 auto;
+    }
+    .thanks-hero__icon { margin: 0 auto var(--space-5); display: inline-block; }
+    .thanks-hero__eyebrow {
       display: inline-block;
       font-family: var(--font-display);
       font-size: 0.6875rem;
@@ -59,65 +84,36 @@ import FunnelLayout from "~/layouts/FunnelLayout.astro";
       color: var(--color-malibu);
       margin: 0 0 var(--space-3);
     }
-    .thanks-h1 {
+    .thanks-hero__h1 {
       font-family: var(--font-display);
-      font-size: clamp(2rem, 5vw, 3rem);
+      font-size: clamp(2rem, 4.8vw, 2.75rem);
       font-weight: 700;
       letter-spacing: -0.025em;
       line-height: 1.05;
       color: var(--color-resolution);
-      margin: 0 0 var(--space-5);
+      margin: 0 0 var(--space-4);
     }
-    .thanks-h1 .serif-italic {
+    .thanks-hero__h1 .serif-italic {
       font-family: var(--font-serif);
       font-style: italic;
       font-weight: 500;
       color: var(--color-malibu);
     }
-    .thanks-lede {
+    .thanks-hero__lede {
       font-size: 1.0625rem;
-      line-height: 1.6;
+      line-height: 1.55;
       color: var(--color-text-strong);
-      margin: 0 auto var(--space-10);
+      margin: 0 auto;
+      max-width: 540px;
     }
-    .thanks-steps {
-      list-style: none;
-      margin: 0;
-      padding: 0;
-      text-align: left;
+
+    .thanks-content {
+      padding: 0 0 var(--space-16);
     }
-    .thanks-step {
-      display: grid;
-      grid-template-columns: 56px 1fr;
-      gap: var(--space-5);
-      align-items: flex-start;
-      padding: var(--space-6) 0;
-      border-bottom: 1px solid var(--color-border);
-    }
-    .thanks-step:last-child { border-bottom: 0; }
-    .thanks-step__num {
-      font-family: var(--font-serif);
-      font-style: italic;
-      font-weight: 500;
-      font-size: 2.25rem;
-      line-height: 1;
-      color: var(--color-malibu);
-      letter-spacing: -0.03em;
-    }
-    .thanks-step__body h3 {
-      font-family: var(--font-display);
-      font-weight: 700;
-      font-size: 1.125rem;
-      letter-spacing: -0.01em;
-      color: var(--color-resolution);
-      margin: 0 0 var(--space-2);
-      line-height: 1.2;
-    }
-    .thanks-step__body p {
-      font-size: 0.9375rem;
-      line-height: 1.6;
-      color: var(--color-text-muted);
-      margin: 0;
+    .thanks-content__inner {
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: 0 var(--space-5);
     }
   </style>
 </FunnelLayout>

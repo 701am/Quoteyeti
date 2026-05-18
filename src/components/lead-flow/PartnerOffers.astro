@@ -1,0 +1,402 @@
+---
+/**
+ * PartnerOffers
+ * =============
+ * Renders the partner-offers grid on a thank-you page in the
+ * MediaAlpha / Money.com / NerdWallet style.
+ *
+ * Layout:
+ *   - FTC-compliant sponsored disclosure
+ *   - Primary grid (4 offers above the fold)
+ *   - "Also interested in" secondary grid (3 offers below)
+ *
+ * Click-out URL: /go/<partnerId>/?vertical=<key>&zip=<zip>
+ * The /go/ route is a controlled redirect — when real partner
+ * networks are wired (MediaAlpha, etc.), the redirect target is
+ * swapped to the real ping-tree URL. The /go/ layer also gives us
+ * an attribution choke-point for click tracking.
+ */
+import type { Vertical } from "~/data/verticals";
+import type { VerticalOffers } from "~/data/partner-offers";
+
+interface Props {
+  vertical: Vertical;
+  offers: VerticalOffers;
+  /** ZIP code captured from the form — forwarded to click-out URLs for partner targeting */
+  zip?: string;
+}
+const { vertical, offers, zip } = Astro.props as Props;
+
+function buildClickout(partnerId: string): string {
+  const params = new URLSearchParams();
+  params.set("vertical", vertical.key);
+  if (zip) params.set("zip", zip);
+  params.set("source", "thanks_page");
+  return `/go/${partnerId}/?${params.toString()}`;
+}
+---
+
+<section class="partner-offers" aria-label="Partner offers">
+
+  {/* FTC-required sponsored disclosure */}
+  <div class="partner-disclosure" role="note">
+    <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true">
+      <circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.5" fill="none"/>
+      <path d="M8 4.5v4M8 11h.01" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+    </svg>
+    <p>
+      <strong>Advertising disclosure:</strong> Partners shown below have paid to be featured. Selection, order, and pricing are not editorial recommendations.
+      <a href="/editorial/" rel="noopener">How we make money →</a>
+    </p>
+  </div>
+
+  {/* PRIMARY GRID */}
+  <div class="offers-header">
+    <h2 class="offers-heading">
+      More <span class="serif-italic">{vertical.short.toLowerCase()} insurance</span> offers
+    </h2>
+    <p class="offers-sub">Partner offers based on what you told us. Tap any card to see their full quote.</p>
+  </div>
+
+  <ol class="offers-grid offers-grid--primary">
+    {offers.primary.map((offer, i) => (
+      <li class="offer-card">
+        <a href={buildClickout(offer.partnerId)} class="offer-card__link" rel="sponsored noopener nofollow">
+          <header class="offer-card__header">
+            <span class="offer-card__rank">#{i + 1}</span>
+            <span class="offer-card__sponsored">Sponsored</span>
+          </header>
+
+          {offer.badge && <span class="offer-card__badge">{offer.badge}</span>}
+
+          <h3 class="offer-card__name">{offer.name}</h3>
+          <p class="offer-card__headline">{offer.headline}</p>
+
+          <ul class="offer-card__bullets">
+            {offer.bullets.map((b) => <li>{b}</li>)}
+          </ul>
+
+          <footer class="offer-card__footer">
+            {offer.ratePrice && (
+              <div class="offer-card__rate">
+                <span class="offer-card__rate-prefix">{offer.ratePrefix ?? "From"}</span>
+                <span class="offer-card__rate-price">{offer.ratePrice}</span>
+              </div>
+            )}
+            <span class="offer-card__cta">
+              <span>View quote</span>
+              <svg width="14" height="12" viewBox="0 0 14 12" fill="none" aria-hidden="true"><path d="M8 1l5 5-5 5M1 6h12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </span>
+          </footer>
+        </a>
+      </li>
+    ))}
+  </ol>
+
+  {/* SECONDARY GRID */}
+  {offers.secondary.length > 0 && (
+    <>
+      <div class="offers-header offers-header--secondary">
+        <h2 class="offers-heading offers-heading--secondary">
+          Also <span class="serif-italic">interested in</span>
+        </h2>
+      </div>
+      <ol class="offers-grid offers-grid--secondary">
+        {offers.secondary.map((offer) => (
+          <li class="offer-card offer-card--compact">
+            <a href={buildClickout(offer.partnerId)} class="offer-card__link" rel="sponsored noopener nofollow">
+              <header class="offer-card__header">
+                <span class="offer-card__sponsored">Sponsored</span>
+              </header>
+              <h3 class="offer-card__name">{offer.name}</h3>
+              <p class="offer-card__headline">{offer.headline}</p>
+              <ul class="offer-card__bullets">
+                {offer.bullets.map((b) => <li>{b}</li>)}
+              </ul>
+              <footer class="offer-card__footer">
+                {offer.ratePrice && (
+                  <div class="offer-card__rate">
+                    <span class="offer-card__rate-prefix">{offer.ratePrefix ?? "From"}</span>
+                    <span class="offer-card__rate-price">{offer.ratePrice}</span>
+                  </div>
+                )}
+                <span class="offer-card__cta offer-card__cta--text">
+                  View quote →
+                </span>
+              </footer>
+            </a>
+          </li>
+        ))}
+      </ol>
+    </>
+  )}
+
+  {/* Sample-rates disclaimer at bottom */}
+  <p class="rates-disclaimer">
+    Sample rates shown are for illustrative purposes. Your actual quote will depend on your profile, coverage selections, and the carrier's underwriting.
+  </p>
+</section>
+
+<style is:global>
+  .partner-offers {
+    max-width: 1080px;
+    margin: 0 auto;
+    padding: 0 var(--space-5);
+  }
+
+  /* FTC disclosure */
+  .partner-disclosure {
+    display: flex;
+    gap: var(--space-3);
+    align-items: flex-start;
+    padding: var(--space-4) var(--space-5);
+    background: var(--color-alice);
+    border: 1px solid var(--color-border);
+    border-radius: 10px;
+    margin-bottom: var(--space-8);
+    color: var(--color-text-muted);
+  }
+  .partner-disclosure svg { flex-shrink: 0; margin-top: 2px; color: var(--color-ship-cove); }
+  .partner-disclosure p {
+    font-size: 0.8125rem;
+    line-height: 1.55;
+    margin: 0;
+    color: var(--color-text-muted);
+  }
+  .partner-disclosure strong {
+    color: var(--color-resolution);
+    font-weight: 700;
+  }
+  .partner-disclosure a {
+    color: var(--color-malibu);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    font-weight: 600;
+  }
+
+  /* Section headers */
+  .offers-header { margin-bottom: var(--space-6); }
+  .offers-header--secondary { margin-top: var(--space-12); }
+  .offers-heading {
+    font-family: var(--font-display);
+    font-size: clamp(1.5rem, 2.8vw, 2rem);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+    color: var(--color-resolution);
+    margin: 0 0 var(--space-2);
+  }
+  .offers-heading--secondary { font-size: 1.375rem; }
+  .offers-heading .serif-italic {
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-weight: 500;
+    color: var(--color-malibu);
+  }
+  .offers-sub {
+    font-size: 0.9375rem;
+    color: var(--color-text-muted);
+    margin: 0;
+  }
+
+  /* Primary grid: 2 cols on desktop, 1 on mobile */
+  .offers-grid {
+    list-style: none;
+    margin: 0 0 var(--space-8);
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-5);
+  }
+  .offers-grid--secondary {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  @media (max-width: 720px) {
+    .offers-grid { grid-template-columns: 1fr; }
+    .offers-grid--secondary { grid-template-columns: 1fr; }
+  }
+
+  /* Card */
+  .offer-card {
+    display: flex;
+    position: relative;
+  }
+  .offer-card__link {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    padding: var(--space-7) var(--space-7) var(--space-6);
+    background: var(--color-white);
+    border: 1px solid var(--color-border);
+    border-radius: 16px;
+    text-decoration: none;
+    color: inherit;
+    transition: transform 0.3s, border-color 0.3s, box-shadow 0.3s;
+    position: relative;
+  }
+  .offer-card__link:hover {
+    transform: translateY(-3px);
+    border-color: var(--color-malibu);
+    box-shadow: 0 16px 36px rgba(44, 69, 119, 0.10);
+  }
+
+  /* Compact secondary card */
+  .offer-card--compact .offer-card__link {
+    padding: var(--space-6);
+  }
+
+  .offer-card__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--space-4);
+  }
+  .offer-card__rank {
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-weight: 500;
+    font-size: 1.5rem;
+    line-height: 1;
+    color: var(--color-malibu);
+    letter-spacing: -0.02em;
+  }
+  .offer-card--compact .offer-card__rank { display: none; }
+  .offer-card__sponsored {
+    font-family: var(--font-display);
+    font-size: 0.625rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.16em;
+    color: var(--color-text-muted);
+    padding: 4px 8px;
+    background: var(--color-alice);
+    border-radius: 100px;
+  }
+
+  .offer-card__badge {
+    display: inline-block;
+    align-self: flex-start;
+    font-family: var(--font-display);
+    font-size: 0.6875rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: #F46036;
+    background: #FCF0EF;
+    padding: 4px 10px;
+    border-radius: 100px;
+    margin-bottom: var(--space-3);
+  }
+
+  .offer-card__name {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 1.25rem;
+    letter-spacing: -0.015em;
+    color: var(--color-resolution);
+    margin: 0 0 var(--space-2);
+    line-height: 1.2;
+  }
+  .offer-card--compact .offer-card__name { font-size: 1.0625rem; }
+
+  .offer-card__headline {
+    font-size: 0.9375rem;
+    line-height: 1.5;
+    color: var(--color-text);
+    margin: 0 0 var(--space-4);
+  }
+  .offer-card--compact .offer-card__headline { font-size: 0.875rem; }
+
+  .offer-card__bullets {
+    list-style: none;
+    margin: 0 0 var(--space-5);
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    flex: 1;
+  }
+  .offer-card__bullets li {
+    font-size: 0.8125rem;
+    line-height: 1.5;
+    color: var(--color-text-muted);
+    padding-left: var(--space-5);
+    position: relative;
+  }
+  .offer-card__bullets li::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0.55em;
+    width: 5px;
+    height: 5px;
+    background: var(--color-malibu);
+    border-radius: 50%;
+  }
+  .offer-card--compact .offer-card__bullets li { font-size: 0.75rem; }
+
+  .offer-card__footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--space-3);
+    padding-top: var(--space-4);
+    border-top: 1px solid var(--color-border);
+    margin-top: auto;
+  }
+  .offer-card__rate {
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-1);
+  }
+  .offer-card__rate-prefix {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--color-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+  .offer-card__rate-price {
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-weight: 500;
+    font-size: 1.5rem;
+    color: var(--color-resolution);
+    line-height: 1;
+    letter-spacing: -0.02em;
+  }
+  .offer-card--compact .offer-card__rate-price { font-size: 1.25rem; }
+
+  .offer-card__cta {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: 10px 18px;
+    background: var(--color-resolution);
+    color: var(--color-white);
+    border-radius: 100px;
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 0.8125rem;
+    transition: filter 0.15s, transform 0.15s;
+  }
+  .offer-card__link:hover .offer-card__cta { filter: brightness(1.12); }
+  .offer-card__link:hover .offer-card__cta svg { transform: translateX(3px); }
+  .offer-card__cta svg { transition: transform 0.2s; }
+  .offer-card__cta--text {
+    background: none;
+    color: var(--color-malibu);
+    padding: 0;
+    font-size: 0.8125rem;
+  }
+  .offer-card__cta--text:hover { color: var(--color-resolution); }
+
+  .rates-disclaimer {
+    font-size: 0.75rem;
+    line-height: 1.55;
+    color: var(--color-text-muted);
+    text-align: center;
+    margin: var(--space-8) auto 0;
+    max-width: 640px;
+  }
+</style>

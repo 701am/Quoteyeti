@@ -1,0 +1,203 @@
+---
+/**
+ * /go/[partner]/ — partner click-out router
+ *
+ * All sponsored cards link to /go/<partnerId>/?vertical=auto&zip=78701
+ * instead of linking directly to the partner. This gives us:
+ *
+ *   1. A choke-point for click tracking (analytics fire here)
+ *   2. The ability to swap a partner's destination URL in one place
+ *      when real MediaAlpha / EverQuote / Leadspedia routing is wired
+ *   3. UTM-stripped, clean canonical redirects
+ *   4. An interstitial that briefly shows the user where they're going
+ *      (Money.com does this — kind of like a sponsored doorway)
+ *
+ * TO WIRE REAL PARTNERS:
+ *   - Replace the PLACEHOLDER_TARGETS map with real partner URLs
+ *     (or load them from a config served by your backend / Netlify Function)
+ *   - Each entry can pass through query params using {{vertical}}, {{zip}} etc.
+ *   - For MediaAlpha-style ping-tree, replace the redirect target with
+ *     the publisher's routing URL and pass all your form params
+ *
+ * Note: noindex=true so this never shows up in search results.
+ */
+
+export async function getStaticPaths() {
+  // Build a static page for each partnerId across all verticals so the
+  // /go/<partner>/ URLs work in the static build. When you wire real
+  // partners, you can also generate these from a config file or call
+  // a backend at request time via [SSR].
+  const partners = [
+    // Auto
+    "geico","progressive","state-farm","liberty-mutual","allstate","nationwide","farmers",
+    // Home
+    "lemonade","amica","usaa","travelers",
+    // Life
+    "haven-life","ladder","ethos","policygenius","banner-life","fabric","bestow",
+    // Business
+    "next-insurance","hiscox","thimble","the-hartford","biberk","coverwallet","simply-business",
+    // Health
+    "ehealth","oscar","blue-cross-blue-shield","united-healthcare","aetna","cigna","humana",
+    // Renters
+    "toggle","assurant",
+    // Pet
+    "healthy-paws","trupanion","spot","embrace","figo","pets-best",
+    // Travel
+    "travelex","world-nomads","allianz","imglobal","seven-corners","generali","tin-leg",
+  ];
+  return partners.map((p) => ({ params: { partner: p }, props: { partner: p } }));
+}
+
+interface Props { partner: string; }
+const { partner } = Astro.props as Props;
+
+// Read forwarded params from the inbound link
+const vertical = Astro.url.searchParams.get("vertical") ?? "";
+const zip = Astro.url.searchParams.get("zip") ?? "";
+const source = Astro.url.searchParams.get("source") ?? "thanks_page";
+
+// ============================================
+// PLACEHOLDER_TARGETS — swap to real URLs when partners are wired.
+// Today: returns "#" so we just render the interstitial (no redirect).
+// When real: replace each with the partner's actual landing URL
+// (or MediaAlpha ping-tree URL). Tokens like {{vertical}} and {{zip}}
+// are interpolated below.
+// ============================================
+const PLACEHOLDER_TARGETS: Record<string, string> = {
+  // Example for when MediaAlpha is wired:
+  //   "geico": "https://routing.quote.com/quotes?type=Auto&zipcode={{zip}}&publisher_id=XXX&partner=geico",
+  // Today, all entries are "#" — the interstitial displays as the destination.
+};
+
+function interpolate(url: string): string {
+  return url
+    .replaceAll("{{vertical}}", encodeURIComponent(vertical))
+    .replaceAll("{{zip}}", encodeURIComponent(zip))
+    .replaceAll("{{source}}", encodeURIComponent(source));
+}
+
+const destination = PLACEHOLDER_TARGETS[partner];
+const isLive = destination && destination !== "#";
+const finalUrl = isLive ? interpolate(destination!) : "";
+
+// Human-readable display name
+const PARTNER_NAMES: Record<string, string> = {
+  "geico": "GEICO", "progressive": "Progressive", "state-farm": "State Farm",
+  "liberty-mutual": "Liberty Mutual", "allstate": "Allstate", "nationwide": "Nationwide",
+  "farmers": "Farmers", "lemonade": "Lemonade", "amica": "Amica", "usaa": "USAA",
+  "travelers": "Travelers", "haven-life": "Haven Life", "ladder": "Ladder",
+  "ethos": "Ethos", "policygenius": "Policygenius", "banner-life": "Banner Life",
+  "fabric": "Fabric by Gerber Life", "bestow": "Bestow",
+  "next-insurance": "Next Insurance", "hiscox": "Hiscox", "thimble": "Thimble",
+  "the-hartford": "The Hartford", "biberk": "biBERK", "coverwallet": "CoverWallet",
+  "simply-business": "Simply Business", "ehealth": "eHealth", "oscar": "Oscar Health",
+  "blue-cross-blue-shield": "Blue Cross Blue Shield", "united-healthcare": "UnitedHealthcare",
+  "aetna": "Aetna", "cigna": "Cigna", "humana": "Humana", "toggle": "Toggle by Farmers",
+  "assurant": "Assurant", "healthy-paws": "Healthy Paws", "trupanion": "Trupanion",
+  "spot": "Spot Pet Insurance", "embrace": "Embrace", "figo": "Figo",
+  "pets-best": "Pets Best", "travelex": "Travelex Insurance",
+  "world-nomads": "World Nomads", "allianz": "Allianz Travel", "imglobal": "IMG",
+  "seven-corners": "Seven Corners", "generali": "Generali", "tin-leg": "Tin Leg",
+};
+const displayName = PARTNER_NAMES[partner] ?? partner;
+---
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>Connecting you to {displayName} · QuoteYeti</title>
+  {isLive && <meta http-equiv="refresh" content={`1;url=${finalUrl}`} />}
+  <link rel="stylesheet" href="/_astro/tokens.css" />
+  <style>
+    body {
+      margin: 0;
+      font-family: "Mona Sans", "sofia-pro", system-ui, sans-serif;
+      background: #EFF4F8;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      color: #2C4577;
+    }
+    .interstitial {
+      max-width: 480px;
+      background: white;
+      border-radius: 20px;
+      padding: 56px 40px;
+      text-align: center;
+      box-shadow: 0 12px 36px rgba(44, 69, 119, 0.08);
+    }
+    .spinner {
+      width: 48px;
+      height: 48px;
+      border: 3px solid #DFDFDF;
+      border-top-color: #64BCE1;
+      border-radius: 50%;
+      margin: 0 auto 24px;
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .eyebrow {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      color: #64BCE1;
+      margin: 0 0 12px;
+    }
+    h1 {
+      font-size: 24px;
+      font-weight: 700;
+      letter-spacing: -0.015em;
+      margin: 0 0 12px;
+      line-height: 1.2;
+    }
+    p { color: #505050; line-height: 1.5; margin: 0 0 8px; font-size: 14px; }
+    .fallback {
+      margin-top: 32px;
+      padding-top: 24px;
+      border-top: 1px solid #DFDFDF;
+      font-size: 13px;
+      color: #8495B2;
+    }
+    .fallback a { color: #64BCE1; text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <div class="interstitial">
+    <div class="spinner"></div>
+    <p class="eyebrow">Sponsored</p>
+    <h1>Connecting you to {displayName}…</h1>
+    <p>You're being redirected to a partner site. You may see different branding when you arrive.</p>
+    {!isLive && (
+      <div class="fallback">
+        <p>This partner isn't live yet on QuoteYeti. <a href="javascript:history.back()">← Go back</a></p>
+      </div>
+    )}
+    {isLive && (
+      <div class="fallback">
+        <p>If you aren't redirected automatically, <a href={finalUrl} rel="sponsored noopener nofollow">click here</a>.</p>
+      </div>
+    )}
+  </div>
+
+  {/*
+    TODO when wiring real partners:
+      - Fire a click event to Plausible / GA / your analytics
+      - POST a click record to your backend with partnerId, vertical, zip, timestamp
+      - Optionally store a 1st-party cookie so post-conversion attribution works
+  */}
+  <script define:vars={{ partner, vertical, zip, source, isLive, finalUrl }}>
+    // Fire analytics here when wiring real tracking
+    // Example: window.plausible?.("partner_click", { props: { partner, vertical } });
+    if (isLive && finalUrl) {
+      // Belt-and-braces JS redirect in case meta-refresh is blocked
+      window.location.replace(finalUrl);
+    }
+  </script>
+</body>
+</html>
