@@ -8,46 +8,100 @@ const v = VERTICALS.life;
 <VerticalHub
   vertical={v}
   hero={{
-    headline: "Coverage for the people who count on you",
-    lede: "Compare term, whole, and universal life policies in one place. No sales call required to see what you'll pay.",
+    headline: "For the people who count on you.",
+    lede: "Term, whole, universal — without the sales pressure. Compare rates from 30+ carriers without giving up your phone number.",
+    ctaLabel: "Get life quotes",
+    ctaHref: "/life-insurance/quotes/",
   }}
   pillars={[
     {
-      title: "Term life",
-      body: "Term life is what most families need: large coverage at small monthly cost. We rank carriers on rate, underwriting speed, and financial strength.",
-      href: "/life-insurance/term/",
-      cta: "Compare term life",
+      title: "Calculate how much you need",
+      body: "The '10x your income' rule is a starting point, not an answer. Real sizing comes from listing your obligations and subtracting what your family already has.",
+      href: "/life-insurance/how-much-do-i-need/",
+      cta: "Size your coverage",
     },
     {
-      title: "Whole life",
-      body: "Permanent coverage that builds cash value over time. More expensive, more flexible.",
-      href: "/life-insurance/whole/",
-      cta: "Compare whole life",
+      title: "Find the cheapest term policy",
+      body: "Term insurance is the math-correct answer for 90%+ of buyers. The cheapest term carrier varies by age and health profile.",
+      href: "/life-insurance/cheapest/",
+      cta: "See cheapest carriers",
     },
     {
-      title: "No medical exam",
-      body: "Faster approval, no needles. We compare the carriers that actually offer real coverage.",
-      href: "/life-insurance/no-exam/",
-      cta: "See no-exam options",
+      title: "Understand the product types",
+      body: "Term, whole, universal, and IUL aren't competing products — they're different products for different situations. Here's when each makes sense.",
+      href: "/life-insurance/coverage-types/",
+      cta: "Compare types",
     },
   ]}
-  calculators={[
-    { label: "How much life insurance?", href: "/life-insurance/calculator/" },
-    { label: "Term vs. whole compared", href: "/life-insurance/term-vs-whole/" },
-    { label: "Coverage by income", href: "/life-insurance/coverage-by-income/" },
+  intro={{
+    eyebrow: "How we think about life insurance",
+    heading: "Buy term when you're young and healthy. Almost always the right answer.",
+    body: `<p>Life insurance is the most aggressively-sold consumer financial product. Whole life, universal life, indexed universal life (IUL), and variable universal life are marketed as "tax-free retirement" and "be your own bank." Most of these pitches don't survive contact with arithmetic.</p>
+<p>For 90%+ of consumers, the correct answer is <strong>term insurance</strong>. A healthy 35-year-old can buy $1M of 20-year term for $30-$50/month. The same coverage in whole life would cost $700-$1,200/month. The premium difference, invested in a 401(k) or Roth IRA, almost always produces better outcomes than the whole life cash value.</p>
+<p>Where we focus: <a href="/life-insurance/cheapest/">finding the cheapest term carriers for your profile</a>, <a href="/life-insurance/how-much-do-i-need/">sizing coverage to your actual obligations</a>, <a href="/life-insurance/coverage-types/">explaining when whole and universal make sense</a> (narrow cases), and <a href="/life-insurance/guides/">warning about the products that look like investments but aren't</a>.</p>`,
+  }}
+  stats={[
+    { number: "$30-50", label: "Monthly premium", context: "Healthy 35-year-old, $1M term, 20-year" },
+    { number: "5-10x", label: "Whole life multiplier", context: "vs. equivalent term coverage cost" },
+    { number: "12 mo", label: "Tobacco-free wait", context: "To qualify for non-smoker rates at most carriers" },
+    { number: "20-30%", label: "Exam discount", context: "Fully-underwritten vs. no-exam policies" },
   ]}
   subtopics={[
-    { title: "Best for young families", href: "/life-insurance/young-families/", desc: "Maximum coverage for the lowest premium years." },
-    { title: "Life insurance for seniors", href: "/life-insurance/seniors/", desc: "Guaranteed-issue and final-expense options after 60." },
-    { title: "Universal life", href: "/life-insurance/universal/", desc: "Flexible-premium policies with investment components." },
-    { title: "Guaranteed acceptance", href: "/life-insurance/guaranteed/", desc: "No medical questions, smaller benefit amounts." },
-    { title: "Riders explained", href: "/life-insurance/riders/", desc: "Common add-ons like waiver of premium, accelerated benefit." },
-    { title: "Beneficiary basics", href: "/life-insurance/beneficiaries/", desc: "Primary, contingent, irrevocable — and the mistakes to avoid." },
+    {
+      title: "How much do I need?",
+      href: "/life-insurance/how-much-do-i-need/",
+      desc: "Walk through obligations vs. existing assets. Sample household calculation, term length sizing, and the 'breadwinner replacement' math."
+    },
+    {
+      title: "Types of coverage",
+      href: "/life-insurance/coverage-types/",
+      desc: "Term, whole, universal, and IUL explained. When each makes sense — and when it doesn't. The honest version, with math."
+    },
+    {
+      title: "Underwriting & discounts",
+      href: "/life-insurance/discounts/",
+      desc: "Premium is locked at the rate you qualify for at application. Here's how to optimize your rate class — the largest 'discount' in life insurance."
+    },
+    {
+      title: "Cheapest carriers",
+      href: "/life-insurance/cheapest/",
+      desc: "Banner Life, Pacific Life, Protective, Lincoln, SBLI — who consistently competes on price for healthy applicants under 50."
+    },
+    {
+      title: "By state",
+      href: "/life-insurance/by-state/",
+      desc: "Free-look periods, guaranty association limits, and state-specific market characteristics in 10 major states."
+    },
+    {
+      title: "Life FAQs",
+      href: "/life-insurance/faqs/",
+      desc: "Term vs. whole, exam vs. no-exam, beneficiary mechanics, what happens if you outlive your term — the questions everyone asks."
+    },
+  ]}
+  myths={[
+    {
+      myth: "Whole life is the safe, conservative choice.",
+      reality: "Whole life is expensive insurance plus a slow-growing savings account, sold together at a premium. For middle-class families, term insurance plus a separate retirement account almost always wins on math."
+    },
+    {
+      myth: "I should buy life insurance through work — it's free.",
+      reality: "Employer life insurance is typically 1-2x salary and disappears when you leave the job. Treat it as a supplement, not your primary coverage. Buy your own term policy that follows you between jobs."
+    },
+    {
+      myth: "IUL is 'tax-free retirement' with no downside.",
+      reality: "IUL has cap rates that can change, cost of insurance that accelerates with age, and high fees. The illustrated returns rarely materialize as advertised. For most buyers, term plus a Roth IRA produces dramatically better outcomes."
+    },
+    {
+      myth: "I should wait to buy life insurance until I have more money.",
+      reality: "Every year you wait roughly raises your premium by 8-12%. A healthy 30-year-old pays half what a 40-year-old pays for the same coverage. Buy young. Buy healthy. Lock in the rate."
+    },
   ]}
   faqs={[
-    { q: "How much life insurance do I need?", a: "Add up your obligations (mortgage, debts, future income replacement, education costs) and subtract your existing assets and employer-provided coverage. For most parents, $1M-$2M of term coverage is the right baseline." },
-    { q: "Term vs. whole life — which?", a: "Term for most, whole only if you have specific estate-planning needs." },
-    { q: "Does life insurance pay out for suicide?", a: "Most policies have a 1-2 year suicide clause. After that, yes." },
-    { q: "What about pre-existing conditions?", a: "Conditions affect rates and eligibility but rarely make coverage impossible." },
+    { q: "Term or whole life — which should I buy?", a: "Term for almost everyone. Whole life makes sense for narrow situations like estate planning for high-net-worth households, special-needs trust funding, or specific business succession arrangements. For most consumers, term plus a separate retirement account is better." },
+    { q: "How much life insurance do I need?", a: "List your obligations (mortgage, debts, kids' college, income replacement) minus your existing assets (savings, employer life, Social Security survivor benefits). The difference is your need. Typical answer for parents of young children: $1M-$2M of 20-30 year term." },
+    { q: "Should I get the medical exam?", a: "Yes, if you're healthy. Fully-underwritten policies cost 10-30% less than accelerated underwriting / no-exam policies. The exam takes 30 minutes and is free. Savings compound over 20+ years." },
+    { q: "What's convertibility and why does it matter?", a: "Most term policies let you convert to permanent insurance during the term without new medical underwriting. If your health changes mid-term (cancer diagnosis, heart disease), convertibility lets you lock in permanent coverage at rates based on your original underwriting. Underused but valuable." },
+    { q: "Can I get life insurance with pre-existing conditions?", a: "Usually yes, though rates may be higher. Different carriers underwrite the same condition differently. An independent broker can shop your application across multiple carriers to find the friendliest underwriting for your profile." },
+    { q: "What happens if I outlive my term policy?", a: "Term insurance ends when the term does. You don't get a payout. You can convert to permanent coverage (if your policy allows) or buy new coverage — but new coverage at older ages is much more expensive." },
   ]}
 />

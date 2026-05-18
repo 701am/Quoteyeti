@@ -8,46 +8,90 @@ const v = VERTICALS.pet;
 <VerticalHub
   vertical={v}
   hero={{
-    headline: "Because they're family too",
-    lede: "Compare pet insurance plans without the upsell. Real costs, real exclusions, real reviews from real pet owners.",
+    headline: "Because they're family too.",
+    lede: "Compare pet plans without the upsell. Independent reviews of Healthy Paws, Lemonade, Embrace, Trupanion, Spot, and the regional players.",
+    ctaLabel: "Get pet quotes",
+    ctaHref: "/pet-insurance/quotes/",
   }}
   pillars={[
     {
-      title: "Best pet insurance",
-      body: "Accident, illness, and wellness coverage compared. We rank carriers on reimbursement speed, exclusions, and what's actually covered.",
+      title: "See the best pet carriers",
+      body: "Healthy Paws, Embrace, Lemonade, Trupanion, Spot, Pets Best, ASPCA, Nationwide — each with different strengths. Here's who wins for which situations.",
       href: "/pet-insurance/best/",
-      cta: "See top providers",
+      cta: "See top carriers",
     },
     {
-      title: "Cheapest plans",
-      body: "Premium ranges by breed, age, and location. Find the cheapest coverage that doesn't leave you exposed.",
-      href: "/pet-insurance/cheapest/",
-      cta: "Cheapest plans",
+      title: "Understand pre-existing conditions",
+      body: "Every pet insurance policy excludes pre-existing conditions. Knowing what counts (and what doesn't) is the difference between coverage and surprise.",
+      href: "/pet-insurance/guides/",
+      cta: "Read guides",
     },
     {
-      title: "Pre-existing conditions",
-      body: "Almost no insurer covers them. We explain how every major plan defines and excludes them.",
-      href: "/pet-insurance/pre-existing/",
-      cta: "Pre-existing 101",
+      title: "Decode policy structure",
+      body: "Accident-only vs. accident + illness, annual vs. lifetime caps, reimbursement rates, deductibles — the structure dramatically affects payout.",
+      href: "/pet-insurance/quotes/",
+      cta: "Compare options",
     },
   ]}
-  calculators={[
-    { label: "Pet insurance calculator", href: "/pet-insurance/calculator/" },
-    { label: "Cost by breed", href: "/pet-insurance/cost-by-breed/" },
-    { label: "Wellness add-on value", href: "/pet-insurance/wellness/" },
+  intro={{
+    eyebrow: "How we think about pet insurance",
+    heading: "Pet insurance is investment timing. Earlier is dramatically better.",
+    body: `<p>Pet insurance has a brutal economic feature: <strong>every policy excludes pre-existing conditions, and the definition of "pre-existing" gets aggressive</strong>. A symptom your dog showed at age 4 — even if undiagnosed — can become an excluded condition for life.</p>
+<p>The implication: <strong>buy young.</strong> Coverage purchased at age 1-2 has the broadest scope. Coverage purchased at age 7+ often excludes most of what older pets actually need treatment for.</p>
+<p>Where to start: <a href="/pet-insurance/best/">see who consistently competes on price and policy substance</a>, <a href="/pet-insurance/reviews/">read independent reviews</a>, and <a href="/pet-insurance/guides/">understand the structural choices</a> — reimbursement rate vs. deductible, annual vs. lifetime cap, accident-only vs. comprehensive.</p>`,
+  }}
+  stats={[
+    { number: "$20-90", label: "Monthly premium", context: "Range for dogs by age, breed, location, and coverage level" },
+    { number: "70-90%", label: "Reimbursement rate", context: "Most policies; 100% reimbursement is rare and expensive" },
+    { number: "$2-15K", label: "Annual cap range", context: "Lower caps = lower premium; lifetime caps best for serious illness" },
+    { number: "Day 1", label: "Buy young", context: "Pre-existing exclusions make later coverage much less useful" },
   ]}
   subtopics={[
-    { title: "Insurance for dogs", href: "/pet-insurance/dogs/", desc: "Breed-specific risks and the plans that cover them best." },
-    { title: "Insurance for cats", href: "/pet-insurance/cats/", desc: "What feline-specific coverage really matters." },
-    { title: "Multi-pet households", href: "/pet-insurance/multi-pet/", desc: "Discounts and the carriers that offer them." },
-    { title: "Senior pets", href: "/pet-insurance/senior-pets/", desc: "Age cutoffs, higher deductibles, and what's still worth it." },
-    { title: "Exotic pets", href: "/pet-insurance/exotic/", desc: "Birds, reptiles, rabbits — the few carriers that'll write policies." },
-    { title: "Wellness vs. accident-only", href: "/pet-insurance/coverage-types/", desc: "What each tier actually pays for." },
+    {
+      title: "Best pet insurance",
+      href: "/pet-insurance/best/",
+      desc: "Top pet carriers ranked — Healthy Paws, Embrace, Lemonade, Trupanion, Spot, Pets Best. Premium, coverage, and reimbursement compared."
+    },
+    {
+      title: "Carrier reviews",
+      href: "/pet-insurance/reviews/",
+      desc: "Independent reviews of major pet insurance carriers. Claim handling, policy substance, customer service, and where each wins."
+    },
+    {
+      title: "Pet insurance guides",
+      href: "/pet-insurance/guides/",
+      desc: "Pre-existing conditions, annual vs. lifetime caps, reimbursement structure, wellness add-ons, and breed-specific considerations."
+    },
+    {
+      title: "Get quotes",
+      href: "/pet-insurance/quotes/",
+      desc: "Compare pet insurance quotes from major carriers. Most policies issue same-day with optional waiting period."
+    },
+  ]}
+  myths={[
+    {
+      myth: "Pet insurance covers everything.",
+      reality: "Standard policies exclude pre-existing conditions, routine wellness (without an add-on), and often hereditary conditions. The exclusions list matters as much as the coverage list."
+    },
+    {
+      myth: "All pet insurance is similar.",
+      reality: "Reimbursement rate (70% vs. 90%), annual cap ($5K vs. unlimited), deductible structure (annual vs. per-condition), and waiting periods (14 days vs. 6 months) all vary dramatically by carrier. Same monthly premium can produce very different payouts."
+    },
+    {
+      myth: "I can wait until my pet gets older to buy insurance.",
+      reality: "Pet insurance gets more expensive AND less useful with age. Older pets have more exclusions (pre-existing) and higher premiums. The math strongly favors buying coverage when pets are young and healthy."
+    },
+    {
+      myth: "Lifetime caps are the same as annual caps.",
+      reality: "Annual caps ($5K-$15K/year typical) reset each year. Lifetime caps are the total payout ceiling for your pet's entire life. For chronic conditions or serious illness, annual cap structure is dramatically better."
+    },
   ]}
   faqs={[
-    { q: "Is pet insurance worth it?", a: "For younger pets and breeds predisposed to expensive conditions, yes. The math favors insurance most for owners who couldn't write a $10K-$30K check for a catastrophic event. For senior pets with significant pre-existing conditions, the math is less favorable." },
-    { q: "What's not covered?", a: "Pre-existing conditions, routine care (without a wellness add-on), and breeding-related costs." },
-    { q: "When should I sign up?", a: "As young and healthy as possible. Conditions diagnosed before enrollment are excluded forever." },
-    { q: "Can I use any vet?", a: "Most plans let you use any licensed vet. You pay up front and submit for reimbursement." },
+    { q: "How does pet insurance reimbursement work?", a: "You pay the vet upfront, submit the claim with receipts, and get reimbursed based on your policy's reimbursement rate (typically 70-90%) after your deductible. Reimbursement times vary by carrier from a few days to a few weeks." },
+    { q: "Is pet insurance worth it?", a: "For young pets, almost always yes — $30-60/month over 10-12 years costs $3,600-$8,640, and a single major treatment (cancer, hip surgery, GI emergency) can cost $5K-$20K+. The math favors coverage. For older pets with established conditions, the math gets weaker." },
+    { q: "What's the waiting period?", a: "Time between policy start and when claims are eligible. Typically 14 days for illness, 1-3 days for accidents, and 6 months for orthopedic conditions (hip dysplasia, cruciate ligament). Pre-existing condition rules apply during waiting periods too." },
+    { q: "Should I get wellness coverage?", a: "Usually no. Wellness add-ons ($10-25/month) cover annual exams, vaccines, dental cleanings — predictable expenses you'd budget for anyway. The math is often break-even or worse. Better to use the same money toward higher coverage limits on the main policy." },
+    { q: "Are hereditary conditions covered?", a: "Depends on carrier. Healthy Paws covers hereditary and congenital conditions. Embrace and Lemonade typically cover them too. Some lower-cost carriers exclude or impose waiting periods. For breeds prone to specific issues (hip dysplasia, brachycephalic syndrome), verify before purchasing." },
+    { q: "What if I have multiple pets?", a: "Most carriers offer 5-10% multi-pet discounts. Some have lower per-pet rates if you have 3+ pets. Lemonade is particularly aggressive on multi-pet pricing. Each pet still has its own policy and deductible." },
   ]}
 />

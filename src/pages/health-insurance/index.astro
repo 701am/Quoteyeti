@@ -8,46 +8,90 @@ const v = VERTICALS.health;
 <VerticalHub
   vertical={v}
   hero={{
-    headline: "Care that fits your life",
-    lede: "ACA marketplace, Medicare, short-term — we explain what each plan actually covers and what it'll really cost.",
+    headline: "Care that fits your life.",
+    lede: "ACA marketplace, Medicare, HDHP + HSA, employer plans — find the structure that fits your situation without the open-enrollment chaos.",
+    ctaLabel: "Compare health plans",
+    ctaHref: "/health-insurance/quotes/",
   }}
   pillars={[
     {
-      title: "ACA marketplace",
-      body: "ACA marketplace, Medicare, short-term plans, and supplemental coverage — independent guidance, no sales pressure.",
-      href: "/health-insurance/aca/",
-      cta: "ACA basics",
+      title: "Compare carriers and plans",
+      body: "The cheapest plan with the highest deductible isn't always the cheapest in total. We'll break down the math by family size and expected usage.",
+      href: "/health-insurance/best/",
+      cta: "See top plans",
     },
     {
-      title: "Medicare 101",
-      body: "Parts A, B, C, D explained plainly. When to sign up, how to avoid late penalties.",
+      title: "Decode Medicare",
+      body: "Original Medicare vs. Medicare Advantage is a major irreversibility trap. Here's how to think about the choice — before you make it.",
       href: "/health-insurance/medicare/",
-      cta: "Understand Medicare",
+      cta: "Medicare guide",
     },
     {
-      title: "Short-term plans",
-      body: "Bridge coverage between jobs or before Medicare. The pros, cons, and when they make sense.",
-      href: "/health-insurance/short-term/",
-      cta: "Short-term plans",
+      title: "Read in-depth guides",
+      body: "Open enrollment strategy, HSA math, ACA subsidy structure, Medicare timing — the decisions that actually move outcomes.",
+      href: "/health-insurance/guides/",
+      cta: "All health guides",
     },
   ]}
-  calculators={[
-    { label: "Plan estimator", href: "/health-insurance/calculator/" },
-    { label: "ACA subsidy calculator", href: "/health-insurance/subsidy/" },
-    { label: "HSA contribution limits", href: "/health-insurance/hsa/" },
+  intro={{
+    eyebrow: "How we think about health insurance",
+    heading: "It's not about coverage — it's about expected total cost.",
+    body: `<p>Health insurance is the most complex consumer financial product, and the one most people choose worst. The mistake: comparing plans on premium alone instead of <strong>total expected cost</strong> — premium + deductible + copays + coinsurance + out-of-network exposure + prescription costs.</p>
+<p>The "cheapest" plan with a $7,000 deductible isn't cheap if you're getting infusions or have a high-cost-medication regimen. The HDHP + HSA combination that crushes for healthy young adults is a financial trap for someone with chronic conditions.</p>
+<p>What we focus on: <a href="/health-insurance/guides/high-deductible-health-plans-and-hsa/">HDHP + HSA math</a>, <a href="/health-insurance/guides/medicare-vs-medicare-advantage/">the Medicare vs. Medicare Advantage trade-off</a>, <a href="/health-insurance/guides/open-enrollment-strategy/">open enrollment optimization</a>, and <a href="/health-insurance/guides/subsidy-cliff-and-aca-strategies/">how to manage MAGI to maximize ACA subsidies</a>.</p>`,
+  }}
+  stats={[
+    { number: "$1,650+", label: "HDHP deductible", context: "Minimum for HSA eligibility in 2026" },
+    { number: "$4,300", label: "HSA contribution", context: "Individual annual max — triple tax advantage" },
+    { number: "400%", label: "FPL subsidy cliff", context: "Old subsidy cliff may return after enhanced subsidies expire" },
+    { number: "Oct 15 - Dec 7", label: "Medicare enrollment", context: "Annual window to change plans" },
   ]}
   subtopics={[
-    { title: "HMO vs. PPO", href: "/health-insurance/hmo-vs-ppo/", desc: "Network, referrals, and out-of-pocket trade-offs." },
-    { title: "Medicare Advantage", href: "/health-insurance/medicare-advantage/", desc: "Part C plans — pros, cons, and the gotchas." },
-    { title: "Medigap (Medicare Supplement)", href: "/health-insurance/medigap/", desc: "Plans F, G, N — what changed and what to buy now." },
-    { title: "High-deductible plans (HDHP)", href: "/health-insurance/hdhp/", desc: "When pairing with an HSA makes sense." },
-    { title: "Catastrophic plans", href: "/health-insurance/catastrophic/", desc: "Under-30 emergency coverage at minimum premiums." },
-    { title: "Dental & vision", href: "/health-insurance/dental-vision/", desc: "Standalone plans vs. medical add-ons." },
+    {
+      title: "Best plans",
+      href: "/health-insurance/best/",
+      desc: "Major carriers and plan types compared — Blue Cross, Kaiser, UnitedHealthcare, Cigna, Aetna across marketplace and employer plans."
+    },
+    {
+      title: "Medicare",
+      href: "/health-insurance/medicare/",
+      desc: "How Medicare works, when to enroll, Part A/B/C/D explained, Medicare Advantage vs. Original Medicare + Medigap."
+    },
+    {
+      title: "Carrier reviews",
+      href: "/health-insurance/reviews/",
+      desc: "Independent reviews of major health insurance carriers — network breadth, claim handling, customer service, and value."
+    },
+    {
+      title: "In-depth guides",
+      href: "/health-insurance/guides/",
+      desc: "HDHP + HSA math, open enrollment strategy, ACA subsidies, Medicare timing — long-form on the decisions that matter."
+    },
+  ]}
+  myths={[
+    {
+      myth: "I should pick the plan with the lowest premium.",
+      reality: "Total cost = premium + deductible + copays + coinsurance + uncovered services. The lowest-premium plan often costs more in total once you account for usage. Run the math both ways before open enrollment."
+    },
+    {
+      myth: "HDHPs are a financial trap.",
+      reality: "For healthy individuals with cash reserves and HSA capacity, HDHP + maxed HSA is often the cheapest health insurance AND a stealth retirement vehicle (triple tax advantage). For chronic conditions, HDHPs can be costly. The answer depends on your situation."
+    },
+    {
+      myth: "Medicare Advantage is the upgraded version of Original Medicare.",
+      reality: "Medicare Advantage REPLACES Original Medicare with a private plan. It has different networks, different prior authorization requirements, and once you choose it, switching back to Original Medicare + Medigap is often a one-way door (Medigap medical underwriting after the initial enrollment window)."
+    },
+    {
+      myth: "ACA subsidies only matter at low incomes.",
+      reality: "Enhanced subsidies through 2025 capped premium contribution at 8.5% of income regardless of FPL. Even $80K-$120K households can qualify for meaningful subsidies. Update your income estimate accurately during enrollment."
+    },
   ]}
   faqs={[
-    { q: "Is health insurance still required?", a: "Federal mandate is $0 since 2019, but some states (CA, MA, NJ, RI, DC) have their own." },
-    { q: "What's a deductible vs. an out-of-pocket max?", a: "Deductible is what you pay before insurance kicks in; max is your annual ceiling." },
-    { q: "Can I switch plans mid-year?", a: "Only with a qualifying life event: job loss, marriage, baby, move." },
-    { q: "How do subsidies work?", a: "ACA subsidies cap your premium at a % of income up to 400% FPL (extended through 2025)." },
+    { q: "When can I enroll in marketplace coverage?", a: "Annual open enrollment runs November 1 through January 15 in most states (state marketplaces vary). Outside open enrollment, you need a 'qualifying life event' (marriage, baby, job loss, etc.) to enroll." },
+    { q: "What's the difference between HMO, PPO, and EPO?", a: "HMO: smaller network, requires PCP referrals for specialists, cheapest premiums. PPO: larger network, no referrals needed, out-of-network coverage at higher cost. EPO: in-network only (no out-of-network coverage), no referrals required. POS: hybrid, PCP referrals required but allows out-of-network at higher cost." },
+    { q: "How do I qualify for an HSA?", a: "You must be enrolled in a qualifying HDHP (high-deductible health plan) — for 2026, that's a plan with minimum $1,650 individual / $3,300 family deductible. You can't be enrolled in other primary health coverage, can't be claimed as a dependent, and can't be on Medicare." },
+    { q: "When should I enroll in Medicare?", a: "Your Initial Enrollment Period is the 7 months around your 65th birthday (3 months before, the month of, and 3 months after). Missing this window can result in lifetime late enrollment penalties for Part B and Part D — so calendar it carefully." },
+    { q: "Should I take COBRA or buy a marketplace plan after job loss?", a: "Usually marketplace. COBRA is your full premium plus a 2% admin fee — typically $400-$2,000/month. Job loss is a 'qualifying event' that opens marketplace enrollment outside open enrollment, often with significant subsidy eligibility based on your lower income." },
+    { q: "What's the subsidy cliff?", a: "Before enhanced subsidies (passed 2021), households above 400% of Federal Poverty Level got zero subsidy on the ACA marketplace. The 2021 American Rescue Plan and Inflation Reduction Act eliminated the cliff through 2025 — capping premium contribution at 8.5% of income. The cliff may return after enhanced subsidies expire if not extended." },
   ]}
 />

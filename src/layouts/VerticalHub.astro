@@ -2,6 +2,7 @@
 import BaseLayout from "~/layouts/BaseLayout.astro";
 import ZipForm from "~/components/ZipForm.astro";
 import type { Vertical } from "~/data/verticals";
+import { getCollection } from "astro:content";
 
 interface Subtopic {
   title: string;
@@ -9,16 +10,83 @@ interface Subtopic {
   desc: string;
 }
 
+interface Stat {
+  number: string;
+  label: string;
+  context?: string;
+}
+
 interface Props {
   vertical: Vertical;
   hero: { headline: string; lede: string; ctaLabel?: string; ctaHref?: string };
   pillars: { title: string; body: string; href: string; cta: string }[];
-  calculators?: { label: string; href: string }[];
   subtopics?: Subtopic[];
   faqs?: { q: string; a: string }[];
+  /** Optional editorial intro — 2-3 paragraphs of authority-establishing prose. Renders below pillars. */
+  intro?: { eyebrow?: string; heading: string; body: string };
+  /** Optional stats strip — 3-4 quick numbers about the category. */
+  stats?: Stat[];
+  /** Optional "things people get wrong" callout list. */
+  myths?: { myth: string; reality: string }[];
 }
 
-const { vertical, hero, pillars, calculators = [], subtopics = [], faqs = [] } = Astro.props;
+const { vertical, hero, pillars, subtopics = [], faqs = [], intro, stats = [], myths = [] } = Astro.props;
+
+// ============================================================
+// Pull live content for the rich-content sections.
+// Drafts excluded. Failures soft-recover to empty arrays.
+// ============================================================
+async function safeCollection(name: string) {
+  try {
+    return await getCollection(name as any, ({ data }: any) => !data.draft);
+  } catch {
+    return [];
+  }
+}
+
+// Featured carrier reviews — show top reviews if any exist
+const reviews = (await safeCollection(`${vertical.key}-reviews`))
+  .sort((a, b) => {
+    // Sort by overallRank if available, else by company name
+    const aR = a.data.overallRank ?? 999;
+    const bR = b.data.overallRank ?? 999;
+    if (aR !== bR) return aR - bR;
+    return (a.data.company ?? "").localeCompare(b.data.company ?? "");
+  })
+  .slice(0, 6);
+
+// Featured guides — sorted by publish date, newest first
+const guideCollectionName = vertical.key === "auto" ? null : vertical.key;
+const guides = guideCollectionName
+  ? (await safeCollection(guideCollectionName))
+      .sort((a, b) => (b.data.publishDate?.valueOf() ?? 0) - (a.data.publishDate?.valueOf() ?? 0))
+      .slice(0, 6)
+  : [];
+
+// State pages — only for core verticals
+const hasLocations = ["auto", "home", "life", "business"].includes(vertical.key);
+const locations = hasLocations
+  ? (await safeCollection(`${vertical.key}-locations`))
+      .sort((a, b) => (a.data.state ?? "").localeCompare(b.data.state ?? ""))
+  : [];
+
+// Related blog posts — filter by category that mentions this vertical
+const allPosts = await safeCollection("posts");
+const verticalKeywords = [vertical.short.toLowerCase(), vertical.key.toLowerCase()];
+const relatedPosts = allPosts
+  .filter((p: any) => {
+    const haystack = `${p.data.category ?? ""} ${p.data.title ?? ""} ${p.data.excerpt ?? ""}`.toLowerCase();
+    return verticalKeywords.some((kw) => haystack.includes(kw));
+  })
+  .sort((a, b) => (b.data.publishDate?.valueOf() ?? 0) - (a.data.publishDate?.valueOf() ?? 0))
+  .slice(0, 3);
+
+// Fallback: if no related posts found, just show 3 most recent
+const featuredPosts = relatedPosts.length >= 3
+  ? relatedPosts
+  : allPosts
+      .sort((a, b) => (b.data.publishDate?.valueOf() ?? 0) - (a.data.publishDate?.valueOf() ?? 0))
+      .slice(0, 3);
 ---
 
 <BaseLayout
@@ -33,8 +101,8 @@ const { vertical, hero, pillars, calculators = [], subtopics = [], faqs = [] } =
   <!-- ============== HERO ============== -->
   <section class="vhero">
     <div class="vhero__art" aria-hidden="true">
-      <img src="/assets/images/hero-clouds.svg" alt="" class="vhero__clouds" />
-      <img src="/assets/images/hero-peaks.svg" alt="" class="vhero__peaks" />
+      <img src="/assets/images/hero-clouds.svg" alt="" class="vhero__clouds" loading="eager" width="1000" height="600" />
+      <img src="/assets/images/hero-peaks.svg" alt="" class="vhero__peaks" loading="eager" width="1920" height="400" />
     </div>
     <div class="container vhero__inner">
       <div class="vhero__copy">
@@ -58,6 +126,10 @@ const { vertical, hero, pillars, calculators = [], subtopics = [], faqs = [] } =
             alt=""
             class="vhero__cta-yeti"
             aria-hidden="true"
+            loading="eager"
+            fetchpriority="high"
+            width="220"
+            height="220"
           />
           <div class="vhero__cta-wrap">
             <ZipForm
@@ -109,6 +181,34 @@ const { vertical, hero, pillars, calculators = [], subtopics = [], faqs = [] } =
     </section>
   )}
 
+  <!-- ============== EDITORIAL INTRO ============== -->
+  {intro && (
+    <section class="vintro reveal">
+      <div class="container container--narrow">
+        {intro.eyebrow && <p class="eyebrow">{intro.eyebrow}</p>}
+        <h2 class="vintro__heading">{intro.heading}</h2>
+        <div class="vintro__body" set:html={intro.body} />
+      </div>
+    </section>
+  )}
+
+  <!-- ============== STATS STRIP ============== -->
+  {stats.length > 0 && (
+    <section class="vstats reveal">
+      <div class="container">
+        <div class="vstats__grid">
+          {stats.map((stat) => (
+            <div class="vstat">
+              <div class="vstat__num">{stat.number}</div>
+              <div class="vstat__label">{stat.label}</div>
+              {stat.context && <div class="vstat__context">{stat.context}</div>}
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  )}
+
   <!-- ============== SUBTOPICS GRID ============== -->
   {subtopics.length > 0 && (
     <section class="vsubtopics reveal">
@@ -133,25 +233,198 @@ const { vertical, hero, pillars, calculators = [], subtopics = [], faqs = [] } =
     </section>
   )}
 
-  <!-- ============== CALCULATORS ============== -->
-  {calculators.length > 0 && (
-    <section class="vcalc container reveal">
-      <header class="vcalc__header">
-        <p class="eyebrow">Free calculators</p>
-        <h2>
-          Do the math
-          <span class="serif-italic">before</span>
-          the sales call
-        </h2>
-      </header>
-      <div class="vcalc__grid">
-        {calculators.map((calc) => (
-          <a href={calc.href} class="vcalc-tile">
-            <img src={vertical.icon} alt="" width="28" height="28" class="vcalc-tile__icon" />
-            <span class="vcalc-tile__label">{calc.label}</span>
-            <span class="vcalc-tile__arrow" aria-hidden="true">→</span>
+  <!-- ============== CARRIER REVIEWS ============== -->
+  {reviews.length > 0 && (
+    <section class="vreviews reveal">
+      <div class="container">
+        <header class="vreviews__header">
+          <div>
+            <p class="eyebrow">Carriers we've reviewed</p>
+            <h2>
+              The {reviews.length}+ carriers
+              <span class="serif-italic">competing</span>
+              for your business
+            </h2>
+            <p class="vreviews__lede">Independent reviews of the major {vertical.short.toLowerCase()} insurance carriers — ratings, pros, cons, and where they actually win vs. where they don't.</p>
+          </div>
+          <a href={`${vertical.path}reviews/`} class="vreviews__view-all">
+            See all reviews
+            <svg width="14" height="12" viewBox="0 0 14 12" fill="none" aria-hidden="true">
+              <path d="M8 1l5 5-5 5M1 6h12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
           </a>
-        ))}
+        </header>
+        <div class="vreviews__grid">
+          {reviews.map((review: any) => (
+            <a href={`${vertical.path}reviews/${review.id}/`} class="vreview-card">
+              <div class="vreview-card__head">
+                <h3 class="vreview-card__name">{review.data.company ?? review.data.title}</h3>
+                {review.data.starRating && (
+                  <div class="vreview-card__rating">
+                    <span class="vreview-card__stars">★</span>
+                    <span class="vreview-card__score">{review.data.starRating}</span>
+                  </div>
+                )}
+              </div>
+              {review.data.positioning && (
+                <p class="vreview-card__desc">{review.data.positioning.slice(0, 140)}{review.data.positioning.length > 140 ? "…" : ""}</p>
+              )}
+              <div class="vreview-card__meta">
+                {review.data.avgMonthly && (
+                  <span class="vreview-card__price">
+                    <span class="vreview-card__price-label">Avg/mo</span>
+                    <span class="vreview-card__price-val">{review.data.avgMonthly}</span>
+                  </span>
+                )}
+                {review.data.overallRank && (
+                  <span class="vreview-card__rank">#{review.data.overallRank} ranked</span>
+                )}
+              </div>
+            </a>
+          ))}
+        </div>
+      </div>
+    </section>
+  )}
+
+  <!-- ============== FEATURED GUIDES ============== -->
+  {guides.length > 0 && (
+    <section class="vguides reveal">
+      <div class="container">
+        <header class="vguides__header">
+          <div>
+            <p class="eyebrow">In-depth reading</p>
+            <h2>
+              {vertical.short} insurance,
+              <span class="serif-italic">explained</span>
+            </h2>
+            <p class="vguides__lede">Long-form guides on the decisions that actually matter — written for buyers, not search engines.</p>
+          </div>
+          <a href={`${vertical.path}guides/`} class="vguides__view-all">
+            All {vertical.short.toLowerCase()} guides
+            <svg width="14" height="12" viewBox="0 0 14 12" fill="none" aria-hidden="true">
+              <path d="M8 1l5 5-5 5M1 6h12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </a>
+        </header>
+        <div class="vguides__grid">
+          {guides.map((guide: any, i: number) => (
+            <a href={`${vertical.path}guides/${guide.id}/`} class={`vguide-card ${i === 0 ? "vguide-card--feature" : ""}`}>
+              <span class="vguide-card__num">{String(i + 1).padStart(2, "0")}</span>
+              <h3 class="vguide-card__title">{guide.data.title}</h3>
+              {guide.data.description && (
+                <p class="vguide-card__desc">{guide.data.description}</p>
+              )}
+              <span class="vguide-card__arrow" aria-hidden="true">
+                <span>Read guide</span>
+                <svg width="14" height="12" viewBox="0 0 14 12" fill="none">
+                  <path d="M8 1l5 5-5 5M1 6h12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </span>
+            </a>
+          ))}
+        </div>
+      </div>
+    </section>
+  )}
+
+  <!-- ============== STATE PAGES ============== -->
+  {locations.length > 0 && (
+    <section class="vstates reveal">
+      <div class="container">
+        <header class="vstates__header">
+          <div>
+            <p class="eyebrow">{vertical.short} insurance by state</p>
+            <h2>
+              State-specific
+              <span class="serif-italic">rules and rates</span>
+            </h2>
+            <p class="vstates__lede">{vertical.short} insurance is regulated state by state. Rates, requirements, and available carriers vary dramatically. We've broken down the {locations.length} largest markets.</p>
+          </div>
+          <a href={`${vertical.path}by-state/`} class="vstates__view-all">
+            All state guides
+            <svg width="14" height="12" viewBox="0 0 14 12" fill="none" aria-hidden="true">
+              <path d="M8 1l5 5-5 5M1 6h12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </a>
+        </header>
+        <div class="vstates__grid">
+          {locations.map((loc: any) => (
+            <a href={`${vertical.path}by-state/${loc.id}/`} class="vstate-chip">
+              <span class="vstate-chip__name">{loc.data.state ?? loc.data.title}</span>
+              {loc.data.avgRate && (
+                <span class="vstate-chip__rate">{loc.data.avgRate}/yr avg</span>
+              )}
+            </a>
+          ))}
+        </div>
+      </div>
+    </section>
+  )}
+
+  <!-- ============== MYTHS / REALITY CALLOUT ============== -->
+  {myths.length > 0 && (
+    <section class="vmyths reveal">
+      <div class="container">
+        <header class="vmyths__header">
+          <p class="eyebrow">Common misconceptions</p>
+          <h2>
+            What most people get
+            <span class="serif-italic">wrong</span>
+          </h2>
+        </header>
+        <div class="vmyths__list">
+          {myths.map((m, i) => (
+            <div class="vmyth">
+              <span class="vmyth__num">{String(i + 1).padStart(2, "0")}</span>
+              <div class="vmyth__body">
+                <p class="vmyth__myth">
+                  <span class="vmyth__tag vmyth__tag--myth">Myth</span>
+                  {m.myth}
+                </p>
+                <p class="vmyth__reality">
+                  <span class="vmyth__tag vmyth__tag--reality">Reality</span>
+                  {m.reality}
+                </p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  )}
+
+  <!-- ============== FROM THE DISPATCH ============== -->
+  {featuredPosts.length > 0 && (
+    <section class="vposts reveal">
+      <div class="container">
+        <header class="vposts__header">
+          <div>
+            <p class="eyebrow">From The Dispatch</p>
+            <h2>
+              Reading list,
+              <span class="serif-italic">curated</span>
+            </h2>
+          </div>
+          <a href="/blog/" class="vposts__view-all">
+            The Dispatch
+            <svg width="14" height="12" viewBox="0 0 14 12" fill="none" aria-hidden="true">
+              <path d="M8 1l5 5-5 5M1 6h12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </a>
+        </header>
+        <div class="vposts__grid">
+          {featuredPosts.map((post: any) => (
+            <a href={`/blog/${post.id}/`} class="vpost-card">
+              {post.data.category && <span class="vpost-card__cat">{post.data.category}</span>}
+              <h3 class="vpost-card__title">{post.data.title}</h3>
+              {post.data.excerpt && (
+                <p class="vpost-card__excerpt">{post.data.excerpt}</p>
+              )}
+              <span class="vpost-card__arrow" aria-hidden="true">Read post →</span>
+            </a>
+          ))}
+        </div>
       </div>
     </section>
   )}
@@ -234,8 +507,8 @@ const { vertical, hero, pillars, calculators = [], subtopics = [], faqs = [] } =
       background: linear-gradient(180deg, var(--section-accent-soft) 0%, var(--color-white) 100%);
     }
     .vhero__art { position: absolute; inset: 0; pointer-events: none; z-index: 0; }
-    .vhero__clouds { position: absolute; top: 4%; left: -8%; width: 56%; max-width: 600px; opacity: 0.35; }
-    .vhero__peaks { position: absolute; bottom: 0; left: 0; width: 100%; opacity: 0.6; }
+    .vhero__clouds { position: absolute; top: 4%; left: -8%; width: 56%; max-width: 600px; opacity: 0.35; height: auto; }
+    .vhero__peaks { position: absolute; bottom: 0; left: 0; width: 100%; opacity: 0.6; height: auto; }
     .vhero__inner {
       position: relative;
       z-index: 1;
@@ -609,6 +882,610 @@ const { vertical, hero, pillars, calculators = [], subtopics = [], faqs = [] } =
       .vfaq { padding-block: var(--space-12); }
       .vpillars__grid, .vsubtopics__grid, .vcalc__grid { grid-template-columns: 1fr; }
       .vhero__alt-link { font-size: 0.875rem; }
+    }
+
+    /* ============================================
+       Editorial intro — narrative paragraphs
+    ============================================ */
+    .vintro {
+      padding-block: var(--space-16);
+      background: var(--color-white);
+    }
+    .container--narrow { max-width: 760px; margin: 0 auto; }
+    .vintro__heading {
+      font-size: clamp(1.875rem, 3.5vw, 2.5rem);
+      letter-spacing: -0.025em;
+      line-height: 1.15;
+      margin: 0 0 var(--space-6);
+      color: var(--color-resolution);
+    }
+    .vintro__heading .serif-italic { color: var(--section-accent); }
+    .vintro__body {
+      font-size: 1.0625rem;
+      line-height: 1.7;
+      color: var(--color-text);
+    }
+    .vintro__body :global(p) { margin: 0 0 var(--space-5); }
+    .vintro__body :global(p:last-child) { margin-bottom: 0; }
+    .vintro__body :global(strong) { color: var(--color-resolution); }
+    .vintro__body :global(a) {
+      color: var(--section-accent);
+      text-decoration: underline;
+      text-underline-offset: 3px;
+      text-decoration-thickness: 1.5px;
+    }
+    .vintro__body :global(a:hover) {
+      text-decoration-thickness: 2.5px;
+    }
+
+    /* ============================================
+       Stats strip
+    ============================================ */
+    .vstats {
+      padding-block: var(--space-10);
+      background: var(--section-accent-soft);
+      border-block: 1px solid color-mix(in srgb, var(--section-accent) 18%, transparent);
+    }
+    .vstats__grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: var(--space-6);
+    }
+    .vstat {
+      text-align: left;
+    }
+    .vstat__num {
+      font-family: var(--font-display);
+      font-weight: 800;
+      font-size: clamp(1.875rem, 3.5vw, 2.75rem);
+      letter-spacing: -0.025em;
+      color: var(--section-accent);
+      line-height: 1;
+      margin-bottom: var(--space-2);
+    }
+    .vstat__label {
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 0.875rem;
+      color: var(--color-resolution);
+      line-height: 1.3;
+      margin-bottom: 4px;
+    }
+    .vstat__context {
+      font-size: 0.8125rem;
+      color: var(--color-text-muted);
+      line-height: 1.4;
+    }
+    @media (max-width: 900px) {
+      .vstats__grid { grid-template-columns: repeat(2, 1fr); gap: var(--space-5); }
+    }
+    @media (max-width: 480px) {
+      .vstats__grid { grid-template-columns: 1fr; }
+    }
+
+    /* ============================================
+       Carrier reviews section
+    ============================================ */
+    .vreviews {
+      padding-block: var(--space-16);
+      background: var(--color-white);
+    }
+    .vreviews__header {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: var(--space-6);
+      align-items: end;
+      margin-bottom: var(--space-10);
+    }
+    .vreviews h2 {
+      font-size: clamp(1.875rem, 3.5vw, 2.5rem);
+      letter-spacing: -0.025em;
+      line-height: 1.1;
+      margin: 0 0 var(--space-3);
+      color: var(--color-resolution);
+    }
+    .vreviews h2 .serif-italic { color: var(--section-accent); }
+    .vreviews__lede {
+      font-size: 1rem;
+      color: var(--color-text-muted);
+      max-width: 540px;
+      margin: 0;
+      line-height: 1.55;
+    }
+    .vreviews__view-all,
+    .vguides__view-all,
+    .vstates__view-all,
+    .vposts__view-all {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-2);
+      padding: 10px 16px;
+      background: var(--color-white);
+      border: 1px solid var(--color-border);
+      border-radius: 100px;
+      color: var(--color-resolution);
+      text-decoration: none;
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 0.8125rem;
+      letter-spacing: 0.01em;
+      white-space: nowrap;
+      transition: border-color 0.15s, background 0.15s, color 0.15s, transform 0.15s;
+      align-self: end;
+    }
+    .vreviews__view-all:hover,
+    .vguides__view-all:hover,
+    .vstates__view-all:hover,
+    .vposts__view-all:hover {
+      border-color: var(--section-accent);
+      background: var(--section-accent-soft);
+      color: var(--section-accent);
+      transform: translateY(-1px);
+    }
+    .vreviews__view-all svg,
+    .vguides__view-all svg,
+    .vstates__view-all svg,
+    .vposts__view-all svg { transition: transform 0.2s; }
+    .vreviews__view-all:hover svg,
+    .vguides__view-all:hover svg,
+    .vstates__view-all:hover svg,
+    .vposts__view-all:hover svg { transform: translateX(3px); }
+
+    .vreviews__grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: var(--space-5);
+    }
+    .vreview-card {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-4);
+      padding: var(--space-6);
+      background: var(--color-white);
+      border: 1px solid var(--color-border);
+      border-radius: 14px;
+      text-decoration: none;
+      color: inherit;
+      transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s;
+    }
+    .vreview-card:hover {
+      border-color: var(--section-accent);
+      transform: translateY(-2px);
+      box-shadow: 0 12px 24px -8px color-mix(in srgb, var(--section-accent) 25%, transparent);
+    }
+    .vreview-card__head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: var(--space-3);
+    }
+    .vreview-card__name {
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 1.0625rem;
+      color: var(--color-resolution);
+      margin: 0;
+      line-height: 1.2;
+    }
+    .vreview-card__rating {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 10px;
+      background: var(--section-accent-soft);
+      border-radius: 100px;
+      font-size: 0.8125rem;
+      font-weight: 700;
+      color: var(--section-accent);
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .vreview-card__stars { font-size: 0.9rem; }
+    .vreview-card__desc {
+      font-size: 0.875rem;
+      color: var(--color-text);
+      line-height: 1.5;
+      margin: 0;
+      flex-grow: 1;
+    }
+    .vreview-card__meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: var(--space-3);
+      padding-top: var(--space-3);
+      border-top: 1px solid var(--color-border);
+      font-size: 0.8125rem;
+    }
+    .vreview-card__price {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .vreview-card__price-label {
+      font-family: var(--font-display);
+      font-size: 0.625rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      color: var(--color-text-muted);
+    }
+    .vreview-card__price-val {
+      font-family: var(--font-display);
+      font-weight: 700;
+      color: var(--color-resolution);
+      font-size: 0.9375rem;
+    }
+    .vreview-card__rank {
+      font-family: var(--font-display);
+      font-weight: 700;
+      color: var(--section-accent);
+      font-size: 0.8125rem;
+    }
+    @media (max-width: 980px) {
+      .vreviews__grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 600px) {
+      .vreviews__grid { grid-template-columns: 1fr; }
+      .vreviews__header { grid-template-columns: 1fr; gap: var(--space-4); }
+      .vreviews__view-all { justify-self: start; }
+    }
+
+    /* ============================================
+       Featured guides section
+    ============================================ */
+    .vguides {
+      padding-block: var(--space-16);
+      background: var(--color-alice);
+    }
+    .vguides__header {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: var(--space-6);
+      align-items: end;
+      margin-bottom: var(--space-10);
+    }
+    .vguides h2 {
+      font-size: clamp(1.875rem, 3.5vw, 2.5rem);
+      letter-spacing: -0.025em;
+      line-height: 1.1;
+      margin: 0 0 var(--space-3);
+      color: var(--color-resolution);
+    }
+    .vguides h2 .serif-italic { color: var(--section-accent); }
+    .vguides__lede {
+      font-size: 1rem;
+      color: var(--color-text-muted);
+      max-width: 540px;
+      margin: 0;
+      line-height: 1.55;
+    }
+    .vguides__grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: var(--space-5);
+    }
+    .vguide-card {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-3);
+      padding: var(--space-6);
+      background: var(--color-white);
+      border: 1px solid var(--color-border);
+      border-radius: 14px;
+      text-decoration: none;
+      color: inherit;
+      transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s;
+      position: relative;
+    }
+    .vguide-card:hover {
+      border-color: var(--section-accent);
+      transform: translateY(-2px);
+      box-shadow: 0 12px 24px -8px color-mix(in srgb, var(--section-accent) 25%, transparent);
+    }
+    .vguide-card--feature {
+      grid-column: span 2;
+      background: linear-gradient(135deg, var(--section-accent-soft) 0%, var(--color-white) 100%);
+      border-color: color-mix(in srgb, var(--section-accent) 30%, transparent);
+    }
+    .vguide-card__num {
+      font-family: var(--font-serif, "Plantin", Georgia, serif);
+      font-style: italic;
+      font-weight: 500;
+      font-size: 1.875rem;
+      line-height: 0.9;
+      color: var(--section-accent);
+      opacity: 0.5;
+    }
+    .vguide-card--feature .vguide-card__num {
+      font-size: 3rem;
+      opacity: 0.4;
+    }
+    .vguide-card__title {
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 1.0625rem;
+      letter-spacing: -0.01em;
+      color: var(--color-resolution);
+      margin: 0;
+      line-height: 1.25;
+    }
+    .vguide-card--feature .vguide-card__title {
+      font-size: 1.375rem;
+    }
+    .vguide-card__desc {
+      font-size: 0.875rem;
+      color: var(--color-text);
+      line-height: 1.5;
+      margin: 0;
+      flex-grow: 1;
+    }
+    .vguide-card__arrow {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-2);
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 0.8125rem;
+      color: var(--section-accent);
+      margin-top: auto;
+      padding-top: var(--space-2);
+    }
+    .vguide-card__arrow svg { transition: transform 0.2s; }
+    .vguide-card:hover .vguide-card__arrow svg { transform: translateX(3px); }
+    @media (max-width: 980px) {
+      .vguides__grid { grid-template-columns: repeat(2, 1fr); }
+      .vguide-card--feature { grid-column: span 2; }
+    }
+    @media (max-width: 600px) {
+      .vguides__grid { grid-template-columns: 1fr; }
+      .vguide-card--feature { grid-column: span 1; }
+      .vguides__header { grid-template-columns: 1fr; }
+      .vguides__view-all { justify-self: start; }
+    }
+
+    /* ============================================
+       State pages section
+    ============================================ */
+    .vstates {
+      padding-block: var(--space-16);
+      background: var(--color-white);
+    }
+    .vstates__header {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: var(--space-6);
+      align-items: end;
+      margin-bottom: var(--space-10);
+    }
+    .vstates h2 {
+      font-size: clamp(1.875rem, 3.5vw, 2.5rem);
+      letter-spacing: -0.025em;
+      line-height: 1.1;
+      margin: 0 0 var(--space-3);
+      color: var(--color-resolution);
+    }
+    .vstates h2 .serif-italic { color: var(--section-accent); }
+    .vstates__lede {
+      font-size: 1rem;
+      color: var(--color-text-muted);
+      max-width: 540px;
+      margin: 0;
+      line-height: 1.55;
+    }
+    .vstates__grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: var(--space-3);
+    }
+    .vstate-chip {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      padding: var(--space-4) var(--space-5);
+      background: var(--color-alice);
+      border: 1px solid var(--color-border);
+      border-radius: 10px;
+      text-decoration: none;
+      color: inherit;
+      transition: border-color 0.15s, background 0.15s, transform 0.15s;
+    }
+    .vstate-chip:hover {
+      border-color: var(--section-accent);
+      background: var(--section-accent-soft);
+      transform: translateY(-1px);
+    }
+    .vstate-chip__name {
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 0.9375rem;
+      color: var(--color-resolution);
+    }
+    .vstate-chip__rate {
+      font-size: 0.75rem;
+      color: var(--color-text-muted);
+    }
+    @media (max-width: 980px) {
+      .vstates__grid { grid-template-columns: repeat(3, 1fr); }
+    }
+    @media (max-width: 600px) {
+      .vstates__grid { grid-template-columns: repeat(2, 1fr); }
+      .vstates__header { grid-template-columns: 1fr; }
+      .vstates__view-all { justify-self: start; }
+    }
+
+    /* ============================================
+       Myths / Reality callout
+    ============================================ */
+    .vmyths {
+      padding-block: var(--space-16);
+      background: var(--color-alice);
+    }
+    .vmyths__header {
+      max-width: 760px;
+      margin: 0 auto var(--space-10);
+      text-align: center;
+    }
+    .vmyths__header .eyebrow {
+      display: block;
+    }
+    .vmyths h2 {
+      font-size: clamp(1.875rem, 3.5vw, 2.5rem);
+      letter-spacing: -0.025em;
+      line-height: 1.1;
+      margin: 0;
+      color: var(--color-resolution);
+    }
+    .vmyths h2 .serif-italic { color: var(--section-accent); }
+    .vmyths__list {
+      max-width: 760px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-5);
+    }
+    .vmyth {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: var(--space-5);
+      padding: var(--space-6);
+      background: var(--color-white);
+      border: 1px solid var(--color-border);
+      border-radius: 14px;
+    }
+    .vmyth__num {
+      font-family: var(--font-serif, "Plantin", Georgia, serif);
+      font-style: italic;
+      font-weight: 500;
+      font-size: 2rem;
+      line-height: 0.9;
+      color: var(--section-accent);
+      opacity: 0.5;
+    }
+    .vmyth__body { min-width: 0; }
+    .vmyth__myth, .vmyth__reality {
+      margin: 0;
+      font-size: 1rem;
+      line-height: 1.55;
+    }
+    .vmyth__myth {
+      color: var(--color-text-muted);
+      margin-bottom: var(--space-3);
+      text-decoration: line-through;
+      text-decoration-color: color-mix(in srgb, var(--color-text-muted) 40%, transparent);
+    }
+    .vmyth__reality {
+      color: var(--color-resolution);
+      font-weight: 500;
+    }
+    .vmyth__tag {
+      display: inline-block;
+      font-family: var(--font-display);
+      font-size: 0.625rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      padding: 3px 8px;
+      border-radius: 4px;
+      margin-right: var(--space-2);
+      vertical-align: middle;
+      text-decoration: none;
+    }
+    .vmyth__tag--myth {
+      background: rgba(244, 96, 54, 0.12);
+      color: #B8390F;
+    }
+    .vmyth__tag--reality {
+      background: color-mix(in srgb, var(--section-accent) 15%, transparent);
+      color: var(--section-accent);
+    }
+    @media (max-width: 600px) {
+      .vmyth { grid-template-columns: 1fr; gap: var(--space-3); }
+      .vmyth__num { font-size: 1.5rem; }
+    }
+
+    /* ============================================
+       Featured blog posts
+    ============================================ */
+    .vposts {
+      padding-block: var(--space-16);
+      background: var(--color-white);
+    }
+    .vposts__header {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: var(--space-6);
+      align-items: end;
+      margin-bottom: var(--space-10);
+    }
+    .vposts h2 {
+      font-size: clamp(1.875rem, 3.5vw, 2.5rem);
+      letter-spacing: -0.025em;
+      line-height: 1.1;
+      margin: 0;
+      color: var(--color-resolution);
+    }
+    .vposts h2 .serif-italic { color: var(--section-accent); }
+    .vposts__grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: var(--space-5);
+    }
+    .vpost-card {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-3);
+      padding: var(--space-6);
+      background: var(--color-white);
+      border: 1px solid var(--color-border);
+      border-radius: 14px;
+      text-decoration: none;
+      color: inherit;
+      transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s;
+    }
+    .vpost-card:hover {
+      border-color: var(--section-accent);
+      transform: translateY(-2px);
+      box-shadow: 0 12px 24px -8px color-mix(in srgb, var(--section-accent) 25%, transparent);
+    }
+    .vpost-card__cat {
+      display: inline-block;
+      font-family: var(--font-display);
+      font-size: 0.625rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      color: var(--section-accent);
+      align-self: flex-start;
+    }
+    .vpost-card__title {
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 1.0625rem;
+      letter-spacing: -0.005em;
+      color: var(--color-resolution);
+      margin: 0;
+      line-height: 1.3;
+    }
+    .vpost-card__excerpt {
+      font-size: 0.9375rem;
+      color: var(--color-text);
+      line-height: 1.55;
+      margin: 0;
+      flex-grow: 1;
+    }
+    .vpost-card__arrow {
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 0.8125rem;
+      color: var(--section-accent);
+      margin-top: auto;
+      padding-top: var(--space-2);
+    }
+    @media (max-width: 980px) {
+      .vposts__grid { grid-template-columns: 1fr; }
+      .vposts__header { grid-template-columns: 1fr; }
+      .vposts__view-all { justify-self: start; }
     }
   </style>
 

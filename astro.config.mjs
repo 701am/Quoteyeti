@@ -77,6 +77,7 @@ export default defineConfig({
   build: {
     format: "directory",
   },
+  trailingSlash: "always",
   markdown: {
     rehypePlugins: [
       [rehypeAutolinkQuoteYeti, { linkMaps, maxLinks: 6 }],

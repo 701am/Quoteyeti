@@ -8,46 +8,90 @@ const v = VERTICALS.travel;
 <VerticalHub
   vertical={v}
   hero={{
-    headline: "Cover the unexpected, wherever you go",
-    lede: "Trip cancellation, medical emergencies, lost baggage — compare plans from real travel insurers, not the airline upsell.",
+    headline: "Cover the unexpected.",
+    lede: "Don't let one canceled flight wreck the trip. Compare travel insurance across major carriers — by trip type, destination, and traveler profile.",
+    ctaLabel: "Get travel quotes",
+    ctaHref: "/travel-insurance/quotes/",
   }}
   pillars={[
     {
-      title: "Trip cancellation",
-      body: "Trip cancellation, medical, evacuation, and baggage coverage from leading carriers. We rank by what's actually covered, not what's marketed.",
-      href: "/travel-insurance/cancellation/",
-      cta: "Cancellation 101",
+      title: "See the best travel carriers",
+      body: "Allianz, Travel Guard, Travelex, World Nomads, Generali, Seven Corners — independently ranked by trip type, claim handling, and policy substance.",
+      href: "/travel-insurance/best/",
+      cta: "See top carriers",
     },
     {
-      title: "Medical & evacuation",
-      body: "Your US health insurance probably doesn't cover you abroad. We compare what carriers fill the gap.",
-      href: "/travel-insurance/medical/",
-      cta: "Medical coverage",
+      title: "Decode coverage types",
+      body: "Trip cancellation, trip interruption, medical, evacuation, baggage, CFAR — what each covers, what each costs, and which you actually need.",
+      href: "/travel-insurance/guides/",
+      cta: "Read guides",
     },
     {
-      title: "Cancel For Any Reason (CFAR)",
-      body: "Costs more, refunds less, but lets you cancel for literally any reason. The flexibility math.",
-      href: "/travel-insurance/cfar/",
-      cta: "CFAR explained",
+      title: "Get a quote",
+      body: "Travel insurance pricing is heavily based on trip cost, destination, and trip length. Most policies issue immediately and can be canceled within 10-14 days.",
+      href: "/travel-insurance/quotes/",
+      cta: "Compare quotes",
     },
   ]}
-  calculators={[
-    { label: "Trip cost calculator", href: "/travel-insurance/calculator/" },
-    { label: "Coverage estimator", href: "/travel-insurance/coverage-estimator/" },
-    { label: "Credit card vs. policy", href: "/travel-insurance/credit-card/" },
+  intro={{
+    eyebrow: "How we think about travel insurance",
+    heading: "Most travel insurance is a small bet on a big tail event.",
+    body: `<p>Travel insurance feels optional until it isn't. <strong>Medical evacuation alone can cost $50K-$250K</strong>. A canceled cruise during a non-refundable booking window. A baggage loss with critical work equipment. A hurricane reroute. The premium ($30-$200 for most trips) is a small price for protection against scenarios that turn vacations into financial disasters.</p>
+<p>The complexity: travel insurance is one of the most highly variable products in personal insurance. Standard policies vs. CFAR (Cancel For Any Reason). Trip cancellation vs. trip interruption. Primary vs. excess medical. Pre-existing condition waivers. Reading the actual policy matters more here than in most insurance categories.</p>
+<p>Where to start: <a href="/travel-insurance/best/">see which carriers handle which trip types well</a>, <a href="/travel-insurance/reviews/">read independent reviews</a>, and <a href="/travel-insurance/guides/">understand the structural choices</a> before buying.</p>`,
+  }}
+  stats={[
+    { number: "5-7%", label: "of trip cost", context: "Typical travel insurance premium as % of total trip" },
+    { number: "$50-250K", label: "Medical evacuation", context: "Real costs for serious international medical events" },
+    { number: "10-14 days", label: "Review window", context: "Most policies are refundable within this window" },
+    { number: "21 days", label: "CFAR window", context: "Most CFAR policies must be purchased within 21 days of trip booking" },
   ]}
   subtopics={[
-    { title: "International travel", href: "/travel-insurance/international/", desc: "Visa requirements, medical, and evac coverage for going abroad." },
-    { title: "Cruise insurance", href: "/travel-insurance/cruises/", desc: "Onboard medical, missed-port, and what cruise lines don't cover." },
-    { title: "Adventure travel", href: "/travel-insurance/adventure/", desc: "Coverage for skiing, climbing, diving, and other 'hazardous' activities." },
-    { title: "Annual / multi-trip", href: "/travel-insurance/annual/", desc: "When buying a year of coverage beats single-trip policies." },
-    { title: "Group travel", href: "/travel-insurance/group/", desc: "Family and group plans, plus the discounts available." },
-    { title: "Pandemic coverage", href: "/travel-insurance/pandemic/", desc: "What COVID-related coverage still exists in 2026." },
+    {
+      title: "Best travel insurance",
+      href: "/travel-insurance/best/",
+      desc: "Top travel carriers ranked by trip type — international, domestic, cruise, adventure, annual multi-trip. Premium and coverage compared."
+    },
+    {
+      title: "Carrier reviews",
+      href: "/travel-insurance/reviews/",
+      desc: "Independent reviews of major travel insurance carriers. Claim handling, policy substance, customer service, and where each wins."
+    },
+    {
+      title: "Travel guides",
+      href: "/travel-insurance/guides/",
+      desc: "CFAR vs. standard cancellation, primary vs. excess medical, pre-existing condition waivers, credit card coverage gaps, and trip-specific considerations."
+    },
+    {
+      title: "Get quotes",
+      href: "/travel-insurance/quotes/",
+      desc: "Compare travel insurance quotes by trip cost, destination, and travelers. Most policies issue immediately."
+    },
+  ]}
+  myths={[
+    {
+      myth: "My credit card travel insurance is enough.",
+      reality: "Credit card travel coverage varies wildly. Some cards offer real coverage; others offer marketing language with severe limitations. Most cards exclude pre-existing conditions, have lower medical limits, and exclude common cancellation reasons. Read the benefit guide before relying on it."
+    },
+    {
+      myth: "Travel insurance covers any reason I cancel.",
+      reality: "Standard trip cancellation only covers specific listed reasons (illness, injury, death in family, severe weather, terrorism in destination, etc.). 'Cancel For Any Reason' (CFAR) is a separate, more expensive add-on that covers any reason — but typically only reimburses 50-75% of trip cost."
+    },
+    {
+      myth: "My health insurance covers me abroad.",
+      reality: "Most US health insurance has very limited or no coverage outside the country. Even those that do typically don't cover medical evacuation — which can run $50K-$250K for serious incidents in remote locations. Travel medical insurance fills the gap."
+    },
+    {
+      myth: "Travel insurance is too expensive for short trips.",
+      reality: "For domestic trips, you might be right (premium often $30-$80). For international trips, premium is typically 5-7% of total trip cost. On a $5K trip, that's $250-$350 — small relative to the protection."
+    },
   ]}
   faqs={[
-    { q: "When should I buy travel insurance?", a: "Within 14-21 days of your first trip deposit. That timing unlocks the pre-existing condition waiver and CFAR (Cancel For Any Reason) upgrades. Buying later means missing key protections." },
-    { q: "Does my credit card already cover me?", a: "Many premium cards include cancellation and rental car coverage. Medical evac is usually the big gap." },
-    { q: "What's typically NOT covered?", a: "Pre-existing conditions (unless waived), state-department-warned destinations, alcohol-related incidents." },
-    { q: "Is travel insurance refundable?", a: "Yes, within a 'free look' period (usually 10–14 days), as long as your trip hasn't started." },
+    { q: "When should I buy travel insurance?", a: "Within 10-21 days of your initial trip deposit. Why so soon: pre-existing condition waivers (which prevent claim denials related to existing health conditions) typically require purchase within 14-21 days of deposit. Some 'cancel for any reason' (CFAR) coverage also has tight purchase windows." },
+    { q: "What's CFAR coverage?", a: "Cancel For Any Reason. An add-on (typically 40-60% more expensive than standard cancellation) that lets you cancel for literally any reason — not just listed covered reasons. Catch: usually reimburses only 50-75% of non-refundable trip cost, not 100%." },
+    { q: "Does travel insurance cover COVID?", a: "Most policies now treat COVID like any other illness — if you contract it before or during travel and a doctor confirms you can't travel, standard trip cancellation/interruption usually applies. Some specific policies offer enhanced COVID-related coverage. Verify before purchasing." },
+    { q: "What's medical evacuation coverage?", a: "Pays to transport you to appropriate medical care if you have a serious incident in a remote or under-equipped location. Critical for international travel, cruises, and adventure trips. Costs $50K-$250K out of pocket without coverage. Most comprehensive policies include $100K-$1M of evacuation coverage." },
+    { q: "Do I need travel insurance for domestic trips?", a: "Less critical than international, but worth considering for expensive trips (cruises, all-inclusive resorts, group travel) where deposits are non-refundable. Premium is typically $30-$80 for domestic trips and protects against cancellation, baggage, and medical (since your health insurance covers most US treatment)." },
+    { q: "What about annual multi-trip policies?", a: "Worth it if you travel 3+ times per year. Annual policies typically cost $200-$500 and cover unlimited trips up to a set length (often 30 days each). For frequent travelers, the math is usually better than buying individual policies." },
   ]}
 />

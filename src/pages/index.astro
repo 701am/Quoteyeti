@@ -2,106 +2,123 @@
 import BaseLayout from "~/layouts/BaseLayout.astro";
 import ZipForm from "~/components/ZipForm.astro";
 import { VERTICAL_LIST } from "~/data/verticals";
+import { getCollection } from "astro:content";
 
-const topGuides = [
-  { title: "Types of Insurance: See Which Is Right for You", href: "/insurance/", category: "Insurance 101" },
-  { title: "Car Insurance Basics 101 — Plain English", href: "/auto/basics/", category: "Auto" },
-  { title: "Business Insurance: What Does It Cover?", href: "/business-insurance/coverage/", category: "Business" },
-  { title: "Is Life Insurance Worth It? Expert Take", href: "/life-insurance/is-it-worth-it/", category: "Life" },
-];
+async function safeCollection(name: string) {
+  try { return await getCollection(name as any, ({ data }: any) => !data.draft); }
+  catch { return []; }
+}
+
+const reviewCounts: Record<string, number> = {};
+const guideCounts: Record<string, number> = {};
+let totalReviews = 0, totalGuides = 0, totalLocations = 0;
+
+for (const v of VERTICAL_LIST) {
+  const r = await safeCollection(`${v.key}-reviews`);
+  reviewCounts[v.key] = r.length;
+  totalReviews += r.length;
+  if (v.key !== "auto") {
+    const g = await safeCollection(v.key);
+    guideCounts[v.key] = g.length;
+    totalGuides += g.length;
+  } else { guideCounts[v.key] = 0; }
+  if (["auto", "home", "life", "business"].includes(v.key)) {
+    const locs = await safeCollection(`${v.key}-locations`);
+    totalLocations += locs.length;
+  }
+}
+
+const allPosts = await safeCollection("posts");
+const featuredPosts = allPosts
+  .sort((a: any, b: any) => (b.data.publishDate?.valueOf() ?? 0) - (a.data.publishDate?.valueOf() ?? 0))
+  .slice(0, 4);
+
+const homeGuides = await safeCollection("home");
+const lifeGuides = await safeCollection("life");
+const healthGuides = await safeCollection("health");
+
+const featuredGuides = [
+  homeGuides[0] && { ...homeGuides[0], _verticalSlug: "home-insurance", _verticalLabel: "Home", _accent: "#8FB339" },
+  lifeGuides[0] && { ...lifeGuides[0], _verticalSlug: "life-insurance", _verticalLabel: "Life", _accent: "#6B5B95" },
+  healthGuides[0] && { ...healthGuides[0], _verticalSlug: "health-insurance", _verticalLabel: "Health", _accent: "#14A38B" },
+].filter(Boolean);
 
 const faqs = [
-  { q: "What is QuoteYeti?", a: "QuoteYeti is an insurance comparison marketplace covering eight insurance verticals. We analyze rates from top carriers, publish independent guides, and connect you with the right coverage for your situation." },
-  { q: "How does QuoteYeti make money?", a: "Carriers pay us a commission when you purchase a policy through us. Our editorial rankings and recommendations are independent of those partnerships." },
-  { q: "Is QuoteYeti an insurance company?", a: "No. We're a marketplace and editorial team. We don't underwrite or sell policies directly — we connect you with the companies that do." },
-  { q: "Do you share my personal data?", a: "We don't sell personal data to third parties. When you request quotes, your information goes only to the carriers and licensed partners you choose." },
+  { q: "What is QuoteYeti?", a: "QuoteYeti is an independent insurance research and comparison site covering eight insurance verticals — auto, home, life, business, health, renters, pet, and travel. We publish carrier reviews, in-depth guides, and state-by-state breakdowns, then connect you with the carriers that fit your situation." },
+  { q: "How does QuoteYeti make money?", a: "Carriers and licensed partners pay us a commission when you purchase a policy through our quote flow. Our editorial reviews, rankings, and recommendations are independent of those commercial relationships — we'd rather lose a referral than recommend a carrier we don't believe in." },
+  { q: "Is QuoteYeti an insurance company?", a: "No. We're a research and editorial team. We don't underwrite policies, we don't sell directly, and we don't have an in-house sales force calling you. We connect you with the companies that do issue coverage — only when you ask." },
+  { q: "Do you share my personal data?", a: "We never sell personal data. When you request quotes, your information goes only to the carriers and licensed partners you specifically choose. We don't auto-route data to anyone you didn't ask to hear from." },
+  { q: "Why eight verticals?", a: "Most insurance research sites focus on one or two categories — usually auto and home. We built across all eight because the same household typically needs multiple types of coverage, and the same carriers compete across multiple verticals. Cross-vertical knowledge produces better recommendations than single-vertical expertise." },
 ];
 ---
 
 <BaseLayout
-  title="QuoteYeti - The Smarter Way to Track Down Insurance Savings"
-  description="Compare insurance the smart way. Independent research across auto, home, life, business, health, renters, pet, and travel — no sales pressure."
+  title="QuoteYeti — Independent insurance research across eight verticals"
+  description="Compare insurance the smart way. Independent research across auto, home, life, business, health, renters, pet, and travel — no sales pressure, no paid rankings."
 >
 
-  <!-- ============== HERO ============== -->
   <section class="hero">
     <div class="hero__art" aria-hidden="true">
-      <img src="/assets/images/hero-clouds.svg" alt="" class="hero__clouds" />
-      <img src="/assets/images/hero-peaks.svg" alt="" class="hero__peaks" />
+      <img src="/assets/images/hero-clouds.svg" alt="" class="hero__clouds" loading="eager" width="1000" height="600" />
+      <img src="/assets/images/hero-peaks.svg" alt="" class="hero__peaks" loading="eager" width="1920" height="400" />
     </div>
     <div class="container hero__inner">
       <div class="hero__copy">
         <p class="hero__eyebrow">QuoteYeti · your insurance research assistant</p>
-        <h1>
-          The smarter way to
-          <span class="hero__highlight">
-            <span class="serif-italic">track down savings</span>
-          </span>.
-        </h1>
-        <p class="hero__lede">
-          We navigate the wilderness of the insurance market so you don't have to. Compare rates across eight categories — auto, home, life, business, health, renters, pet, and travel — without the relentless sales calls.
-        </p>
-        <p class="hero__kicker">
-          Spot the savings. Pay less. Zero relentless sales calls.
-        </p>
+        <h1>The smarter way to <span class="hero__highlight"><span class="serif-italic">track down savings</span></span>.</h1>
+        <p class="hero__lede">We navigate the wilderness of the insurance market so you don't have to. Compare rates across eight categories — auto, home, life, business, health, renters, pet, and travel — without the relentless sales calls.</p>
+        <p class="hero__kicker">Spot the savings. Pay less. Zero relentless sales calls.</p>
         <a href="/about/" class="btn-tertiary hero__about-link">Or read about the Yeti →</a>
       </div>
       <div class="hero__zip-col">
         <div class="hero__cta-stage">
-          <img
-            src="/assets/images/yeti-hero.svg"
-            alt=""
-            class="hero__cta-yeti"
-            aria-hidden="true"
-          />
+          <img src="/assets/images/yeti-hero.svg" alt="" class="hero__cta-yeti" aria-hidden="true" loading="eager" fetchpriority="high" width="240" height="240" />
           <div class="hero__cta-wrap">
-            <ZipForm
-              variant="picker"
-              eyebrow="Compare in seconds"
-              heading="What are you insuring?"
-            />
+            <ZipForm variant="picker" eyebrow="Compare in seconds" heading="What are you insuring?" />
           </div>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- ============== EXPLORE GRID ============== -->
+  <section class="hstats">
+    <div class="container">
+      <div class="hstats__grid">
+        <div class="hstat"><div class="hstat__num">{VERTICAL_LIST.length}</div><div class="hstat__label">Insurance verticals covered</div></div>
+        <div class="hstat"><div class="hstat__num">{totalReviews}</div><div class="hstat__label">Independent carrier reviews</div></div>
+        <div class="hstat"><div class="hstat__num">{totalGuides}+</div><div class="hstat__label">In-depth guides published</div></div>
+        <div class="hstat"><div class="hstat__num">{totalLocations}</div><div class="hstat__label">State-specific pages</div></div>
+        <div class="hstat"><div class="hstat__num">{allPosts.length}</div><div class="hstat__label">Dispatch articles</div></div>
+      </div>
+    </div>
+  </section>
+
   <section class="explore" id="explore">
     <div class="container">
       <header class="explore__header">
         <p class="eyebrow eyebrow--dark">Pick a line of coverage</p>
-        <h2>
-          Eight categories.
-          <span class="serif-italic">One yeti.</span>
-        </h2>
-        <p class="explore__lede">
-          Every category gets its own dedicated research, ranked carriers, and editorial team. Pick yours below.
-        </p>
+        <h2>Eight categories. <span class="serif-italic">One yeti.</span></h2>
+        <p class="explore__lede">Every category gets its own dedicated research, ranked carriers, and editorial team. Pick yours below.</p>
       </header>
       <div class="explore__grid">
         {VERTICAL_LIST.map((v, i) => (
-          <a
-            href={v.path}
-            class="vcard"
-            style={`--card-accent: ${v.accent}; --card-accent-soft: ${v.accentSoft};`}
-          >
+          <a href={v.path} class="vcard" style={`--card-accent: ${v.accent}; --card-accent-soft: ${v.accentSoft};`}>
             <div class="vcard__head">
-              <div class="vcard__icon">
-                <img src={v.icon} alt="" />
-              </div>
+              <div class="vcard__icon"><img src={v.icon} alt="" width="22" height="22" loading="lazy" /></div>
               <span class="vcard__num">{String(i + 1).padStart(2, "0")}</span>
             </div>
             <div class="vcard__body">
               <h3 class="vcard__title">{v.label}</h3>
               <p class="vcard__desc">{v.description}</p>
             </div>
+            <div class="vcard__meta">
+              {reviewCounts[v.key] > 0 && <span class="vcard__meta-item">{reviewCounts[v.key]} reviews</span>}
+              {guideCounts[v.key] > 0 && <span class="vcard__meta-item">{guideCounts[v.key]} guides</span>}
+            </div>
             <span class="vcard__cta">
               <span class="vcard__cta-label">Compare {v.short.toLowerCase()}</span>
               <span class="vcard__cta-arrow" aria-hidden="true">
-                <svg width="14" height="12" viewBox="0 0 14 12" fill="none">
-                  <path d="M8 1l5 5-5 5M1 6h12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
+                <svg width="14" height="12" viewBox="0 0 14 12" fill="none"><path d="M8 1l5 5-5 5M1 6h12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
               </span>
             </span>
           </a>
@@ -110,15 +127,12 @@ const faqs = [
     </div>
   </section>
 
-  <!-- ============== MANIFESTO ============== -->
   <section class="manifesto">
     <div class="container">
       <div class="manifesto__inner">
         <p class="manifesto__quote">
           <span class="manifesto__open" aria-hidden="true">"</span>
-          We're not in the business of selling insurance.
-          We're in the business of <em>finding the right one</em> —
-          and getting out of your way.
+          We're not in the business of selling insurance. We're in the business of <em>finding the right one</em> — and getting out of your way.
           <span class="manifesto__close" aria-hidden="true">"</span>
         </p>
         <p class="manifesto__attribution">— The QuoteYeti editorial team</p>
@@ -126,689 +140,284 @@ const faqs = [
     </div>
   </section>
 
-  <!-- ============== HOW IT WORKS ============== -->
-  <section class="how">
+  <section class="hdiff">
     <div class="container">
-      <header class="how__header">
-        <p class="eyebrow">How it works</p>
-        <h2>
-          Three steps.
-          <span class="serif-italic">No catch.</span>
-        </h2>
+      <header class="hdiff__header">
+        <p class="eyebrow">Why QuoteYeti</p>
+        <h2>What we do <span class="serif-italic">differently</span>.</h2>
       </header>
-      <ol class="how__steps">
-        <li class="how__step">
-          <div class="how__step-top">
-            <div class="how__step-icon" aria-hidden="true">
-              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <rect x="3" y="6" width="18" height="15" rx="2"/>
-                <path d="M3 10h18M8 3v6M16 3v6"/>
-              </svg>
-            </div>
-            <span class="how__step-eyebrow">Step 01</span>
-          </div>
-          <h3>Pick your coverage category</h3>
-          <p>Auto, home, life, business, health, renters, pet, travel. Each gets its own dedicated research.</p>
-        </li>
-        <li class="how__step">
-          <div class="how__step-top">
-            <div class="how__step-icon" aria-hidden="true">
-              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M4 4h16v16H4z"/>
-                <path d="M8 9h8M8 13h8M8 17h5"/>
-              </svg>
-            </div>
-            <span class="how__step-eyebrow">Step 02</span>
-          </div>
-          <h3>Read the analysis</h3>
-          <p>Independent carrier reviews, best-of rankings, and methodology you can audit. No paid placement.</p>
-        </li>
-        <li class="how__step">
-          <div class="how__step-top">
-            <div class="how__step-icon" aria-hidden="true">
-              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M5 12h14M13 6l6 6-6 6"/>
-              </svg>
-            </div>
-            <span class="how__step-eyebrow">Step 03</span>
-          </div>
-          <h3>Get quotes on your terms</h3>
-          <p>Request quotes only from the carriers you choose. We never auto-route your data.</p>
-        </li>
-      </ol>
-    </div>
-  </section>
-
-  <!-- ============== TOP GUIDES ============== -->
-  <section class="guides">
-    <div class="container">
-      <header class="guides__header">
-        <p class="eyebrow">From The Dispatch</p>
-        <h2>
-          Reading that
-          <span class="serif-italic">pays for itself</span>.
-        </h2>
-      </header>
-      <div class="guides__grid">
-        {topGuides.map((g) => (
-          <a href={g.href} class="guide-card">
-            <p class="guide-card__category">{g.category}</p>
-            <h3 class="guide-card__title">{g.title}</h3>
-            <span class="guide-card__cta">Read more →</span>
-          </a>
-        ))}
+      <div class="hdiff__grid">
+        <div class="hdiff__card"><div class="hdiff__num">01</div><h3>No paid rankings.</h3><p>Our editorial rankings are independent of who pays us. We'd rather lose a referral than recommend a carrier we don't actually believe in. <a href="/methodology/">How we score carriers</a>.</p></div>
+        <div class="hdiff__card"><div class="hdiff__num">02</div><h3>No data routing without your okay.</h3><p>Most comparison sites auto-route your contact info to every carrier they can. We don't. Your data goes only to the carriers you specifically choose, in the quote flow you explicitly initiate.</p></div>
+        <div class="hdiff__card"><div class="hdiff__num">03</div><h3>Eight verticals, one team.</h3><p>Most insurance research sites focus on one or two categories. We built across all eight — auto, home, life, business, health, renters, pet, travel — because cross-category knowledge produces better recommendations.</p></div>
+        <div class="hdiff__card"><div class="hdiff__num">04</div><h3>Editorial honesty over SEO.</h3><p>If a carrier overcharges, we say so. If a popular product is structurally bad math (looking at you, IUL), we say so. The result: smaller search traffic on some terms, more trust where it counts.</p></div>
       </div>
     </div>
   </section>
 
-  <!-- ============== FAQ ============== -->
+  <section class="how">
+    <div class="container">
+      <header class="how__header"><p class="eyebrow">How it works</p><h2>Three steps. <span class="serif-italic">No catch.</span></h2></header>
+      <ol class="how__steps">
+        <li class="how__step"><div class="how__step-top"><div class="how__step-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="18" height="15" rx="2"/><path d="M3 10h18M8 3v6M16 3v6"/></svg></div><span class="how__step-eyebrow">Step 01</span></div><h3>Pick your coverage category</h3><p>Auto, home, life, business, health, renters, pet, travel. Each gets its own dedicated research, carrier reviews, and editorial guides.</p></li>
+        <li class="how__step"><div class="how__step-top"><div class="how__step-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16v16H4z"/><path d="M8 9h8M8 13h8M8 17h5"/></svg></div><span class="how__step-eyebrow">Step 02</span></div><h3>Read the analysis</h3><p>Independent carrier reviews, best-of rankings, state-specific breakdowns, and methodology you can audit. No paid placement, no surprise sponsorships.</p></li>
+        <li class="how__step"><div class="how__step-top"><div class="how__step-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></div><span class="how__step-eyebrow">Step 03</span></div><h3>Get quotes on your terms</h3><p>Request quotes only from the carriers you choose. We never auto-route your data. We never sell your information. You stay in control.</p></li>
+      </ol>
+    </div>
+  </section>
+
+  {featuredGuides.length > 0 && (
+    <section class="hguides">
+      <div class="container">
+        <header class="hguides__header">
+          <div><p class="eyebrow">Most-read guides</p><h2>In-depth on the decisions <span class="serif-italic">that move the needle</span>.</h2></div>
+          <p class="hguides__lede">Long-form guides on the specific decisions that produce real savings or real protection. Written for buyers, not for search engines.</p>
+        </header>
+        <div class="hguides__grid">
+          {featuredGuides.map((guide: any, i: number) => (
+            <a href={`/${guide._verticalSlug}/guides/${guide.id}/`} class="hguide-card" style={`--g-accent: ${guide._accent};`}>
+              <div class="hguide-card__head"><span class="hguide-card__cat">{guide._verticalLabel}</span><span class="hguide-card__num">{String(i + 1).padStart(2, "0")}</span></div>
+              <h3 class="hguide-card__title">{guide.data.title}</h3>
+              {guide.data.description && <p class="hguide-card__desc">{guide.data.description}</p>}
+              <span class="hguide-card__cta">Read the guide →</span>
+            </a>
+          ))}
+        </div>
+        <div class="hguides__footer">
+          <a href="/sitemap/" class="hguides__more">See every guide we've published
+            <svg width="14" height="12" viewBox="0 0 14 12" fill="none" aria-hidden="true"><path d="M8 1l5 5-5 5M1 6h12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </a>
+        </div>
+      </div>
+    </section>
+  )}
+
+  {featuredPosts.length > 0 && (
+    <section class="hposts">
+      <div class="container">
+        <header class="hposts__header">
+          <div><p class="eyebrow">From The Dispatch</p><h2>Reading that <span class="serif-italic">pays for itself</span>.</h2></div>
+          <a href="/blog/" class="hposts__view-all">All Dispatch posts
+            <svg width="14" height="12" viewBox="0 0 14 12" fill="none" aria-hidden="true"><path d="M8 1l5 5-5 5M1 6h12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </a>
+        </header>
+        <div class="hposts__grid">
+          {featuredPosts.map((post: any, i: number) => (
+            <a href={`/blog/${post.id}/`} class={`hpost-card ${i === 0 ? "hpost-card--feature" : ""}`}>
+              {post.data.category && <span class="hpost-card__cat">{post.data.category}</span>}
+              <h3 class="hpost-card__title">{post.data.title}</h3>
+              {post.data.excerpt && <p class="hpost-card__excerpt">{post.data.excerpt}</p>}
+              <span class="hpost-card__arrow">Read post →</span>
+            </a>
+          ))}
+        </div>
+      </div>
+    </section>
+  )}
+
   <section class="home-faq">
     <div class="container-narrow">
-      <header class="home-faq__header">
-        <p class="eyebrow">About QuoteYeti</p>
-        <h2>
-          Frequently asked
-          <span class="serif-italic">questions</span>
-        </h2>
-      </header>
+      <header class="home-faq__header"><p class="eyebrow">About QuoteYeti</p><h2>Frequently asked <span class="serif-italic">questions</span></h2></header>
       <div class="home-faq__list">
         {faqs.map((faq) => (
           <details class="faq-item">
             <summary class="faq-item__summary">
               <span class="faq-item__q">{faq.q}</span>
-              <span class="faq-item__icon" aria-hidden="true">
-                <svg viewBox="0 0 14 14" width="14" height="14">
-                  <path d="M7 1v12M1 7h12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                </svg>
-              </span>
+              <span class="faq-item__icon" aria-hidden="true"><svg viewBox="0 0 14 14" width="14" height="14"><path d="M7 1v12M1 7h12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span>
             </summary>
-            <div class="faq-item__answer">
-              <p>{faq.a}</p>
-            </div>
+            <div class="faq-item__answer"><p>{faq.a}</p></div>
           </details>
         ))}
       </div>
     </div>
   </section>
 
-  <style>
-    /* ============================================
-       Shared: italic serif treatment
-    ============================================ */
-    .serif-italic {
-      font-family: var(--font-serif, "Plantin", Georgia, serif);
-      font-style: italic;
-      font-weight: 500;
-      letter-spacing: -0.01em;
-    }
+  <section class="hfinal">
+    <div class="container">
+      <div class="hfinal__inner">
+        <p class="hfinal__eyebrow">Ready when you are</p>
+        <h2>Start with the <span class="serif-italic">coverage</span> you actually need.</h2>
+        <p class="hfinal__lede">Eight verticals. Independent research. No data routing. No relentless sales calls. Find your category and we'll take it from there.</p>
+        <div class="hfinal__cta-row">
+          <a href="/auto/quotes/" class="hfinal__cta hfinal__cta--primary">Auto quotes</a>
+          <a href="/home-insurance/quotes/" class="hfinal__cta">Home quotes</a>
+          <a href="/life-insurance/quotes/" class="hfinal__cta">Life quotes</a>
+          <a href="/business-insurance/quotes/" class="hfinal__cta">Business quotes</a>
+        </div>
+        <p class="hfinal__legal">Or <a href="/sitemap/">browse every page on QuoteYeti</a>.</p>
+      </div>
+    </div>
+  </section>
 
-    .eyebrow {
-      display: inline-block;
-      font-family: var(--font-display); font-size: 0.75rem; font-weight: 700;
-      text-transform: uppercase; letter-spacing: 0.18em;
-      color: var(--color-ship-cove);
-      margin: 0 0 var(--space-4);
-    }
+  <style>
+    .serif-italic { font-family: var(--font-serif, "Plantin", Georgia, serif); font-style: italic; font-weight: 500; letter-spacing: -0.01em; }
+    .eyebrow { display: inline-block; font-family: var(--font-display); font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.18em; color: var(--color-ship-cove); margin: 0 0 var(--space-4); }
     .eyebrow--dark { color: var(--color-resolution); }
 
-    /* ============================================
-       Hero
-    ============================================ */
-    /* ============================================
-       Hero — 2-column with picker
-    ============================================ */
-    .hero {
-      position: relative;
-      padding-block: var(--space-20) var(--space-16);
-      overflow: hidden;
-      background: linear-gradient(180deg, var(--color-alice) 0%, var(--color-white) 100%);
-    }
+    .hero { position: relative; padding-block: var(--space-20) var(--space-16); overflow: hidden; background: linear-gradient(180deg, var(--color-alice) 0%, var(--color-white) 100%); }
     .hero__art { position: absolute; inset: 0; pointer-events: none; z-index: 0; }
-    .hero__clouds { position: absolute; top: 4%; left: -8%; width: 56%; max-width: 600px; opacity: 0.35; }
-    .hero__peaks { position: absolute; bottom: 0; left: 0; width: 100%; opacity: 0.6; }
-    .hero__inner {
-      position: relative;
-      z-index: 1;
-      display: grid;
-      grid-template-columns: 1fr 540px;
-      gap: var(--space-12);
-      align-items: center;
-    }
+    .hero__clouds { position: absolute; top: 4%; left: -8%; width: 56%; max-width: 600px; opacity: 0.35; height: auto; }
+    .hero__peaks { position: absolute; bottom: 0; left: 0; width: 100%; opacity: 0.6; height: auto; }
+    .hero__inner { position: relative; z-index: 1; display: grid; grid-template-columns: 1fr 540px; gap: var(--space-12); align-items: center; }
     .hero__copy { min-width: 0; }
-
-    .hero__eyebrow {
-      font-family: var(--font-display); font-size: 0.8125rem; font-weight: 600;
-      text-transform: uppercase; letter-spacing: 0.14em;
-      color: var(--color-ship-cove);
-      margin: 0 0 var(--space-5);
-    }
-    .hero h1 {
-      font-size: clamp(2.25rem, 4.5vw, 3.75rem);
-      line-height: 1.05;
-      letter-spacing: -0.025em;
-      margin: 0 0 var(--space-6);
-    }
-    .hero__highlight {
-      position: relative;
-      display: inline-block;
-    }
-    .hero__highlight .serif-italic {
-      color: var(--color-ship-cove);
-      position: relative;
-      z-index: 1;
-    }
-    .hero__highlight::after {
-      content: "";
-      position: absolute;
-      left: -4px; right: -4px; bottom: 2px;
-      height: 12px;
-      background: var(--color-malibu, #64BCE1);
-      opacity: 0.35;
-      border-radius: 4px;
-      z-index: 0;
-    }
-    .hero__lede {
-      font-size: 1.125rem; color: var(--color-text-strong);
-      margin: 0 0 var(--space-5); max-width: 540px;
-      line-height: 1.6;
-    }
-    .hero__kicker {
-      font-family: var(--font-display);
-      font-weight: 700;
-      font-size: 0.9375rem;
-      color: var(--color-resolution);
-      margin: 0 0 var(--space-6);
-      letter-spacing: -0.005em;
-    }
+    .hero__eyebrow { font-family: var(--font-display); font-size: 0.8125rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--color-malibu); margin: 0 0 var(--space-5); }
+    .hero h1 { font-size: clamp(2.5rem, 5vw, 4.25rem); line-height: 1.02; letter-spacing: -0.03em; margin: 0 0 var(--space-5); color: var(--color-resolution); }
+    .hero__highlight { color: var(--color-malibu); }
+    .hero__lede { font-size: 1.1875rem; color: var(--color-text-strong); line-height: 1.55; margin: 0 0 var(--space-5); max-width: 560px; }
+    .hero__kicker { font-family: var(--font-display); font-size: 1rem; font-weight: 700; color: var(--color-resolution); margin: 0 0 var(--space-5); }
     .hero__about-link { display: inline-flex; }
-    .hero__zip-col { min-width: 0; }
+    .hero__cta-stage { position: relative; isolation: isolate; padding-top: 100px; }
+    .hero__cta-yeti { position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 240px; height: auto; z-index: 1; pointer-events: none; filter: drop-shadow(0 8px 16px rgba(44, 69, 119, 0.25)); }
+    .hero__cta-wrap { position: relative; z-index: 2; }
 
-    /* ============================================
-       Hero CTA stage — yeti peeks from behind the picker
-    ============================================ */
-    .hero__cta-stage {
-      position: relative;
-      isolation: isolate;
-      padding-top: 80px; /* room for yeti head above the picker */
-    }
-    .hero__cta-yeti {
-      position: absolute;
-      top: -20px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 220px;
-      height: auto;
-      z-index: 1;
-      pointer-events: none;
-      filter: drop-shadow(0 8px 16px rgba(44, 69, 119, 0.25));
-      animation: cta-yeti-peek 5s ease-in-out infinite;
-    }
-    @keyframes cta-yeti-peek {
-      0%, 100% { transform: translateX(-50%) translateY(0); }
-      50% { transform: translateX(-50%) translateY(-4px); }
-    }
-    @media (prefers-reduced-motion: reduce) {
-      .hero__cta-yeti { animation: none; }
-    }
-    .hero__cta-wrap {
-      position: relative;
-      z-index: 2;
-    }
-    /* Amp up the picker so it POPS — accent glow + stronger shadow */
-    .hero__cta-wrap :global(.zipcta--picker) {
-      box-shadow:
-        0 1px 0 rgba(255, 255, 255, 0.9) inset,
-        0 24px 48px -12px rgba(44, 69, 119, 0.25),
-        0 8px 20px -8px rgba(100, 188, 225, 0.35),
-        0 0 0 1px rgba(44, 69, 119, 0.06);
-      border: 1px solid rgba(100, 188, 225, 0.25);
-      background: linear-gradient(180deg, #ffffff 0%, #fbfcfe 100%);
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
-    }
-    .hero__cta-wrap:hover :global(.zipcta--picker) {
-      transform: translateY(-2px);
-      box-shadow:
-        0 1px 0 rgba(255, 255, 255, 0.9) inset,
-        0 32px 56px -12px rgba(44, 69, 119, 0.28),
-        0 12px 24px -8px rgba(100, 188, 225, 0.4),
-        0 0 0 1px rgba(44, 69, 119, 0.08);
-    }
-    @media (max-width: 980px) {
-      .hero__cta-stage { padding-top: 64px; }
-      .hero__cta-yeti { width: 180px; top: -10px; }
-    }
-    @media (max-width: 560px) {
-      .hero__cta-stage { padding-top: 56px; }
-      .hero__cta-yeti { width: 150px; top: -8px; }
-    }
+    .hstats { padding-block: var(--space-10); background: var(--color-resolution); color: var(--color-white); }
+    .hstats__grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: var(--space-8); }
+    .hstat__num { font-family: var(--font-display); font-weight: 800; font-size: clamp(1.875rem, 3.5vw, 2.75rem); letter-spacing: -0.025em; color: var(--color-malibu); line-height: 1; margin-bottom: var(--space-2); }
+    .hstat__label { font-family: var(--font-display); font-weight: 600; font-size: 0.875rem; color: rgba(255,255,255,0.78); line-height: 1.3; }
+    @media (max-width: 980px) { .hstats__grid { grid-template-columns: repeat(3, 1fr); gap: var(--space-6); } }
+    @media (max-width: 600px) { .hstats__grid { grid-template-columns: repeat(2, 1fr); gap: var(--space-5); } }
 
-    /* ============================================
-       THE SHOW: 8-vertical grid — confident, clean cards
-    ============================================ */
-    .explore {
-      padding-block: var(--space-20) var(--space-24);
-      background: var(--color-white);
-      position: relative;
-      overflow: hidden;
-    }
-    .explore::before {
-      content: "";
-      position: absolute; inset: 0;
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1200' height='800' viewBox='0 0 1200 800'%3E%3Cg fill='none' stroke='%232C4577' stroke-width='0.5' stroke-opacity='0.03'%3E%3Cpath d='M0,400 Q300,300 600,400 T1200,400'/%3E%3Cpath d='M0,360 Q300,260 600,360 T1200,360'/%3E%3Cpath d='M0,440 Q300,340 600,440 T1200,440'/%3E%3Cpath d='M0,320 Q300,220 600,320 T1200,320'/%3E%3Cpath d='M0,480 Q300,380 600,480 T1200,480'/%3E%3C/g%3E%3C/svg%3E");
-      pointer-events: none;
-    }
-    .explore > * { position: relative; }
-    .explore__header {
-      max-width: 720px;
-      margin: 0 auto var(--space-14);
-      text-align: center;
-    }
-    .explore__header h2 {
-      font-size: clamp(2.25rem, 4vw, 3.25rem);
-      letter-spacing: -0.025em;
-      line-height: 1.1;
-    }
-    .explore__lede {
-      font-size: 1.125rem;
-      color: var(--color-text-muted);
-      margin-top: var(--space-4);
-      max-width: 560px;
-      margin-inline: auto;
-      line-height: 1.6;
-    }
+    .explore { padding-block: var(--space-20); background: var(--color-white); }
+    .explore__header { text-align: center; margin-bottom: var(--space-12); max-width: 760px; margin-left: auto; margin-right: auto; }
+    .explore__header h2 { font-size: clamp(2.25rem, 4vw, 3rem); letter-spacing: -0.025em; line-height: 1.05; margin: 0 0 var(--space-4); color: var(--color-resolution); }
+    .explore__header h2 .serif-italic { color: var(--color-malibu); }
+    .explore__lede { font-size: 1.0625rem; color: var(--color-text-strong); max-width: 540px; margin: 0 auto; line-height: 1.6; }
+    .explore__grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--space-5); }
+    .vcard { display: flex; flex-direction: column; padding: var(--space-6); background: var(--color-white); border: 1px solid var(--color-border); border-radius: 14px; text-decoration: none; color: inherit; transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s; }
+    .vcard:hover { border-color: var(--card-accent); transform: translateY(-3px); box-shadow: 0 12px 28px -10px color-mix(in srgb, var(--card-accent) 35%, transparent); }
+    .vcard__head { display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-5); }
+    .vcard__icon { width: 44px; height: 44px; background: var(--card-accent-soft); border-radius: 10px; display: flex; align-items: center; justify-content: center; }
+    .vcard__icon img { width: 22px; height: 22px; }
+    .vcard__num { font-family: var(--font-serif, "Plantin", Georgia, serif); font-style: italic; font-weight: 500; font-size: 1.5rem; color: var(--card-accent); opacity: 0.5; }
+    .vcard__body { flex-grow: 1; }
+    .vcard__title { font-family: var(--font-display); font-weight: 700; font-size: 1.125rem; letter-spacing: -0.01em; color: var(--color-resolution); margin: 0 0 var(--space-2); }
+    .vcard__desc { font-size: 0.875rem; color: var(--color-text); line-height: 1.5; margin: 0 0 var(--space-4); }
+    .vcard__meta { display: flex; gap: var(--space-3); margin-bottom: var(--space-4); flex-wrap: wrap; }
+    .vcard__meta-item { display: inline-block; padding: 3px 8px; background: var(--card-accent-soft); border-radius: 4px; font-family: var(--font-display); font-size: 0.6875rem; font-weight: 700; color: var(--card-accent); letter-spacing: 0.04em; }
+    .vcard__cta { display: flex; align-items: center; gap: var(--space-2); font-family: var(--font-display); font-weight: 700; font-size: 0.8125rem; color: var(--card-accent); padding-top: var(--space-3); border-top: 1px solid var(--color-border); }
+    .vcard__cta-arrow svg { transition: transform 0.2s; }
+    .vcard:hover .vcard__cta-arrow svg { transform: translateX(3px); }
+    @media (max-width: 1100px) { .explore__grid { grid-template-columns: repeat(3, 1fr); } }
+    @media (max-width: 820px) { .explore__grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 500px) { .explore__grid { grid-template-columns: 1fr; } }
 
-    .explore__grid {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: var(--space-5);
-    }
+    .manifesto { padding-block: var(--space-16); background: var(--color-alice); }
+    .manifesto__inner { max-width: 760px; margin: 0 auto; text-align: center; }
+    .manifesto__quote { font-family: var(--font-serif, "Plantin", Georgia, serif); font-style: italic; font-size: clamp(1.5rem, 3vw, 2rem); line-height: 1.35; color: var(--color-resolution); letter-spacing: -0.015em; margin: 0 0 var(--space-5); }
+    .manifesto__quote em { color: var(--color-malibu); font-weight: 500; }
+    .manifesto__open, .manifesto__close { color: var(--color-malibu); font-style: normal; font-size: 1.3em; vertical-align: text-top; }
+    .manifesto__attribution { font-family: var(--font-display); font-size: 0.8125rem; letter-spacing: 0.04em; color: var(--color-text-muted); margin: 0; }
 
-    /* ===== VCARD — the new polished vertical card ===== */
-    .vcard {
-      position: relative;
-      display: flex;
-      flex-direction: column;
-      padding: var(--space-6);
-      background: var(--color-white);
-      border: 1px solid var(--color-border);
-      border-radius: 16px;
-      text-decoration: none;
-      color: inherit;
-      overflow: hidden;
-      transition:
-        transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
-        box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1),
-        border-color 0.3s ease;
-      min-height: 280px;
-    }
-    /* Top accent ribbon */
-    .vcard::before {
-      content: "";
-      position: absolute;
-      top: 0; left: 0; right: 0;
-      height: 5px;
-      background: var(--card-accent);
-      transform: scaleX(0.3);
-      transform-origin: left;
-      transition: transform 0.35s ease;
-    }
-    .vcard:hover {
-      transform: translateY(-6px);
-      border-color: var(--card-accent);
-      box-shadow:
-        0 4px 12px rgba(44, 69, 119, 0.04),
-        0 20px 40px rgba(44, 69, 119, 0.12);
-    }
-    .vcard:hover::before { transform: scaleX(1); }
+    .hdiff { padding-block: var(--space-20); background: var(--color-white); }
+    .hdiff__header { text-align: center; max-width: 720px; margin: 0 auto var(--space-12); }
+    .hdiff__header h2 { font-size: clamp(2.25rem, 4vw, 3rem); letter-spacing: -0.025em; line-height: 1.05; margin: 0; color: var(--color-resolution); }
+    .hdiff__header h2 .serif-italic { color: var(--color-malibu); }
+    .hdiff__grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-6); }
+    .hdiff__card { padding: var(--space-7); background: var(--color-alice); border: 1px solid var(--color-border); border-radius: 14px; }
+    .hdiff__num { font-family: var(--font-serif, "Plantin", Georgia, serif); font-style: italic; font-weight: 500; font-size: 2.5rem; line-height: 0.9; color: var(--color-malibu); letter-spacing: -0.04em; opacity: 0.6; margin-bottom: var(--space-4); }
+    .hdiff__card h3 { font-family: var(--font-display); font-weight: 700; font-size: 1.375rem; letter-spacing: -0.015em; color: var(--color-resolution); margin: 0 0 var(--space-3); line-height: 1.2; }
+    .hdiff__card p { font-size: 1rem; color: var(--color-text); line-height: 1.6; margin: 0; }
+    .hdiff__card p a { color: var(--color-malibu); text-decoration: underline; text-underline-offset: 3px; }
+    @media (max-width: 720px) { .hdiff__grid { grid-template-columns: 1fr; } }
 
-    .vcard__head {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      margin-bottom: var(--space-5);
-    }
-    .vcard__icon {
-      width: 56px; height: 56px;
-      background: var(--card-accent-soft);
-      border-radius: 14px;
-      display: flex; align-items: center; justify-content: center;
-      transition: background 0.3s ease, transform 0.3s ease;
-    }
-    .vcard:hover .vcard__icon {
-      transform: scale(1.05);
-    }
-    .vcard__icon img {
-      width: 32px;
-      height: 32px;
-    }
-    .vcard__num {
-      font-family: var(--font-serif, "Plantin", Georgia, serif);
-      font-style: italic;
-      font-weight: 500;
-      font-size: 1.5rem;
-      line-height: 1;
-      color: var(--card-accent);
-      opacity: 0.35;
-      letter-spacing: -0.02em;
-      transition: opacity 0.3s;
-    }
-    .vcard:hover .vcard__num { opacity: 0.7; }
-
-    .vcard__body {
-      flex: 1;
-      margin-bottom: var(--space-5);
-    }
-    .vcard__title {
-      font-family: var(--font-display);
-      font-weight: 700;
-      font-size: 1.375rem;
-      letter-spacing: -0.015em;
-      color: var(--color-resolution);
-      margin: 0 0 var(--space-2);
-      line-height: 1.2;
-    }
-    .vcard__desc {
-      font-size: 0.9375rem;
-      color: var(--color-text-muted);
-      margin: 0;
-      line-height: 1.55;
-    }
-
-    .vcard__cta {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding-top: var(--space-4);
-      border-top: 1px solid var(--color-border);
-      font-family: var(--font-display);
-      font-weight: 700;
-      font-size: 0.75rem;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      color: var(--color-resolution);
-      transition: color 0.3s;
-    }
-    .vcard__cta-arrow {
-      display: inline-flex;
-      align-items: center; justify-content: center;
-      width: 28px; height: 28px;
-      background: var(--color-alice);
-      border-radius: 50%;
-      color: var(--color-resolution);
-      transition: background 0.3s ease, color 0.3s ease, transform 0.3s ease;
-    }
-    .vcard:hover .vcard__cta { color: var(--card-accent); }
-    .vcard:hover .vcard__cta-arrow {
-      background: var(--card-accent);
-      color: var(--color-white);
-      transform: translateX(4px);
-    }
-
-    /* ============================================
-       Manifesto pull-quote (dark band)
-    ============================================ */
-    .manifesto {
-      background: linear-gradient(135deg, var(--color-resolution), #1F3258);
-      color: var(--color-white);
-      padding-block: var(--space-20);
-      position: relative;
-      overflow: hidden;
-    }
-    .manifesto::before {
-      content: "";
-      position: absolute;
-      top: -50%; left: -10%;
-      width: 50%; height: 200%;
-      background: var(--color-ship-cove);
-      opacity: 0.10;
-      transform: skewX(-20deg);
-    }
-    .manifesto::after {
-      content: "";
-      position: absolute; inset: 0;
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1200' height='400' viewBox='0 0 1200 400'%3E%3Cg fill='none' stroke='%23FFFFFF' stroke-width='0.5' stroke-opacity='0.04'%3E%3Cpath d='M0,200 Q300,100 600,200 T1200,200'/%3E%3Cpath d='M0,160 Q300,60 600,160 T1200,160'/%3E%3Cpath d='M0,240 Q300,140 600,240 T1200,240'/%3E%3C/g%3E%3C/svg%3E");
-      pointer-events: none;
-    }
-    .manifesto__inner {
-      max-width: 880px;
-      margin: 0 auto;
-      text-align: center;
-      position: relative;
-      z-index: 1;
-    }
-    .manifesto__quote {
-      font-family: var(--font-serif, "Plantin", Georgia, serif);
-      font-style: italic;
-      font-weight: 400;
-      font-size: clamp(1.625rem, 3vw, 2.375rem);
-      line-height: 1.4;
-      color: var(--color-white);
-      margin: 0 0 var(--space-5);
-      letter-spacing: -0.005em;
-    }
-    .manifesto__quote em {
-      font-style: italic;
-      color: var(--color-malibu, #64BCE1);
-      font-weight: 500;
-    }
-    .manifesto__open, .manifesto__close {
-      font-size: 1.5em;
-      line-height: 0;
-      vertical-align: -0.2em;
-      opacity: 0.35;
-      margin-right: 4px;
-    }
-    .manifesto__close { margin-left: 4px; margin-right: 0; }
-    .manifesto__attribution {
-      font-family: var(--font-display);
-      font-weight: 700;
-      font-size: 0.75rem;
-      text-transform: uppercase; letter-spacing: 0.18em;
-      color: var(--color-malibu, #64BCE1);
-      margin: 0;
-    }
-
-    /* ============================================
-       How it works — clean icon+eyebrow row
-    ============================================ */
     .how { padding-block: var(--space-20); background: var(--color-alice); }
-    .how__header { text-align: center; max-width: 640px; margin: 0 auto var(--space-14); }
-    .how__header h2 {
-      font-size: clamp(2rem, 3.5vw, 2.75rem);
-      letter-spacing: -0.02em;
-    }
-    .how__steps {
-      list-style: none;
-      margin: 0; padding: 0;
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: var(--space-6);
-    }
-    .how__step {
-      padding: var(--space-8) var(--space-7);
-      background: var(--color-white);
-      border-radius: 16px;
-      border: 1px solid var(--color-border);
-      transition:
-        transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
-        box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1),
-        border-color 0.3s ease;
-    }
-    .how__step:hover {
-      transform: translateY(-4px);
-      border-color: var(--color-malibu);
-      box-shadow: 0 16px 32px rgba(44, 69, 119, 0.08);
-    }
-    .how__step-top {
-      display: flex;
-      align-items: center;
-      gap: var(--space-3);
-      margin-bottom: var(--space-6);
-    }
-    .how__step-icon {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      width: 40px;
-      height: 40px;
-      border-radius: 10px;
-      background: var(--color-alice);
-      color: var(--color-malibu);
-      flex-shrink: 0;
-    }
-    .how__step-eyebrow {
-      font-family: var(--font-display);
-      font-size: 0.6875rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.18em;
-      color: var(--color-malibu);
-    }
-    .how__step h3 {
-      font-family: var(--font-display);
-      font-weight: 700;
-      font-size: 1.5rem;
-      letter-spacing: -0.02em;
-      color: var(--color-resolution);
-      margin: 0 0 var(--space-4);
-      line-height: 1.2;
-    }
-    .how__step p {
-      margin: 0;
-      line-height: 1.65;
-      color: var(--color-text-muted);
-      font-size: 1rem;
-    }
+    .how__header { text-align: center; margin-bottom: var(--space-12); }
+    .how__header h2 { font-size: clamp(2.25rem, 4vw, 3rem); letter-spacing: -0.025em; line-height: 1.05; margin: 0; color: var(--color-resolution); }
+    .how__header h2 .serif-italic { color: var(--color-malibu); }
+    .how__steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-8); list-style: none; padding: 0; margin: 0; }
+    .how__step { padding: var(--space-7); background: var(--color-white); border-radius: 14px; border: 1px solid var(--color-border); }
+    .how__step-top { display: flex; align-items: center; gap: var(--space-3); margin-bottom: var(--space-5); }
+    .how__step-icon { width: 40px; height: 40px; background: var(--color-malibu); color: var(--color-white); border-radius: 10px; display: flex; align-items: center; justify-content: center; }
+    .how__step-eyebrow { font-family: var(--font-display); font-size: 0.6875rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.18em; color: var(--color-text-muted); }
+    .how__step h3 { font-family: var(--font-display); font-weight: 700; font-size: 1.25rem; letter-spacing: -0.015em; color: var(--color-resolution); margin: 0 0 var(--space-3); line-height: 1.25; }
+    .how__step p { font-size: 0.9375rem; color: var(--color-text); line-height: 1.55; margin: 0; }
+    @media (max-width: 850px) { .how__steps { grid-template-columns: 1fr; } }
 
-    /* ============================================
-       Top guides
-    ============================================ */
-    .guides { padding-block: var(--space-20); }
-    .guides__header { max-width: 640px; margin: 0 auto var(--space-12); text-align: center; }
-    .guides__header h2 {
-      font-size: clamp(2rem, 3.5vw, 2.75rem);
-      letter-spacing: -0.02em;
-    }
-    .guides__grid {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: var(--space-5);
-    }
-    .guide-card {
-      display: flex; flex-direction: column;
-      padding: var(--space-6);
-      background: var(--color-white);
-      border: 1px solid var(--color-border);
-      border-radius: 12px;
-      text-decoration: none;
-      color: inherit;
-      transition: all 0.2s;
-      min-height: 220px;
-    }
-    .guide-card:hover {
-      transform: translateY(-4px);
-      border-color: var(--color-ship-cove);
-      box-shadow: 0 12px 24px rgba(44, 69, 119, 0.06);
-    }
-    .guide-card__category {
-      font-family: var(--font-display); font-weight: 700;
-      font-size: 0.6875rem;
-      text-transform: uppercase; letter-spacing: 0.16em;
-      color: var(--color-ship-cove);
-      margin: 0 0 var(--space-3);
-    }
-    .guide-card__title {
-      font-size: 1.0625rem;
-      margin: 0 0 var(--space-3);
-      line-height: 1.35;
-      letter-spacing: -0.005em;
-      flex: 1;
-    }
-    .guide-card__cta {
-      font-family: var(--font-display); font-weight: 700;
-      font-size: 0.8125rem;
-      color: var(--color-malibu);
-      margin-top: var(--space-4);
-    }
+    .hguides { padding-block: var(--space-20); background: var(--color-white); }
+    .hguides__header { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-8); align-items: end; margin-bottom: var(--space-12); }
+    .hguides__header h2 { font-size: clamp(1.875rem, 3.5vw, 2.75rem); letter-spacing: -0.025em; line-height: 1.1; margin: 0; color: var(--color-resolution); }
+    .hguides__header h2 .serif-italic { color: var(--color-malibu); }
+    .hguides__lede { font-size: 1.0625rem; color: var(--color-text-strong); line-height: 1.6; margin: 0; }
+    .hguides__grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-5); }
+    .hguide-card { display: flex; flex-direction: column; gap: var(--space-4); padding: var(--space-7); background: var(--color-white); border: 1px solid var(--color-border); border-radius: 14px; text-decoration: none; color: inherit; transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s; }
+    .hguide-card:hover { border-color: var(--g-accent); transform: translateY(-3px); box-shadow: 0 12px 28px -10px color-mix(in srgb, var(--g-accent) 35%, transparent); }
+    .hguide-card__head { display: flex; justify-content: space-between; align-items: center; }
+    .hguide-card__cat { display: inline-block; padding: 4px 10px; background: color-mix(in srgb, var(--g-accent) 12%, transparent); color: var(--g-accent); border-radius: 4px; font-family: var(--font-display); font-size: 0.6875rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.12em; }
+    .hguide-card__num { font-family: var(--font-serif, "Plantin", Georgia, serif); font-style: italic; font-weight: 500; font-size: 1.75rem; color: var(--g-accent); opacity: 0.5; }
+    .hguide-card__title { font-family: var(--font-display); font-weight: 700; font-size: 1.1875rem; letter-spacing: -0.01em; color: var(--color-resolution); margin: 0; line-height: 1.25; }
+    .hguide-card__desc { font-size: 0.9375rem; color: var(--color-text); line-height: 1.55; margin: 0; flex-grow: 1; }
+    .hguide-card__cta { font-family: var(--font-display); font-weight: 700; font-size: 0.8125rem; color: var(--g-accent); margin-top: auto; padding-top: var(--space-2); }
+    .hguides__footer { text-align: center; margin-top: var(--space-10); }
+    .hguides__more { display: inline-flex; align-items: center; gap: var(--space-2); padding: 12px 20px; background: var(--color-alice); border: 1px solid var(--color-border); border-radius: 100px; font-family: var(--font-display); font-weight: 700; font-size: 0.875rem; color: var(--color-resolution); text-decoration: none; transition: border-color 0.15s, transform 0.15s; }
+    .hguides__more:hover { border-color: var(--color-malibu); transform: translateY(-1px); }
+    .hguides__more svg { transition: transform 0.2s; }
+    .hguides__more:hover svg { transform: translateX(3px); }
+    @media (max-width: 900px) { .hguides__header { grid-template-columns: 1fr; } .hguides__grid { grid-template-columns: 1fr; } }
 
-    /* ============================================
-       FAQ
-    ============================================ */
-    .home-faq { padding-block: var(--space-20); background: var(--color-alice); }
+    .hposts { padding-block: var(--space-20); background: var(--color-alice); }
+    .hposts__header { display: grid; grid-template-columns: 1fr auto; gap: var(--space-6); align-items: end; margin-bottom: var(--space-12); }
+    .hposts__header h2 { font-size: clamp(2rem, 3.5vw, 2.75rem); letter-spacing: -0.025em; line-height: 1.05; margin: 0; color: var(--color-resolution); }
+    .hposts__header h2 .serif-italic { color: var(--color-malibu); }
+    .hposts__view-all { display: inline-flex; align-items: center; gap: var(--space-2); padding: 10px 16px; background: var(--color-white); border: 1px solid var(--color-border); border-radius: 100px; color: var(--color-resolution); text-decoration: none; font-family: var(--font-display); font-weight: 700; font-size: 0.8125rem; transition: border-color 0.15s, background 0.15s, transform 0.15s; }
+    .hposts__view-all:hover { border-color: var(--color-malibu); transform: translateY(-1px); }
+    .hposts__view-all svg { transition: transform 0.2s; }
+    .hposts__view-all:hover svg { transform: translateX(3px); }
+    .hposts__grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--space-5); }
+    .hpost-card { display: flex; flex-direction: column; gap: var(--space-3); padding: var(--space-6); background: var(--color-white); border: 1px solid var(--color-border); border-radius: 14px; text-decoration: none; color: inherit; transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s; }
+    .hpost-card:hover { border-color: var(--color-malibu); transform: translateY(-3px); box-shadow: 0 12px 28px -10px rgba(100, 188, 225, 0.35); }
+    .hpost-card--feature { grid-column: span 2; background: linear-gradient(135deg, rgba(100, 188, 225, 0.08) 0%, var(--color-white) 100%); border-color: rgba(100, 188, 225, 0.4); }
+    .hpost-card__cat { display: inline-block; font-family: var(--font-display); font-size: 0.625rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.14em; color: var(--color-malibu); align-self: flex-start; }
+    .hpost-card__title { font-family: var(--font-display); font-weight: 700; font-size: 1rem; letter-spacing: -0.005em; color: var(--color-resolution); margin: 0; line-height: 1.3; }
+    .hpost-card--feature .hpost-card__title { font-size: 1.375rem; line-height: 1.2; }
+    .hpost-card__excerpt { font-size: 0.875rem; color: var(--color-text); line-height: 1.55; margin: 0; flex-grow: 1; }
+    .hpost-card--feature .hpost-card__excerpt { font-size: 0.9375rem; }
+    .hpost-card__arrow { font-family: var(--font-display); font-weight: 700; font-size: 0.8125rem; color: var(--color-malibu); margin-top: auto; padding-top: var(--space-2); }
+    @media (max-width: 1100px) { .hposts__grid { grid-template-columns: repeat(2, 1fr); } .hpost-card--feature { grid-column: span 2; } }
+    @media (max-width: 600px) { .hposts__grid { grid-template-columns: 1fr; } .hpost-card--feature { grid-column: span 1; } .hposts__header { grid-template-columns: 1fr; } .hposts__view-all { justify-self: start; } }
+
+    .home-faq { padding-block: var(--space-20); background: var(--color-white); }
+    .container-narrow { max-width: 760px; margin: 0 auto; padding: 0 var(--space-4); }
     .home-faq__header { text-align: center; margin-bottom: var(--space-10); }
-    .home-faq__header h2 {
-      font-size: clamp(2rem, 3.5vw, 2.5rem);
-      letter-spacing: -0.02em;
-    }
-
-    .faq-item {
-      background: var(--color-white);
-      border: 1px solid var(--color-border);
-      border-radius: 12px;
-      margin-bottom: var(--space-3);
-      transition: border-color 0.2s, box-shadow 0.2s;
-    }
-    .faq-item[open],
-    .faq-item:hover { border-color: var(--color-malibu); }
-    .faq-item[open] { box-shadow: 0 4px 12px rgba(44, 69, 119, 0.04); }
-    .faq-item__summary {
-      cursor: pointer;
-      padding: var(--space-5) var(--space-6);
-      list-style: none;
-      display: flex; justify-content: space-between; align-items: center; gap: var(--space-5);
-    }
+    .home-faq__header h2 { font-size: clamp(2rem, 3.5vw, 2.5rem); letter-spacing: -0.025em; line-height: 1.1; margin: 0; color: var(--color-resolution); }
+    .home-faq__header h2 .serif-italic { color: var(--color-malibu); }
+    .home-faq__list { display: flex; flex-direction: column; gap: var(--space-3); }
+    .faq-item { background: var(--color-alice); border: 1px solid var(--color-border); border-radius: 10px; overflow: hidden; transition: border-color 0.2s; }
+    .faq-item[open] { border-color: var(--color-malibu); background: var(--color-white); }
+    .faq-item__summary { display: flex; justify-content: space-between; align-items: center; gap: var(--space-4); padding: var(--space-5) var(--space-6); cursor: pointer; list-style: none; }
     .faq-item__summary::-webkit-details-marker { display: none; }
-    .faq-item__q {
-      font-family: var(--font-display); font-weight: 600;
-      font-size: 1.0625rem;
-      color: var(--color-resolution);
-      line-height: 1.4;
-    }
-    .faq-item__icon {
-      flex-shrink: 0;
-      width: 32px; height: 32px;
-      background: var(--color-alice);
-      border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-      color: var(--color-malibu);
-      transition: transform 0.3s ease;
-    }
+    .faq-item__q { font-family: var(--font-display); font-weight: 700; font-size: 1.0625rem; color: var(--color-resolution); line-height: 1.3; }
+    .faq-item__icon { flex-shrink: 0; color: var(--color-malibu); transition: transform 0.2s; }
     .faq-item[open] .faq-item__icon { transform: rotate(45deg); }
-    .faq-item__answer {
-      padding: 0 var(--space-6) var(--space-5);
-      animation: faq-open 0.3s ease-out;
-    }
-    .faq-item__answer p { margin: 0; color: var(--color-text); line-height: 1.65; }
-    @keyframes faq-open {
-      from { opacity: 0; transform: translateY(-4px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
+    .faq-item__answer { padding: 0 var(--space-6) var(--space-5); }
+    .faq-item__answer p { font-size: 0.9375rem; line-height: 1.65; color: var(--color-text); margin: 0; }
 
-    @media (max-width: 1100px) {
-      .explore__grid { grid-template-columns: repeat(2, 1fr); }
-      .guides__grid { grid-template-columns: repeat(2, 1fr); }
-    }
+    .hfinal { padding-block: var(--space-24); background: linear-gradient(180deg, var(--color-white) 0%, var(--color-alice) 100%); }
+    .hfinal__inner { max-width: 760px; margin: 0 auto; text-align: center; }
+    .hfinal__eyebrow { font-family: var(--font-display); font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.18em; color: var(--color-malibu); margin: 0 0 var(--space-4); }
+    .hfinal h2 { font-size: clamp(2.25rem, 4vw, 3rem); letter-spacing: -0.025em; line-height: 1.1; margin: 0 0 var(--space-5); color: var(--color-resolution); }
+    .hfinal h2 .serif-italic { color: var(--color-malibu); }
+    .hfinal__lede { font-size: 1.0625rem; color: var(--color-text-strong); line-height: 1.6; margin: 0 0 var(--space-8); }
+    .hfinal__cta-row { display: flex; flex-wrap: wrap; gap: var(--space-3); justify-content: center; margin-bottom: var(--space-6); }
+    .hfinal__cta { display: inline-flex; align-items: center; gap: var(--space-2); padding: 14px 22px; background: var(--color-white); border: 1px solid var(--color-border); color: var(--color-resolution); border-radius: 100px; text-decoration: none; font-family: var(--font-display); font-weight: 700; font-size: 0.875rem; transition: border-color 0.15s, background 0.15s, transform 0.15s; }
+    .hfinal__cta:hover { border-color: var(--color-malibu); background: var(--color-malibu); color: var(--color-white); transform: translateY(-1px); }
+    .hfinal__cta--primary { background: var(--color-resolution); color: var(--color-white); border-color: var(--color-resolution); }
+    .hfinal__cta--primary:hover { background: var(--color-malibu); border-color: var(--color-malibu); color: var(--color-resolution); }
+    .hfinal__legal { font-size: 0.875rem; color: var(--color-text-muted); margin: 0; }
+    .hfinal__legal a { color: var(--color-malibu); text-decoration: underline; text-underline-offset: 3px; }
+
     @media (max-width: 980px) {
       .hero__inner { grid-template-columns: 1fr; gap: var(--space-8); }
-      .hero__zip-col { max-width: 540px; }
+      .hero__cta-stage { max-width: 460px; margin: 0 auto; }
     }
-    @media (max-width: 900px) {
-      .how__steps { grid-template-columns: 1fr; }
-    }
-    @media (max-width: 760px) {
+    @media (max-width: 640px) {
       .hero { padding-block: var(--space-12) var(--space-10); }
-      .hero h1 { font-size: 2.25rem; }
+      .hero h1 { font-size: 2rem; }
       .hero__lede { font-size: 1rem; }
-      .hero__kicker { font-size: 0.875rem; }
-      .explore { padding-block: var(--space-12) var(--space-16); }
-      .explore__grid { grid-template-columns: 1fr; }
-      .guides__grid { grid-template-columns: 1fr; }
-      .hero__about-link { font-size: 0.875rem; }
-      .manifesto { padding-block: var(--space-12); }
-      .manifesto__quote { font-size: 1.375rem; }
-      .how { padding-block: var(--space-12); }
-      .guides { padding-block: var(--space-12); }
-      .home-faq { padding-block: var(--space-12); }
+      .hero__cta-yeti { width: 180px; }
+      .hero__cta-stage { padding-top: 70px; }
+      .explore, .hdiff, .how, .hguides, .hposts, .home-faq, .hfinal { padding-block: var(--space-12); }
+      .hfinal__cta-row { flex-direction: column; }
+      .hfinal__cta { width: 100%; justify-content: center; }
     }
   </style>
 </BaseLayout>

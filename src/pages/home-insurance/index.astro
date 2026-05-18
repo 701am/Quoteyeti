@@ -8,46 +8,100 @@ const v = VERTICALS.home;
 <VerticalHub
   vertical={v}
   hero={{
-    headline: "Protect what matters",
-    lede: "Compare home insurance rates from the carriers that actually cover your area — including the ones the big aggregators skip.",
+    headline: "Protect what you've built.",
+    lede: "Compare home insurance from carriers that actually want to cover your area — including the ones not advertising on TV.",
+    ctaLabel: "Get home quotes",
+    ctaHref: "/home-insurance/quotes/",
   }}
   pillars={[
     {
-      title: "Best home insurers",
-      body: "Independent rankings based on rates, claims experience, and coverage breadth — not on which carrier paid us the most.",
-      href: "/home-insurance/best/",
-      cta: "See the rankings",
-    },
-    {
-      title: "Cheapest by state",
-      body: "Rates vary wildly by state and ZIP. See who's cheapest where you live.",
-      href: "/home-insurance/cheapest/",
-      cta: "Find cheap rates",
-    },
-    {
-      title: "How much coverage?",
-      body: "Dwelling, contents, liability — figure out the right limits before you quote.",
+      title: "Size your dwelling correctly",
+      body: "The most common home insurance mistake is being underinsured by 20-40% relative to current rebuild costs. Here's how to right-size your coverage.",
       href: "/home-insurance/how-much-do-i-need/",
-      cta: "Calculate coverage",
+      cta: "Size your coverage",
+    },
+    {
+      title: "Find the cheapest competitive option",
+      body: "Home insurance pricing varies dramatically by state and home characteristics. The cheapest carrier in your market may not advertise nationally.",
+      href: "/home-insurance/cheapest/",
+      cta: "See cheapest options",
+    },
+    {
+      title: "Capture mitigation discounts",
+      body: "Wind mitigation, impact-resistant roofs, monitored security, and updated systems can produce 20-50% premium reductions.",
+      href: "/home-insurance/discounts/",
+      cta: "Explore discounts",
     },
   ]}
-  calculators={[
-    { label: "Home insurance calculator", href: "/home-insurance/calculator/" },
-    { label: "Dwelling coverage estimator", href: "/home-insurance/coverage-estimator/" },
-    { label: "Replacement cost tool", href: "/home-insurance/replacement-cost/" },
+  intro={{
+    eyebrow: "How we think about home insurance",
+    heading: "It's not about coverage amounts. It's about coverage that fits.",
+    body: `<p>Home insurance is misunderstood as a single product. It's actually six distinct coverages bundled together: dwelling, other structures, personal property, loss of use, liability, and medical payments. Each does something different. Each can be over- or under-insured.</p>
+<p>And what's NOT covered is just as important. Standard homeowners policies <strong>exclude flood, earthquake, and (in coastal areas) often hurricane wind</strong>. The most expensive surprises after a claim come from finding out something wasn't covered.</p>
+<p>Our work: <a href="/home-insurance/coverage-types/">explain each coverage</a>, <a href="/home-insurance/how-much-do-i-need/">help you size it correctly</a>, <a href="/home-insurance/discounts/">find the discounts most homeowners miss</a>, and <a href="/home-insurance/guides/">break down the decisions that matter most</a> — what to file, what not to file, when to add flood, when to schedule jewelry.</p>`,
+  }}
+  stats={[
+    { number: "20-40%", label: "Underinsured", context: "How much most homeowners are vs. current rebuild costs" },
+    { number: "10-25%", label: "Bundle discount", context: "Single largest home insurance discount available" },
+    { number: "1 in 4", label: "Flood claims", context: "Come from outside designated high-risk zones" },
+    { number: "$2,500+", label: "Wind mitigation savings", context: "Annual for coastal homes with proper hardening" },
   ]}
   subtopics={[
-    { title: "Condo (HO-6) insurance", href: "/home-insurance/condo/", desc: "What HO-6 covers and how it differs from a homeowner's policy." },
-    { title: "Manufactured home", href: "/home-insurance/manufactured/", desc: "Specialized coverage for mobile and manufactured homes." },
-    { title: "Flood insurance", href: "/home-insurance/flood/", desc: "Why most home policies don't cover flooding — and what does." },
-    { title: "Landlord insurance", href: "/home-insurance/landlord/", desc: "Dwelling, liability, and lost-rent coverage for rental properties." },
-    { title: "Filing a claim", href: "/home-insurance/claims/", desc: "Step-by-step from damage to payout, and how to avoid claim denials." },
-    { title: "Bundling with auto", href: "/home-insurance/bundling/", desc: "Real savings ranges when you combine home + auto." },
+    {
+      title: "How much do I need?",
+      href: "/home-insurance/how-much-do-i-need/",
+      desc: "Replacement cost vs. market value, personal property limits, liability sizing, loss of use — how to size each coverage correctly."
+    },
+    {
+      title: "Types of coverage",
+      href: "/home-insurance/coverage-types/",
+      desc: "Coverage A-F explained, plus the endorsements that matter (sewer backup, service line, scheduled riders, equipment breakdown)."
+    },
+    {
+      title: "Common discounts",
+      href: "/home-insurance/discounts/",
+      desc: "The discounts that move premiums by 10-50% — bundling, wind mitigation, impact roofs, new construction, smart home devices."
+    },
+    {
+      title: "Cheapest carriers",
+      href: "/home-insurance/cheapest/",
+      desc: "Who actually competes on price by state and home profile — including regional specialists most consumers don't know about."
+    },
+    {
+      title: "By state",
+      href: "/home-insurance/by-state/",
+      desc: "Rates and rules in 10 major markets. California's wildfire pricing, Florida's hurricane exposure, Texas hail belt, and more."
+    },
+    {
+      title: "Home FAQs",
+      href: "/home-insurance/faqs/",
+      desc: "What's actually covered, when to file claims, deductible math, and the questions most homeowners are too embarrassed to ask."
+    },
+  ]}
+  myths={[
+    {
+      myth: "Home insurance covers everything that happens at my house.",
+      reality: "Standard policies exclude flood, earthquake, wear and tear, pests, and (often) hurricane wind in coastal areas. Knowing the gaps is half the work."
+    },
+    {
+      myth: "My dwelling coverage should equal my market value.",
+      reality: "It should equal replacement cost — what it would take to rebuild. Market value includes land, which doesn't need rebuilding. Replacement cost is often higher than purchase price."
+    },
+    {
+      myth: "I should file a claim for every loss.",
+      reality: "Small losses near your deductible often cost more in rate increases over 3-5 years than they pay out. For losses under 2x your deductible, paying out of pocket is often the better math."
+    },
+    {
+      myth: "My homeowners covers my engagement ring.",
+      reality: "Only up to a sublimit — typically $1,500-$2,500. Higher-value items need a scheduled rider with documented appraisals. Without it, a stolen $8,000 ring pays out the $1,500 sublimit."
+    },
   ]}
   faqs={[
-    { q: "What does home insurance actually cover?", a: "Standard policies cover four things: dwelling (rebuilding your home), personal property (your stuff), liability (lawsuits if someone is hurt at your home), and loss of use (temporary housing while your home is being repaired)." },
-    { q: "How much home insurance do I need?", a: "Your dwelling coverage should equal the current replacement cost of your home — not its market value, not your mortgage balance. Replacement cost has risen significantly in recent years; get a current estimate." },
-    { q: "Is flood damage covered?", a: "No. Flood is excluded from every standard homeowners policy. You need a separate NFIP policy or private flood insurance. If you're in any flood-prone area, get one." },
-    { q: "Does my mortgage require home insurance?", a: "Yes. Every lender requires homeowners insurance for the duration of the loan. Most will set up an escrow account that pays the premium from your monthly mortgage payment." },
+    { q: "Is home insurance required by law?", a: "No, but your mortgage lender requires it. If you own outright, it's optional — though going without means you bear the full cost of any damage or loss yourself." },
+    { q: "Does home insurance cover flood damage?", a: "No. Standard policies exclude flood entirely. You need a separate NFIP or private flood policy. About 25% of flood claims come from properties outside designated high-risk zones." },
+    { q: "What's the difference between replacement cost and actual cash value?", a: "Replacement cost pays to replace your damaged property with new equivalents. Actual cash value depreciates older items — your 8-year-old TV pays out at $80 instead of $400. Always choose replacement cost coverage if available; typically only $30-$80 more per year." },
+    { q: "How often should I shop for home insurance?", a: "Annually at renewal. Get quotes from 3-5 carriers. Premium spreads of 25-40% on identical coverage are common, especially in challenging markets like coastal Florida or wildfire-zone California." },
+    { q: "What's a wind mitigation inspection?", a: "An inspection (typically $75-$150) in coastal states that documents your home's hurricane-resistance features. Can produce 20-50% premium reductions in hurricane-exposed markets. The single best ROI inspection in coastal home insurance." },
+    { q: "When should I add a flood policy?", a: "If you're anywhere in a coastal county, near a river or stream, in a low-lying urban area, or anywhere with poor drainage. About 25% of NFIP flood claims come from properties outside designated flood zones." },
   ]}
 />

@@ -48,6 +48,28 @@
 # --- Common WP slug patterns that might exist in inbound links ----
 # (Add additional ones as discovered in WP audit; keep them above wildcards.)
 
+# --- Thanks pages — explicit rewrites so query strings (?zip=12345)
+# survive Netlify's pretty-URL normalization without 404-on-first-load.
+# Status 200 rewrites the URL internally without changing the address bar,
+# guaranteeing the static thanks/index.html serves regardless of trailing
+# slash or query-string handling differences between client and edge.
+/auto/quotes/thanks               /auto/quotes/thanks/index.html              200
+/auto/quotes/thanks/              /auto/quotes/thanks/index.html              200
+/home-insurance/quotes/thanks     /home-insurance/quotes/thanks/index.html    200
+/home-insurance/quotes/thanks/    /home-insurance/quotes/thanks/index.html    200
+/life-insurance/quotes/thanks     /life-insurance/quotes/thanks/index.html    200
+/life-insurance/quotes/thanks/    /life-insurance/quotes/thanks/index.html    200
+/business-insurance/quotes/thanks         /business-insurance/quotes/thanks/index.html        200
+/business-insurance/quotes/thanks/        /business-insurance/quotes/thanks/index.html        200
+/health-insurance/quotes/thanks           /health-insurance/quotes/thanks/index.html          200
+/health-insurance/quotes/thanks/          /health-insurance/quotes/thanks/index.html          200
+/renters-insurance/quotes/thanks          /renters-insurance/quotes/thanks/index.html         200
+/renters-insurance/quotes/thanks/         /renters-insurance/quotes/thanks/index.html         200
+/pet-insurance/quotes/thanks              /pet-insurance/quotes/thanks/index.html             200
+/pet-insurance/quotes/thanks/             /pet-insurance/quotes/thanks/index.html             200
+/travel-insurance/quotes/thanks           /travel-insurance/quotes/thanks/index.html          200
+/travel-insurance/quotes/thanks/          /travel-insurance/quotes/thanks/index.html          200
+
 # --- Optional: rename old blog URLs -------------------------------
 /news/*              /blog/:splat              301
 /articles/*          /blog/:splat              301

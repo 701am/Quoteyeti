@@ -67,7 +67,7 @@ const cols = footer.columns.slice(0, 3);
         <div class="footer-main__verticals">
           {VERTICAL_LIST.map((v) => (
             <a href={v.path} class="footer-vertical-chip" style={`--chip-accent: ${v.accent}; --chip-accent-soft: ${v.accentSoft};`}>
-              <img src={v.icon} alt="" />
+              <img src={v.icon} alt="" width="16" height="16" loading="lazy" />
               <span>{v.short}</span>
             </a>
           ))}

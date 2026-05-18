@@ -15,41 +15,93 @@ const v = VERTICALS.auto;
   }}
   pillars={[
     {
-      title: "Compare 70+ carriers",
-      body: "Compare quotes from 70+ carriers in one place — the same panel of insurers your local agent shops, without the followup calls.",
-      href: "/auto/compare/",
-      cta: "Compare carriers",
+      title: "See the cheapest carriers",
+      body: "The carriers most aggressively pricing for your profile change with age, location, and record. Here's how to find yours.",
+      href: "/auto/cheapest/",
+      cta: "See cheapest options",
     },
     {
-      title: "Reviews you can trust",
-      body: "Independent provider reviews — pros, cons, ratings, and real customer experience data.",
+      title: "Read independent reviews",
+      body: "Honest reviews of 7 major carriers — what they actually charge, where they win, where they fall short. No paid placements.",
       href: "/auto/reviews/",
-      cta: "Read reviews",
+      cta: "Read carrier reviews",
     },
     {
-      title: "Brand-specific rates",
-      body: "Average insurance cost for every make and model, from Acura to Volvo.",
+      title: "Browse by vehicle brand",
+      body: "Average insurance cost varies dramatically by make and model. See breakdowns by brand, from Acura to Toyota.",
       href: "/auto/brands/",
-      cta: "Browse brands",
+      cta: "Browse all brands",
     },
   ]}
-  calculators={[
-    { label: "Auto insurance calculator", href: "/auto/calculator/" },
-    { label: "How much coverage do I need?", href: "/auto/how-much-do-i-need/" },
-    { label: "Discount finder", href: "/auto/discounts/" },
+  intro={{
+    eyebrow: "How we think about auto insurance",
+    heading: "The cheapest carrier for you isn't the cheapest carrier for everyone.",
+    body: `<p>Auto insurance pricing isn't a single market — it's hundreds of carrier-specific algorithms, each weighting your age, ZIP, driving record, credit, and vehicle differently. Quote spreads of <strong>40-60% across major carriers</strong> for identical coverage are completely normal.</p>
+<p>That means the most popular carrier isn't necessarily your cheapest carrier. The carrier with the best commercials isn't necessarily your best value. The cheapest carrier for a 28-year-old in Dallas with a clean record is rarely the cheapest carrier for a 55-year-old in Phoenix with one ticket.</p>
+<p>The work we do here: <a href="/auto/cheapest/">surface the carriers competing on price</a>, <a href="/auto/reviews/">review the ones worth knowing</a>, <a href="/auto/coverage-types/">explain the coverage you actually need</a>, and <a href="/auto/discounts/">find the discounts most people leave on the table</a>.</p>`,
+  }}
+  stats={[
+    { number: "40-60%", label: "Typical quote spread", context: "Across major carriers for identical coverage" },
+    { number: "$1,500+", label: "Annual savings", context: "For drivers who actively shop annually" },
+    { number: "1 in 8", label: "Uninsured drivers", context: "Why UM/UIM coverage matters" },
+    { number: "12-15%", label: "Telematics discount", context: "Average for safe drivers in the major programs" },
   ]}
   subtopics={[
-    { title: "Cheapest full coverage", href: "/auto/cheapest-full-coverage/", desc: "Lowest premiums for full coverage policies, ranked by state." },
-    { title: "Best for young drivers", href: "/auto/best-for-young-drivers/", desc: "Carriers that don't punish you for being under 25." },
-    { title: "SR-22 insurance", href: "/auto/sr-22/", desc: "What it is, who needs it, and how to file." },
-    { title: "Bundling auto + home", href: "/auto/bundling/", desc: "How much you really save by combining policies." },
-    { title: "Telematics programs", href: "/auto/telematics/", desc: "Drive-tracking discounts compared across carriers." },
-    { title: "After an accident", href: "/auto/after-accident/", desc: "Filing claims, dealing with adjusters, and what to expect." },
+    {
+      title: "How much do I need?",
+      href: "/auto/how-much-do-i-need/",
+      desc: "State minimums are dangerously low. Here's how to size liability, collision, comprehensive, and UM/UIM to your actual situation."
+    },
+    {
+      title: "Types of coverage",
+      href: "/auto/coverage-types/",
+      desc: "Liability, collision, comprehensive, UM/UIM, PIP, and the riders. What each coverage actually pays for — and which you can skip."
+    },
+    {
+      title: "Common discounts",
+      href: "/auto/discounts/",
+      desc: "The discounts that move premiums by 10-30% — and the ones that sound impressive but don't matter much."
+    },
+    {
+      title: "Cheapest carriers",
+      href: "/auto/cheapest/",
+      desc: "Which carriers consistently price aggressively for different profiles — adult drivers, young drivers, seniors, drivers with tickets."
+    },
+    {
+      title: "By state",
+      href: "/auto/by-state/",
+      desc: "Rates and rules vary by state. California, Texas, Florida, and 7 other major markets broken down."
+    },
+    {
+      title: "Carrier reviews",
+      href: "/auto/reviews/",
+      desc: "Independent reviews of 7 major carriers — GEICO, State Farm, Progressive, Allstate, USAA, Nationwide, Liberty Mutual."
+    },
+  ]}
+  myths={[
+    {
+      myth: "Red cars cost more to insure.",
+      reality: "Color isn't an underwriting factor at any major carrier. Make, model, year, and your driving record matter — paint doesn't."
+    },
+    {
+      myth: "You only need state minimum liability.",
+      reality: "State minimums (often 25/50/25) are the legal floor, not a smart purchase. A serious accident can produce a $300K+ judgment, leaving you on the hook personally for everything above your limits."
+    },
+    {
+      myth: "Filing any claim raises your rates forever.",
+      reality: "A single not-at-fault claim usually doesn't raise rates at most carriers. Surcharges typically apply for 3-5 years after at-fault claims, then fall off."
+    },
+    {
+      myth: "Loyalty is rewarded with better pricing.",
+      reality: "The opposite is often true. Many carriers price-walk loyal customers — quietly raising base rates each year. Re-shopping every 6-12 months keeps you honest."
+    },
   ]}
   faqs={[
     { q: "How much car insurance do I need?", a: "Most states require minimum liability coverage by law, but state minimums are typically inadequate. For most drivers, 100/300/100 liability is the modern baseline, plus collision and comprehensive if your vehicle is worth more than ~$3,000 or is financed." },
     { q: "What is full coverage?", a: "Full coverage is an informal term for a policy that combines liability, collision, and comprehensive. Liability pays for damage to others; collision pays for your vehicle in a crash; comprehensive covers non-crash events like theft and weather." },
     { q: "Can I switch carriers mid-policy?", a: "Yes. Check for cancellation fees on your existing policy and overlap your new policy's start date with the old policy's end date so you never have a coverage gap." },
     { q: "Does credit score affect my rate?", a: "In most states, yes — carriers use credit-based insurance scores to predict claim likelihood. California, Hawaii, and Massachusetts prohibit it; Michigan, Maryland, and Washington restrict it." },
+    { q: "Should I get telematics?", a: "If you're a careful driver who doesn't drive late at night or in heavy urban traffic, yes — programs like Progressive Snapshot and State Farm Drive Safe & Save typically save safe drivers 10-30%. Aggressive drivers can see premium increases instead." },
+    { q: "When should I drop collision and comprehensive?", a: "The 10% rule: drop these coverages when your annual premium for both exceeds 10% of your vehicle's value. On a 12-year-old car worth $4,000, paying $500/year for collision and comprehensive doesn't make financial sense." },
   ]}
 />

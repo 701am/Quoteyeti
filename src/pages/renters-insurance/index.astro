@@ -8,46 +8,90 @@ const v = VERTICALS.renters;
 <VerticalHub
   vertical={v}
   hero={{
-    headline: "Affordable protection for what you've got",
-    lede: "Renters insurance covers more than most renters realize — and costs less than a streaming subscription.",
+    headline: "$15/month coverage you'll actually appreciate.",
+    lede: "Cover your stuff and your liability for less than a streaming subscription. Compare renters quotes from major carriers in one place.",
+    ctaLabel: "Get renters quotes",
+    ctaHref: "/renters-insurance/quotes/",
   }}
   pillars={[
     {
-      title: "What it covers",
-      body: "Coverage for your stuff, your liability, and your displacement — starting around $12/mo from modern carriers.",
-      href: "/renters-insurance/coverage/",
-      cta: "See what's covered",
+      title: "See the best renters carriers",
+      body: "Lemonade, State Farm, Allstate, GEICO, USAA, and the regional players — independently ranked on price, ease of claims, and policy substance.",
+      href: "/renters-insurance/best/",
+      cta: "See top carriers",
     },
     {
-      title: "Best cheap renters",
-      body: "Lemonade, State Farm, Toggle — we compare premiums for $20K personal property coverage by state.",
-      href: "/renters-insurance/cheapest/",
-      cta: "Cheapest options",
+      title: "Bundle with auto for savings",
+      body: "Renters policies are cheap on their own (typically $15-$25/month). Bundling with auto often more than offsets the renters premium through auto discount.",
+      href: "/renters-insurance/quotes/",
+      cta: "Get a quote",
     },
     {
-      title: "Do you need it?",
-      body: "Most landlords now require it. Even if yours doesn't — the math almost always favors having it.",
-      href: "/renters-insurance/do-i-need-it/",
-      cta: "Should I get it?",
+      title: "Read renters guides",
+      body: "What's covered (and what's not), how scheduled riders work, what to do for roommates, when bedbugs and pets matter — the practical stuff.",
+      href: "/renters-insurance/guides/",
+      cta: "Browse guides",
     },
   ]}
-  calculators={[
-    { label: "Renters cost calculator", href: "/renters-insurance/calculator/" },
-    { label: "Coverage limit estimator", href: "/renters-insurance/coverage-limits/" },
-    { label: "Bundling savings", href: "/renters-insurance/bundling/" },
+  intro={{
+    eyebrow: "How we think about renters insurance",
+    heading: "Cheapest insurance you'll ever buy. Most renters skip it anyway.",
+    body: `<p>Renters insurance is unfairly underrated. For roughly <strong>$15-$25 per month</strong>, you get $20K-$50K of personal property coverage, $100K-$300K of personal liability protection, and loss of use coverage if a covered disaster makes your unit uninhabitable.</p>
+<p>The biggest value isn't actually the contents coverage — it's the <strong>liability protection</strong>. If a guest is injured at your apartment, your dog bites someone on a walk, or a kitchen fire damages neighboring units, your renters policy is what stands between you and a lawsuit.</p>
+<p>Where to start: <a href="/renters-insurance/best/">see who actually competes on price for renters</a>, then <a href="/renters-insurance/quotes/">get quotes</a>. We focus on <a href="/renters-insurance/guides/">the decisions that matter</a> — replacement cost vs. actual cash value, scheduled riders for jewelry, what happens with roommates.</p>`,
+  }}
+  stats={[
+    { number: "$15-25", label: "Monthly premium", context: "Typical for $30K personal property + $100K liability" },
+    { number: "5-10%", label: "Auto bundle discount", context: "Often offsets the entire renters premium" },
+    { number: "$1,500", label: "Jewelry sublimit", context: "Standard renters cap — schedule items above this" },
+    { number: "100K-300K", label: "Liability protection", context: "Why renters policies are about more than your stuff" },
   ]}
   subtopics={[
-    { title: "College students", href: "/renters-insurance/students/", desc: "Dorm coverage under parents' policy vs. standalone." },
-    { title: "Roommates", href: "/renters-insurance/roommates/", desc: "Separate policies vs. shared — which is smarter." },
-    { title: "Pet owners", href: "/renters-insurance/pet-owners/", desc: "Liability coverage when a guest gets bitten." },
-    { title: "Working from home", href: "/renters-insurance/home-office/", desc: "When standard renters won't cover work equipment." },
-    { title: "Filing a claim", href: "/renters-insurance/claims/", desc: "Documentation, depreciation, and getting paid quickly." },
-    { title: "Earthquake & flood", href: "/renters-insurance/disasters/", desc: "What's excluded and where to get add-on coverage." },
+    {
+      title: "Best renters insurance",
+      href: "/renters-insurance/best/",
+      desc: "Top renters carriers ranked — Lemonade, State Farm, USAA, Allstate, GEICO. Where each wins on price and customer experience."
+    },
+    {
+      title: "Carrier reviews",
+      href: "/renters-insurance/reviews/",
+      desc: "Independent reviews of major renters carriers. Premium spreads, claim handling, app quality, and policy substance compared."
+    },
+    {
+      title: "Renters guides",
+      href: "/renters-insurance/guides/",
+      desc: "In-depth coverage of the decisions that matter — replacement cost, scheduled riders, roommates, what's not covered."
+    },
+    {
+      title: "Get quotes",
+      href: "/renters-insurance/quotes/",
+      desc: "Compare renters insurance quotes from carriers competing in your area. Most policies issue same-day."
+    },
+  ]}
+  myths={[
+    {
+      myth: "My landlord's insurance covers my stuff.",
+      reality: "Your landlord's policy covers the building and their property — not your belongings. If your apartment is destroyed by fire, your landlord's insurance rebuilds the unit; your stuff is your problem unless you have renters coverage."
+    },
+    {
+      myth: "I don't have enough stuff to need renters insurance.",
+      reality: "Most renters underestimate their belongings by 50%+. Furniture, electronics, clothing, kitchen items, and personal effects add up faster than you think. The liability protection alone justifies the $15-25/month."
+    },
+    {
+      myth: "Renters insurance is too expensive.",
+      reality: "$15-25 per month is the cheapest insurance most consumers can buy. Less than a streaming subscription. Bundled with auto, the auto discount often eclipses the renters premium entirely."
+    },
+    {
+      myth: "I'm fine because I don't have anything valuable.",
+      reality: "The value is in liability. One liability claim — a guest tripping at your apartment, your dog biting someone, a kitchen fire damaging the unit above yours — can cost tens or hundreds of thousands without coverage."
+    },
   ]}
   faqs={[
-    { q: "How much does renters insurance cost?", a: "National average is around $15/month for $20K personal property." },
-    { q: "Does it cover my roommate's stuff?", a: "Only if they're explicitly named on your policy. Otherwise they need their own." },
-    { q: "Is theft covered outside my apartment?", a: "Yes, in most policies, but check limits on items in your car or while traveling." },
-    { q: "What's an actual cash value vs. replacement cost?", a: "ACV pays depreciated value; RCV pays what new costs. RCV is worth the small premium upgrade." },
+    { q: "What does renters insurance actually cover?", a: "Personal property (your belongings), personal liability (claims against you for injury or damage), loss of use (temporary housing if your unit is uninhabitable), and limited medical payments for guests injured at your unit. Standard exclusions: flood, earthquake, intentional damage." },
+    { q: "How much renters insurance do I need?", a: "Personal property: enough to replace what you actually have (typically $20K-$50K for most renters). Liability: $100K minimum, $300K is the safer baseline. Bump to $500K plus an umbrella policy if you have meaningful assets." },
+    { q: "Replacement cost or actual cash value?", a: "Always replacement cost. ACV depreciates older items — your 8-year-old TV pays out $80 instead of $400. Replacement cost typically costs only $30-$50 more per year and pays out dramatically more at claim time." },
+    { q: "Does renters insurance cover roommates?", a: "Only if your roommate is named on the policy. Otherwise, each roommate needs their own policy. Most carriers will let you add a non-related roommate to your policy for a small premium increase." },
+    { q: "Does renters insurance cover bedbugs or rodent damage?", a: "Almost never. Pest-related damage is excluded under standard policies. Bedbug treatment and damage are your responsibility (or, depending on your lease and state law, potentially your landlord's)." },
+    { q: "Will renters insurance pay if my apartment floods?", a: "From plumbing (burst pipe, overflow): yes. From outside water rising (rain, river overflow): no — that's flood, and you'd need a separate NFIP policy. The distinction matters in coastal markets and ground-floor apartments." },
   ]}
 />

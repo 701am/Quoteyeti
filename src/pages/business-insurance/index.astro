@@ -8,46 +8,100 @@ const v = VERTICALS.business;
 <VerticalHub
   vertical={v}
   hero={{
-    headline: "Insurance for the work you actually do",
-    lede: "General liability, workers' comp, professional indemnity, commercial auto — we compare what your business actually needs.",
+    headline: "Coverage that scales with the work.",
+    lede: "General liability, BOP, professional liability, workers' comp — without the multi-week broker process. Quote the coverage you actually need.",
+    ctaLabel: "Get business quotes",
+    ctaHref: "/business-insurance/quotes/",
   }}
   pillars={[
     {
-      title: "General liability",
-      body: "General liability, professional liability, BOPs, and workers' comp — compare what's needed for your specific industry.",
-      href: "/business-insurance/general-liability/",
-      cta: "GL coverage 101",
+      title: "Right-size your coverage",
+      body: "Contracts often dictate $1M-$2M liability minimums. We'll walk through what your business actually needs vs. what you're paying for.",
+      href: "/business-insurance/how-much-do-i-need/",
+      cta: "Size your coverage",
     },
     {
-      title: "Workers' comp",
-      body: "State-mandated in most cases. We help you find compliant coverage without overpaying.",
-      href: "/business-insurance/workers-comp/",
-      cta: "Workers' comp guide",
+      title: "Find a competitive carrier",
+      body: "Commercial pricing varies dramatically by industry classification. The right carrier for a freelance consultant isn't the right carrier for a restaurant.",
+      href: "/business-insurance/cheapest/",
+      cta: "Compare by industry",
     },
     {
-      title: "Professional liability (E&O)",
-      body: "If you sell advice or expertise, you need this. Consultants, accountants, designers, IT.",
-      href: "/business-insurance/professional-liability/",
-      cta: "E&O explained",
+      title: "Understand coverage types",
+      body: "GL, BOP, PL, cyber, workers' comp, commercial auto, umbrella — what each does, what it doesn't, and which you actually need.",
+      href: "/business-insurance/coverage-types/",
+      cta: "Coverage types",
     },
   ]}
-  calculators={[
-    { label: "Business insurance cost", href: "/business-insurance/calculator/" },
-    { label: "Workers' comp estimator", href: "/business-insurance/workers-comp-calc/" },
-    { label: "BOP bundling calculator", href: "/business-insurance/bop-calc/" },
+  intro={{
+    eyebrow: "How we think about business insurance",
+    heading: "The wrong industry classification can cost you 30% in premium.",
+    body: `<p>Commercial insurance is where buying purely on price most often backfires. The right policy for a consulting firm is different from the right policy for a contractor, which is different from the right policy for a restaurant. <strong>Industry classification matters more than carrier</strong> — and many businesses are paying premiums for the wrong classification.</p>
+<p>Three things consistently produce major savings: <strong>BOP bundling</strong> (general liability + commercial property + business interruption together saves 10-25%), <strong>correct classification</strong> (verify your industry code is accurate), and the <strong>experience modifier on workers' comp</strong> (an active safety program can save thousands annually).</p>
+<p>What we focus on: <a href="/business-insurance/coverage-types/">explaining what each commercial coverage actually does</a>, <a href="/business-insurance/how-much-do-i-need/">sizing limits to contracts and risk</a>, <a href="/business-insurance/cheapest/">surfacing carriers competitive in your industry</a>, and <a href="/business-insurance/discounts/">structural moves that reduce premium without reducing coverage</a>.</p>`,
+  }}
+  stats={[
+    { number: "10-25%", label: "BOP bundle savings", context: "vs. buying GL + property + BI separately" },
+    { number: "30%+", label: "Misclassification cost", context: "If your industry code is wrong" },
+    { number: "$120K-1.2M", label: "Avg breach cost", context: "Why cyber liability matters for small business" },
+    { number: "0.85-1.10", label: "E-mod range", context: "Workers' comp pricing depends on yours" },
   ]}
   subtopics={[
-    { title: "Contractors", href: "/business-insurance/contractors/", desc: "GL, tools coverage, and the certificates GCs require." },
-    { title: "Restaurants & bars", href: "/business-insurance/restaurants/", desc: "Liquor liability, equipment breakdown, food spoilage." },
-    { title: "Consultants & freelancers", href: "/business-insurance/consultants/", desc: "E&O for the contract work you're doing solo." },
-    { title: "Retail", href: "/business-insurance/retail/", desc: "Premises liability, inventory protection, business interruption." },
-    { title: "Healthcare practices", href: "/business-insurance/healthcare/", desc: "Malpractice, HIPAA cyber coverage, and the BOP basics." },
-    { title: "Cyber liability", href: "/business-insurance/cyber/", desc: "First-party and third-party cyber coverage for modern threats." },
+    {
+      title: "How much do I need?",
+      href: "/business-insurance/how-much-do-i-need/",
+      desc: "GL, PL, cyber, BOP, commercial auto, umbrella — coverage sizing by business size and industry. With sample structures."
+    },
+    {
+      title: "Types of coverage",
+      href: "/business-insurance/coverage-types/",
+      desc: "Each commercial coverage explained. What GL covers (and doesn't). Why PL is separate. When you need cyber. The full taxonomy."
+    },
+    {
+      title: "Common discounts",
+      href: "/business-insurance/discounts/",
+      desc: "BOP bundling, multi-line, claim-free credit, experience modifier on workers' comp — and how to actually capture these savings."
+    },
+    {
+      title: "Cheapest by industry",
+      href: "/business-insurance/cheapest/",
+      desc: "Hiscox, Next, biBERK, The Hartford, Travelers — who actually competes on price for consultants, contractors, restaurants, healthcare, and retail."
+    },
+    {
+      title: "By state",
+      href: "/business-insurance/by-state/",
+      desc: "Workers' comp variations, professional licensure mandates, state-monopoly states, and where commercial pricing differs."
+    },
+    {
+      title: "Business FAQs",
+      href: "/business-insurance/faqs/",
+      desc: "Sole proprietor coverage, LLC vs. corporation insurance, contractor classification, certificates of insurance — the practical questions."
+    },
+  ]}
+  myths={[
+    {
+      myth: "I'm just a freelancer, I don't need business insurance.",
+      reality: "Most B2B contracts require $1M general liability minimum and often $1M professional liability. Without coverage, you're not just exposed — you're not eligible for the contracts."
+    },
+    {
+      myth: "My personal auto policy covers me when I drive for work.",
+      reality: "Most personal auto policies exclude business use. If you use your car for client visits, deliveries, or rideshare, you need a commercial auto policy or HNOA (hired and non-owned auto) endorsement."
+    },
+    {
+      myth: "Cyber liability is only for tech companies.",
+      reality: "Any business that handles customer data, accepts payments, or uses cloud services has cyber exposure. Average small-business breach costs $120K-$1.2M — costs add up faster than people expect."
+    },
+    {
+      myth: "Workers' comp premium is fixed by law.",
+      reality: "The base rate is set by industry classification, but your experience modifier (e-mod) can move it 25-40% in either direction. An active safety program compounds savings year over year."
+    },
   ]}
   faqs={[
-    { q: "Do I need business insurance if I'm a freelancer?", a: "Depends on contracts, but most enterprise clients now require proof of E&O." },
-    { q: "Is workers' comp legally required?", a: "In nearly every state if you have employees. Texas is the major exception." },
-    { q: "What's a BOP?", a: "Business Owner's Policy bundles GL + property at a discount. Sweet spot for small businesses." },
-    { q: "Cyber liability — is it worth it?", a: "If you handle customer data, almost always yes. Average breach cost dwarfs the premium." },
+    { q: "What's a Business Owner's Policy (BOP)?", a: "A BOP bundles general liability + commercial property + business interruption into one policy at a discount (typically 10-25% less than buying separately). Most qualifying small businesses should start here — it's almost always cheaper than buying the components individually." },
+    { q: "Do I need professional liability if I have general liability?", a: "Yes, if you provide professional services or advice. GL covers bodily injury and property damage. Professional liability (also called E&O) covers financial losses from your work — claims that you made errors, gave bad advice, or failed to deliver. The two coverages don't overlap." },
+    { q: "Is workers' comp required?", a: "In nearly every state, yes, if you have employees. Texas is the major exception (it's technically optional for private employers, though most still carry it). North Dakota, Ohio, Washington, and Wyoming have state-monopoly systems — you buy from the state fund, not private carriers." },
+    { q: "How much general liability do I need?", a: "Most B2B contracts require $1M per occurrence / $2M aggregate as a vendor minimum. Step up to $2M/$4M for higher-risk industries (construction, healthcare) or larger contracts. Higher-net-worth businesses should add commercial umbrella on top." },
+    { q: "Can I get business insurance online?", a: "For straightforward small business profiles, yes — Hiscox, Next Insurance, Thimble, and biBERK all offer fast online quoting. For complex risks, multi-state operations, or non-standard industries, working with an independent commercial broker usually produces better outcomes." },
+    { q: "What's a certificate of insurance (COI)?", a: "Documentation proving you have specific coverage, typically required by clients, landlords, and contractors. Your insurer issues COIs on request, often within 24 hours. The COI lists your policy limits, effective dates, and named additional insureds." },
   ]}
 />

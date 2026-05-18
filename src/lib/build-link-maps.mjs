@@ -86,6 +86,7 @@ function buildVerticalMap(contentRoot, vertical) {
     const glossaryDir = join(contentRoot, "auto", "glossary");
     for (const filePath of listMdFiles(glossaryDir)) {
       const content = readFileSync(filePath, "utf-8");
+      if (/^draft:\s*true/m.test(content)) continue;
       const term =
         readFrontmatterField(content, "term") ??
         readFrontmatterField(content, "title") ??
@@ -102,18 +103,20 @@ function buildVerticalMap(contentRoot, vertical) {
     const locationsDir = join(contentRoot, "auto", "locations");
     for (const filePath of listMdFiles(locationsDir)) {
       const content = readFileSync(filePath, "utf-8");
+      if (/^draft:\s*true/m.test(content)) continue;
       const state = readFrontmatterField(content, "state") ?? readFrontmatterField(content, "title");
       if (!state) continue;
       const slug = fileSlug(filePath);
+      // Live route is /auto/by-state/, not /auto/locations/
       entries.push({
         term: state,
-        url: `/auto/locations/${slug}/`,
+        url: `/auto/by-state/${slug}/`,
         priority: 7,
         needle: state.toLowerCase(),
       });
       entries.push({
         term: `${state} car insurance`,
-        url: `/auto/locations/${slug}/`,
+        url: `/auto/by-state/${slug}/`,
         priority: 9,
         needle: `${state.toLowerCase()} car insurance`,
       });
@@ -122,6 +125,8 @@ function buildVerticalMap(contentRoot, vertical) {
     const brandsDir = join(contentRoot, "auto", "brands");
     for (const filePath of listMdFiles(brandsDir)) {
       const content = readFileSync(filePath, "utf-8");
+      // Skip drafts — those don't render as live pages
+      if (/^draft:\s*true/m.test(content)) continue;
       const brand =
         readFrontmatterField(content, "brand") ?? readFrontmatterField(content, "title");
       if (!brand || STOPWORDS.has(brand.toLowerCase())) continue;
@@ -141,12 +146,15 @@ function buildVerticalMap(contentRoot, vertical) {
     priority: 5,
     needle: `best ${shortLc} insurance`,
   });
-  entries.push({
-    term: `cheapest ${shortLc} insurance`,
-    url: `${vPath}cheapest/`,
-    priority: 5,
-    needle: `cheapest ${shortLc} insurance`,
-  });
+  // Only the four core verticals have a /cheapest/ page
+  if (["auto", "home", "life", "business"].includes(vertical)) {
+    entries.push({
+      term: `cheapest ${shortLc} insurance`,
+      url: `${vPath}cheapest/`,
+      priority: 5,
+      needle: `cheapest ${shortLc} insurance`,
+    });
+  }
 
   entries.sort((a, b) => {
     if (b.needle.length !== a.needle.length) return b.needle.length - a.needle.length;
