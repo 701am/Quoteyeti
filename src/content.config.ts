@@ -152,19 +152,26 @@ const petReviews = reviewCollection("pet");
 const travelReviews = reviewCollection("travel");
 
 /**
- * Locations (auto vertical only).
+ * Locations — one collection per vertical. State + city pages.
  */
-const autoLocations = defineCollection({
-  loader: glob({ pattern: "**/*.{md,mdx}", base: "./src/content/auto/locations" }),
-  schema: baseEntry.extend({
-    state: z.string().optional(),
-    city: z.string().optional(),
-    stateAbbr: z.string().optional(),
-    averageRate: z.number().optional(),
-    minLiabilityRequired: z.string().optional(),
-    isCityPage: z.boolean().optional().default(false),
-  }),
-});
+function locationCollection(verticalSlug: string) {
+  return defineCollection({
+    loader: glob({ pattern: "**/*.{md,mdx}", base: `./src/content/${verticalSlug}/locations` }),
+    schema: baseEntry.extend({
+      state: z.string().optional(),
+      city: z.string().optional(),
+      stateAbbr: z.string().optional(),
+      averageRate: z.number().optional(),
+      minLiabilityRequired: z.string().optional(),
+      isCityPage: z.boolean().optional().default(false),
+    }),
+  });
+}
+
+const autoLocations = locationCollection("auto");
+const homeLocations = locationCollection("home");
+const lifeLocations = locationCollection("life");
+const businessLocations = locationCollection("business");
 
 const autoGlossary = defineCollection({
   loader: glob({ pattern: "**/*.{md,mdx}", base: "./src/content/auto/glossary" }),
@@ -247,6 +254,9 @@ export const collections = {
   "pet-reviews": petReviews,
   "travel-reviews": travelReviews,
   "auto-locations": autoLocations,
+  "home-locations": homeLocations,
+  "life-locations": lifeLocations,
+  "business-locations": businessLocations,
   "auto-glossary": autoGlossary,
   "auto-faqs": autoFaqs,
   home,

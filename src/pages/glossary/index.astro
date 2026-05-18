@@ -1,0 +1,142 @@
+---
+import BaseLayout from "~/layouts/BaseLayout.astro";
+import { getCollection } from "astro:content";
+
+const autoGlossary = await getCollection("auto-glossary", ({ data }) => !data.draft);
+autoGlossary.sort((a, b) => (a.data.term ?? a.data.title).localeCompare(b.data.term ?? b.data.title));
+---
+
+<BaseLayout
+  title="Insurance Glossary"
+  description="Plain-language definitions of insurance terms, organized alphabetically. Auto-focused today, expanding to other verticals soon."
+  breadcrumbs={[
+    { name: "Home", url: "/" },
+    { name: "Glossary", url: "/glossary/" },
+  ]}
+>
+  <section class="page-hero topo-bg">
+    <div class="container">
+      <p class="eyebrow">Reference</p>
+      <h1>Insurance, <span class="serif-italic">decoded</span></h1>
+      <p class="page-hero__lede">
+        Plain-language definitions of the insurance terms you'll actually encounter. We're starting with the auto vertical and expanding from there — bookmark this page.
+      </p>
+    </div>
+  </section>
+
+  <section class="container glossary-grid">
+    <div class="glossary-grid__intro">
+      <p class="glossary-grid__intro-text">
+        <strong>{autoGlossary.length} terms defined.</strong> Today, this glossary is auto-insurance-focused. We're expanding coverage to home, life, business, and other verticals over the coming months.
+      </p>
+    </div>
+
+    {autoGlossary.length === 0 ? (
+      <p class="glossary-grid__empty">Glossary entries are being populated. Check back soon.</p>
+    ) : (
+      <ul class="glossary-grid__list">
+        {autoGlossary.map((entry) => (
+          <li>
+            <a href={`/auto/glossary/${entry.id}/`} class="glossary-card">
+              <h2 class="glossary-card__term">{entry.data.term ?? entry.data.title}</h2>
+              {entry.data.description && (
+                <p class="glossary-card__desc">{entry.data.description}</p>
+              )}
+            </a>
+          </li>
+        ))}
+      </ul>
+    )}
+  </section>
+
+  <style>
+    .page-hero {
+      padding-block: var(--space-16) var(--space-10);
+      background: var(--color-alice);
+      position: relative; overflow: hidden;
+    }
+    .topo-bg::before {
+      content: "";
+      position: absolute; inset: 0;
+      background-image:
+        radial-gradient(ellipse 80% 50% at 80% 50%, rgba(255,255,255,0) 0%, rgba(255,255,255,0.3) 100%),
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='600' viewBox='0 0 600 600'%3E%3Cg fill='none' stroke='%23000' stroke-width='0.5' stroke-opacity='0.04'%3E%3Cpath d='M0,300 Q150,200 300,300 T600,300'/%3E%3Cpath d='M0,260 Q150,160 300,260 T600,260'/%3E%3Cpath d='M0,340 Q150,240 300,340 T600,340'/%3E%3C/g%3E%3C/svg%3E");
+      pointer-events: none; z-index: 0;
+    }
+    .page-hero > * { position: relative; z-index: 1; }
+    .eyebrow {
+      display: inline-flex; align-items: center; gap: var(--space-2);
+      font-family: var(--font-display); font-size: 0.75rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.14em;
+      color: var(--color-resolution);
+      background: var(--color-white);
+      padding: var(--space-2) var(--space-4);
+      border-radius: 100px;
+      margin-bottom: var(--space-4);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    }
+    .page-hero h1 {
+      font-size: clamp(2.25rem, 4vw, 3rem);
+      letter-spacing: -0.025em;
+    }
+    .serif-italic {
+      font-family: var(--font-serif, "Plantin", Georgia, serif);
+      font-style: italic; font-weight: 500;
+      color: var(--color-resolution);
+    }
+    .page-hero__lede {
+      font-size: 1.25rem; color: var(--color-text-strong);
+      margin-top: var(--space-4); max-width: 640px;
+      line-height: 1.55;
+    }
+    .glossary-grid {
+      padding-block: var(--space-12) var(--space-20);
+    }
+    .glossary-grid__intro {
+      margin-bottom: var(--space-8);
+      padding-bottom: var(--space-6);
+      border-bottom: 1px solid var(--color-border);
+    }
+    .glossary-grid__intro-text {
+      margin: 0;
+      font-size: 0.9375rem; color: var(--color-text);
+    }
+    .glossary-grid__list {
+      list-style: none; margin: 0; padding: 0;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: var(--space-4);
+    }
+    .glossary-card {
+      display: block;
+      padding: var(--space-5);
+      background: var(--color-white);
+      border: 1px solid var(--color-border);
+      border-radius: 8px;
+      text-decoration: none; color: inherit;
+      transition: all 0.2s;
+    }
+    .glossary-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 16px rgba(0,0,0,0.06);
+      border-color: var(--color-resolution);
+    }
+    .glossary-card__term {
+      font-family: var(--font-display); font-weight: 700;
+      font-size: 1.0625rem;
+      margin: 0 0 var(--space-2);
+      letter-spacing: -0.01em;
+      color: var(--color-resolution);
+    }
+    .glossary-card__desc {
+      font-size: 0.875rem;
+      color: var(--color-text);
+      margin: 0;
+      line-height: 1.5;
+    }
+    .glossary-grid__empty {
+      text-align: center; padding: var(--space-12);
+      color: var(--color-text-muted);
+    }
+  </style>
+</BaseLayout>

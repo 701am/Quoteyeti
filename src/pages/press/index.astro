@@ -1,0 +1,126 @@
+---
+import BaseLayout from "~/layouts/BaseLayout.astro";
+---
+
+<BaseLayout
+  title="Press Room"
+  description="Press inquiries, media kit, and contact information for QuoteYeti."
+  breadcrumbs={[
+    { name: "Home", url: "/" },
+    { name: "Press", url: "/press/" },
+  ]}
+>
+  <section class="page-hero">
+    <div class="container">
+      <p class="eyebrow">Press</p>
+      <h1>For <span class="serif-italic">journalists</span></h1>
+      <p class="page-hero__lede">
+        QuoteYeti is an independent insurance research publisher. We publish editorial reviews, rate analysis, and consumer guides across eight insurance verticals. If you're working on a story involving insurance, we're happy to help.
+      </p>
+    </div>
+  </section>
+
+  <section class="container press-grid">
+    <div class="press-col">
+      <h2>What we cover</h2>
+      <p>QuoteYeti publishes original research and editorial across auto, home, life, business, health, renters, pet, and travel insurance. Areas of editorial focus:</p>
+      <ul>
+        <li>Carrier rate analysis and competitive market dynamics</li>
+        <li>State-level insurance regulation and consumer impact</li>
+        <li>Catastrophic-event response (hurricanes, wildfires, hail belts)</li>
+        <li>Claims experience and dispute resolution</li>
+        <li>Buying guides for major coverage decisions</li>
+      </ul>
+
+      <h2>How we make money</h2>
+      <p>QuoteYeti earns referral fees when readers click through to insurance carriers from our site. Some of the carriers we review pay these referral fees. Our editorial ratings are produced independently by our editorial team and are not influenced by which carriers participate in our referral network. We do not accept payment for placement or for favorable reviews.</p>
+
+      <h2>Editorial standards</h2>
+      <p>Our editorial methodology, including how ratings are constructed and how we handle conflicts of interest, is published on our <a href="/editorial/">editorial standards page</a>.</p>
+    </div>
+
+    <aside class="press-aside">
+      <h2>Contact</h2>
+      <p>For press inquiries, fact-checking, or interview requests:</p>
+      <p><strong>Email:</strong> <a href="mailto:press@quoteyeti.com">press@quoteyeti.com</a></p>
+      <p>We typically respond within one business day. For urgent deadlines, mention them in the subject line.</p>
+
+      <h2>Media kit</h2>
+      <p>Logos, screenshots, and editorial team bios are available on request.</p>
+
+      <h2>Linking</h2>
+      <p>Feel free to link to or quote any of our editorial content. We appreciate citation but don't require it. For substantial republication, please reach out.</p>
+    </aside>
+  </section>
+
+  <style>
+    .page-hero {
+      padding-block: var(--space-16) var(--space-10);
+      background: var(--color-alice);
+    }
+    .eyebrow {
+      display: inline-flex; align-items: center; gap: var(--space-2);
+      font-family: var(--font-display); font-size: 0.75rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.14em;
+      color: var(--color-resolution);
+      background: var(--color-white);
+      padding: var(--space-2) var(--space-4);
+      border-radius: 100px;
+      margin-bottom: var(--space-4);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    }
+    .page-hero h1 {
+      font-size: clamp(2.25rem, 4vw, 3rem);
+      letter-spacing: -0.025em;
+    }
+    .serif-italic {
+      font-family: var(--font-serif, "Plantin", Georgia, serif);
+      font-style: italic; font-weight: 500;
+      color: var(--color-resolution);
+    }
+    .page-hero__lede {
+      font-size: 1.25rem; color: var(--color-text-strong);
+      margin-top: var(--space-4); max-width: 720px;
+      line-height: 1.55;
+    }
+    .press-grid {
+      padding-block: var(--space-12) var(--space-20);
+      display: grid;
+      grid-template-columns: 1fr 320px;
+      gap: var(--space-10);
+      align-items: start;
+    }
+    .press-col h2 {
+      font-family: var(--font-display); font-weight: 700;
+      font-size: 1.5rem;
+      letter-spacing: -0.015em;
+      margin: var(--space-8) 0 var(--space-4);
+      color: var(--color-resolution);
+    }
+    .press-col h2:first-child { margin-top: 0; }
+    .press-col p { line-height: 1.65; margin-bottom: var(--space-5); }
+    .press-col ul { line-height: 1.6; margin-bottom: var(--space-5); padding-left: var(--space-6); }
+    .press-col li { margin-bottom: var(--space-2); }
+    .press-aside {
+      padding: var(--space-6);
+      background: var(--color-alice);
+      border-radius: 12px;
+      font-size: 0.9375rem;
+      position: sticky;
+      top: var(--space-6);
+    }
+    .press-aside h2 {
+      font-family: var(--font-display); font-weight: 700;
+      font-size: 1rem;
+      text-transform: uppercase; letter-spacing: 0.08em;
+      margin: var(--space-5) 0 var(--space-3);
+      color: var(--color-resolution);
+    }
+    .press-aside h2:first-child { margin-top: 0; }
+    .press-aside p { line-height: 1.55; margin-bottom: var(--space-3); }
+    @media (max-width: 920px) {
+      .press-grid { grid-template-columns: 1fr; }
+      .press-aside { position: static; }
+    }
+  </style>
+</BaseLayout>

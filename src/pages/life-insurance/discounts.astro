@@ -1,0 +1,105 @@
+---
+import TopicPage from "~/layouts/TopicPage.astro";
+import { VERTICALS } from "~/data/verticals";
+
+const v = VERTICALS.life;
+---
+
+<TopicPage
+  vertical={v}
+  topic="Discounts"
+  headline="Life insurance discounts (and rate classes that act like them)"
+  lede="Life insurance doesn't have 'discounts' the way auto or home insurance does. Instead, premium is determined by your underwriting rate class — and your behaviors and health profile can put you in a much better class."
+  sections={[
+    {
+      heading: "Rate classes — the real 'discount' structure",
+      body: `
+        <p>When you apply for life insurance, the carrier evaluates your health and lifestyle and assigns you to a rate class. The class determines your premium for the entire term.</p>
+        <p>Typical rate classes (in order of cheapest to most expensive):</p>
+        <ol>
+          <li><strong>Preferred Plus / Super Preferred</strong> — excellent health, ideal weight, no tobacco, clean family history, ideal cholesterol/blood pressure</li>
+          <li><strong>Preferred</strong> — very good health, slightly more flexibility than Preferred Plus</li>
+          <li><strong>Standard Plus</strong> — good health with some minor issues</li>
+          <li><strong>Standard</strong> — average health, some controlled conditions allowed</li>
+          <li><strong>Substandard / Rated</strong> — health issues that raise premiums by a fixed percentage</li>
+          <li><strong>Declined</strong> — uninsurable in the standard market</li>
+        </ol>
+        <p>The premium spread between Preferred Plus and Standard for the same coverage is typically 30-50%. The spread to Substandard can be 50-200%. Qualifying for a better rate class is the largest "discount" available in life insurance.</p>
+      `,
+    },
+    {
+      heading: "What qualifies for the best rate classes",
+      body: `
+        <p>Carriers vary, but typical Preferred Plus criteria include:</p>
+        <ul>
+          <li>BMI in the 18.5-27 range</li>
+          <li>Blood pressure under 130/80, not on medication</li>
+          <li>Total cholesterol under 220, ratio under 5.0</li>
+          <li>No tobacco use in 3-5 years (varies by carrier)</li>
+          <li>No DUI in 5+ years, clean driving record</li>
+          <li>No felony convictions</li>
+          <li>No risky hobbies (skydiving, racing, scuba diving below certain depths, private aviation)</li>
+          <li>No major health issues — no cancer, heart disease, diabetes, etc.</li>
+          <li>Clean family history — no parents/siblings with early heart disease or cancer death before 60</li>
+          <li>Stable financial profile (income, no recent bankruptcy)</li>
+        </ul>
+        <p>Standard Plus is more achievable for most applicants — same general criteria with slightly more lenient thresholds.</p>
+      `,
+    },
+    {
+      heading: "Behaviors that move you up rate classes",
+      body: `
+        <p>If you can wait, the following actions can save thousands over the life of a policy:</p>
+        <ul>
+          <li><strong>Quit smoking.</strong> Most carriers reclassify after 12 months tobacco-free; some require 24-36 months. Tobacco use roughly doubles premiums — quitting is the single largest "discount" available.</li>
+          <li><strong>Lose weight to ideal BMI.</strong> Weight is a major underwriting factor. Each rate class jump can save 15-25%.</li>
+          <li><strong>Control blood pressure.</strong> If you're on medication, get your numbers in ideal range and you can sometimes get a non-medicated reclassification.</li>
+          <li><strong>Manage cholesterol.</strong> Often achievable through diet, exercise, and (if needed) medication.</li>
+          <li><strong>Get a clean physical.</strong> If you have an annual physical with good results, your underwriter can pull those records to support a better rate class.</li>
+          <li><strong>Drop risky hobbies.</strong> If you stopped skydiving 5 years ago, you don't pay the skydiving premium anymore. Document the gap.</li>
+        </ul>
+      `,
+    },
+    {
+      heading: "Underwriting credits",
+      body: `
+        <p>Some carriers offer specific credits within the rate class system:</p>
+        <ul>
+          <li><strong>Family history credits</strong> — if you have long-lived parents (90+) and no early cancer or heart disease in immediate family</li>
+          <li><strong>Active lifestyle credit</strong> — some carriers credit regular exercise, athletic events, completed marathons, etc.</li>
+          <li><strong>Annual physical credit</strong> — having a recent clean physical can speed underwriting and support a better rate class</li>
+          <li><strong>Foreign travel credits</strong> — frequent travel to specific countries may be neutral or positive (or negative for high-risk destinations)</li>
+        </ul>
+      `,
+    },
+    {
+      heading: "Discounts that are real but small",
+      body: `
+        <ul>
+          <li><strong>Bundle (multi-line):</strong> some carriers offer 5-10% off life premiums when you also have auto or home with them. Often smaller than the equivalent auto/home bundle.</li>
+          <li><strong>Annual vs monthly payment:</strong> paying annually typically saves 3-7% vs monthly billing.</li>
+          <li><strong>Auto-pay / direct debit:</strong> small discount at many carriers.</li>
+          <li><strong>Quantity discount:</strong> some carriers offer better per-thousand pricing at certain coverage breakpoints (typically at $250K, $500K, $1M). Slightly more coverage can sometimes cost less per dollar.</li>
+        </ul>
+      `,
+    },
+    {
+      heading: "How to capture the maximum savings",
+      body: `
+        <ol>
+          <li><strong>If you can wait, improve your health markers first.</strong> 12-24 months of work on weight, BP, cholesterol, and tobacco cessation can shift you up 1-2 rate classes — that's 15-50% savings over a 20-30 year policy. Real money.</li>
+          <li><strong>Shop with an independent broker.</strong> Different carriers underwrite the same condition differently. One carrier's "Standard" can be another carrier's "Preferred." A broker can shop the same application across carriers.</li>
+          <li><strong>Choose a carrier whose underwriting niche matches your profile.</strong> Some carriers are friendlier to specific conditions (anxiety, controlled depression, recreational marijuana use, diabetes, asthma) than others.</li>
+          <li><strong>Get the full medical exam.</strong> Fully-underwritten policies cost 10-30% less than no-exam policies. The exam takes 30 minutes and is free.</li>
+          <li><strong>Re-shop at health milestones.</strong> Lost weight, quit smoking, controlled BP, completed marathon — these are reasons to re-apply or request rate reconsideration with your existing carrier.</li>
+        </ol>
+      `,
+    },
+  ]}
+  related={[
+    { label: "Cheapest life insurance", href: "/life-insurance/cheapest/", desc: "Where to actually get competitive rates" },
+    { label: "How much do I need?", href: "/life-insurance/how-much-do-i-need/", desc: "Right-sizing coverage" },
+    { label: "Types of coverage", href: "/life-insurance/coverage-types/", desc: "Term, whole, universal, IUL" },
+    { label: "Life FAQs", href: "/life-insurance/faqs/", desc: "Quick answers to common questions" },
+  ]}
+/>

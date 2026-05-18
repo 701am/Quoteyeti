@@ -1,0 +1,60 @@
+---
+import TopicPage from "~/layouts/TopicPage.astro";
+import { VERTICALS } from "~/data/verticals";
+
+const v = VERTICALS.auto;
+---
+
+<TopicPage
+  vertical={v}
+  topic="Cheapest"
+  headline="Cheapest car insurance"
+  lede="The cheapest auto insurance is the carrier that prices your specific profile, in your specific ZIP, with your specific driving record most aggressively. There is no single 'cheapest' carrier. There's a cheapest carrier for you."
+  sections={[
+    {
+      heading: "The cheapest carriers, by profile",
+      body: `
+        <p>Industry rate data consistently shows the same handful of carriers in the top 3 for affordability across most baseline profiles. But none of them is cheapest for everyone — pricing varies dramatically by ZIP code, age, credit, vehicle, and driving history.</p>
+        <p><strong>For typical adult drivers with clean records:</strong> USAA (if you qualify), GEICO, and State Farm tend to lead in nationwide rate studies. USAA is consistently cheapest where eligible — but only military members and their families qualify.</p>
+        <p><strong>For drivers with prior tickets, accidents, or DUIs:</strong> Progressive and The General specialize in non-standard underwriting and often beat the major carriers for these profiles.</p>
+        <p><strong>For young drivers under 25:</strong> Erie Insurance (where available), GEICO, and USAA tend to compete most aggressively. Travelers' multi-policy bundling can help if a parent has a policy with them.</p>
+        <p><strong>For seniors over 65:</strong> The Hartford's AARP program is structurally competitive for AARP members. State Farm and USAA also tend to price favorably.</p>
+      `,
+    },
+    {
+      heading: "Why 'cheapest' isn't a single answer",
+      body: `
+        <p>Every carrier uses its own actuarial model. One carrier might weight your credit score heavily; another might emphasize garaging ZIP; a third might focus on driving record. The same driver can get quoted within a 40-60% spread across major carriers for identical coverage.</p>
+        <p>This isn't arbitrary. Carriers compete for different segments. The cheapest carrier for a 28-year-old in Dallas with a clean record and excellent credit is rarely the cheapest carrier for a 55-year-old in Phoenix with one ticket and average credit.</p>
+        <p>The implication: stop asking "who's cheapest" and start asking "who's cheapest <em>for me</em>." The only way to find out is to get quotes from at least 5 carriers for identical coverage and compare line-by-line.</p>
+      `,
+    },
+    {
+      heading: "How to actually get the cheapest rate",
+      body: `
+        <p>Five things that move the needle:</p>
+        <ol>
+          <li><strong>Shop at least 5 carriers</strong> for identical coverage. Include one major national (GEICO, Progressive, State Farm), one regional carrier specific to your state, and one specialty if applicable (USAA for military, Erie if available, The Hartford if AARP-eligible).</li>
+          <li><strong>Raise your deductible</strong> if you can comfortably pay it out of pocket. $500 → $1,000 typically saves 10-15% in premium.</li>
+          <li><strong>Bundle home or renters</strong> — typical savings 10-25%, sometimes more.</li>
+          <li><strong>Enroll in telematics</strong> if you're a careful driver. Progressive Snapshot, Allstate Drivewise, State Farm Drive Safe & Save commonly produce 15-30% savings for safe drivers.</li>
+          <li><strong>Improve your credit</strong> if you live in a state that allows credit-based insurance scoring (47 states + DC do; California, Hawaii, and Massachusetts don't). A 100-point credit improvement can produce double-digit premium savings at most carriers.</li>
+        </ol>
+        <p>The combined effect: drivers who do all five typically pay 30-50% less than drivers who do none. That's a real, repeatable saving — not marketing.</p>
+      `,
+    },
+    {
+      heading: "Cheapest by state",
+      body: `
+        <p>Auto insurance is state-regulated, and the cheapest carriers vary significantly by state. State-level rate filings drive carrier-specific pricing in each market.</p>
+        <p>For state-by-state breakdowns of rates, minimum coverage requirements, and the most competitively-priced carriers in each market, see our <a href="/auto/by-state/">auto insurance by state</a> guide.</p>
+      `,
+    },
+  ]}
+  related={[
+    { label: "Best car insurance", href: "/auto/best/", desc: "Top-ranked carriers by overall quality" },
+    { label: "By state", href: "/auto/by-state/", desc: "Rates and rules where you live" },
+    { label: "Common discounts", href: "/auto/discounts/", desc: "The discounts that actually move premiums" },
+    { label: "How much do I need?", href: "/auto/how-much-do-i-need/", desc: "Sizing coverage to your situation" },
+  ]}
+/>

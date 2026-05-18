@@ -1,0 +1,134 @@
+---
+import BaseLayout from "~/layouts/BaseLayout.astro";
+import { getCollection, render } from "astro:content";
+import { VERTICALS } from "~/data/verticals";
+
+export async function getStaticPaths() {
+  const locations = await getCollection("life-locations", ({ data }) => !data.draft);
+  return locations.map((entry) => ({ params: { slug: entry.id }, props: { entry } }));
+}
+
+const { entry } = Astro.props;
+const { Content } = await render(entry);
+const d = entry.data;
+const v = VERTICALS.life;
+---
+
+<BaseLayout
+  title={d.seoTitle ?? d.title}
+  description={d.seoDescription ?? d.description ?? ""}
+  breadcrumbs={[
+    { name: "Home", url: "/" },
+    { name: v.short, url: v.path },
+    { name: "By state", url: `${v.path}by-state/` },
+    { name: d.title, url: `${v.path}by-state/${entry.id}/` },
+  ]}
+>
+  <article>
+    <header class="entry-hero">
+      <div class="container">
+        <nav class="breadcrumbs" aria-label="Breadcrumb">
+          <a href="/">Home</a> › <a href={v.path}>{v.short}</a> › <a href={`${v.path}by-state/`}>By state</a> › <span>{d.title}</span>
+        </nav>
+        <p class="eyebrow">
+          <img src={v.icon} alt="" width="18" height="18" />
+          <span>{v.label} · State Guide</span>
+        </p>
+        <h1>{d.title}</h1>
+        {d.description && <p class="entry-hero__lede">{d.description}</p>}
+        {(d.state || d.averageRate || d.minLiabilityRequired) && (
+          <ul class="entry-hero__facts" aria-label="State facts">
+            {d.state && <li><strong>State:</strong> {d.state} ({d.stateAbbr})</li>}
+            {d.averageRate && <li><strong>Avg annual rate:</strong> ${d.averageRate.toLocaleString()}</li>}
+            {d.minLiabilityRequired && <li><strong>Min liability:</strong> {d.minLiabilityRequired}</li>}
+          </ul>
+        )}
+      </div>
+    </header>
+    <div class="container-narrow entry-body"><Content /></div>
+  </article>
+
+  <style>
+    .entry-hero {
+      padding-block: var(--space-14) var(--space-10);
+      background: var(--section-accent-soft);
+      border-bottom: 1px solid var(--color-border);
+    }
+    .breadcrumbs { font-size: 0.875rem; color: var(--color-text-muted); margin-bottom: var(--space-5); }
+    .breadcrumbs a { color: var(--color-text-muted); text-decoration: none; }
+    .breadcrumbs a:hover { color: var(--section-accent); }
+    .eyebrow {
+      display: inline-flex; align-items: center; gap: var(--space-2);
+      font-family: var(--font-display); font-size: 0.75rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.14em;
+      color: var(--section-accent);
+      background: var(--color-white);
+      padding: var(--space-2) var(--space-4);
+      border-radius: 100px;
+      margin: 0 0 var(--space-5);
+    }
+    .entry-hero h1 {
+      font-size: clamp(2rem, 3.5vw, 2.625rem);
+      letter-spacing: -0.025em;
+      line-height: 1.15;
+      margin: 0 0 var(--space-4);
+    }
+    .entry-hero__lede {
+      font-size: 1.1875rem; color: var(--color-text-strong);
+      line-height: 1.55; margin: 0;
+    }
+    .entry-hero__facts {
+      list-style: none; padding: 0;
+      margin: var(--space-6) 0 0;
+      display: flex; flex-wrap: wrap; gap: var(--space-3) var(--space-6);
+      font-size: 0.9375rem;
+      color: var(--color-text);
+    }
+    .entry-hero__facts li {
+      padding: var(--space-2) var(--space-4);
+      background: var(--color-white);
+      border-radius: 6px;
+      border: 1px solid var(--color-border);
+    }
+    .entry-hero__facts strong { color: var(--section-accent); margin-right: var(--space-2); }
+    .entry-body {
+      padding-block: var(--space-12) var(--space-20);
+      font-size: 1.0625rem; line-height: 1.7;
+    }
+    .entry-body :global(h2) {
+      font-family: var(--font-display); font-weight: 700;
+      font-size: 1.5rem;
+      margin-top: var(--space-10); margin-bottom: var(--space-5);
+      letter-spacing: -0.015em;
+      color: var(--color-resolution);
+    }
+    .entry-body :global(h3) {
+      font-family: var(--font-display); font-weight: 700;
+      font-size: 1.1875rem;
+      margin-top: var(--space-7); margin-bottom: var(--space-4);
+      color: var(--color-resolution);
+    }
+    .entry-body :global(p) { margin-bottom: var(--space-5); }
+    .entry-body :global(ul), .entry-body :global(ol) {
+      margin-bottom: var(--space-5); padding-left: var(--space-6);
+    }
+    .entry-body :global(li) { margin-bottom: var(--space-2); }
+    .entry-body :global(strong) { color: var(--color-resolution); }
+    .entry-body :global(table) {
+      width: 100%; border-collapse: collapse;
+      margin-bottom: var(--space-6);
+      font-size: 0.9375rem;
+    }
+    .entry-body :global(th),
+    .entry-body :global(td) {
+      padding: var(--space-3) var(--space-4);
+      border-bottom: 1px solid var(--color-border);
+      text-align: left;
+    }
+    .entry-body :global(th) {
+      font-family: var(--font-display); font-weight: 700;
+      color: var(--color-resolution);
+      background: var(--color-alice);
+    }
+  </style>
+</BaseLayout>

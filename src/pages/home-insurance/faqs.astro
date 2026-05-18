@@ -1,0 +1,88 @@
+---
+import TopicPage from "~/layouts/TopicPage.astro";
+import { VERTICALS } from "~/data/verticals";
+
+const v = VERTICALS.home;
+---
+
+<TopicPage
+  vertical={v}
+  topic="FAQs"
+  headline="Home insurance, demystified"
+  lede="Plain answers to the questions homeowners actually ask. No marketing language, no hidden gotchas."
+  sections={[
+    {
+      heading: "The basics",
+      body: `
+        <h3>Is home insurance required?</h3>
+        <p>Not by law in any state. But it's required by every mortgage lender. If you have a mortgage, you must carry home insurance — the lender will force-place coverage (much more expensive) if you let it lapse. Even if you own outright, going without homeowners insurance is one of the riskiest financial decisions you can make.</p>
+
+        <h3>What does a standard home insurance policy cover?</h3>
+        <p>A typical homeowners policy (HO-3) covers your dwelling structure, other structures on your property (detached garage, shed), personal property, loss of use (alternative living expenses), personal liability, and medical payments to others. It pays for damage from a list of covered perils — fire, wind, hail, theft, vandalism, falling objects, weight of ice/snow, water damage from plumbing failures, and others.</p>
+
+        <h3>What does home insurance NOT cover?</h3>
+        <p>Standard policies typically exclude: flood, earthquake, wind/hurricane in coastal areas, sewer backup, mold (mostly), termites and pests, normal wear and tear, and intentional damage. Most of these gaps can be filled with separate policies or endorsements.</p>
+
+        <h3>How is the premium calculated?</h3>
+        <p>Carriers look at your home's replacement cost, location (ZIP code claim history, catastrophe risk, fire department distance), construction (materials, age, roof type and age), claim history, credit-based insurance score (in most states), and the coverage limits and deductible you choose.</p>
+      `,
+    },
+    {
+      heading: "Buying and shopping",
+      body: `
+        <h3>How much home insurance do I need?</h3>
+        <p>Your dwelling coverage should equal the home's replacement cost — not the market value, not the mortgage balance. See our <a href="/home-insurance/how-much-do-i-need/">sizing guide</a> for a full walkthrough.</p>
+
+        <h3>How often should I shop for home insurance?</h3>
+        <p>Every 2-3 years at minimum, or after major life events (renovation, new roof, claim history change). Premiums drift upward at renewal — re-shopping keeps your current carrier honest and surfaces better options.</p>
+
+        <h3>Should I bundle home and auto?</h3>
+        <p>Usually yes. Multi-policy bundling typically saves 10-25%, the single largest discount in home insurance. Verify both the home premium and auto premium are competitive separately, not just the bundle total.</p>
+
+        <h3>What's the difference between replacement cost and actual cash value?</h3>
+        <p>Replacement cost pays what it costs to replace a damaged item with a new equivalent. Actual cash value (ACV) pays the depreciated value — your 8-year-old TV pays out at $80 instead of $400. Always pick replacement cost coverage when given the option. The premium difference is small; the payout difference is large.</p>
+      `,
+    },
+    {
+      heading: "Claims",
+      body: `
+        <h3>When should I file a claim?</h3>
+        <p>When the damage clearly exceeds your deductible AND the expected payout justifies the impact on your loss history. Each claim — even one you don't pursue beyond initial inquiry — can affect your premiums and renewability for 5+ years. Small claims under $2,000 are often not worth filing.</p>
+
+        <h3>How do I file a claim?</h3>
+        <p>Document the damage immediately (photos, video), make temporary repairs to prevent further damage, contact your carrier, get repair estimates from licensed contractors, and keep records of everything. Your carrier will assign an adjuster who'll inspect and authorize repairs.</p>
+
+        <h3>Will my premium go up after a claim?</h3>
+        <p>Probably. Carriers track claims through the CLUE (Comprehensive Loss Underwriting Exchange) database. A claim typically raises premiums 10-25% at renewal and stays on your record for 5-7 years. Multiple claims can trigger non-renewal.</p>
+
+        <h3>What if my claim is denied?</h3>
+        <p>Ask for the denial in writing with specific policy references. Review your policy yourself — claims are sometimes denied based on adjuster interpretation that doesn't match the policy language. You can appeal internally, file a complaint with your state insurance department, or hire a public adjuster or attorney for substantial disputes.</p>
+      `,
+    },
+    {
+      heading: "Specific situations",
+      body: `
+        <h3>Do I need flood insurance?</h3>
+        <p>Yes if you're in a designated flood zone (lender will require it). Consider it even outside flood zones — about 25% of flood claims come from properties not in high-risk zones. NFIP and private flood policies both available, with private flood often cheaper for non-extreme-risk properties.</p>
+
+        <h3>Do I need earthquake insurance?</h3>
+        <p>Required in some places (especially California) if you want earthquake coverage, since it's excluded from standard policies. Premium varies dramatically by location and construction type. Worth considering anywhere with seismic risk; deductibles are typically high (10-20% of dwelling).</p>
+
+        <h3>What about pets and liability?</h3>
+        <p>Most policies cover dog bites under personal liability, but some carriers exclude specific breeds (pit bulls, rottweilers, dobermans, German shepherds) or require an endorsement. Verify your carrier's policy if you have a dog. Pet liability claims average $50K+ when they happen — important coverage.</p>
+
+        <h3>What if I'm renovating?</h3>
+        <p>Notify your carrier before major renovations. Add a "dwelling under construction" or "renovations in progress" endorsement. The increased value and construction risk affect underwriting. After completion, update your dwelling limit to reflect the new replacement cost.</p>
+
+        <h3>What if I rent out my home (Airbnb)?</h3>
+        <p>Most standard homeowners policies exclude or severely limit coverage for short-term rentals. You typically need a separate landlord/business endorsement or a stand-alone landlord policy if you rent regularly. Airbnb's Host Protection has gaps — don't rely on it as your only coverage.</p>
+      `,
+    },
+  ]}
+  related={[
+    { label: "How much do I need?", href: "/home-insurance/how-much-do-i-need/", desc: "Sizing your coverage" },
+    { label: "Coverage types", href: "/home-insurance/coverage-types/", desc: "Each line item explained" },
+    { label: "Common discounts", href: "/home-insurance/discounts/", desc: "Lower the premium" },
+    { label: "Cheapest home insurance", href: "/home-insurance/cheapest/", desc: "Who actually competes" },
+  ]}
+/>

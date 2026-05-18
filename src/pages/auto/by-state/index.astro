@@ -1,0 +1,221 @@
+---
+import BaseLayout from "~/layouts/BaseLayout.astro";
+import { getCollection } from "astro:content";
+import { VERTICALS } from "~/data/verticals";
+
+const v = VERTICALS.auto;
+const locations = await getCollection("auto-locations", ({ data }) => !data.draft);
+
+// Sort by state name (or fall back to title)
+locations.sort((a, b) => {
+  const aName = a.data.state ?? a.data.title;
+  const bName = b.data.state ?? b.data.title;
+  return aName.localeCompare(bName);
+});
+---
+
+<BaseLayout
+  title={`${v.label} by State`}
+  description={`Average ${v.short.toLowerCase()} insurance rates, minimum coverage requirements, and top carriers by state.`}
+  breadcrumbs={[
+    { name: "Home", url: "/" },
+    { name: v.short, url: v.path },
+    { name: "By state", url: `${v.path}by-state/` },
+  ]}
+>
+  <section class="page-hero topo-bg">
+    <div class="container">
+      <nav class="breadcrumbs" aria-label="Breadcrumb">
+        <a href="/">Home</a>
+        <span class="breadcrumbs__sep" aria-hidden="true">›</span>
+        <a href={v.path}>{v.short}</a>
+        <span class="breadcrumbs__sep" aria-hidden="true">›</span>
+        <span aria-current="page">By state</span>
+      </nav>
+      <p class="eyebrow">
+        <img src={v.icon} alt="" width="18" height="18" />
+        {v.label}
+      </p>
+      <h1>
+        Rates by <span class="serif-italic">state</span>
+      </h1>
+      <p class="page-hero__lede">
+        Auto insurance is a state-regulated product. Premiums, minimum coverage requirements, and the cheapest carriers vary by where you live. Pick your state below.
+      </p>
+    </div>
+  </section>
+
+  <section class="container index-list">
+    {locations.length === 0 ? (
+      <div class="empty-state">
+        <p class="empty-state__eyebrow">No states yet</p>
+        <h2>State pages coming soon</h2>
+        <a href={v.path} class="btn-tertiary">Back to {v.short} →</a>
+      </div>
+    ) : (
+      <ul class="index-list__grid">
+        {locations.map((entry) => (
+          <li>
+            <a href={`${v.path}by-state/${entry.id}/`} class="state-card">
+              <div class="state-card__head">
+                <h2 class="state-card__name">{entry.data.state ?? entry.data.title}</h2>
+                {entry.data.stateAbbr && <span class="state-card__abbr">{entry.data.stateAbbr}</span>}
+              </div>
+              {entry.data.averageRate && (
+                <p class="state-card__rate">
+                  <span class="state-card__rate-label">Avg/yr</span>
+                  <span class="state-card__rate-value">${entry.data.averageRate.toLocaleString()}</span>
+                </p>
+              )}
+              <span class="state-card__cta">
+                Read guide
+                <svg width="14" height="12" viewBox="0 0 14 12" fill="none" aria-hidden="true">
+                  <path d="M8 1l5 5-5 5M1 6h12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </span>
+            </a>
+          </li>
+        ))}
+      </ul>
+    )}
+  </section>
+
+  <style>
+    .page-hero {
+      padding-block: var(--space-16) var(--space-10);
+      background: var(--section-accent-soft);
+      position: relative; overflow: hidden;
+    }
+    .topo-bg::before {
+      content: "";
+      position: absolute; inset: 0;
+      background-image:
+        radial-gradient(ellipse 80% 50% at 80% 50%, rgba(255,255,255,0) 0%, rgba(255,255,255,0.3) 100%),
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='600' viewBox='0 0 600 600'%3E%3Cg fill='none' stroke='%23000' stroke-width='0.5' stroke-opacity='0.04'%3E%3Cpath d='M0,300 Q150,200 300,300 T600,300'/%3E%3Cpath d='M0,260 Q150,160 300,260 T600,260'/%3E%3Cpath d='M0,340 Q150,240 300,340 T600,340'/%3E%3C/g%3E%3C/svg%3E");
+      pointer-events: none; z-index: 0;
+    }
+    .page-hero > * { position: relative; z-index: 1; }
+    .breadcrumbs {
+      font-size: 0.8125rem; color: var(--color-text-muted);
+      margin-bottom: var(--space-5);
+      display: flex; align-items: center; gap: var(--space-2); flex-wrap: wrap;
+    }
+    .breadcrumbs a { color: var(--color-text-muted); text-decoration: none; }
+    .breadcrumbs a:hover { color: var(--section-accent); }
+    .breadcrumbs__sep { opacity: 0.4; }
+    .eyebrow {
+      display: inline-flex; align-items: center; gap: var(--space-2);
+      font-family: var(--font-display); font-size: 0.75rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.14em;
+      color: var(--section-accent);
+      background: var(--color-white);
+      padding: var(--space-2) var(--space-4);
+      border-radius: 100px;
+      margin-bottom: var(--space-4);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    }
+    .page-hero h1 {
+      font-size: clamp(2.25rem, 4vw, 3rem);
+      letter-spacing: -0.025em;
+    }
+    .serif-italic {
+      font-family: var(--font-serif, "Plantin", Georgia, serif);
+      font-style: italic; font-weight: 500;
+      color: var(--section-accent);
+    }
+    .page-hero__lede {
+      font-size: 1.25rem; color: var(--color-text-strong);
+      margin-top: var(--space-4); max-width: 640px;
+      line-height: 1.55;
+    }
+    .index-list { padding-block: var(--space-12) var(--space-20); }
+    .index-list__grid {
+      list-style: none; margin: 0; padding: 0;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: var(--space-4);
+    }
+    .state-card {
+      display: block;
+      padding: var(--space-6);
+      background: var(--color-white);
+      border: 1px solid var(--color-border);
+      border-radius: 12px;
+      text-decoration: none; color: inherit;
+      transition: all 0.2s ease;
+    }
+    .state-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 24px rgba(0,0,0,0.06);
+      border-color: var(--section-accent);
+    }
+    .state-card__head {
+      display: flex; justify-content: space-between; align-items: baseline;
+      margin-bottom: var(--space-3);
+      gap: var(--space-3);
+    }
+    .state-card__name {
+      font-family: var(--font-display); font-weight: 700;
+      font-size: 1.25rem;
+      margin: 0;
+      letter-spacing: -0.015em;
+      color: var(--color-resolution);
+    }
+    .state-card__abbr {
+      font-family: var(--font-display); font-weight: 700;
+      font-size: 0.75rem;
+      color: var(--section-accent);
+      background: var(--section-accent-soft);
+      padding: 2px 6px;
+      border-radius: 4px;
+      letter-spacing: 0.05em;
+    }
+    .state-card__rate {
+      display: flex; align-items: baseline; gap: var(--space-2);
+      margin: 0 0 var(--space-4);
+      font-size: 0.875rem;
+    }
+    .state-card__rate-label {
+      color: var(--color-text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-size: 0.6875rem;
+      font-weight: 700;
+      font-family: var(--font-display);
+    }
+    .state-card__rate-value {
+      font-family: var(--font-display);
+      font-weight: 700;
+      color: var(--section-accent);
+      font-size: 1rem;
+    }
+    .state-card__cta {
+      display: inline-flex; align-items: center; gap: var(--space-2);
+      font-family: var(--font-display); font-weight: 700;
+      font-size: 0.75rem;
+      color: var(--section-accent);
+      text-transform: uppercase; letter-spacing: 0.08em;
+    }
+    .state-card__cta svg { transition: transform 0.2s; }
+    .state-card:hover .state-card__cta svg { transform: translateX(3px); }
+    .empty-state {
+      text-align: center;
+      padding: var(--space-12) var(--space-6);
+    }
+    .empty-state__eyebrow {
+      font-family: var(--font-display);
+      font-size: 0.75rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.16em;
+      color: var(--section-accent);
+      margin: 0 0 var(--space-4);
+    }
+    .btn-tertiary {
+      font-family: var(--font-display); font-weight: 600;
+      font-size: 0.9375rem;
+      color: var(--section-accent);
+      text-decoration: none;
+      border-bottom: 1px solid var(--section-accent);
+      padding-bottom: 2px;
+    }
+  </style>
+</BaseLayout>

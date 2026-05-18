@@ -1,0 +1,111 @@
+---
+import TopicPage from "~/layouts/TopicPage.astro";
+import { VERTICALS } from "~/data/verticals";
+
+const v = VERTICALS.business;
+---
+
+<TopicPage
+  vertical={v}
+  topic="Discounts"
+  headline="Business insurance discounts that actually matter"
+  lede="Commercial insurance discounts are smaller than personal-line discounts — but structural choices and bundling can produce significant savings. Here's where the real money is."
+  sections={[
+    {
+      heading: "BOP bundling — the biggest single discount",
+      body: `
+        <p>A <strong>Business Owner's Policy</strong> bundles general liability + commercial property + business interruption into one policy. The bundle pricing is typically 10-25% cheaper than buying these coverages separately.</p>
+        <p>Almost any small service business, retail, restaurant, or office-based business qualifies. If you're buying these coverages individually, you're almost certainly overpaying.</p>
+        <p>Check BOP eligibility with your broker — eligibility criteria vary by carrier, but most carriers accept businesses under $1M-$5M revenue in eligible business classes.</p>
+      `,
+    },
+    {
+      heading: "Package and multi-policy discounts",
+      body: `
+        <ul>
+          <li><strong>Multi-line bundling:</strong> 5-15% off when you have GL + workers' comp + commercial auto with the same carrier</li>
+          <li><strong>Personal + commercial bundling:</strong> some carriers (Travelers, The Hartford, Allstate) offer cross-line discounts if you have your personal auto/home with them too</li>
+          <li><strong>Affiliate / membership discounts:</strong> chamber of commerce, BBB, industry associations sometimes have negotiated group rates</li>
+        </ul>
+      `,
+    },
+    {
+      heading: "Underwriting discounts",
+      body: `
+        <p>Discounts based on how you operate:</p>
+        <ul>
+          <li><strong>Claim-free history:</strong> 5-15% after 3+ years claim-free</li>
+          <li><strong>Years in business:</strong> established businesses (3+ years) often get 5-10% better rates than startups</li>
+          <li><strong>Safety programs:</strong> documented safety training, written safety policies, regular drills</li>
+          <li><strong>Risk management:</strong> documented procedures for hiring, training, sub-contracting</li>
+          <li><strong>Industry certifications:</strong> OSHA training, trade certifications, ISO certifications</li>
+        </ul>
+      `,
+    },
+    {
+      heading: "Workers' compensation: the experience modifier",
+      body: `
+        <p>Workers' comp premium is determined by your industry classification × your payroll × your <strong>experience modification rating (e-mod)</strong>.</p>
+        <p>The e-mod is the largest lever you control:</p>
+        <ul>
+          <li>1.00 = average for your industry</li>
+          <li>Below 1.00 = better than average; pays less premium</li>
+          <li>Above 1.00 = worse than average; pays more premium</li>
+        </ul>
+        <p>A businesss with an e-mod of 0.85 pays 15% less for the same workers' comp coverage than a business at 1.00 (and 25-30% less than a 1.10 business).</p>
+        <p>How to improve your e-mod:</p>
+        <ul>
+          <li><strong>Active safety program</strong> — documented, regularly reviewed, with employee training</li>
+          <li><strong>Return-to-work programs</strong> — bring injured workers back in light-duty roles quickly</li>
+          <li><strong>Manage claim costs</strong> — work with adjusters to control medical and indemnity costs</li>
+          <li><strong>Verify your industry code</strong> — many businesses are miscoded into higher-risk classes than necessary</li>
+        </ul>
+        <p>For a business with $500K in payroll in a moderately-rated class, a 0.10 difference in e-mod can be $5,000-$15,000+ per year in premium.</p>
+      `,
+    },
+    {
+      heading: "Premium audits — sometimes a refund",
+      body: `
+        <p>Workers' comp and some GL policies are <strong>audit-rated</strong> — you pay an estimated premium upfront based on projected payroll/revenue, then the carrier audits actual numbers at year-end and adjusts.</p>
+        <p>If your actual payroll or revenue came in below projection, you typically get a <strong>refund</strong>. Many businesses miss this:</p>
+        <ul>
+          <li>Submit audit documentation promptly</li>
+          <li>Classify employees correctly (some classes pay much less than others)</li>
+          <li>Exclude payroll for owners and corporate officers where state law allows</li>
+          <li>Separate subcontractor payments from employee payroll (subs should have their own coverage)</li>
+        </ul>
+      `,
+    },
+    {
+      heading: "Structural choices that lower premium",
+      body: `
+        <ul>
+          <li><strong>Higher deductibles</strong> on property and inland marine — typically 10-25% savings for moving from $500 to $2,500</li>
+          <li><strong>Pay annually rather than monthly</strong> — saves 3-7% in installment fees</li>
+          <li><strong>Right-size your limits</strong> — buying $5M GL when $1M meets your contracts is wasted premium</li>
+          <li><strong>Choose admitted carriers when available</strong> — admitted carriers (state-regulated) often offer better pricing than surplus-lines carriers for standard risks</li>
+          <li><strong>Consolidate carriers</strong> — having all your business coverage with one carrier triggers multi-line discounts and simplifies claim management</li>
+        </ul>
+      `,
+    },
+    {
+      heading: "How to actually capture the savings",
+      body: `
+        <ol>
+          <li><strong>Work with an independent commercial broker.</strong> They can shop your account across multiple carriers and find structural savings consumers miss. Brokers are paid by the carriers, not you.</li>
+          <li><strong>Get a BOP if eligible.</strong> Single biggest discount available.</li>
+          <li><strong>Verify your industry classification annually.</strong> Misclassification can cost 30%+ in premium.</li>
+          <li><strong>Build a safety program</strong> and document it. The e-mod savings on workers' comp compound year over year.</li>
+          <li><strong>Don't skip the year-end audit</strong> on audit-rated policies. Submit accurate numbers — overpaying is common.</li>
+          <li><strong>Shop at renewal.</strong> Commercial premiums often drift upward at renewal; getting comparison quotes keeps your current carrier honest.</li>
+        </ol>
+      `,
+    },
+  ]}
+  related={[
+    { label: "Cheapest business insurance", href: "/business-insurance/cheapest/", desc: "Who competes on price by industry" },
+    { label: "How much do I need?", href: "/business-insurance/how-much-do-i-need/", desc: "Right-sizing each coverage" },
+    { label: "Coverage types", href: "/business-insurance/coverage-types/", desc: "GL, BOP, PL, cyber, workers' comp" },
+    { label: "Business FAQs", href: "/business-insurance/faqs/", desc: "Quick answers to common questions" },
+  ]}
+/>

@@ -1,0 +1,101 @@
+---
+import TopicPage from "~/layouts/TopicPage.astro";
+import { VERTICALS } from "~/data/verticals";
+
+const v = VERTICALS.home;
+---
+
+<TopicPage
+  vertical={v}
+  topic="How much do I need?"
+  headline="How much home insurance do you actually need?"
+  lede="The standard advice — 'just cover your mortgage' — misses the point entirely. Your mortgage is what you owe. Insurance should cover what it would cost to rebuild."
+  sections={[
+    {
+      heading: "Dwelling coverage: the big number",
+      body: `
+        <p>Your dwelling coverage should equal the <strong>replacement cost</strong> of your home — what it would cost to rebuild from scratch with current materials, labor, and code requirements. Not the market value. Not the purchase price. Not the mortgage balance.</p>
+        <p>Why these are different:</p>
+        <ul>
+          <li><strong>Market value</strong> includes land, which doesn't need to be rebuilt</li>
+          <li><strong>Purchase price</strong> reflects market conditions when you bought; replacement cost changes with material and labor costs</li>
+          <li><strong>Mortgage balance</strong> is what you owe to the lender, completely unrelated to rebuild cost</li>
+        </ul>
+        <p>Replacement costs have risen significantly post-2020. Many homeowners are underinsured by 20-40% relative to current rebuild costs. Get a fresh estimate at least every 3 years.</p>
+        <p>Best estimation: use a carrier replacement-cost estimator (every major carrier has one), then cross-check against a local contractor's per-square-foot estimate.</p>
+      `,
+    },
+    {
+      heading: "Personal property: 50-75% of dwelling",
+      body: `
+        <p>Personal property coverage protects your belongings — furniture, electronics, clothing, tools. Default is usually 50-75% of dwelling coverage, automatically calculated by the carrier.</p>
+        <p>Two important sub-decisions:</p>
+        <ul>
+          <li><strong>Replacement cost vs. actual cash value:</strong> always pick replacement cost. ACV depreciates older items — your 8-year-old TV pays out at $80 instead of $400. Replacement cost is typically only $30-$80 more per year. Worth it.</li>
+          <li><strong>High-value item limits:</strong> jewelry, firearms, fine art, collectibles, and electronics often have sublimits (typically $1,500-$5,000). Items above the sublimit need a <strong>scheduled rider</strong> with documented appraisals.</li>
+        </ul>
+      `,
+    },
+    {
+      heading: "Liability: the same logic as auto",
+      body: `
+        <p>Liability coverage protects you if someone is injured at your home or you cause damage off-property. Standard is $100,000-$300,000; smart baseline is $300,000-$500,000.</p>
+        <p>Higher-net-worth households should pair $500K of home liability with an umbrella policy ($1M-$2M of additional liability for typically $200-$400/year).</p>
+        <p>Especially important if you have:</p>
+        <ul>
+          <li>A pool or trampoline</li>
+          <li>A dog (especially breeds insurers flag as higher-risk)</li>
+          <li>Frequent guests or social entertaining</li>
+          <li>Teen drivers in the household</li>
+        </ul>
+      `,
+    },
+    {
+      heading: "Loss of use: the underrated coverage",
+      body: `
+        <p>Loss of use (also called Additional Living Expenses or ALE) pays for housing, food, and necessary expenses while your home is being repaired after a covered loss.</p>
+        <p>Standard is 20-30% of dwelling coverage. After a major loss, this could mean 6-12+ months of temporary housing. Underestimating this is common.</p>
+        <p>Read the fine print: some policies cap loss of use by time (12 or 24 months) and by amount. Both matter.</p>
+      `,
+    },
+    {
+      heading: "What standard policies do NOT cover",
+      body: `
+        <p>The most expensive surprises after a loss come from finding out something wasn't covered. Standard policies typically <strong>do not cover</strong>:</p>
+        <ul>
+          <li><strong>Flood</strong> — separate NFIP or private flood policy required</li>
+          <li><strong>Earthquake</strong> — separate endorsement or stand-alone policy</li>
+          <li><strong>Wind/hurricane in coastal areas</strong> — separate deductible or excluded entirely</li>
+          <li><strong>Sewer backup</strong> — endorsement typically $50-$100/year, often essential</li>
+          <li><strong>Mold (limited)</strong> — most policies cap mold coverage at $5K-$15K</li>
+          <li><strong>Termites and pests</strong> — never covered</li>
+          <li><strong>Wear and tear / maintenance</strong> — never covered</li>
+          <li><strong>Some service line failures</strong> — underground pipes; endorsement available</li>
+        </ul>
+      `,
+    },
+    {
+      heading: "The right policy for a typical homeowner",
+      body: `
+        <p>Sample structure for a $400K home in a moderate-risk area:</p>
+        <ul>
+          <li><strong>Dwelling:</strong> $400K replacement cost (verify with current estimate)</li>
+          <li><strong>Personal property:</strong> 70% of dwelling, replacement cost coverage</li>
+          <li><strong>Liability:</strong> $500K</li>
+          <li><strong>Loss of use:</strong> 25% of dwelling</li>
+          <li><strong>Deductible:</strong> $1,000-$2,500 (depending on cash position)</li>
+          <li><strong>Sewer backup endorsement:</strong> yes</li>
+          <li><strong>Scheduled riders</strong> for any single items over $2,500 (engagement ring, fine art, expensive bike)</li>
+          <li><strong>Flood policy</strong> if anywhere near a flood zone or in hurricane-exposed area</li>
+          <li><strong>Umbrella policy:</strong> $1M if you have meaningful assets</li>
+        </ul>
+      `,
+    },
+  ]}
+  related={[
+    { label: "Coverage types", href: "/home-insurance/coverage-types/", desc: "What each policy line does" },
+    { label: "Common discounts", href: "/home-insurance/discounts/", desc: "Lower the bill" },
+    { label: "Cheapest home insurance", href: "/home-insurance/cheapest/", desc: "Who actually prices well" },
+    { label: "How to do a home inventory", href: "/blog/how-to-do-home-inventory-in-one-afternoon/", desc: "Pre-claim work that pays off" },
+  ]}
+/>

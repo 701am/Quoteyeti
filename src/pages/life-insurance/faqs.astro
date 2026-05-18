@@ -1,0 +1,88 @@
+---
+import TopicPage from "~/layouts/TopicPage.astro";
+import { VERTICALS } from "~/data/verticals";
+
+const v = VERTICALS.life;
+---
+
+<TopicPage
+  vertical={v}
+  topic="FAQs"
+  headline="Life insurance, demystified"
+  lede="Plain answers to the questions buyers actually ask. No sales-driven complexity."
+  sections={[
+    {
+      heading: "The basics",
+      body: `
+        <h3>Do I need life insurance?</h3>
+        <p>You need life insurance if someone depends on your income or labor. If your death would cause material financial hardship to a spouse, child, business partner, or anyone who relies on you — you need life insurance. If no one depends on you financially, you probably don't.</p>
+
+        <h3>How does life insurance work?</h3>
+        <p>You pay premiums (monthly or annually) to a carrier. If you die while the policy is active, the carrier pays a tax-free death benefit to your named beneficiary. Term policies cover a specific period (10-30 years); permanent policies last your whole life (assuming premiums are paid).</p>
+
+        <h3>What's the difference between term and whole life?</h3>
+        <p>Term is temporary, cheap, and only pays if you die during the term. Whole life is permanent, expensive (10-20x more than term), and builds cash value over time. For 90%+ of buyers, term is the math-correct answer. See our <a href="/life-insurance/coverage-types/">coverage types guide</a> for the full comparison.</p>
+
+        <h3>Who can I name as a beneficiary?</h3>
+        <p>Anyone with an "insurable interest" — typically family, business partners, charities, trusts. Most people name spouses, children, or trusts. Be specific (full legal names, not "my children"), and update beneficiaries after marriage, divorce, death of a beneficiary, or new births.</p>
+      `,
+    },
+    {
+      heading: "Buying and qualifying",
+      body: `
+        <h3>How much life insurance do I need?</h3>
+        <p>For most parents with young kids and a mortgage, 10-15x your annual income is a reasonable baseline. The more accurate method: total your obligations (mortgage, kid's college, income replacement years, final expenses) and subtract existing assets (savings, employer life insurance, Social Security survivor benefits). See our <a href="/life-insurance/how-much-do-i-need/">sizing guide</a> for a worked example.</p>
+
+        <h3>How is the premium determined?</h3>
+        <p>Premium depends primarily on your age, health, gender, tobacco status, and coverage amount. Each year of waiting increases premium meaningfully — a 35-year-old healthy applicant pays roughly half what a 45-year-old does for the same 20-year term policy.</p>
+
+        <h3>What's a medical exam, and can I skip it?</h3>
+        <p>The standard paramedical exam takes 30 minutes — height, weight, blood pressure, blood draw, urine sample. It's free, scheduled at your home or office. You can skip it with "accelerated underwriting" (no-exam) policies, but those typically cost 10-30% more than fully-underwritten policies for the same coverage.</p>
+
+        <h3>What if I have a pre-existing condition?</h3>
+        <p>Many conditions are insurable — diabetes (controlled), high blood pressure (controlled), depression/anxiety (stable), past cancer (after remission), heart conditions (controlled). The premium and rate class depend on severity and management. Different carriers underwrite the same condition differently — always work with an independent broker who can shop across carriers for your specific profile.</p>
+
+        <h3>Can I be denied coverage?</h3>
+        <p>Yes, for some conditions or risk profiles. If denied, your options include: guaranteed-issue policies (no health questions, high premium, small coverage), simplified-issue policies (limited health questions, moderate premium), or specialty carriers that handle higher-risk profiles. A broker can identify your options.</p>
+      `,
+    },
+    {
+      heading: "Policy management",
+      body: `
+        <h3>Can I cancel my policy?</h3>
+        <p>Yes, anytime. For term policies, just stop paying premiums (the policy lapses with no further obligation). For permanent policies, you can cancel and receive any cash value built up — but you may lose meaningful money in early years due to surrender charges and slow cash-value buildup.</p>
+
+        <h3>What's a free-look period?</h3>
+        <p>The window after purchasing a policy during which you can cancel and receive a full premium refund. Most states require 10 days; California requires 30 days; some states have longer periods for seniors or replacement policies. Useful if you decide the policy isn't right shortly after buying.</p>
+
+        <h3>What happens if I miss a premium payment?</h3>
+        <p>Most policies have a 30-day grace period — pay within that window and coverage continues without issue. After the grace period, the policy lapses. Permanent policies with cash value may use cash value to pay premiums temporarily; term policies just end. Reinstatement is sometimes possible within 1-5 years with health re-qualification.</p>
+
+        <h3>What's convertibility?</h3>
+        <p>A term policy feature that lets you convert to a permanent policy (whole or universal life) without new underwriting. Valuable if your health changes during the term — you can lock in permanent coverage at your original rate class. Check your policy for the convertibility window (typically the first 10-20 years of the term).</p>
+      `,
+    },
+    {
+      heading: "Beneficiaries and claims",
+      body: `
+        <h3>How does a death benefit get paid?</h3>
+        <p>The beneficiary files a claim with the carrier (typically with a death certificate). Most claims are paid within 30-60 days. The death benefit is paid as a tax-free lump sum to the named beneficiary. Beneficiaries can also choose to receive payments over time (annuity-style) in some cases.</p>
+
+        <h3>Is the death benefit taxable?</h3>
+        <p>Generally no — death benefits paid to named beneficiaries are tax-free. Exceptions: estate tax for very large estates (current federal exemption is $13.6M+); interest paid on delayed payouts; benefits paid to your estate rather than a named beneficiary (estate becomes taxable).</p>
+
+        <h3>What if my beneficiary dies before me?</h3>
+        <p>Name a contingent (secondary) beneficiary as backup. If you name only one beneficiary and they predecease you, the death benefit defaults to your estate, which is less favorable than direct beneficiary payout. Best practice: name at least one primary and one contingent beneficiary, update at every major life event.</p>
+
+        <h3>Can creditors take the death benefit?</h3>
+        <p>Usually no — death benefits paid to named beneficiaries are protected from the deceased's creditors in most states. But if the benefit pays to your estate (rather than a named beneficiary), it can be claimed by creditors. Always name specific beneficiaries.</p>
+      `,
+    },
+  ]}
+  related={[
+    { label: "How much do I need?", href: "/life-insurance/how-much-do-i-need/", desc: "Real sizing methodology" },
+    { label: "Cheapest life insurance", href: "/life-insurance/cheapest/", desc: "Who actually competes" },
+    { label: "Coverage types", href: "/life-insurance/coverage-types/", desc: "Term, whole, universal, IUL" },
+    { label: "Common discounts", href: "/life-insurance/discounts/", desc: "Rate classes and savings" },
+  ]}
+/>

@@ -1,0 +1,139 @@
+---
+import BaseLayout from "~/layouts/BaseLayout.astro";
+---
+
+<BaseLayout
+  title="Editorial Methodology"
+  description="How QuoteYeti's ratings, reviews, and rankings are constructed."
+  breadcrumbs={[
+    { name: "Home", url: "/" },
+    { name: "Methodology", url: "/methodology/" },
+  ]}
+>
+  <section class="page-hero">
+    <div class="container">
+      <p class="eyebrow">How we work</p>
+      <h1>Editorial <span class="serif-italic">methodology</span></h1>
+      <p class="page-hero__lede">
+        QuoteYeti is an independent insurance research publisher. Our editorial decisions — which carriers we cover, how we rate them, and what we recommend — are made by our editorial team, independent of business arrangements with carriers. Here's how the work gets done.
+      </p>
+    </div>
+  </section>
+
+  <div class="container container--narrow methodology-body">
+    <h2>Why a methodology page exists</h2>
+    <p>Insurance editorial coverage has a credibility problem. Many "best of" lists are sponsored content disguised as independent ranking. Many "review" sites are paid by the carriers they review. We don't want to be those sites — so we publish our methodology so you can evaluate the work yourself.</p>
+
+    <h2>How ratings are constructed</h2>
+    <p>For each insurance vertical, we score carriers on three dimensions:</p>
+    <ul>
+      <li><strong>Cost (50-60% of overall score):</strong> average rates pulled from rate filings, third-party rate aggregators, and our own market research. Normalized to comparable coverage and standard profiles.</li>
+      <li><strong>Customer experience (25-35% of overall score):</strong> J.D. Power member studies, NAIC complaint indices, AM Best ratings, BBB complaints, and aggregated review platform sentiment.</li>
+      <li><strong>Coverage breadth (10-20% of overall score):</strong> endorsement availability, policy customization options, and the comprehensiveness of standard policy forms.</li>
+    </ul>
+    <p>Specific weights vary by vertical based on what matters most to consumers in that category. Our specific weights and data sources are listed on each individual review page.</p>
+
+    <h2>Who we cover</h2>
+    <p>We cover major national carriers in each vertical, plus regional carriers and specialty carriers where they're competitive. We don't cover every carrier — we focus on those most likely to be relevant to consumer shopping decisions.</p>
+    <p>If we cover a carrier, we cover them whether or not they're in our referral partner network. If a carrier is not in our partner network, we still review them; we just don't have a direct "get a quote" link for them.</p>
+
+    <h2>How we make money</h2>
+    <p>QuoteYeti earns referral fees when readers click through to certain carriers from our site. Some of the carriers we review are in our referral partner network; some aren't. Our editorial ratings and recommendations are not influenced by which carriers participate.</p>
+    <p>Specifically:</p>
+    <ul>
+      <li>We do not accept payment for favorable reviews</li>
+      <li>We do not adjust ratings based on referral relationships</li>
+      <li>We do not exclude unfavorable findings about partner carriers</li>
+      <li>We do not include "best of" recommendations driven by referral economics</li>
+    </ul>
+    <p>This is a real commitment, not marketing language. We've turned down lucrative carrier partnerships when they came with editorial strings attached.</p>
+
+    <h2>How we update content</h2>
+    <p>Insurance markets move. Rates change. Carriers enter and exit markets. Underwriting rules shift. We update content as conditions change:</p>
+    <ul>
+      <li>Carrier reviews: reviewed at least annually, more often when significant changes occur</li>
+      <li>State pages: reviewed quarterly for major regulatory changes</li>
+      <li>"Cheapest" and "best" rankings: refreshed as new rate data becomes available</li>
+      <li>Guides and FAQs: reviewed as regulations, products, and best practices evolve</li>
+    </ul>
+    <p>Each editorial page shows when it was last updated. If you find outdated information, email <a href="mailto:editorial@quoteyeti.com">editorial@quoteyeti.com</a>.</p>
+
+    <h2>Editorial corrections</h2>
+    <p>If we publish something factually incorrect, we correct it promptly. Significant corrections include a "Correction" note on the page describing what changed.</p>
+
+    <h2>Data sources</h2>
+    <p>Our editorial work draws on:</p>
+    <ul>
+      <li>Carrier rate filings (publicly available through state insurance departments)</li>
+      <li>NAIC (National Association of Insurance Commissioners) complaint indices</li>
+      <li>J.D. Power and Associates consumer satisfaction studies</li>
+      <li>AM Best financial strength ratings</li>
+      <li>State insurance department market conduct exams and rate decisions</li>
+      <li>Policy form filings (publicly available)</li>
+      <li>Our own independent market shopping (mystery-shopper quotes across states and profiles)</li>
+      <li>Reader-submitted experience reports (used for color, not for ratings)</li>
+    </ul>
+
+    <h2>Conflicts of interest</h2>
+    <p>Our editorial team members don't hold positions, advisory roles, or compensation arrangements with insurance carriers. We disclose any potential conflicts when they exist — they currently don't.</p>
+
+    <h2>Questions</h2>
+    <p>If you have questions about our methodology, want to request a correction, or want to flag a problem with a review, email <a href="mailto:editorial@quoteyeti.com">editorial@quoteyeti.com</a>.</p>
+  </div>
+
+  <style>
+    .page-hero {
+      padding-block: var(--space-16) var(--space-10);
+      background: var(--color-alice);
+    }
+    .eyebrow {
+      display: inline-flex; align-items: center; gap: var(--space-2);
+      font-family: var(--font-display); font-size: 0.75rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.14em;
+      color: var(--color-resolution);
+      background: var(--color-white);
+      padding: var(--space-2) var(--space-4);
+      border-radius: 100px;
+      margin-bottom: var(--space-4);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    }
+    .page-hero h1 {
+      font-size: clamp(2.25rem, 4vw, 3rem);
+      letter-spacing: -0.025em;
+    }
+    .serif-italic {
+      font-family: var(--font-serif, "Plantin", Georgia, serif);
+      font-style: italic; font-weight: 500;
+      color: var(--color-resolution);
+    }
+    .page-hero__lede {
+      font-size: 1.1875rem; color: var(--color-text-strong);
+      margin-top: var(--space-4); max-width: 720px;
+      line-height: 1.55;
+    }
+    .container--narrow { max-width: 760px; margin: 0 auto; }
+    .methodology-body {
+      padding-block: var(--space-12) var(--space-20);
+      font-size: 1.0625rem;
+      line-height: 1.7;
+    }
+    .methodology-body h2 {
+      font-family: var(--font-display); font-weight: 700;
+      font-size: 1.5rem;
+      letter-spacing: -0.015em;
+      margin: var(--space-10) 0 var(--space-4);
+      color: var(--color-resolution);
+    }
+    .methodology-body h2:first-child { margin-top: 0; }
+    .methodology-body p { margin-bottom: var(--space-5); }
+    .methodology-body ul { margin-bottom: var(--space-5); padding-left: var(--space-6); }
+    .methodology-body li { margin-bottom: var(--space-2); }
+    .methodology-body a {
+      color: var(--color-resolution);
+      text-decoration: underline;
+      text-decoration-thickness: 1px;
+      text-underline-offset: 2px;
+    }
+    .methodology-body strong { color: var(--color-resolution); }
+  </style>
+</BaseLayout>

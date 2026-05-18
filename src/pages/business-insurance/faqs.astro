@@ -1,0 +1,85 @@
+---
+import TopicPage from "~/layouts/TopicPage.astro";
+import { VERTICALS } from "~/data/verticals";
+
+const v = VERTICALS.business;
+---
+
+<TopicPage
+  vertical={v}
+  topic="FAQs"
+  headline="Business insurance, demystified"
+  lede="Plain answers to the questions small-business owners actually ask."
+  sections={[
+    {
+      heading: "The basics",
+      body: `
+        <h3>What insurance does my small business actually need?</h3>
+        <p>Minimum baseline for nearly any business: general liability + business property (often via a BOP) + workers' comp (if you have employees) + commercial auto (if you own vehicles or employees drive for work). Add professional liability if you provide professional services, cyber liability if you handle any data, and EPLI once you have employees. See our <a href="/business-insurance/how-much-do-i-need/">sizing guide</a> for specific recommendations.</p>
+
+        <h3>What's a BOP?</h3>
+        <p>A Business Owner's Policy bundles general liability + commercial property + business interruption into one policy. Sold to qualifying small businesses at a 10-25% discount vs. buying separately. Most service businesses, retail, restaurants, and office-based businesses qualify.</p>
+
+        <h3>What's the difference between general liability and professional liability?</h3>
+        <p>General liability covers bodily injury and property damage to third parties (customer slips at your shop, you damage a client's property). Professional liability (also called E&O — errors and omissions) covers financial losses from your professional services or advice. They cover completely different risks. Most professional service businesses need both.</p>
+
+        <h3>Do I need workers' comp if I'm a sole proprietor?</h3>
+        <p>If you have no employees, generally no. State requirements kick in when you have employees (1+ in most states, 3+ in some). Sole proprietors with no employees can usually decline workers' comp on themselves — but verify with your state's rules, especially if you do contracting work where clients require proof of coverage.</p>
+      `,
+    },
+    {
+      heading: "Coverage decisions",
+      body: `
+        <h3>How much general liability do I need?</h3>
+        <p>$1M per occurrence / $2M aggregate is the standard minimum and meets most B2B contract requirements. Step up to $2M/$4M for higher-risk industries (construction, manufacturing, healthcare) or larger contracts. Higher-net-worth businesses should add an umbrella for $1M-$5M of additional limits.</p>
+
+        <h3>What is cyber liability and do I need it?</h3>
+        <p>Cyber coverage pays for expenses from data breaches and cyber incidents — forensic investigation, customer notification, credit monitoring, regulatory fines, business interruption, ransomware. If your business handles any customer or employee data, you have cyber exposure. Average small-business breach costs $120K-$1.2M. Don't skip this.</p>
+
+        <h3>What does the experience modifier on workers' comp mean?</h3>
+        <p>A multiplier applied to your workers' comp premium based on your claim history relative to your industry average. 1.00 is average; below 1.00 saves you money; above 1.00 costs you money. Improving your e-mod (through safety programs, return-to-work, claim cost management) is the largest savings lever in workers' comp.</p>
+
+        <h3>Do I need commercial auto if my business doesn't own vehicles?</h3>
+        <p>If employees ever drive their personal vehicles for business purposes, yes — buy hired and non-owned auto (HNOA) coverage. Personal auto policies typically exclude business use, so without HNOA, an employee accident while driving for business leaves your business exposed.</p>
+      `,
+    },
+    {
+      heading: "Buying and shopping",
+      body: `
+        <h3>Should I use an agent or buy directly online?</h3>
+        <p>For most small businesses, an independent commercial broker is worth it. They shop multiple carriers, ensure your classification is correct, and surface coverages you might not know you need. Brokers are paid by the carriers, not by you — typically no out-of-pocket cost. Direct online quoting (Hiscox, Next, biBERK) works well for very simple businesses.</p>
+
+        <h3>What's industry classification and why does it matter?</h3>
+        <p>Carriers classify your business by SIC or NAICS code, which determines your base rate. Misclassification is extremely common — a business in the wrong class can pay 30%+ more than necessary. Verify your classification annually and ask your broker to challenge an incorrect code.</p>
+
+        <h3>How often should I shop my business insurance?</h3>
+        <p>At renewal annually. Commercial premiums often drift upward; shopping keeps your current carrier honest and surfaces better options. Get quotes from 3+ carriers through a broker for substantial savings.</p>
+
+        <h3>What's an audit and why does it happen?</h3>
+        <p>Workers' comp and some GL policies are "audit-rated" — you pay an estimated premium upfront based on projected payroll/revenue, then the carrier audits actual numbers at year-end. If actual numbers came in below projections, you get a refund. If above, you pay extra. Submit accurate documentation promptly; many businesses overpay because of poor audit reporting.</p>
+      `,
+    },
+    {
+      heading: "Claims and disputes",
+      body: `
+        <h3>When should I file a business insurance claim?</h3>
+        <p>When the damage or liability is genuine, exceeds your deductible, and you'd be unable to absorb the cost yourself. Like personal insurance, claims affect your renewal premiums and renewability. Small claims under your effective break-even (the deductible plus the future premium impact) often aren't worth filing.</p>
+
+        <h3>What if my claim is denied?</h3>
+        <p>Get the denial in writing with specific policy references. Review your policy yourself. Internal appeals are the first step. For substantial disputes, hire a business insurance attorney or public adjuster. State insurance departments handle bad-faith complaints.</p>
+
+        <h3>How long do claims stay on my record?</h3>
+        <p>Typically 3-5 years on commercial insurance. Multiple claims in that window can trigger non-renewal or significant premium increases. The CLUE database tracks property claims; LIRRS and similar systems track liability claims.</p>
+
+        <h3>What about lawsuits?</h3>
+        <p>If you're served with a lawsuit, contact your carrier immediately — most policies have prompt-notification requirements. The carrier's duty to defend typically kicks in even before the underlying claim is resolved. Failing to notify promptly can void coverage.</p>
+      `,
+    },
+  ]}
+  related={[
+    { label: "How much do I need?", href: "/business-insurance/how-much-do-i-need/", desc: "Sizing limits for your business" },
+    { label: "Cheapest business insurance", href: "/business-insurance/cheapest/", desc: "By industry" },
+    { label: "Coverage types", href: "/business-insurance/coverage-types/", desc: "GL, BOP, PL, cyber, workers' comp" },
+    { label: "Common discounts", href: "/business-insurance/discounts/", desc: "BOP bundling and e-mod savings" },
+  ]}
+/>

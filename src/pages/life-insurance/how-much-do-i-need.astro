@@ -1,0 +1,112 @@
+---
+import TopicPage from "~/layouts/TopicPage.astro";
+import { VERTICALS } from "~/data/verticals";
+
+const v = VERTICALS.life;
+---
+
+<TopicPage
+  vertical={v}
+  topic="How much do I need?"
+  headline="How much life insurance do you actually need?"
+  lede="The standard rule of thumb — '10x your income' — is a starting point, not an answer. Real sizing comes from listing your obligations and subtracting what your family already has."
+  sections={[
+    {
+      heading: "The arithmetic",
+      body: `
+        <p>The formula:</p>
+        <blockquote>Total obligations − Existing assets = Insurance need</blockquote>
+        <p>Sounds simple. The work is in being honest about both sides.</p>
+      `,
+    },
+    {
+      heading: "Step 1: Total your obligations",
+      body: `
+        <p>Walk through everything that would still need to be paid for if you weren't here tomorrow:</p>
+        <ul>
+          <li><strong>Final expenses:</strong> $15,000-$25,000 (funeral, burial, outstanding medical, estate settlement)</li>
+          <li><strong>Debts to pay off:</strong> credit cards, auto loans, personal loans, private student loans (federal student loans typically discharge at death)</li>
+          <li><strong>Mortgage balance:</strong> what you'd want paid off so your family can stay in the home</li>
+          <li><strong>Children's future needs:</strong> college ($100K-$400K per child depending on school type), dependent care if your spouse needs to work more</li>
+          <li><strong>Income replacement:</strong> annual household contribution × years your family depends on you (often 15-25 years for parents of young children)</li>
+          <li><strong>Charitable or family commitments:</strong> anything you've promised that you'd want fulfilled</li>
+        </ul>
+      `,
+    },
+    {
+      heading: "Step 2: Subtract existing assets",
+      body: `
+        <p>What your family already has available to cover those obligations:</p>
+        <ul>
+          <li><strong>Savings and investments</strong> (not retirement — that's earmarked for your spouse's retirement, don't double-count)</li>
+          <li><strong>Employer-provided life insurance</strong> — typically 1-2x salary. Verify and don't rely on it lasting past your tenure at that employer.</li>
+          <li><strong>Existing life insurance policies</strong></li>
+          <li><strong>Pension or survivor benefits</strong> (military, government, some private)</li>
+          <li><strong>Social Security survivor benefits</strong> — significant for families with minor children, often $50K-$300K in net present value depending on circumstances</li>
+        </ul>
+      `,
+    },
+    {
+      heading: "Worked example",
+      body: `
+        <p>38-year-old parent of two, $140K household income, $60K spouse income:</p>
+        <p><strong>Obligations:</strong></p>
+        <ul>
+          <li>Final expenses: $20,000</li>
+          <li>Mortgage balance: $340,000</li>
+          <li>Credit card + auto debt: $30,000</li>
+          <li>College for two kids (in-state public): $280,000</li>
+          <li>Income replacement (15 years × $80,000 contribution): $1,200,000</li>
+          <li><strong>Total: $1,870,000</strong></li>
+        </ul>
+        <p><strong>Offsets:</strong></p>
+        <ul>
+          <li>Savings: $40,000</li>
+          <li>Employer life insurance: $140,000</li>
+          <li>Social Security survivor (estimated NPV): $250,000</li>
+          <li><strong>Total: $430,000</strong></li>
+        </ul>
+        <p><strong>Insurance need:</strong> $1,870,000 − $430,000 = <strong>$1,440,000</strong></p>
+        <p>Round up: a <strong>$1.5M-$1.75M term policy</strong> is appropriate.</p>
+      `,
+    },
+    {
+      heading: "How long do you need it?",
+      body: `
+        <p>Pick the longest term that covers your major obligations:</p>
+        <ul>
+          <li><strong>Until youngest child is independent:</strong> typically 20-25 years if you have young kids</li>
+          <li><strong>Until mortgage is paid off:</strong> typically 15-30 years</li>
+          <li><strong>Until you're financially independent:</strong> often 25-30 years</li>
+        </ul>
+        <p>For most parents of young children, <strong>20-year or 30-year term</strong> is the right answer. 30-year is more expensive but locks in the rate while you're young and healthy.</p>
+      `,
+    },
+    {
+      heading: "When you might need more (or less)",
+      body: `
+        <p><strong>More:</strong></p>
+        <ul>
+          <li>Stay-at-home parent who provides labor worth $50K-$80K/year in childcare and household management</li>
+          <li>Business owner whose business depends on you personally</li>
+          <li>Significant lifestyle inflation outpacing savings</li>
+          <li>Major charitable or family commitments</li>
+        </ul>
+        <p><strong>Less:</strong></p>
+        <ul>
+          <li>No dependents and no significant debt</li>
+          <li>Already approaching financial independence</li>
+          <li>Spouse has high income and would not need replacement support</li>
+          <li>Most major debts already paid off</li>
+        </ul>
+        <p>Lean toward more coverage rather than less. The cost of being underinsured at the wrong moment is catastrophic. The cost of being slightly over-insured is a few dollars a month.</p>
+      `,
+    },
+  ]}
+  related={[
+    { label: "Cheapest life insurance", href: "/life-insurance/cheapest/", desc: "Where to actually get competitive rates" },
+    { label: "Types of coverage", href: "/life-insurance/coverage-types/", desc: "Term, whole, universal, IUL explained" },
+    { label: "Common discounts", href: "/life-insurance/discounts/", desc: "Underwriting credits that lower premium" },
+    { label: "How much life insurance you actually need", href: "/blog/how-much-life-insurance-do-you-actually-need/", desc: "The deeper version of this guide" },
+  ]}
+/>

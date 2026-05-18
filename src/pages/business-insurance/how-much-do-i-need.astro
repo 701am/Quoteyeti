@@ -1,0 +1,142 @@
+---
+import TopicPage from "~/layouts/TopicPage.astro";
+import { VERTICALS } from "~/data/verticals";
+
+const v = VERTICALS.business;
+---
+
+<TopicPage
+  vertical={v}
+  topic="How much do I need?"
+  headline="How much business insurance do you actually need?"
+  lede="Business insurance sizing depends on three things: what your contracts require, what your real exposure is, and what your industry's norm looks like. There's no single answer — but there are clear minimums."
+  sections={[
+    {
+      heading: "Start with what your contracts require",
+      body: `
+        <p>If you do B2B work, your clients' vendor agreements typically specify minimum insurance:</p>
+        <ul>
+          <li><strong>General liability:</strong> usually $1M-$2M per occurrence, $2M-$4M aggregate</li>
+          <li><strong>Professional liability (E&O):</strong> $1M-$2M for most professional services</li>
+          <li><strong>Cyber liability:</strong> increasingly common, often $1M minimum for vendors handling data</li>
+          <li><strong>Workers' compensation:</strong> as required by state, with proof of coverage</li>
+          <li><strong>Commercial auto:</strong> $1M combined single limit common</li>
+          <li><strong>Umbrella:</strong> $1M-$5M, especially for larger enterprise contracts</li>
+        </ul>
+        <p>Read your contracts carefully. Underinsured = ineligible for the contract, not just exposed.</p>
+      `,
+    },
+    {
+      heading: "General liability sizing",
+      body: `
+        <p><strong>Minimum: $1M per occurrence / $2M aggregate.</strong> This is the standard small-business GL policy and meets most contract requirements.</p>
+        <p><strong>Step up to $2M/$4M if:</strong></p>
+        <ul>
+          <li>You work in higher-risk industries (construction, manufacturing, healthcare)</li>
+          <li>Your contracts require it</li>
+          <li>You have significant business assets to protect</li>
+          <li>You have premises with regular client visits</li>
+        </ul>
+        <p>For most professional services with low premises liability, $1M/$2M is appropriate baseline.</p>
+      `,
+    },
+    {
+      heading: "Professional liability (E&O) sizing",
+      body: `
+        <p>Required if you provide professional services or advice that clients could claim caused them financial losses.</p>
+        <p><strong>Typical limits:</strong></p>
+        <ul>
+          <li>Solo consultants / freelancers: $250K-$1M</li>
+          <li>Established small firms: $1M-$2M</li>
+          <li>Larger firms or specialized work: $2M-$5M+</li>
+        </ul>
+        <p>Size to <strong>the largest engagement you do</strong>, not the average. One $500K project gone wrong can produce a $500K claim. Match limits to the project, not to the smaller routine work.</p>
+      `,
+    },
+    {
+      heading: "Business Owner's Policy (BOP) sizing",
+      body: `
+        <p>A BOP bundles GL + commercial property + business interruption. Size each component:</p>
+        <ul>
+          <li><strong>General liability:</strong> $1M/$2M baseline</li>
+          <li><strong>Commercial property:</strong> replacement cost of your business contents, equipment, and inventory. Don't underestimate — replacement cost is typically higher than what you paid.</li>
+          <li><strong>Business interruption:</strong> typically 12 months of normal operating income/expenses. For some businesses (retail, restaurants), the right number is the time to fully recover, which may be longer.</li>
+        </ul>
+        <p>A BOP saves 10-25% vs. buying these coverages separately. Most service businesses, retail, and office-based businesses qualify.</p>
+      `,
+    },
+    {
+      heading: "Workers' compensation",
+      body: `
+        <p>Required in nearly every state if you have employees. Sizing isn't really a choice — premium is determined by:</p>
+        <ul>
+          <li>Your industry classification code</li>
+          <li>Your payroll (more employees = more premium)</li>
+          <li>Your experience modification rating (claim history)</li>
+        </ul>
+        <p>You don't choose limits in the same way as other coverages. What you can affect: the experience mod (through safety programs, returning injured workers, controlling claim costs) and your industry classification (making sure you're correctly classified).</p>
+      `,
+    },
+    {
+      heading: "Cyber liability",
+      body: `
+        <p>If you handle any customer or employee data, you have cyber exposure. Sizing:</p>
+        <ul>
+          <li><strong>Small business (1-50 employees):</strong> $500K-$1M baseline</li>
+          <li><strong>Mid-market:</strong> $1M-$5M</li>
+          <li><strong>Data-heavy businesses:</strong> $5M+</li>
+        </ul>
+        <p>Average small-business breach costs $120K-$1.2M. Cyber claims often include forensic investigation, customer notification, credit monitoring, regulatory fines, and business interruption — costs add up faster than people expect.</p>
+      `,
+    },
+    {
+      heading: "Commercial auto",
+      body: `
+        <p>If your business owns vehicles or employees use personal vehicles for business:</p>
+        <ul>
+          <li><strong>Owned vehicles:</strong> $1M combined single limit (CSL) is common for small business</li>
+          <li><strong>Hired and non-owned auto (HNOA):</strong> covers employees driving personal cars for business — important even if you don't own vehicles</li>
+        </ul>
+      `,
+    },
+    {
+      heading: "Commercial umbrella",
+      body: `
+        <p>Once your business has meaningful assets or you're working on contracts that require it, add a commercial umbrella. Typical structure:</p>
+        <ul>
+          <li><strong>$1M umbrella</strong> over $1M GL + $1M commercial auto + $1M employer's liability — typically $400-$1,200/year</li>
+          <li>Higher umbrella limits ($2M, $3M, $5M) add incrementally less premium each</li>
+        </ul>
+        <p>Required for many enterprise contracts. Worth getting before you need it.</p>
+      `,
+    },
+    {
+      heading: "The right structure for a typical small business",
+      body: `
+        <p>Example: solo consultant, $200K revenue, no premises with public visits, no employees:</p>
+        <ul>
+          <li>General liability: $1M/$2M</li>
+          <li>Professional liability: $1M/$1M</li>
+          <li>Cyber liability: $500K-$1M</li>
+          <li>HNOA (if driving for client meetings)</li>
+          <li>Annual cost: typically $1,200-$2,500</li>
+        </ul>
+        <p>Example: 8-person contractor, $1.5M revenue, owned vehicles:</p>
+        <ul>
+          <li>Business Owner's Policy with $2M/$4M GL + property + business interruption</li>
+          <li>Commercial auto: $1M CSL on owned vehicles</li>
+          <li>Workers' comp: as required, with active safety program for experience mod</li>
+          <li>Commercial umbrella: $2M</li>
+          <li>Cyber: $1M</li>
+          <li>Annual cost: typically $8,000-$18,000 depending on state and claim history</li>
+        </ul>
+      `,
+    },
+  ]}
+  related={[
+    { label: "Cheapest business insurance", href: "/business-insurance/cheapest/", desc: "Who actually competes on price" },
+    { label: "Coverage types", href: "/business-insurance/coverage-types/", desc: "Each commercial coverage explained" },
+    { label: "Common discounts", href: "/business-insurance/discounts/", desc: "Bundling and structural savings" },
+    { label: "Business FAQs", href: "/business-insurance/faqs/", desc: "Quick answers to common questions" },
+  ]}
+/>

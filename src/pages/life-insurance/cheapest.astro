@@ -1,0 +1,75 @@
+---
+import TopicPage from "~/layouts/TopicPage.astro";
+import { VERTICALS } from "~/data/verticals";
+
+const v = VERTICALS.life;
+---
+
+<TopicPage
+  vertical={v}
+  topic="Cheapest"
+  headline="Cheapest life insurance"
+  lede="The cheapest life insurance is term insurance bought when you're young and healthy. After that, the cheapest carrier depends on your age, health, and specific underwriting profile — and varies more than people expect."
+  sections={[
+    {
+      heading: "Why term is cheapest",
+      body: `
+        <p>Term insurance is the math-correct answer for 90%+ of buyers. A healthy 35-year-old can buy a $1M 20-year term policy for roughly $30-$50/month. The same person buying whole life would pay $1,000+ per month for equivalent coverage.</p>
+        <p>The whole life premium goes partly to actual insurance and partly to a cash-value account that grows at 2-4% annually. Over 20 years, "buy term and invest the difference" almost always beats whole life in total wealth.</p>
+        <p>Whole life makes sense in narrow situations — high-net-worth estate planning, special-needs trust funding, business succession. For everyone else, term wins on math.</p>
+      `,
+    },
+    {
+      heading: "Cheapest term carriers",
+      body: `
+        <p>For 20-year and 30-year term policies, the consistently most competitive carriers include:</p>
+        <ul>
+          <li><strong>Banner Life (Legal & General America)</strong> — among the cheapest for healthy applicants under 50</li>
+          <li><strong>Pacific Life</strong> — competitive for larger face amounts ($1M+)</li>
+          <li><strong>Protective Life</strong> — broadly competitive across age bands</li>
+          <li><strong>Lincoln Financial</strong> — strong for accelerated underwriting with no exam</li>
+          <li><strong>SBLI</strong> — often cheapest for smaller face amounts ($100K-$500K)</li>
+          <li><strong>Mutual of Omaha</strong> — competitive especially after 50</li>
+        </ul>
+        <p>For no-exam term, the digital-first players often win on speed if not always on price:</p>
+        <ul>
+          <li><strong>Haven Life</strong> (MassMutual subsidiary)</li>
+          <li><strong>Ladder Life</strong></li>
+          <li><strong>Bestow</strong></li>
+          <li><strong>Ethos</strong></li>
+        </ul>
+      `,
+    },
+    {
+      heading: "How to get the cheapest rate",
+      body: `
+        <ol>
+          <li><strong>Buy young.</strong> Premium is locked at the rate you qualify for at application. A 35-year-old healthy applicant pays roughly half what a 45-year-old does for the same coverage. Every year you wait is meaningful money.</li>
+          <li><strong>Quit smoking.</strong> Tobacco use roughly doubles term premiums. Most carriers require 12 months of non-use to reclassify; some require 24-36 months.</li>
+          <li><strong>Get the full medical exam.</strong> Fully-underwritten policies cost 10-30% less than accelerated underwriting / no-exam policies for healthy applicants. The exam takes 30 minutes, costs you nothing, and the savings compound over 20+ years.</li>
+          <li><strong>Shop 3-5 carriers minimum.</strong> Carriers underwrite differently. A condition that disqualifies one might be accepted at standard rates elsewhere. Always work with an independent broker who can shop multiple carriers.</li>
+          <li><strong>Time the application carefully.</strong> Schedule it after weight loss, blood pressure improvement, or a clean medical year. Annual physicals matter — a recent good check-up speeds underwriting.</li>
+        </ol>
+      `,
+    },
+    {
+      heading: "Where buyers waste money",
+      body: `
+        <p>Common pitfalls that drive up cost unnecessarily:</p>
+        <ul>
+          <li><strong>Buying whole life when you needed term.</strong> Sold aggressively by commission agents because whole life pays higher commissions. Almost always wrong for middle-class families.</li>
+          <li><strong>Indexed universal life (IUL).</strong> Complex products with high fees marketed as "tax-free retirement." The illustrated returns rarely materialize. Avoid unless you specifically understand the structure and have a clear use case.</li>
+          <li><strong>Riders you don't need.</strong> Return of premium, child term riders, accidental death — usually overpriced relative to the value.</li>
+          <li><strong>Not re-shopping at health milestones.</strong> Lost weight? Quit smoking? Cholesterol improved? You may requalify at a better rate class. Re-apply or reshop with your existing carrier.</li>
+          <li><strong>Letting an agent stack riders.</strong> Each rider is a margin opportunity for the agent. Buy clean term and add riders only if you specifically understand what they do.</li>
+        </ul>
+      `,
+    },
+  ]}
+  related={[
+    { label: "Best life insurance", href: "/life-insurance/best/", desc: "Top-ranked carriers by overall quality" },
+    { label: "How much do I need?", href: "/life-insurance/how-much-do-i-need/", desc: "Sizing coverage to your obligations" },
+    { label: "Types of coverage", href: "/life-insurance/coverage-types/", desc: "Term, whole, universal, IUL explained" },
+    { label: "Common discounts", href: "/life-insurance/discounts/", desc: "Underwriting credits that lower premiums" },
+  ]}
+/>

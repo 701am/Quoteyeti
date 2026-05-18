@@ -258,7 +258,7 @@ collections:
     create: true
     slug: "{{slug}}"
     extension: "md"
-    fields:
+    fields: &location_fields
       - { label: "Title", name: "title", widget: "string" }
       - { label: "State (full name)", name: "state", widget: "string", required: false }
       - { label: "State abbreviation (2 letters)", name: "stateAbbr", widget: "string", required: false }
@@ -276,6 +276,33 @@ collections:
       - { label: "[SEO] OpenGraph image", name: "ogImage", widget: "image", required: false }
       - { label: "[SEO] No-index this page", name: "noindex", widget: "boolean", default: false, required: false }
       - { label: "Body", name: "body", widget: "markdown" }
+
+  - name: "home-locations"
+    label: "Home · State Pages"
+    label_singular: "Home location"
+    folder: "src/content/home/locations"
+    create: true
+    slug: "{{slug}}"
+    extension: "md"
+    fields: *location_fields
+
+  - name: "life-locations"
+    label: "Life · State Pages"
+    label_singular: "Life location"
+    folder: "src/content/life/locations"
+    create: true
+    slug: "{{slug}}"
+    extension: "md"
+    fields: *location_fields
+
+  - name: "business-locations"
+    label: "Business · State Pages"
+    label_singular: "Business location"
+    folder: "src/content/business/locations"
+    create: true
+    slug: "{{slug}}"
+    extension: "md"
+    fields: *location_fields
 
   - name: "auto-glossary"
     label: "Auto · Glossary"

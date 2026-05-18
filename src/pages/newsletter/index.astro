@@ -1,0 +1,168 @@
+---
+import BaseLayout from "~/layouts/BaseLayout.astro";
+---
+
+<BaseLayout
+  title="The YetiLetter"
+  description="Insurance intel, weekly. Hot takes on rates, carriers, and money — straight to your inbox."
+  breadcrumbs={[
+    { name: "Home", url: "/" },
+    { name: "Newsletter", url: "/newsletter/" },
+  ]}
+>
+  <section class="newsletter-hero">
+    <div class="container newsletter-hero__inner">
+      <p class="eyebrow">The YetiLetter</p>
+      <h1>Insurance intel, <span class="serif-italic">weekly</span></h1>
+      <p class="newsletter-hero__lede">
+        Hot takes on rates, carriers, and money — straight to your inbox. No spam. No paid placement. Unsubscribe anytime.
+      </p>
+
+      <form class="signup-form" action="/api/newsletter-subscribe" method="post">
+        <label class="sr-only" for="newsletter-email">Email address</label>
+        <input
+          id="newsletter-email"
+          type="email"
+          name="email"
+          placeholder="you@example.com"
+          required
+          autocomplete="email"
+        />
+        <button type="submit">
+          Subscribe
+          <svg width="14" height="12" viewBox="0 0 14 12" fill="none" aria-hidden="true">
+            <path d="M8 1l5 5-5 5M1 6h12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+      </form>
+      <p class="signup-legal">By subscribing, you agree to our <a href="/privacy-policy/">Privacy Policy</a>. You can unsubscribe anytime.</p>
+    </div>
+  </section>
+
+  <section class="container newsletter-body">
+    <div class="newsletter-cols">
+      <div>
+        <h2>What you'll get</h2>
+        <ul>
+          <li><strong>Weekly Dispatch issue:</strong> 1 long-form analysis or carrier deep-dive — typically 5-8 minutes to read.</li>
+          <li><strong>Rate market updates:</strong> when major carriers move pricing, change underwriting rules, or exit markets — we tell you what it means for you.</li>
+          <li><strong>Money moves of the week:</strong> the 3-5 specific actions worth taking this week to save on insurance and adjacent personal finance.</li>
+          <li><strong>Reader Q&amp;A:</strong> we answer specific reader questions in the newsletter each week (with permission).</li>
+        </ul>
+      </div>
+      <div>
+        <h2>What you won't get</h2>
+        <ul>
+          <li><strong>Hype.</strong> No "save 50%!" subject lines. We write like adults.</li>
+          <li><strong>Daily spam.</strong> One newsletter per week, on Tuesdays. That's it.</li>
+          <li><strong>Sponsored content disguised as editorial.</strong> If a section is sponsored, it'll be clearly labeled. Most weeks, nothing is.</li>
+          <li><strong>List sales.</strong> Your email never goes to anyone else.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="newsletter-cta">
+      <p>Already subscribed? You can update your preferences or unsubscribe via the link in any newsletter.</p>
+      <p>Questions? Email <a href="mailto:hello@quoteyeti.com">hello@quoteyeti.com</a>.</p>
+    </div>
+  </section>
+
+  <style>
+    .newsletter-hero {
+      padding-block: var(--space-16) var(--space-12);
+      background: var(--color-alice);
+    }
+    .newsletter-hero__inner {
+      max-width: 720px;
+      margin: 0 auto;
+      text-align: center;
+    }
+    .eyebrow {
+      display: inline-flex; align-items: center; gap: var(--space-2);
+      font-family: var(--font-display); font-size: 0.75rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.14em;
+      color: var(--color-resolution);
+      background: var(--color-white);
+      padding: var(--space-2) var(--space-4);
+      border-radius: 100px;
+      margin-bottom: var(--space-4);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    }
+    .newsletter-hero h1 {
+      font-size: clamp(2.25rem, 4.5vw, 3.25rem);
+      letter-spacing: -0.025em;
+    }
+    .serif-italic {
+      font-family: var(--font-serif, "Plantin", Georgia, serif);
+      font-style: italic; font-weight: 500;
+      color: var(--color-resolution);
+    }
+    .newsletter-hero__lede {
+      font-size: 1.25rem; color: var(--color-text-strong);
+      margin: var(--space-4) auto var(--space-8);
+      line-height: 1.55;
+    }
+    .signup-form {
+      display: flex; gap: var(--space-2);
+      max-width: 480px; margin: 0 auto;
+      padding: var(--space-2);
+      background: var(--color-white);
+      border-radius: 12px;
+      box-shadow: 0 12px 24px rgba(0,0,0,0.06);
+    }
+    .signup-form input {
+      flex: 1;
+      padding: var(--space-3) var(--space-4);
+      border: 0; outline: none;
+      font-size: 1rem;
+      background: transparent;
+    }
+    .signup-form button {
+      display: inline-flex; align-items: center; gap: var(--space-2);
+      padding: var(--space-3) var(--space-5);
+      background: var(--color-resolution);
+      color: var(--color-white);
+      border: 0; border-radius: 8px;
+      font-family: var(--font-display); font-weight: 700;
+      font-size: 0.9375rem;
+      cursor: pointer;
+      transition: filter 0.2s;
+    }
+    .signup-form button:hover { filter: brightness(1.1); }
+    .signup-legal {
+      margin: var(--space-4) auto 0;
+      font-size: 0.8125rem; color: var(--color-text-muted);
+    }
+    .signup-legal a { color: var(--color-resolution); }
+    .newsletter-body { padding-block: var(--space-12) var(--space-20); }
+    .newsletter-cols {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: var(--space-10);
+    }
+    .newsletter-cols h2 {
+      font-family: var(--font-display); font-weight: 700;
+      font-size: 1.5rem;
+      letter-spacing: -0.015em;
+      margin: 0 0 var(--space-5);
+      color: var(--color-resolution);
+    }
+    .newsletter-cols ul { padding-left: var(--space-6); line-height: 1.65; }
+    .newsletter-cols li { margin-bottom: var(--space-3); }
+    .newsletter-cta {
+      margin-top: var(--space-12);
+      padding: var(--space-6);
+      background: var(--color-alice);
+      border-radius: 12px;
+      text-align: center;
+    }
+    .newsletter-cta p { margin: 0 0 var(--space-3); font-size: 0.9375rem; color: var(--color-text); }
+    .newsletter-cta p:last-child { margin-bottom: 0; }
+    .newsletter-cta a { color: var(--color-resolution); }
+    @media (max-width: 720px) {
+      .newsletter-cols { grid-template-columns: 1fr; }
+      .signup-form { flex-direction: column; }
+      .signup-form button { width: 100%; justify-content: center; }
+    }
+  </style>
+</BaseLayout>

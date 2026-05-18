@@ -1,0 +1,84 @@
+---
+import TopicPage from "~/layouts/TopicPage.astro";
+import { VERTICALS } from "~/data/verticals";
+
+const v = VERTICALS.home;
+---
+
+<TopicPage
+  vertical={v}
+  topic="Discounts"
+  headline="Home insurance discounts that actually matter"
+  lede="Carriers advertise dozens of small discounts. A handful move premiums meaningfully — and most homeowners are missing at least one. Here's where the real savings are."
+  sections={[
+    {
+      heading: "Big-mover discounts (10%+)",
+      body: `
+        <ul>
+          <li><strong>Multi-policy (bundling):</strong> 10-25% off when home + auto are with the same carrier. The single largest discount in home insurance.</li>
+          <li><strong>Wind mitigation (coastal):</strong> 10-50% off in hurricane-exposed markets for homes with hurricane straps, hip roof, opening protection (impact windows), and reinforced roof-deck attachment. Get a wind mitigation inspection if you live in a coastal state.</li>
+          <li><strong>Impact-resistant roof (Class 4):</strong> 15-30% off in hail-prone states (Texas, Oklahoma, Colorado, much of the Midwest).</li>
+          <li><strong>New roof:</strong> roofs under 5 years old typically get 10-20% off vs. older roofs.</li>
+          <li><strong>Monitored security:</strong> 5-15% off with a professionally-monitored alarm system. Self-monitored systems usually qualify for less.</li>
+        </ul>
+      `,
+    },
+    {
+      heading: "Mid-tier discounts (3-10%)",
+      body: `
+        <ul>
+          <li><strong>Smart home devices:</strong> water leak sensors (Flo, Moen), smart smoke detectors, monitored sump pumps. Some carriers (Hippo, Lemonade, Travelers) offer 3-8% off for installed devices.</li>
+          <li><strong>Claim-free history:</strong> 5-10% after 3-5 years claim-free. Usually applied automatically.</li>
+          <li><strong>New home / new construction:</strong> 10-25% off for newly-built homes. Phases out as the home ages.</li>
+          <li><strong>Renovation discounts:</strong> updated electrical (no knob-and-tube), updated plumbing (no galvanized or polybutylene), updated HVAC. Especially valuable on older homes.</li>
+          <li><strong>Paid-in-full:</strong> 3-5% off when you pay the annual premium upfront rather than monthly.</li>
+          <li><strong>Auto-pay / paperless:</strong> 2-5% off for automatic payment and electronic documents.</li>
+          <li><strong>Loyalty:</strong> 3-5% after 3+ years with the same carrier. Like auto, can be offset by base-rate creep.</li>
+        </ul>
+      `,
+    },
+    {
+      heading: "Affinity discounts",
+      body: `
+        <p>Available if you belong to specific groups:</p>
+        <ul>
+          <li><strong>Military:</strong> USAA itself is military-only; other major carriers offer 5-10% off for active military and veterans</li>
+          <li><strong>AARP (50+):</strong> The Hartford has an AARP-specific program structured for older homeowners</li>
+          <li><strong>Professional associations:</strong> teachers, doctors, engineers, accountants often have affinity programs</li>
+          <li><strong>Alumni:</strong> some carriers partner with universities</li>
+          <li><strong>Employer discounts:</strong> many large employers negotiate group rates — check your benefits portal</li>
+        </ul>
+      `,
+    },
+    {
+      heading: "Risk-mitigation discounts (location-specific)",
+      body: `
+        <p>These are powerful in their relevant markets:</p>
+        <ul>
+          <li><strong>Wildfire mitigation (CA, AZ, CO, OR):</strong> defensible space cleared to 100 feet, Class A roof, ember-resistant vents, hardened windows. Can mean the difference between getting coverage at all in high-risk zones.</li>
+          <li><strong>Hurricane mitigation (FL, TX coastal, NC, SC, GA):</strong> wind mitigation inspection identifying hurricane straps, hip roof, opening protection. 10-50% premium reductions in hurricane-exposed markets.</li>
+          <li><strong>Earthquake retrofitting (CA):</strong> bolting foundation, bracing chimney, reinforcing cripple walls. Reduces earthquake endorsement premiums by 10-25%.</li>
+          <li><strong>Hail-resistant roof (Midwest):</strong> Class 4 impact-resistant shingles. 15-30% reductions in hail-belt states.</li>
+        </ul>
+      `,
+    },
+    {
+      heading: "How to capture all discounts you qualify for",
+      body: `
+        <ol>
+          <li><strong>List every possible affiliation when quoting</strong> — employer, school, military, professional associations. Many discounts only apply when you mention them.</li>
+          <li><strong>Get a wind mitigation inspection</strong> if you're in a coastal state. Cost: $75-$150. Potential savings: hundreds to thousands per year.</li>
+          <li><strong>Schedule a re-rate annually</strong> — ask your carrier directly: "What discounts am I getting? What discounts am I eligible for that I'm not getting?"</li>
+          <li><strong>Update your carrier on home improvements</strong> — new roof, new wiring, new HVAC, new security system, new water leak sensors. These trigger new discount eligibility.</li>
+          <li><strong>Bundle annually</strong> — if your auto and home are with different carriers, periodically re-shop the bundle. Bundle pricing is the single biggest lever.</li>
+        </ol>
+      `,
+    },
+  ]}
+  related={[
+    { label: "Cheapest home insurance", href: "/home-insurance/cheapest/", desc: "Who actually competes on price" },
+    { label: "How much do I need?", href: "/home-insurance/how-much-do-i-need/", desc: "Right-sizing coverage" },
+    { label: "Coverage types", href: "/home-insurance/coverage-types/", desc: "What each line item does" },
+    { label: "By state", href: "/home-insurance/by-state/", desc: "Regional considerations and specialists" },
+  ]}
+/>

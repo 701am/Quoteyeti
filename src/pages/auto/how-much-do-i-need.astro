@@ -1,0 +1,75 @@
+---
+import TopicPage from "~/layouts/TopicPage.astro";
+import { VERTICALS } from "~/data/verticals";
+
+const v = VERTICALS.auto;
+---
+
+<TopicPage
+  vertical={v}
+  topic="How much do I need?"
+  headline="How much auto insurance do you actually need?"
+  lede="State minimums are not the right answer for most drivers — they're the legal floor, not the smart purchase. Here's how to size your coverage to your actual situation."
+  sections={[
+    {
+      heading: "The two questions that matter",
+      body: `
+        <p>Auto insurance has many coverages, but the right amount comes down to answering two questions:</p>
+        <ol>
+          <li><strong>If I cause a serious accident, how much liability protection do I need?</strong></li>
+          <li><strong>If my own car is damaged or stolen, do I need the carrier to pay to fix/replace it?</strong></li>
+        </ol>
+        <p>The first question is about <em>liability</em>. The second is about <em>collision + comprehensive</em>. Everything else (medical payments, uninsured motorist, rental reimbursement) is secondary.</p>
+      `,
+    },
+    {
+      heading: "Liability: the most important number",
+      body: `
+        <p>Liability coverage pays for damages and injuries you cause to other people. Most states require minimum liability — but state minimums are dangerously low. Many states require 25/50/25 (25k per person bodily injury / 50k per accident / 25k property damage). A serious accident can produce damages in the hundreds of thousands or millions.</p>
+        <p><strong>The modern baseline:</strong> 100/300/100 (100k per person, 300k per accident, 100k property damage). This costs only marginally more than state minimums and provides meaningful protection.</p>
+        <p><strong>The better answer for higher-net-worth households:</strong> 250/500/100 plus a $1M+ umbrella policy. Umbrella insurance is cheap — typically $200-$400/year for $1M of additional liability — and protects your assets if a judgment exceeds your underlying limits.</p>
+        <p>Rule of thumb: carry liability limits at least equal to your net worth. If you have $400K in home equity + $200K in retirement + $50K in savings, you need at least $650K of coverage. Round up to $1M with umbrella.</p>
+      `,
+    },
+    {
+      heading: "Collision and comprehensive: when they make sense",
+      body: `
+        <p><strong>Collision</strong> pays for damage to your vehicle in a crash. <strong>Comprehensive</strong> pays for non-crash damage — theft, vandalism, weather, animal strikes.</p>
+        <p>The 10% rule: drop collision + comprehensive when your annual premium for both exceeds 10% of your vehicle's value. On a 12-year-old car worth $4,000, paying $500/year for collision and comprehensive doesn't make financial sense.</p>
+        <p>Conversely: any car worth more than ~$3,000 generally warrants full coverage. Any financed or leased car requires it (lenders mandate it).</p>
+      `,
+    },
+    {
+      heading: "Other coverages: what's worth carrying",
+      body: `
+        <p><strong>Uninsured/underinsured motorist (UM/UIM):</strong> protects you if the at-fault driver is uninsured or underinsured. Roughly 1 in 8 drivers nationally is uninsured. UM/UIM is cheap and essential — typically match your liability limits.</p>
+        <p><strong>Personal injury protection (PIP) / Medical payments:</strong> covers your medical bills regardless of fault. Required in some states (no-fault states); optional in others. If your health insurance is good, the value is limited; if your health coverage is high-deductible, PIP/MedPay is more useful.</p>
+        <p><strong>Rental reimbursement:</strong> $30-60/year for rental car coverage while yours is being repaired. Worth it if you don't have a backup vehicle.</p>
+        <p><strong>Gap insurance:</strong> only if you financed with less than 20% down or are upside-down on a lease. Buy from your insurer, not the dealer — dealer gap is typically 5-10x more expensive.</p>
+        <p><strong>Roadside assistance:</strong> often $10-20/year. If you have AAA or coverage through your credit card, skip it.</p>
+      `,
+    },
+    {
+      heading: "A worked example",
+      body: `
+        <p>A 38-year-old in Texas with a $300K home, $200K in retirement, two vehicles worth $25K and $14K, a teen driver, and good credit:</p>
+        <ul>
+          <li><strong>Liability:</strong> 250/500/100 (modest premium bump from 100/300/100, much better protection)</li>
+          <li><strong>Uninsured motorist:</strong> 250/500 to match liability</li>
+          <li><strong>Collision + Comprehensive:</strong> on both vehicles (both worth more than $3K, both are still depreciating assets)</li>
+          <li><strong>Deductibles:</strong> $1,000 each (cuts premium ~12% vs $500, manageable out-of-pocket)</li>
+          <li><strong>PIP/MedPay:</strong> minimum or skip — household has good health insurance</li>
+          <li><strong>Umbrella:</strong> $1M policy (~$300/year, protects net worth + future income from teen driver liability)</li>
+          <li><strong>Gap insurance:</strong> skip — both cars owned outright</li>
+        </ul>
+        <p>Total annual cost: roughly $2,800-$3,400/year depending on carrier. Coverage strong enough to handle a worst-case accident; no money wasted on coverages that don't fit.</p>
+      `,
+    },
+  ]}
+  related={[
+    { label: "Coverage types", href: "/auto/coverage-types/", desc: "What each line item actually covers" },
+    { label: "Common discounts", href: "/auto/discounts/", desc: "Lower the bill without lowering protection" },
+    { label: "Cheapest auto insurance", href: "/auto/cheapest/", desc: "Who actually prices low for your profile" },
+    { label: "When to add umbrella", href: "/blog/when-to-add-umbrella-policy/", desc: "The cheapest insurance most people don't have" },
+  ]}
+/>

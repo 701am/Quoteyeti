@@ -1,0 +1,145 @@
+---
+import BaseLayout from "~/layouts/BaseLayout.astro";
+import { VERTICAL_LIST } from "~/data/verticals";
+
+const verticalFAQs = [
+  { vertical: VERTICAL_LIST.find((v) => v.key === "auto")!, href: "/auto/faqs/", desc: "Coverage, claims, telematics, deductibles, rate increases — auto-specific questions." },
+  { vertical: VERTICAL_LIST.find((v) => v.key === "home")!, href: "/home-insurance/faqs/", desc: "Replacement cost, flood, claims, deductibles, breed restrictions — homeowner-specific questions." },
+  { vertical: VERTICAL_LIST.find((v) => v.key === "life")!, href: "/life-insurance/faqs/", desc: "Term vs whole, medical exams, beneficiaries, pre-existing conditions, free-look periods." },
+  { vertical: VERTICAL_LIST.find((v) => v.key === "business")!, href: "/business-insurance/faqs/", desc: "BOP, workers' comp, cyber, professional liability, audits, claims." },
+];
+---
+
+<BaseLayout
+  title="Insurance FAQs"
+  description="Frequently asked questions about insurance, organized by vertical. Coverage, claims, shopping, and policy management."
+  breadcrumbs={[
+    { name: "Home", url: "/" },
+    { name: "FAQs", url: "/faqs/" },
+  ]}
+>
+  <section class="page-hero">
+    <div class="container">
+      <p class="eyebrow">Reference</p>
+      <h1>Frequently asked <span class="serif-italic">questions</span></h1>
+      <p class="page-hero__lede">
+        Plain answers, organized by insurance type. No sales language, no hidden complexity. Click into the vertical you're shopping or just curious about.
+      </p>
+    </div>
+  </section>
+
+  <section class="container faqs-grid">
+    <ul>
+      {verticalFAQs.map((row) => (
+        <li>
+          <a href={row.href} class="faq-card" style={`--card-accent: ${row.vertical.accent}; --card-accent-soft: ${row.vertical.accentSoft};`}>
+            <span class="faq-card__icon">
+              <img src={row.vertical.icon} alt="" width="22" height="22" />
+            </span>
+            <div class="faq-card__body">
+              <h2>{row.vertical.label} FAQs</h2>
+              <p>{row.desc}</p>
+            </div>
+            <span class="faq-card__arrow" aria-hidden="true">
+              <svg width="14" height="12" viewBox="0 0 14 12" fill="none"><path d="M8 1l5 5-5 5M1 6h12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </span>
+          </a>
+        </li>
+      ))}
+    </ul>
+    <div class="faqs-grid__footer">
+      <p>FAQ pages for renters, pet, health, and travel insurance are in progress. In the meantime, see the relevant vertical hub for available guides.</p>
+    </div>
+  </section>
+
+  <style>
+    .page-hero {
+      padding-block: var(--space-16) var(--space-10);
+      background: var(--color-alice);
+    }
+    .eyebrow {
+      display: inline-flex; align-items: center; gap: var(--space-2);
+      font-family: var(--font-display); font-size: 0.75rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.14em;
+      color: var(--color-resolution);
+      background: var(--color-white);
+      padding: var(--space-2) var(--space-4);
+      border-radius: 100px;
+      margin-bottom: var(--space-4);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    }
+    .page-hero h1 {
+      font-size: clamp(2.25rem, 4vw, 3rem);
+      letter-spacing: -0.025em;
+    }
+    .serif-italic {
+      font-family: var(--font-serif, "Plantin", Georgia, serif);
+      font-style: italic; font-weight: 500;
+      color: var(--color-resolution);
+    }
+    .page-hero__lede {
+      font-size: 1.25rem; color: var(--color-text-strong);
+      margin-top: var(--space-4); max-width: 640px;
+      line-height: 1.55;
+    }
+    .faqs-grid { padding-block: var(--space-12) var(--space-20); }
+    .faqs-grid ul {
+      list-style: none; margin: 0; padding: 0;
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: var(--space-5);
+    }
+    .faq-card {
+      display: flex; align-items: flex-start; gap: var(--space-4);
+      padding: var(--space-6);
+      background: var(--color-white);
+      border: 1px solid var(--color-border);
+      border-radius: 12px;
+      text-decoration: none; color: inherit;
+      transition: all 0.2s;
+    }
+    .faq-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 24px rgba(0,0,0,0.06);
+      border-color: var(--card-accent);
+    }
+    .faq-card__icon {
+      display: inline-flex;
+      width: 44px; height: 44px;
+      align-items: center; justify-content: center;
+      background: var(--card-accent-soft);
+      border-radius: 10px;
+      flex-shrink: 0;
+    }
+    .faq-card__body { flex: 1; min-width: 0; }
+    .faq-card__body h2 {
+      font-family: var(--font-display); font-weight: 700;
+      font-size: 1.1875rem;
+      margin: 0 0 var(--space-2);
+      letter-spacing: -0.015em;
+      color: var(--color-resolution);
+    }
+    .faq-card__body p {
+      font-size: 0.9375rem; color: var(--color-text);
+      margin: 0; line-height: 1.55;
+    }
+    .faq-card__arrow {
+      flex-shrink: 0;
+      color: var(--card-accent);
+      transition: transform 0.2s;
+    }
+    .faq-card:hover .faq-card__arrow { transform: translateX(4px); }
+    .faqs-grid__footer {
+      margin-top: var(--space-10);
+      padding: var(--space-6);
+      background: var(--color-alice);
+      border-radius: 10px;
+      font-size: 0.875rem;
+      color: var(--color-text-muted);
+    }
+    .faqs-grid__footer p { margin: 0; }
+    @media (max-width: 720px) {
+      .faqs-grid ul { grid-template-columns: 1fr; }
+    }
+  </style>
+</BaseLayout>

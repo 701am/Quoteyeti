@@ -1,0 +1,142 @@
+---
+import TopicPage from "~/layouts/TopicPage.astro";
+import { VERTICALS } from "~/data/verticals";
+
+const v = VERTICALS.business;
+---
+
+<TopicPage
+  vertical={v}
+  topic="Types of coverage"
+  headline="Business insurance coverage types, explained"
+  lede="Commercial insurance is a collection of distinct coverages — each protecting against a specific kind of business risk. Knowing what each one does is the difference between buying a structure that fits your business and overpaying for things you don't need."
+  sections={[
+    {
+      heading: "General liability (GL)",
+      body: `
+        <p>The foundation of business insurance. Pays for third-party bodily injury, property damage, and personal/advertising injury claims arising from your business operations.</p>
+        <p>Typical claims GL covers:</p>
+        <ul>
+          <li>Customer slips at your premises and is injured</li>
+          <li>You accidentally damage a client's property while doing your work</li>
+          <li>A claim that your advertising or business statements injured someone's reputation</li>
+        </ul>
+        <p>Standard limits: $1M per occurrence / $2M aggregate. Most B2B contracts require this minimum.</p>
+        <p>GL does <strong>not</strong> cover: financial losses from your work (that's professional liability), your own employees' injuries (workers' comp), your own property (commercial property), data breaches (cyber).</p>
+      `,
+    },
+    {
+      heading: "Professional liability / Errors & Omissions (E&O)",
+      body: `
+        <p>Covers financial losses your clients claim came from your professional services or advice. Required if you do any kind of professional work — consulting, design, IT, accounting, legal, healthcare, real estate, financial advising.</p>
+        <p>Typical claims:</p>
+        <ul>
+          <li>A client claims your work caused them financial harm</li>
+          <li>Allegations of negligence, errors, or omissions in your services</li>
+          <li>Failure to deliver as promised</li>
+        </ul>
+        <p>GL doesn't cover any of these — only PL does. Standard limits: $1M-$2M for most professional services.</p>
+      `,
+    },
+    {
+      heading: "Business Owner's Policy (BOP)",
+      body: `
+        <p>A pre-bundled package combining general liability + commercial property + business interruption. Sold to qualifying small businesses at a meaningful discount vs. buying these separately.</p>
+        <p>BOP qualifying criteria typically include:</p>
+        <ul>
+          <li>Annual revenue under $1M-$5M (varies by carrier)</li>
+          <li>Eligible business class (most service, retail, office, and light manufacturing qualify)</li>
+          <li>Limited premises (typically under 25,000 sq ft)</li>
+        </ul>
+        <p>If your business qualifies, a BOP is almost always cheaper than buying the components separately.</p>
+      `,
+    },
+    {
+      heading: "Commercial property",
+      body: `
+        <p>Covers your business's physical property — buildings, equipment, inventory, furniture, computers, signage. Pays for damage from covered perils (fire, theft, vandalism, certain weather events).</p>
+        <p>Important sub-choices:</p>
+        <ul>
+          <li><strong>Replacement cost vs. actual cash value</strong> — always pick replacement cost</li>
+          <li><strong>Special form (open peril) vs. basic/broad form</strong> — special form is broader and worth the modest premium difference</li>
+        </ul>
+        <p>If you don't own the building, you still need commercial property to cover your contents and equipment.</p>
+      `,
+    },
+    {
+      heading: "Business interruption",
+      body: `
+        <p>Pays for lost income and continuing expenses if a covered event forces you to suspend operations. Typically included in a BOP; available separately for businesses that don't qualify for a BOP.</p>
+        <p>Key sublimits to verify:</p>
+        <ul>
+          <li><strong>Coverage period:</strong> 12 months is typical; some businesses need longer recovery windows</li>
+          <li><strong>Extended business income:</strong> covers the ramp-up period after you reopen, not just while you're closed</li>
+          <li><strong>Civil authority coverage:</strong> covers losses when authorities prevent access to your business (e.g., after a nearby fire)</li>
+        </ul>
+      `,
+    },
+    {
+      heading: "Workers' compensation",
+      body: `
+        <p>Required by law in nearly every state if you have employees (Texas is the major exception, but most Texas employers still carry it).</p>
+        <p>Covers:</p>
+        <ul>
+          <li>Medical expenses for work-related injuries</li>
+          <li>Lost wages while injured workers recover</li>
+          <li>Disability benefits</li>
+          <li>Death benefits</li>
+        </ul>
+        <p>In exchange, employees generally cannot sue you for workplace injuries — this is the "grand bargain" of workers' comp.</p>
+      `,
+    },
+    {
+      heading: "Cyber liability",
+      body: `
+        <p>Covers expenses from data breaches and cyber incidents. Increasingly essential — average small-business breach costs $120K-$1.2M.</p>
+        <p>Typical cyber coverage includes:</p>
+        <ul>
+          <li><strong>First-party:</strong> your costs for forensic investigation, customer notification, credit monitoring, business interruption, ransomware payments</li>
+          <li><strong>Third-party:</strong> claims by customers, employees, or partners whose data was compromised, plus regulatory fines</li>
+        </ul>
+        <p>If you handle any customer or employee data, accept payments, or use cloud services, you have cyber exposure. Don't skip this.</p>
+      `,
+    },
+    {
+      heading: "Commercial auto",
+      body: `
+        <p>Covers vehicles your business owns and uses for business purposes. Personal auto policies typically exclude business use.</p>
+        <p>Sub-types:</p>
+        <ul>
+          <li><strong>Owned auto:</strong> vehicles titled to the business</li>
+          <li><strong>Hired auto:</strong> rented or leased vehicles</li>
+          <li><strong>Non-owned auto (HNOA):</strong> employees using their personal vehicles for business — important even if your business doesn't own any vehicles</li>
+        </ul>
+      `,
+    },
+    {
+      heading: "Commercial umbrella",
+      body: `
+        <p>Excess liability coverage that sits on top of your underlying liability layers (GL, commercial auto, employer's liability). Kicks in when underlying limits are exhausted.</p>
+        <p>Affordable: a $1M commercial umbrella often costs $400-$1,200/year for a small business. The first million is the most expensive; each additional million adds less.</p>
+        <p>Worth carrying once your business has meaningful assets or your contracts require it.</p>
+      `,
+    },
+    {
+      heading: "Specialized coverages",
+      body: `
+        <p><strong>Employment Practices Liability (EPLI):</strong> covers claims from employees for discrimination, harassment, wrongful termination. Essential once you have employees.</p>
+        <p><strong>Directors & Officers (D&O):</strong> covers personal liability of executives. Common requirement for raising capital or sitting on boards.</p>
+        <p><strong>Product liability:</strong> separate or as part of GL for businesses that manufacture or sell physical products.</p>
+        <p><strong>Equipment breakdown:</strong> covers mechanical failures of business equipment. Often a BOP endorsement.</p>
+        <p><strong>Crime / fidelity:</strong> covers employee theft, forgery, computer fraud.</p>
+        <p><strong>Inland marine:</strong> covers business property in transit or at off-premises locations.</p>
+      `,
+    },
+  ]}
+  related={[
+    { label: "How much do I need?", href: "/business-insurance/how-much-do-i-need/", desc: "Right-sizing each coverage to your business" },
+    { label: "Cheapest business insurance", href: "/business-insurance/cheapest/", desc: "Who competes on price by industry" },
+    { label: "Common discounts", href: "/business-insurance/discounts/", desc: "BOP bundling and structural savings" },
+    { label: "Business FAQs", href: "/business-insurance/faqs/", desc: "Quick answers to common questions" },
+  ]}
+/>

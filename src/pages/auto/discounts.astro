@@ -1,0 +1,87 @@
+---
+import TopicPage from "~/layouts/TopicPage.astro";
+import { VERTICALS } from "~/data/verticals";
+
+const v = VERTICALS.auto;
+---
+
+<TopicPage
+  vertical={v}
+  topic="Discounts"
+  headline="Auto insurance discounts that actually matter"
+  lede="Carriers advertise dozens of discounts. Most are small. A handful move premiums by 10-30% — and most people don't capture all of them. Here's where the real savings are."
+  sections={[
+    {
+      heading: "The discounts that move the needle (5%+)",
+      body: `
+        <p>These produce meaningful premium reductions. Capture as many as you qualify for.</p>
+        <ul>
+          <li><strong>Multi-policy (bundling):</strong> 10-25% off when you bundle home + auto, renters + auto, or condo + auto. The largest single discount available at most carriers.</li>
+          <li><strong>Multi-car:</strong> 10-20% off when two or more vehicles are on the same policy. Almost universal at major carriers.</li>
+          <li><strong>Telematics / safe driver programs:</strong> 10-30% off based on actual driving behavior. Progressive Snapshot, Allstate Drivewise, State Farm Drive Safe & Save are the major programs. Best return for predictable, low-mileage drivers; can <em>increase</em> premiums for aggressive drivers.</li>
+          <li><strong>Paid-in-full:</strong> 5-10% off when you pay the entire 6-month policy upfront rather than monthly. The cheapest way to lower your annual premium.</li>
+          <li><strong>Good driver / claim-free:</strong> 5-25% off after 3-5 years claim-free. Usually applied automatically at renewal — but some carriers require you to opt in.</li>
+          <li><strong>Good student:</strong> 5-25% for students under 25 with a B average or better. Requires school documentation but is a major discount for households with teen drivers.</li>
+        </ul>
+      `,
+    },
+    {
+      heading: "Discounts in the 1-5% range",
+      body: `
+        <ul>
+          <li><strong>Defensive driving course:</strong> small premium reduction for completing a state-approved defensive driving course. Often valuable specifically after a ticket — can remove the surcharge.</li>
+          <li><strong>Loyalty / tenure:</strong> 3-7% after 3-5 years with the same carrier. But: this is often offset by "price walking" — quietly raising your base rate while showing the loyalty discount, leaving you net higher.</li>
+          <li><strong>Anti-theft device:</strong> 2-5% for factory or aftermarket alarm/GPS tracking systems.</li>
+          <li><strong>Vehicle safety features:</strong> 2-5% for vehicles with anti-lock brakes, airbags, automatic emergency braking, lane departure warning.</li>
+          <li><strong>Pay-by-mail / e-pay:</strong> 2-5% for setting up automatic payment or paperless billing.</li>
+          <li><strong>Online quote / early shopper:</strong> 3-7% for quoting before your current policy expires.</li>
+          <li><strong>Homeowner discount:</strong> 2-5% just for owning a home, even if your home policy isn't with the same carrier. Often missed.</li>
+        </ul>
+      `,
+    },
+    {
+      heading: "Affinity and professional discounts",
+      body: `
+        <p>Discounts available if you belong to a specific group:</p>
+        <ul>
+          <li><strong>Military:</strong> available at most carriers; USAA itself is military-only and consistently among the cheapest.</li>
+          <li><strong>Federal employee:</strong> 5-10% at carriers that participate. GEICO is the largest user of this discount.</li>
+          <li><strong>Alumni:</strong> some carriers partner with universities for alumni discounts.</li>
+          <li><strong>Professional association:</strong> doctors, nurses, teachers, engineers, accountants often qualify for affiliate discounts at major carriers.</li>
+          <li><strong>AAA / AARP:</strong> AAA members get carrier discounts; The Hartford's AARP program is specifically structured for AARP members 50+.</li>
+          <li><strong>Employer:</strong> many large employers negotiate group rates with carriers. Check your benefits portal.</li>
+        </ul>
+      `,
+    },
+    {
+      heading: "Discounts that sound impressive but aren't",
+      body: `
+        <p>Some discounts are real but small. Don't let a carrier sell you on these as your reason for choosing them:</p>
+        <ul>
+          <li><strong>"15 discounts available!"</strong> Carriers count tiny discounts (anti-theft, e-bill) as separate items to inflate the discount count.</li>
+          <li><strong>Marriage discount:</strong> typically 1-3%, sometimes nothing in some states. Not a reason to switch carriers.</li>
+          <li><strong>Profession-specific (other than the ones above):</strong> varies widely; some are pennies.</li>
+          <li><strong>"Up to 30% off!"</strong> The actual discount you qualify for is almost always significantly less than the maximum advertised.</li>
+        </ul>
+      `,
+    },
+    {
+      heading: "How to capture all discounts you qualify for",
+      body: `
+        <p>Three practical steps:</p>
+        <ol>
+          <li><strong>When getting a quote</strong>, list every possible affiliation: employer, college, military service, professional associations. Many discounts are not auto-applied — they require you to mention them.</li>
+          <li><strong>Annually at renewal</strong>, ask your agent or call customer service: "What discounts am I currently getting, and what discounts am I eligible for that I'm not getting?" Often there's at least one missing.</li>
+          <li><strong>At life events</strong>, re-check: marriage, home purchase, kid getting good grades, retirement, new job. Each can trigger new discount eligibility.</li>
+        </ol>
+        <p>Discounts compound. The combination of multi-policy + multi-car + telematics + paid-in-full + good driver can produce 35-50% premium reductions vs. the base rate. That's not marketing — that's stacked discount math.</p>
+      `,
+    },
+  ]}
+  related={[
+    { label: "Cheapest auto insurance", href: "/auto/cheapest/", desc: "Who actually competes on price" },
+    { label: "How much do I need?", href: "/auto/how-much-do-i-need/", desc: "Right-sizing coverage" },
+    { label: "Coverage types", href: "/auto/coverage-types/", desc: "What each line item does" },
+    { label: "Why reshop every 6 months", href: "/blog/why-reshop-auto-insurance-every-six-months/", desc: "The undervalued personal-finance move" },
+  ]}
+/>

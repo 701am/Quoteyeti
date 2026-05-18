@@ -1,0 +1,298 @@
+---
+import BaseLayout from "~/layouts/BaseLayout.astro";
+import { getCollection } from "astro:content";
+import { VERTICALS } from "~/data/verticals";
+
+const v = VERTICALS.auto;
+
+// Pull recent content across auto's collections
+const [reviews, brands, locations, glossary, faqs] = await Promise.all([
+  getCollection("auto-reviews", ({ data }) => !data.draft),
+  getCollection("auto-brands", ({ data }) => !data.draft),
+  getCollection("auto-locations", ({ data }) => !data.draft),
+  getCollection("auto-glossary", ({ data }) => !data.draft),
+  getCollection("auto-faqs", ({ data }) => !data.draft),
+]);
+
+const sections = [
+  {
+    title: "Carrier reviews",
+    desc: "In-depth reviews of major auto insurance carriers — pricing, customer experience, claims, coverage breadth.",
+    items: reviews.slice(0, 6).map((r) => ({
+      label: r.data.title,
+      href: `/auto/reviews/${r.id}/`,
+      desc: r.data.description,
+    })),
+    indexHref: "/auto/reviews/",
+    indexLabel: "All reviews",
+  },
+  {
+    title: "Buying decisions",
+    desc: "How to decide what you actually need — and what you don't.",
+    items: [
+      { label: "Cheapest car insurance", href: "/auto/cheapest/", desc: "Who actually competes on price by profile" },
+      { label: "How much do I need?", href: "/auto/how-much-do-i-need/", desc: "Sizing liability and full coverage" },
+      { label: "Types of coverage", href: "/auto/coverage-types/", desc: "Each line item explained" },
+      { label: "Common discounts", href: "/auto/discounts/", desc: "Where the real savings are" },
+    ],
+  },
+  {
+    title: "By state",
+    desc: "Auto insurance is state-regulated. Average rates, minimum coverage requirements, and competitive carriers vary by where you live.",
+    items: locations.slice(0, 8).map((l) => ({
+      label: l.data.title,
+      href: `/auto/by-state/${l.id}/`,
+      desc: l.data.description,
+    })),
+    indexHref: "/auto/by-state/",
+    indexLabel: "All states",
+  },
+  {
+    title: "By vehicle brand",
+    desc: "How specific vehicle brands affect your insurance rates — claim frequency, parts cost, theft risk, repair networks.",
+    items: brands.filter((b) => !b.id.includes("/")).slice(0, 8).map((b) => ({
+      label: b.data.title,
+      href: `/auto/brands/${b.id}/`,
+      desc: b.data.description,
+    })),
+    indexHref: "/auto/brands/",
+    indexLabel: "All brands",
+  },
+];
+---
+
+<BaseLayout
+  title={`${v.label} Guides`}
+  description="Auto insurance guides — reviews, buying decisions, state-specific pricing, and brand-level rate analysis."
+  breadcrumbs={[
+    { name: "Home", url: "/" },
+    { name: v.short, url: v.path },
+    { name: "Guides", url: `${v.path}guides/` },
+  ]}
+>
+  <section class="page-hero topo-bg">
+    <div class="container">
+      <nav class="breadcrumbs" aria-label="Breadcrumb">
+        <a href="/">Home</a>
+        <span class="breadcrumbs__sep" aria-hidden="true">›</span>
+        <a href={v.path}>{v.short}</a>
+        <span class="breadcrumbs__sep" aria-hidden="true">›</span>
+        <span aria-current="page">Guides</span>
+      </nav>
+      <p class="eyebrow">
+        <img src={v.icon} alt="" width="18" height="18" />
+        {v.label}
+      </p>
+      <h1>
+        Guides &amp; <span class="serif-italic">explainers</span>
+      </h1>
+      <p class="page-hero__lede">
+        Reviews of every major carrier, state-by-state pricing, brand-level rate analysis, and the buying decisions that actually move premiums — written by editors who read the policies.
+      </p>
+    </div>
+  </section>
+
+  <div class="container guides-stack">
+    {sections.map((section) => (
+      <section class="guide-section">
+        <header class="guide-section__head">
+          <h2 class="guide-section__title">{section.title}</h2>
+          <p class="guide-section__desc">{section.desc}</p>
+        </header>
+        <ul class="guide-section__grid">
+          {section.items.map((item) => (
+            <li>
+              <a href={item.href} class="guide-card">
+                <h3 class="guide-card__title">{item.label}</h3>
+                {item.desc && <p class="guide-card__desc">{item.desc}</p>}
+                <span class="guide-card__cta">
+                  Read
+                  <svg width="14" height="12" viewBox="0 0 14 12" fill="none" aria-hidden="true">
+                    <path d="M8 1l5 5-5 5M1 6h12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </span>
+              </a>
+            </li>
+          ))}
+        </ul>
+        {section.indexHref && (
+          <a href={section.indexHref} class="guide-section__index">
+            {section.indexLabel} →
+          </a>
+        )}
+      </section>
+    ))}
+
+    <section class="guide-section">
+      <header class="guide-section__head">
+        <h2 class="guide-section__title">Quick reference</h2>
+        <p class="guide-section__desc">Search-friendly answers and definitions for common auto insurance terms.</p>
+      </header>
+      <div class="quick-refs">
+        <a href="/auto/faqs/" class="quick-ref">
+          <h3>Auto FAQs</h3>
+          <p>{faqs.length} frequently asked questions answered.</p>
+        </a>
+        <a href="/auto/glossary/" class="quick-ref">
+          <h3>Auto glossary</h3>
+          <p>{glossary.length} insurance terms defined.</p>
+        </a>
+      </div>
+    </section>
+  </div>
+
+  <style>
+    .page-hero {
+      padding-block: var(--space-16) var(--space-10);
+      background: var(--section-accent-soft);
+      position: relative; overflow: hidden;
+    }
+    .topo-bg::before {
+      content: "";
+      position: absolute; inset: 0;
+      background-image:
+        radial-gradient(ellipse 80% 50% at 80% 50%, rgba(255,255,255,0) 0%, rgba(255,255,255,0.3) 100%),
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='600' viewBox='0 0 600 600'%3E%3Cg fill='none' stroke='%23000' stroke-width='0.5' stroke-opacity='0.04'%3E%3Cpath d='M0,300 Q150,200 300,300 T600,300'/%3E%3Cpath d='M0,260 Q150,160 300,260 T600,260'/%3E%3Cpath d='M0,340 Q150,240 300,340 T600,340'/%3E%3C/g%3E%3C/svg%3E");
+      pointer-events: none; z-index: 0;
+    }
+    .page-hero > * { position: relative; z-index: 1; }
+    .breadcrumbs {
+      font-size: 0.8125rem; color: var(--color-text-muted);
+      margin-bottom: var(--space-5);
+      display: flex; align-items: center; gap: var(--space-2); flex-wrap: wrap;
+    }
+    .breadcrumbs a { color: var(--color-text-muted); text-decoration: none; }
+    .breadcrumbs a:hover { color: var(--section-accent); }
+    .breadcrumbs__sep { opacity: 0.4; }
+    .eyebrow {
+      display: inline-flex; align-items: center; gap: var(--space-2);
+      font-family: var(--font-display); font-size: 0.75rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.14em;
+      color: var(--section-accent);
+      background: var(--color-white);
+      padding: var(--space-2) var(--space-4);
+      border-radius: 100px;
+      margin-bottom: var(--space-4);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    }
+    .page-hero h1 {
+      font-size: clamp(2.25rem, 4vw, 3rem);
+      letter-spacing: -0.025em;
+    }
+    .serif-italic {
+      font-family: var(--font-serif, "Plantin", Georgia, serif);
+      font-style: italic; font-weight: 500;
+      color: var(--section-accent);
+    }
+    .page-hero__lede {
+      font-size: 1.25rem; color: var(--color-text-strong);
+      margin-top: var(--space-4); max-width: 640px;
+      line-height: 1.55;
+    }
+    .guides-stack {
+      padding-block: var(--space-14) var(--space-20);
+      display: flex; flex-direction: column;
+      gap: var(--space-16);
+    }
+    .guide-section__head {
+      max-width: 720px;
+      margin-bottom: var(--space-7);
+    }
+    .guide-section__title {
+      font-family: var(--font-display); font-weight: 700;
+      font-size: 1.625rem;
+      letter-spacing: -0.02em;
+      margin: 0 0 var(--space-3);
+      color: var(--color-resolution);
+    }
+    .guide-section__desc {
+      font-size: 1rem; line-height: 1.6;
+      color: var(--color-text);
+      margin: 0;
+    }
+    .guide-section__grid {
+      list-style: none; margin: 0; padding: 0;
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: var(--space-4);
+    }
+    .guide-card {
+      display: flex; flex-direction: column;
+      padding: var(--space-6);
+      background: var(--color-white);
+      border: 1px solid var(--color-border);
+      border-radius: 12px;
+      text-decoration: none; color: inherit;
+      transition: all 0.2s ease;
+      height: 100%;
+    }
+    .guide-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 24px rgba(0,0,0,0.06);
+      border-color: var(--section-accent);
+    }
+    .guide-card__title {
+      font-family: var(--font-display); font-weight: 700;
+      font-size: 1.0625rem;
+      margin: 0 0 var(--space-3);
+      letter-spacing: -0.01em;
+      color: var(--color-resolution);
+      line-height: 1.3;
+    }
+    .guide-card__desc {
+      font-size: 0.875rem;
+      color: var(--color-text);
+      margin: 0 0 var(--space-4);
+      line-height: 1.55;
+      flex: 1;
+    }
+    .guide-card__cta {
+      display: inline-flex; align-items: center; gap: var(--space-2);
+      font-family: var(--font-display); font-weight: 700;
+      font-size: 0.75rem;
+      color: var(--section-accent);
+      text-transform: uppercase; letter-spacing: 0.08em;
+      margin-top: auto;
+    }
+    .guide-card__cta svg { transition: transform 0.2s; }
+    .guide-card:hover .guide-card__cta svg { transform: translateX(3px); }
+    .guide-section__index {
+      display: inline-block;
+      margin-top: var(--space-5);
+      font-family: var(--font-display); font-weight: 700;
+      font-size: 0.875rem;
+      color: var(--section-accent);
+      text-decoration: none;
+      border-bottom: 1px solid var(--section-accent);
+      padding-bottom: 2px;
+    }
+    .quick-refs {
+      display: grid; grid-template-columns: repeat(2, 1fr);
+      gap: var(--space-4);
+    }
+    .quick-ref {
+      display: block;
+      padding: var(--space-6);
+      background: var(--section-accent-soft);
+      border-radius: 12px;
+      text-decoration: none; color: inherit;
+      transition: all 0.2s;
+    }
+    .quick-ref:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 16px rgba(0,0,0,0.06);
+    }
+    .quick-ref h3 {
+      font-family: var(--font-display); font-weight: 700;
+      font-size: 1.125rem; margin: 0 0 var(--space-2);
+      color: var(--section-accent);
+    }
+    .quick-ref p {
+      font-size: 0.9375rem; color: var(--color-text);
+      margin: 0;
+    }
+    @media (max-width: 720px) {
+      .guide-section__grid, .quick-refs { grid-template-columns: 1fr; }
+    }
+  </style>
+</BaseLayout>

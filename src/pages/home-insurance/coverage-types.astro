@@ -1,0 +1,94 @@
+---
+import TopicPage from "~/layouts/TopicPage.astro";
+import { VERTICALS } from "~/data/verticals";
+
+const v = VERTICALS.home;
+---
+
+<TopicPage
+  vertical={v}
+  topic="Types of coverage"
+  headline="Home insurance coverage types, explained"
+  lede="A homeowners policy bundles six distinct coverages. Each does something specific. Here's what each one pays for — and the ones most homeowners get wrong."
+  sections={[
+    {
+      heading: "Coverage A — Dwelling",
+      body: `
+        <p>The core coverage. Pays to rebuild your home if it's destroyed or damaged by a covered peril (fire, wind, hail, vandalism, etc.).</p>
+        <p>Should be set at the <strong>replacement cost</strong> of your home, not market value. This is where most homeowners are underinsured — replacement costs have risen sharply post-2020 and many policies haven't been updated.</p>
+      `,
+    },
+    {
+      heading: "Coverage B — Other structures",
+      body: `
+        <p>Detached structures on your property: garage (if detached), shed, fence, gazebo, in-ground pool, detached workshop.</p>
+        <p>Default is typically 10% of Coverage A. If you have significant outbuildings or a detached garage that's been finished as a workspace, you may need to raise this.</p>
+      `,
+    },
+    {
+      heading: "Coverage C — Personal property",
+      body: `
+        <p>Your belongings — furniture, electronics, clothing, tools, kitchenware.</p>
+        <p>Default is typically 50-70% of Coverage A. Two critical sub-decisions:</p>
+        <ul>
+          <li><strong>Replacement cost vs. actual cash value:</strong> always pick replacement cost. ACV depreciates older items and pays out a fraction of new-equivalent cost.</li>
+          <li><strong>Sublimits on specific items:</strong> jewelry, firearms, fine art, electronics, collectibles often have per-item or category caps ($1,500-$5,000 typical). Items above the sublimit need a <strong>scheduled rider</strong>.</li>
+        </ul>
+      `,
+    },
+    {
+      heading: "Coverage D — Loss of use (ALE)",
+      body: `
+        <p>Pays for temporary housing, food, and necessary expenses while your home is being repaired after a covered loss.</p>
+        <p>Default is 20-30% of Coverage A. Most homeowners underestimate this — after a major loss, you could need 6-18 months of temporary housing.</p>
+        <p>Important sublimit: many policies cap loss of use by both <em>time</em> (12-24 months) and <em>amount</em>. Read both.</p>
+      `,
+    },
+    {
+      heading: "Coverage E — Personal liability",
+      body: `
+        <p>Protects you if someone is injured at your home or you cause damage off your property (e.g., your dog bites a neighbor on a walk).</p>
+        <p>Default is $100,000-$300,000. Smart baseline is $300,000-$500,000. Higher-net-worth households should pair with an umbrella policy.</p>
+        <p>Especially important if you have a pool, trampoline, dog (some breeds raise rates), or entertain frequently.</p>
+      `,
+    },
+    {
+      heading: "Coverage F — Medical payments",
+      body: `
+        <p>Pays minor medical expenses for non-residents injured at your home, regardless of fault. Default is $1,000-$5,000.</p>
+        <p>Functionally a small "no-questions-asked" pool for neighbor injuries — pays the urgent care bill so it doesn't become a liability claim. Worth carrying.</p>
+      `,
+    },
+    {
+      heading: "Common endorsements (added coverages)",
+      body: `
+        <p><strong>Sewer/water backup:</strong> covers damage from sewer or sump pump backup. Essential in older urban areas. $50-$150/year.</p>
+        <p><strong>Service line:</strong> covers underground pipes (water, sewer, power, gas) running from the street to your house. Frequent claim on older homes. $30-$80/year.</p>
+        <p><strong>Scheduled personal property:</strong> covers specific high-value items above policy sublimits (engagement ring, fine art, instruments). Each item requires an appraisal.</p>
+        <p><strong>Earthquake:</strong> separate endorsement or stand-alone policy. Required in earthquake-prone areas (especially California).</p>
+        <p><strong>Equipment breakdown:</strong> covers HVAC, water heater, and major appliance failures. $25-$50/year. Worth it for older systems.</p>
+        <p><strong>Identity theft restoration:</strong> covers expenses to restore your identity after theft. Limited value if you already have monitoring services.</p>
+      `,
+    },
+    {
+      heading: "Critical exclusions",
+      body: `
+        <p>Standard policies do NOT cover:</p>
+        <ul>
+          <li><strong>Flood</strong> — separate NFIP or private flood policy</li>
+          <li><strong>Earthquake</strong> — separate endorsement or stand-alone</li>
+          <li><strong>Wear and tear, maintenance, mold (mostly)</strong></li>
+          <li><strong>Insects, rodents, termites</strong></li>
+          <li><strong>Government action</strong> (war, nuclear, etc.)</li>
+          <li><strong>Wind in coastal hurricane zones</strong> — often excluded or has a separate hurricane deductible</li>
+        </ul>
+      `,
+    },
+  ]}
+  related={[
+    { label: "How much do I need?", href: "/home-insurance/how-much-do-i-need/", desc: "Sizing each coverage to your situation" },
+    { label: "Common discounts", href: "/home-insurance/discounts/", desc: "Where the real savings are" },
+    { label: "Cheapest home insurance", href: "/home-insurance/cheapest/", desc: "Who actually competes on price" },
+    { label: "Home FAQs", href: "/home-insurance/faqs/", desc: "Quick answers to common questions" },
+  ]}
+/>

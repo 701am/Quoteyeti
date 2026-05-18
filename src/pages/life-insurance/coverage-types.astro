@@ -1,0 +1,90 @@
+---
+import TopicPage from "~/layouts/TopicPage.astro";
+import { VERTICALS } from "~/data/verticals";
+
+const v = VERTICALS.life;
+---
+
+<TopicPage
+  vertical={v}
+  topic="Types of coverage"
+  headline="Life insurance coverage types, explained"
+  lede="Life insurance comes in four main product categories — but for most buyers, the choice is much simpler than the brochures suggest."
+  sections={[
+    {
+      heading: "Term life insurance",
+      body: `
+        <p>Pays a death benefit if you die during a specified term (10, 15, 20, 25, or 30 years). The policy ends with no payout if you outlive it.</p>
+        <p>Term is the math-correct choice for 90%+ of buyers. Premiums are dramatically cheaper than permanent insurance because the carrier isn't building up cash value or guaranteeing lifetime coverage.</p>
+        <p>A healthy 35-year-old can buy <strong>$1M of 20-year term for roughly $30-$50/month</strong>. The same coverage in whole life would cost $700-$1,200/month.</p>
+        <p>Use term to cover specific obligations with end dates: mortgage years, child-rearing years, working years. When the obligations end, you typically don't need coverage anymore — your savings have replaced the need.</p>
+      `,
+    },
+    {
+      heading: "Whole life insurance",
+      body: `
+        <p>Permanent insurance that lasts your entire life (assuming premiums are paid) and builds cash value that grows tax-deferred.</p>
+        <p>Premiums are 10-20x higher than equivalent term coverage. Cash value grows slowly — typically 2-4% annually after fees. Withdrawals during life reduce the death benefit.</p>
+        <p><strong>Whole life makes sense for:</strong></p>
+        <ul>
+          <li>High-net-worth estate planning (using whole life to provide liquidity for estate taxes)</li>
+          <li>Special-needs trust funding</li>
+          <li>Business succession arrangements</li>
+          <li>Some specific tax strategies</li>
+        </ul>
+        <p>For everyone else, whole life is heavily oversold relative to its actual benefit. "Buy term and invest the difference" beats whole life on math in nearly all consumer cases.</p>
+      `,
+    },
+    {
+      heading: "Universal life insurance",
+      body: `
+        <p>Permanent coverage with flexibility in premiums and death benefit. The cash value grows at a credited interest rate set by the carrier.</p>
+        <p>More complex than whole life. The flexibility cuts both ways — you can underpay premiums and underfund the policy, causing it to lapse in your 70s or 80s after decades of payments.</p>
+        <p>Universal life suits situations where you need permanent coverage but want premium flexibility — e.g., business owners with variable income.</p>
+      `,
+    },
+    {
+      heading: "Indexed Universal Life (IUL)",
+      body: `
+        <p>Universal life where the cash value's growth is tied to a stock market index (S&P 500, etc.) — with a cap on the upside and a floor at 0% (you can't lose money but you also can't fully participate in market gains).</p>
+        <p><strong>Be cautious.</strong> IUL is the most aggressively-sold and most-complex life insurance product. Marketing illustrations often show optimistic compound returns that don't account for fees, cap changes, and the way illustrated rates differ from actual rates.</p>
+        <p>The structure can work, but the fees are high, the complexity is real, and the agents earn high commissions. If you don't deeply understand cap rates, participation rates, multipliers, indexed account allocations, and how cost of insurance compounds — you shouldn't buy IUL.</p>
+        <p>The honest version: for most people considering IUL, the right answer is term insurance + a 401(k)/IRA + a taxable investment account. Cheaper, simpler, better-performing in most scenarios.</p>
+      `,
+    },
+    {
+      heading: "Variable Universal Life (VUL)",
+      body: `
+        <p>Universal life where the cash value is invested in subaccounts that function like mutual funds. You bear the market risk directly.</p>
+        <p>Even more complex than IUL. Same warning: high fees, agent-driven sales, performance often disappoints relative to a separate term + investment portfolio.</p>
+      `,
+    },
+    {
+      heading: "Specialized products",
+      body: `
+        <p><strong>Final expense insurance:</strong> small whole life policies ($5K-$25K) marketed for funeral and end-of-life costs. Often sold with guaranteed-issue or simplified underwriting. Useful for older buyers who can't qualify for larger policies and who specifically want burial coverage.</p>
+        <p><strong>Guaranteed-issue life insurance:</strong> no health questions, no exam. Premiums are very high, coverage is small, and there's typically a 2-year waiting period before full death benefit pays. Last-resort option for those who can't qualify for traditional underwriting.</p>
+        <p><strong>Group life insurance:</strong> coverage through your employer, typically 1-2x salary. Cheap or free as a benefit but doesn't follow you if you leave the job. Treat it as supplemental, not as your primary coverage.</p>
+        <p><strong>Mortgage protection insurance:</strong> term life sold by mortgage companies, structured to pay off the mortgage if you die. Usually more expensive than buying equivalent term coverage on the open market. Not recommended.</p>
+      `,
+    },
+    {
+      heading: "Common riders worth understanding",
+      body: `
+        <ul>
+          <li><strong>Accelerated death benefit:</strong> allows early payout if you're diagnosed with a terminal illness. Often included free. Useful.</li>
+          <li><strong>Waiver of premium:</strong> waives premium payments if you become disabled. Worth considering, often inexpensive.</li>
+          <li><strong>Convertibility:</strong> allows you to convert term coverage to permanent coverage without new underwriting. Valuable if your health changes.</li>
+          <li><strong>Return of premium:</strong> refunds your premium if you outlive the term. Sounds good but is typically overpriced — you do better buying cheaper plain term and investing the difference.</li>
+          <li><strong>Child rider:</strong> small coverage for your kids. Usually unnecessary — children don't need life insurance unless they have specific medical conditions.</li>
+        </ul>
+      `,
+    },
+  ]}
+  related={[
+    { label: "Cheapest life insurance", href: "/life-insurance/cheapest/", desc: "Who actually competes on price" },
+    { label: "How much do I need?", href: "/life-insurance/how-much-do-i-need/", desc: "Right-sizing your coverage" },
+    { label: "Common discounts", href: "/life-insurance/discounts/", desc: "Underwriting credits explained" },
+    { label: "Term vs whole life", href: "/life-insurance/guides/term-vs-whole-life/", desc: "The detailed comparison" },
+  ]}
+/>

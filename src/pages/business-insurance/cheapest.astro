@@ -1,0 +1,93 @@
+---
+import TopicPage from "~/layouts/TopicPage.astro";
+import { VERTICALS } from "~/data/verticals";
+
+const v = VERTICALS.business;
+---
+
+<TopicPage
+  vertical={v}
+  topic="Cheapest"
+  headline="Cheapest business insurance"
+  lede="The cheapest business insurance depends entirely on what you do. A freelance consultant pays a fraction of what a contractor pays. The right question isn't 'who's cheapest' — it's 'who's cheapest for businesses like mine.'"
+  sections={[
+    {
+      heading: "Cheapest carriers by business type",
+      body: `
+        <p><strong>For low-risk professional services</strong> (consultants, designers, software developers, accountants):</p>
+        <ul>
+          <li><strong>Hiscox</strong> — direct online quoting, often cheapest for solo professionals and small firms</li>
+          <li><strong>Next Insurance</strong> — digital-first, fast underwriting</li>
+          <li><strong>Thimble</strong> — short-term and on-demand coverage, useful for one-off projects</li>
+          <li><strong>biBERK (Berkshire Hathaway)</strong> — competitive for established small businesses</li>
+        </ul>
+        <p><strong>For trades and contractors:</strong></p>
+        <ul>
+          <li><strong>The Hartford</strong> — strong appetite for tradespeople, competitive pricing</li>
+          <li><strong>Travelers</strong> — broad availability for general contractors and specialty trades</li>
+          <li><strong>Liberty Mutual</strong> — well-regarded for construction-related risks</li>
+        </ul>
+        <p><strong>For restaurants and retail:</strong></p>
+        <ul>
+          <li><strong>State Farm</strong> — competitive small-business BOP pricing</li>
+          <li><strong>The Hartford</strong> — broad coverage for food service and retail</li>
+          <li><strong>Nationwide</strong> — competitive in many states</li>
+        </ul>
+        <p><strong>For healthcare professionals:</strong></p>
+        <ul>
+          <li><strong>The Doctors Company</strong> — physicians, dentists, allied health</li>
+          <li><strong>CNA</strong> — healthcare professional liability</li>
+          <li><strong>NSO / HPSO</strong> — for nurses and allied health professionals</li>
+        </ul>
+      `,
+    },
+    {
+      heading: "What drives your price",
+      body: `
+        <p>Commercial insurance pricing varies more by classification than by carrier:</p>
+        <ul>
+          <li><strong>Industry code (SIC/NAICS)</strong> — your actual business classification drives most pricing</li>
+          <li><strong>Revenue</strong> — higher revenue = higher exposure = higher premium</li>
+          <li><strong>Number of employees</strong> — drives workers' comp directly</li>
+          <li><strong>State</strong> — state-specific regulations and claim frequency</li>
+          <li><strong>Years in business</strong> — established businesses often get better rates than startups</li>
+          <li><strong>Loss history</strong> — prior claims significantly affect renewals</li>
+          <li><strong>Coverage limits</strong> — higher limits raise premium but at decreasing marginal cost</li>
+        </ul>
+      `,
+    },
+    {
+      heading: "How to actually get the cheapest rate",
+      body: `
+        <ol>
+          <li><strong>Get a BOP (Business Owner's Policy)</strong> if you qualify. Bundles general liability + commercial property + business interruption at a meaningful discount vs. buying separately. Most small businesses qualify.</li>
+          <li><strong>Shop 3-5 carriers</strong> through an independent commercial broker. Commercial brokers represent multiple carriers and can shop your specific risk profile.</li>
+          <li><strong>Classify your business correctly.</strong> Many businesses are paying premiums for the wrong classification. A misclassified business can be paying 30%+ more than necessary.</li>
+          <li><strong>Match your limits to your actual risk.</strong> Buying $2M of GL when $1M is appropriate is wasted premium. Buying $300K when your contracts require $1M means you're under-insured.</li>
+          <li><strong>Higher deductibles on property:</strong> $1,000 vs $500 typically saves 10-15%.</li>
+          <li><strong>Pay annually.</strong> Saves 3-7% over monthly.</li>
+          <li><strong>Bundle workers' comp</strong> with your other coverage if your state allows it.</li>
+        </ol>
+      `,
+    },
+    {
+      heading: "Cheap isn't always smart",
+      body: `
+        <p>Commercial insurance is where buying purely on price most often backfires:</p>
+        <ul>
+          <li><strong>Underinsured GL limits</strong> can cost you a contract — many B2B contracts require $1M-$2M per occurrence as a minimum vendor requirement</li>
+          <li><strong>Missing professional liability</strong> when you provide professional services or advice — GL doesn't cover financial losses from your work</li>
+          <li><strong>No cyber coverage</strong> if you handle any customer data — typical small-business breach costs $120K-$1.2M</li>
+          <li><strong>Wrong industry classification</strong> can trigger claim denials if your actual operations don't match the policy</li>
+        </ul>
+        <p>The cheapest policy that meets your actual needs is the right answer. The cheapest policy that doesn't is a future problem.</p>
+      `,
+    },
+  ]}
+  related={[
+    { label: "Best business insurance", href: "/business-insurance/best/", desc: "Top-ranked carriers by industry" },
+    { label: "How much do I need?", href: "/business-insurance/how-much-do-i-need/", desc: "Right-sizing limits for your business" },
+    { label: "Coverage types", href: "/business-insurance/coverage-types/", desc: "GL, BOP, PL, cyber, workers' comp" },
+    { label: "Common discounts", href: "/business-insurance/discounts/", desc: "Where the real savings are" },
+  ]}
+/>

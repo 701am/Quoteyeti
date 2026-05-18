@@ -1,0 +1,65 @@
+---
+import TopicPage from "~/layouts/TopicPage.astro";
+import { VERTICALS } from "~/data/verticals";
+
+const v = VERTICALS.home;
+---
+
+<TopicPage
+  vertical={v}
+  topic="Cheapest"
+  headline="Cheapest home insurance"
+  lede="The cheapest home insurance carrier varies dramatically by state, the home's age, and the carrier's appetite for your specific risk profile. The same home can get quotes ranging 40-60% across major carriers."
+  sections={[
+    {
+      heading: "The cheapest carriers, broadly",
+      body: `
+        <p>National rate studies consistently surface the same set of carriers as broadly competitive on home insurance:</p>
+        <ul>
+          <li><strong>USAA</strong> — consistently cheapest where eligible (military and immediate family only)</li>
+          <li><strong>Erie Insurance</strong> — top-of-class price + service in the 12 states where it operates</li>
+          <li><strong>State Farm</strong> — competitive in most markets, especially when bundled with auto</li>
+          <li><strong>Allstate</strong> — competitive in non-coastal, non-wildfire markets</li>
+          <li><strong>American Family</strong> — strong Midwest pricing</li>
+          <li><strong>Nationwide</strong> — competitive Midwest and Mid-Atlantic</li>
+        </ul>
+        <p>But "broadly competitive" doesn't mean cheapest for you. In high-risk markets (coastal Florida, wildfire-zone California, hail-belt Texas), the cheapest carrier might be a regional specialist or a surplus-lines insurer that doesn't appear in national surveys.</p>
+      `,
+    },
+    {
+      heading: "The factors that drive your price",
+      body: `
+        <p>Home insurance is priced primarily on:</p>
+        <ul>
+          <li><strong>Replacement cost</strong> — what it would cost to rebuild your home, not the market value</li>
+          <li><strong>Geography</strong> — ZIP-level claim frequency, catastrophe risk, fire department distance</li>
+          <li><strong>Home age and construction</strong> — older homes cost more to insure (knob-and-tube wiring, old plumbing, replacement-cost premiums)</li>
+          <li><strong>Roof age</strong> — roofs over 15 years often trigger ACV settlement instead of replacement cost</li>
+          <li><strong>Claim history</strong> — multiple claims in the past 5 years significantly raise premiums or trigger non-renewal</li>
+          <li><strong>Credit-based insurance score</strong> — used in most states (banned in California, Maryland for home, Massachusetts)</li>
+        </ul>
+        <p>Carriers weight these factors differently. The cheapest carrier for a newer suburban home in Ohio is rarely the cheapest carrier for an older coastal home in Florida.</p>
+      `,
+    },
+    {
+      heading: "How to actually find the cheapest rate",
+      body: `
+        <p>Five high-impact moves:</p>
+        <ol>
+          <li><strong>Get quotes from at least 5 carriers</strong> — include national majors (State Farm, Allstate, GEICO Home) and regional specialists for your state.</li>
+          <li><strong>Bundle with auto</strong> — single largest discount in home insurance, typically 10-25%.</li>
+          <li><strong>Raise the deductible</strong> — moving from $500 to $2,500 commonly saves 15-25% in premium.</li>
+          <li><strong>Capture mitigation discounts</strong> — wind mitigation features (hurricane straps, hip roof, impact windows), updated wiring/plumbing/roof, monitored security system.</li>
+          <li><strong>Improve your credit</strong> in states that allow credit-based insurance scoring. Insurance scores typically refresh at renewal.</li>
+        </ol>
+        <p>For high-risk areas (wildfire zones, coastal hurricane zones, hail belts), work with an independent agent. They can shop carriers consumers can't reach directly, including surplus-lines markets that often beat the FAIR Plans and state-of-last-resort options.</p>
+      `,
+    },
+  ]}
+  related={[
+    { label: "Best home insurance", href: "/home-insurance/best/", desc: "Top-ranked carriers by overall quality" },
+    { label: "By state", href: "/home-insurance/by-state/", desc: "Rates and risks where you live" },
+    { label: "Common discounts", href: "/home-insurance/discounts/", desc: "Where the real savings are" },
+    { label: "How much do I need?", href: "/home-insurance/how-much-do-i-need/", desc: "Sizing coverage to your home" },
+  ]}
+/>

@@ -3,8 +3,7 @@
  * The <Footer> component reads this based on the current vertical
  * and renders: section CTA band → section link columns → universal bottom strip.
  *
- * Pattern: each footer has 3-4 link columns + a heroCTA for the colored top band.
- * The bottom strip (legal, social, address) is rendered universally by the component.
+ * Every URL referenced here MUST resolve to a live page in the build.
  */
 
 import type { VerticalKey } from "./verticals";
@@ -20,12 +19,12 @@ export interface FooterColumn {
 }
 
 export interface FooterHeroCTA {
-  eyebrow?: string;        // small label above headline
-  heading: string;         // big headline in the CTA band
+  eyebrow?: string;
+  heading: string;
   body?: string;
   ctaLabel: string;
   ctaHref: string;
-  illustration?: string;   // path to SVG/img — section mascot variant
+  illustration?: string;
 }
 
 export interface SectionFooter {
@@ -58,20 +57,19 @@ export const DEFAULT_FOOTER: SectionFooter = {
       ],
     },
     {
-      title: "Tools",
+      title: "Resources",
       links: [
-        { label: "All calculators", href: "/calculators/" },
-        { label: "Best by state", href: "/best-by-state/" },
-        { label: "Compare carriers", href: "/compare/" },
         { label: "Glossary", href: "/glossary/" },
         { label: "FAQs", href: "/faqs/" },
+        { label: "The Dispatch (blog)", href: "/blog/" },
+        { label: "Methodology", href: "/methodology/" },
+        { label: "Editorial standards", href: "/editorial/" },
       ],
     },
     {
       title: "Company",
       links: [
         { label: "About", href: "/about/" },
-        { label: "Editorial standards", href: "/editorial/" },
         { label: "Press", href: "/press/" },
         { label: "Contact", href: "/contact/" },
         { label: "Partner with us", href: "/partners/" },
@@ -97,10 +95,10 @@ export const SECTION_FOOTERS: Record<VerticalKey, SectionFooter> = {
           { label: "BMW", href: "/auto/brands/bmw/" },
           { label: "Chevrolet", href: "/auto/brands/chevrolet/" },
           { label: "Ford", href: "/auto/brands/ford/" },
-          { label: "Honda", href: "/auto/brands/honda-insurance-rates/" },
-          { label: "Subaru", href: "/auto/brands/subaru-insurance-rates/" },
-          { label: "Tesla", href: "/auto/brands/tesla-insurance-rates/" },
-          { label: "Toyota", href: "/auto/brands/toyota-insurance-rates/" },
+          { label: "Honda", href: "/auto/brands/honda/" },
+          { label: "Subaru", href: "/auto/brands/subaru/" },
+          { label: "Tesla", href: "/auto/brands/tesla/" },
+          { label: "Toyota", href: "/auto/brands/toyota/" },
           { label: "All brands →", href: "/auto/brands/" },
         ],
       },
@@ -118,13 +116,16 @@ export const SECTION_FOOTERS: Record<VerticalKey, SectionFooter> = {
         ],
       },
       {
-        title: "Auto Tools",
+        title: "Auto Resources",
         links: [
-          { label: "Auto calculator", href: "/auto/calculator/" },
+          { label: "Cheapest auto", href: "/auto/cheapest/" },
+          { label: "Best auto", href: "/auto/best/" },
           { label: "How much do I need?", href: "/auto/how-much-do-i-need/" },
-          { label: "Discounts guide", href: "/auto/discounts/" },
           { label: "Coverage types", href: "/auto/coverage-types/" },
-          { label: "Best by state", href: "/auto/by-state/" },
+          { label: "Common discounts", href: "/auto/discounts/" },
+          { label: "By state", href: "/auto/by-state/" },
+          { label: "Glossary", href: "/auto/glossary/" },
+          { label: "FAQs", href: "/auto/faqs/" },
         ],
       },
     ],
@@ -149,22 +150,20 @@ export const SECTION_FOOTERS: Record<VerticalKey, SectionFooter> = {
         ],
       },
       {
-        title: "By Property Type",
+        title: "Plan your coverage",
         links: [
-          { label: "Single-family home", href: "/home-insurance/single-family/" },
-          { label: "Condo (HO-6)", href: "/home-insurance/condo/" },
-          { label: "Manufactured home", href: "/home-insurance/manufactured/" },
-          { label: "Vacation home", href: "/home-insurance/vacation/" },
-          { label: "Landlord policy", href: "/home-insurance/landlord/" },
+          { label: "How much do I need?", href: "/home-insurance/how-much-do-i-need/" },
+          { label: "Types of coverage", href: "/home-insurance/coverage-types/" },
+          { label: "Common discounts", href: "/home-insurance/discounts/" },
+          { label: "Home FAQs", href: "/home-insurance/faqs/" },
         ],
       },
       {
-        title: "Home Tools",
+        title: "Learn more",
         links: [
-          { label: "Home calculator", href: "/home-insurance/calculator/" },
-          { label: "Coverage limits guide", href: "/home-insurance/coverage-limits/" },
-          { label: "Flood vs. home insurance", href: "/home-insurance/flood/" },
-          { label: "Filing a claim", href: "/home-insurance/claims/" },
+          { label: "Home insurance guides", href: "/home-insurance/guides/" },
+          { label: "The Dispatch (blog)", href: "/blog/" },
+          { label: "Glossary", href: "/glossary/" },
         ],
       },
     ],
@@ -180,31 +179,29 @@ export const SECTION_FOOTERS: Record<VerticalKey, SectionFooter> = {
     },
     columns: [
       {
-        title: "Policy Types",
+        title: "Compare Life Insurance",
         links: [
-          { label: "Term life", href: "/life-insurance/term/" },
-          { label: "Whole life", href: "/life-insurance/whole/" },
-          { label: "Universal life", href: "/life-insurance/universal/" },
-          { label: "No-medical-exam", href: "/life-insurance/no-exam/" },
-          { label: "Guaranteed acceptance", href: "/life-insurance/guaranteed/" },
+          { label: "Best life insurance", href: "/life-insurance/best/" },
+          { label: "Cheapest life insurance", href: "/life-insurance/cheapest/" },
+          { label: "By state", href: "/life-insurance/by-state/" },
+          { label: "Provider reviews", href: "/life-insurance/reviews/" },
         ],
       },
       {
-        title: "By Life Stage",
+        title: "Plan your coverage",
         links: [
-          { label: "Young families", href: "/life-insurance/young-families/" },
-          { label: "Singles", href: "/life-insurance/singles/" },
-          { label: "Seniors", href: "/life-insurance/seniors/" },
-          { label: "Final expense", href: "/life-insurance/final-expense/" },
-        ],
-      },
-      {
-        title: "Life Tools",
-        links: [
-          { label: "Life insurance calculator", href: "/life-insurance/calculator/" },
-          { label: "Term vs. whole compared", href: "/life-insurance/term-vs-whole/" },
           { label: "How much do I need?", href: "/life-insurance/how-much-do-i-need/" },
-          { label: "Top providers", href: "/life-insurance/best/" },
+          { label: "Types of coverage", href: "/life-insurance/coverage-types/" },
+          { label: "Common discounts", href: "/life-insurance/discounts/" },
+          { label: "Life FAQs", href: "/life-insurance/faqs/" },
+        ],
+      },
+      {
+        title: "Learn more",
+        links: [
+          { label: "Life insurance guides", href: "/life-insurance/guides/" },
+          { label: "The Dispatch (blog)", href: "/blog/" },
+          { label: "Glossary", href: "/glossary/" },
         ],
       },
     ],
@@ -220,33 +217,28 @@ export const SECTION_FOOTERS: Record<VerticalKey, SectionFooter> = {
     },
     columns: [
       {
-        title: "Coverage Types",
+        title: "Compare Business Insurance",
         links: [
-          { label: "General liability", href: "/business-insurance/general-liability/" },
-          { label: "Workers' comp", href: "/business-insurance/workers-comp/" },
-          { label: "Professional liability (E&O)", href: "/business-insurance/professional-liability/" },
-          { label: "Commercial auto", href: "/business-insurance/commercial-auto/" },
-          { label: "Cyber liability", href: "/business-insurance/cyber/" },
-          { label: "BOP (business owner's policy)", href: "/business-insurance/bop/" },
+          { label: "Best business insurance", href: "/business-insurance/best/" },
+          { label: "Cheapest business insurance", href: "/business-insurance/cheapest/" },
+          { label: "Provider reviews", href: "/business-insurance/reviews/" },
         ],
       },
       {
-        title: "By Industry",
+        title: "Plan your coverage",
         links: [
-          { label: "Contractors", href: "/business-insurance/contractors/" },
-          { label: "Restaurants", href: "/business-insurance/restaurants/" },
-          { label: "Retail", href: "/business-insurance/retail/" },
-          { label: "Consultants & freelancers", href: "/business-insurance/consultants/" },
-          { label: "Healthcare practices", href: "/business-insurance/healthcare/" },
+          { label: "How much do I need?", href: "/business-insurance/how-much-do-i-need/" },
+          { label: "Types of coverage", href: "/business-insurance/coverage-types/" },
+          { label: "Common discounts", href: "/business-insurance/discounts/" },
+          { label: "Business FAQs", href: "/business-insurance/faqs/" },
         ],
       },
       {
-        title: "Business Tools",
+        title: "Learn more",
         links: [
-          { label: "Cost calculator", href: "/business-insurance/calculator/" },
-          { label: "Cheapest small business", href: "/business-insurance/cheapest/" },
-          { label: "Best for sole proprietors", href: "/business-insurance/sole-proprietors/" },
-          { label: "Coverage by state", href: "/business-insurance/by-state/" },
+          { label: "Business insurance guides", href: "/business-insurance/guides/" },
+          { label: "The Dispatch (blog)", href: "/blog/" },
+          { label: "Glossary", href: "/glossary/" },
         ],
       },
     ],
@@ -262,32 +254,26 @@ export const SECTION_FOOTERS: Record<VerticalKey, SectionFooter> = {
     },
     columns: [
       {
-        title: "Plan Types",
+        title: "Compare Health Insurance",
         links: [
-          { label: "ACA marketplace", href: "/health-insurance/aca/" },
-          { label: "Short-term plans", href: "/health-insurance/short-term/" },
-          { label: "HMO vs. PPO", href: "/health-insurance/hmo-vs-ppo/" },
-          { label: "High-deductible (HDHP)", href: "/health-insurance/hdhp/" },
-          { label: "Catastrophic plans", href: "/health-insurance/catastrophic/" },
+          { label: "Best health insurance", href: "/health-insurance/best/" },
+          { label: "Provider reviews", href: "/health-insurance/reviews/" },
+          { label: "Medicare", href: "/health-insurance/medicare/" },
         ],
       },
       {
-        title: "Medicare",
+        title: "Plan your coverage",
         links: [
-          { label: "How Medicare works", href: "/health-insurance/medicare/" },
-          { label: "Medicare Advantage", href: "/health-insurance/medicare-advantage/" },
-          { label: "Medicare Supplement (Medigap)", href: "/health-insurance/medigap/" },
-          { label: "Part D drug plans", href: "/health-insurance/part-d/" },
-          { label: "Signing up", href: "/health-insurance/medicare-sign-up/" },
+          { label: "Health insurance guides", href: "/health-insurance/guides/" },
+          { label: "The Dispatch (blog)", href: "/blog/" },
         ],
       },
       {
-        title: "Health Tools",
+        title: "Learn more",
         links: [
-          { label: "Plan estimator", href: "/health-insurance/calculator/" },
-          { label: "Subsidy calculator", href: "/health-insurance/subsidy/" },
-          { label: "Dental & vision add-ons", href: "/health-insurance/dental-vision/" },
-          { label: "Open enrollment 101", href: "/health-insurance/open-enrollment/" },
+          { label: "FAQs", href: "/faqs/" },
+          { label: "Glossary", href: "/glossary/" },
+          { label: "Methodology", href: "/methodology/" },
         ],
       },
     ],
@@ -306,27 +292,22 @@ export const SECTION_FOOTERS: Record<VerticalKey, SectionFooter> = {
         title: "Compare Renters",
         links: [
           { label: "Best renters insurance", href: "/renters-insurance/best/" },
-          { label: "Cheapest renters insurance", href: "/renters-insurance/cheapest/" },
-          { label: "Do I need it?", href: "/renters-insurance/do-i-need-it/" },
-          { label: "By state", href: "/renters-insurance/by-state/" },
+          { label: "Provider reviews", href: "/renters-insurance/reviews/" },
         ],
       },
       {
-        title: "By Situation",
+        title: "Plan your coverage",
         links: [
-          { label: "College students", href: "/renters-insurance/students/" },
-          { label: "Roommates", href: "/renters-insurance/roommates/" },
-          { label: "Pet owners", href: "/renters-insurance/pet-owners/" },
-          { label: "Renters with a home office", href: "/renters-insurance/home-office/" },
+          { label: "Renters insurance guides", href: "/renters-insurance/guides/" },
+          { label: "The Dispatch (blog)", href: "/blog/" },
         ],
       },
       {
-        title: "Renters Tools",
+        title: "Learn more",
         links: [
-          { label: "Cost calculator", href: "/renters-insurance/calculator/" },
-          { label: "Coverage limits", href: "/renters-insurance/coverage-limits/" },
-          { label: "Bundling with auto", href: "/renters-insurance/bundling/" },
-          { label: "Filing a claim", href: "/renters-insurance/claims/" },
+          { label: "FAQs", href: "/faqs/" },
+          { label: "Glossary", href: "/glossary/" },
+          { label: "Methodology", href: "/methodology/" },
         ],
       },
     ],
@@ -342,33 +323,25 @@ export const SECTION_FOOTERS: Record<VerticalKey, SectionFooter> = {
     },
     columns: [
       {
-        title: "By Pet",
+        title: "Compare Pet Insurance",
         links: [
-          { label: "Dogs", href: "/pet-insurance/dogs/" },
-          { label: "Cats", href: "/pet-insurance/cats/" },
-          { label: "Multi-pet households", href: "/pet-insurance/multi-pet/" },
-          { label: "Senior pets", href: "/pet-insurance/senior-pets/" },
-          { label: "Exotic pets", href: "/pet-insurance/exotic/" },
+          { label: "Best pet insurance", href: "/pet-insurance/best/" },
+          { label: "Provider reviews", href: "/pet-insurance/reviews/" },
         ],
       },
       {
-        title: "Top Providers",
+        title: "Plan your coverage",
         links: [
-          { label: "Healthy Paws", href: "/pet-insurance/healthy-paws/" },
-          { label: "Lemonade Pet", href: "/pet-insurance/lemonade/" },
-          { label: "Embrace", href: "/pet-insurance/embrace/" },
-          { label: "Trupanion", href: "/pet-insurance/trupanion/" },
-          { label: "Spot", href: "/pet-insurance/spot/" },
-          { label: "All reviews →", href: "/pet-insurance/reviews/" },
+          { label: "Pet insurance guides", href: "/pet-insurance/guides/" },
+          { label: "The Dispatch (blog)", href: "/blog/" },
         ],
       },
       {
-        title: "Pet Tools",
+        title: "Learn more",
         links: [
-          { label: "Pet insurance calculator", href: "/pet-insurance/calculator/" },
-          { label: "Best breed-specific coverage", href: "/pet-insurance/breeds/" },
-          { label: "Pre-existing conditions", href: "/pet-insurance/pre-existing/" },
-          { label: "Wellness add-ons", href: "/pet-insurance/wellness/" },
+          { label: "FAQs", href: "/faqs/" },
+          { label: "Glossary", href: "/glossary/" },
+          { label: "Methodology", href: "/methodology/" },
         ],
       },
     ],
@@ -384,32 +357,25 @@ export const SECTION_FOOTERS: Record<VerticalKey, SectionFooter> = {
     },
     columns: [
       {
-        title: "Trip Types",
+        title: "Compare Travel Insurance",
         links: [
-          { label: "International travel", href: "/travel-insurance/international/" },
-          { label: "Domestic travel", href: "/travel-insurance/domestic/" },
-          { label: "Cruises", href: "/travel-insurance/cruises/" },
-          { label: "Multi-trip / annual", href: "/travel-insurance/annual/" },
-          { label: "Adventure & sports", href: "/travel-insurance/adventure/" },
+          { label: "Best travel insurance", href: "/travel-insurance/best/" },
+          { label: "Provider reviews", href: "/travel-insurance/reviews/" },
         ],
       },
       {
-        title: "Coverage Types",
+        title: "Plan your coverage",
         links: [
-          { label: "Trip cancellation", href: "/travel-insurance/cancellation/" },
-          { label: "Cancel for any reason (CFAR)", href: "/travel-insurance/cfar/" },
-          { label: "Medical & evacuation", href: "/travel-insurance/medical/" },
-          { label: "Baggage protection", href: "/travel-insurance/baggage/" },
-          { label: "Rental car coverage", href: "/travel-insurance/rental-car/" },
+          { label: "Travel insurance guides", href: "/travel-insurance/guides/" },
+          { label: "The Dispatch (blog)", href: "/blog/" },
         ],
       },
       {
-        title: "Travel Tools",
+        title: "Learn more",
         links: [
-          { label: "Trip cost calculator", href: "/travel-insurance/calculator/" },
-          { label: "Credit card vs. travel insurance", href: "/travel-insurance/credit-card/" },
-          { label: "Best providers", href: "/travel-insurance/best/" },
-          { label: "How claims work", href: "/travel-insurance/claims/" },
+          { label: "FAQs", href: "/faqs/" },
+          { label: "Glossary", href: "/glossary/" },
+          { label: "Methodology", href: "/methodology/" },
         ],
       },
     ],
