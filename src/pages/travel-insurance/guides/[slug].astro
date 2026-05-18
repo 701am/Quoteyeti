@@ -1,0 +1,176 @@
+---
+import BaseLayout from "~/layouts/BaseLayout.astro";
+import { getCollection, render } from "astro:content";
+import { VERTICALS } from "~/data/verticals";
+
+export async function getStaticPaths() {
+  const guides = await getCollection("travel", ({ data }) => !data.draft);
+  return guides.map((entry) => ({ params: { slug: entry.id }, props: { entry } }));
+}
+
+const { entry } = Astro.props;
+const { Content } = await render(entry);
+const d = entry.data;
+const v = VERTICALS.travel;
+const date = d.publishDate ? new Date(d.publishDate).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" }) : null;
+---
+
+<BaseLayout
+  title={d.seoTitle ?? d.title}
+  description={d.seoDescription ?? d.description ?? ""}
+  ogImage={d.ogImage ?? d.heroImage}
+  pageType="article"
+  breadcrumbs={[
+    { name: "Home", url: "/" },
+    { name: v.short, url: v.path },
+    { name: "Guides", url: `${v.path}guides/` },
+    { name: d.title, url: `${v.path}guides/${entry.id}/` },
+  ]}
+  article={{
+    publishDate: d.publishDate ? new Date(d.publishDate).toISOString() : new Date().toISOString(),
+    modifiedDate: d.updatedDate ? new Date(d.updatedDate).toISOString() : (d.publishDate ? new Date(d.publishDate).toISOString() : new Date().toISOString()),
+    authorName: d.author ?? "QuoteYeti editorial",
+    imageUrl: d.heroImage,
+    tags: d.subcategory ? [d.subcategory] : [v.short],
+  }}
+>
+  <article>
+    <header class="guide-hero">
+      <div class="container-narrow">
+        <nav class="breadcrumbs" aria-label="Breadcrumb">
+          <a href="/">Home</a> › <a href={v.path}>{v.short}</a> › <a href={`${v.path}guides/`}>Guides</a> › <span>{d.title}</span>
+        </nav>
+        <p class="eyebrow">
+          <img src={v.icon} alt="" width="18" height="18" />
+          <span>{v.label} Guide</span>
+        </p>
+        <h1>{d.title}</h1>
+        {d.description && <p class="guide-hero__lede">{d.description}</p>}
+        <p class="guide-hero__meta">
+          {date && <span>Updated {date}</span>}
+          {d.author && <span> · {d.author}</span>}
+        </p>
+      </div>
+    </header>
+    <div class="container-narrow guide-body"><Content /></div>
+  </article>
+
+  <style>
+    .guide-hero {
+      padding-block: var(--space-14) var(--space-10);
+      background: var(--color-alice);
+      border-bottom: 1px solid var(--color-border);
+    }
+    .breadcrumbs {
+      font-size: 0.875rem;
+      color: var(--color-text-muted);
+      margin-bottom: var(--space-5);
+    }
+    .breadcrumbs a { color: var(--color-text-muted); text-decoration: none; }
+    .breadcrumbs a:hover { color: var(--section-accent); }
+    .eyebrow {
+      display: inline-flex; align-items: center; gap: var(--space-2);
+      font-family: var(--font-display);
+      font-size: 0.75rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.14em;
+      color: var(--section-accent);
+      background: var(--color-white);
+      padding: var(--space-2) var(--space-4);
+      border-radius: 100px;
+      margin-bottom: var(--space-5);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    }
+    .guide-hero h1 {
+      font-size: clamp(2rem, 3.5vw, 2.625rem);
+      letter-spacing: -0.025em;
+      line-height: 1.15;
+      margin: 0 0 var(--space-4);
+    }
+    .guide-hero__lede {
+      font-size: 1.1875rem;
+      color: var(--color-text-strong);
+      line-height: 1.55;
+      margin: 0 0 var(--space-5);
+    }
+    .guide-hero__meta {
+      color: var(--color-text-muted);
+      font-size: 0.9375rem;
+      margin: 0;
+    }
+    .guide-body {
+      padding-block: var(--space-12) var(--space-20);
+      font-size: 1.0625rem;
+      line-height: 1.7;
+    }
+    .guide-body :global(h2) {
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 1.5rem;
+      margin-top: var(--space-12);
+      margin-bottom: var(--space-5);
+      letter-spacing: -0.015em;
+      color: var(--color-resolution);
+    }
+    .guide-body :global(h3) {
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 1.1875rem;
+      margin-top: var(--space-8);
+      margin-bottom: var(--space-4);
+      color: var(--color-resolution);
+    }
+    .guide-body :global(p) { margin-bottom: var(--space-5); }
+    .guide-body :global(ul),
+    .guide-body :global(ol) {
+      margin-bottom: var(--space-5);
+      padding-left: var(--space-6);
+    }
+    .guide-body :global(li) { margin-bottom: var(--space-2); }
+    .guide-body :global(strong) { color: var(--color-resolution); }
+    .guide-body :global(blockquote) {
+      border-left: 3px solid var(--section-accent);
+      background: var(--section-accent-soft, var(--color-alice));
+      padding: var(--space-4) var(--space-5);
+      border-radius: 0 8px 8px 0;
+      margin: var(--space-6) 0;
+      font-style: italic;
+      color: var(--color-resolution);
+    }
+    .guide-body :global(code) {
+      font-family: var(--font-mono, "SFMono-Regular", Menlo, monospace);
+      font-size: 0.9em;
+      background: var(--color-alice);
+      padding: 0.125rem 0.375rem;
+      border-radius: 4px;
+    }
+    .guide-body :global(pre) {
+      background: var(--color-alice);
+      padding: var(--space-5);
+      border-radius: 8px;
+      overflow-x: auto;
+      margin-bottom: var(--space-5);
+    }
+    .guide-body :global(pre code) {
+      background: transparent;
+      padding: 0;
+    }
+    .guide-body :global(table) {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: var(--space-6);
+      font-size: 0.9375rem;
+    }
+    .guide-body :global(table th),
+    .guide-body :global(table td) {
+      padding: var(--space-3) var(--space-4);
+      border-bottom: 1px solid var(--color-border);
+      text-align: left;
+    }
+    .guide-body :global(table th) {
+      font-family: var(--font-display);
+      font-weight: 700;
+      color: var(--color-resolution);
+      background: var(--color-alice);
+    }
+  </style>
+</BaseLayout>

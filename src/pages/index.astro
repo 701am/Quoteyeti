@@ -47,11 +47,21 @@ const faqs = [
         <a href="/about/" class="btn-tertiary hero__about-link">Or read about the Yeti →</a>
       </div>
       <div class="hero__zip-col">
-        <ZipForm
-          variant="picker"
-          eyebrow="Compare in seconds"
-          heading="What are you insuring?"
-        />
+        <div class="hero__cta-stage">
+          <img
+            src="/assets/images/yeti-hero.svg"
+            alt=""
+            class="hero__cta-yeti"
+            aria-hidden="true"
+          />
+          <div class="hero__cta-wrap">
+            <ZipForm
+              variant="picker"
+              eyebrow="Compare in seconds"
+              heading="What are you insuring?"
+            />
+          </div>
+        </div>
       </div>
     </div>
   </section>
@@ -312,6 +322,65 @@ const faqs = [
     }
     .hero__about-link { display: inline-flex; }
     .hero__zip-col { min-width: 0; }
+
+    /* ============================================
+       Hero CTA stage — yeti peeks from behind the picker
+    ============================================ */
+    .hero__cta-stage {
+      position: relative;
+      isolation: isolate;
+      padding-top: 80px; /* room for yeti head above the picker */
+    }
+    .hero__cta-yeti {
+      position: absolute;
+      top: -20px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 220px;
+      height: auto;
+      z-index: 1;
+      pointer-events: none;
+      filter: drop-shadow(0 8px 16px rgba(44, 69, 119, 0.25));
+      animation: cta-yeti-peek 5s ease-in-out infinite;
+    }
+    @keyframes cta-yeti-peek {
+      0%, 100% { transform: translateX(-50%) translateY(0); }
+      50% { transform: translateX(-50%) translateY(-4px); }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .hero__cta-yeti { animation: none; }
+    }
+    .hero__cta-wrap {
+      position: relative;
+      z-index: 2;
+    }
+    /* Amp up the picker so it POPS — accent glow + stronger shadow */
+    .hero__cta-wrap :global(.zipcta--picker) {
+      box-shadow:
+        0 1px 0 rgba(255, 255, 255, 0.9) inset,
+        0 24px 48px -12px rgba(44, 69, 119, 0.25),
+        0 8px 20px -8px rgba(100, 188, 225, 0.35),
+        0 0 0 1px rgba(44, 69, 119, 0.06);
+      border: 1px solid rgba(100, 188, 225, 0.25);
+      background: linear-gradient(180deg, #ffffff 0%, #fbfcfe 100%);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .hero__cta-wrap:hover :global(.zipcta--picker) {
+      transform: translateY(-2px);
+      box-shadow:
+        0 1px 0 rgba(255, 255, 255, 0.9) inset,
+        0 32px 56px -12px rgba(44, 69, 119, 0.28),
+        0 12px 24px -8px rgba(100, 188, 225, 0.4),
+        0 0 0 1px rgba(44, 69, 119, 0.08);
+    }
+    @media (max-width: 980px) {
+      .hero__cta-stage { padding-top: 64px; }
+      .hero__cta-yeti { width: 180px; top: -10px; }
+    }
+    @media (max-width: 560px) {
+      .hero__cta-stage { padding-top: 56px; }
+      .hero__cta-yeti { width: 150px; top: -8px; }
+    }
 
     /* ============================================
        THE SHOW: 8-vertical grid — confident, clean cards
