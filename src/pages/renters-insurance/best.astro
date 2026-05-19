@@ -25,9 +25,14 @@ const v = VERTICALS.renters;
     { rank: 6, name: "Liberty Mutual", score: 3.95, bestFor: "Replacement-cost coverage", monthlyRate: "$17/mo", satisfactionScore: 612, complaintRating: 1.15, financialStrength: "A", description: "Liberty Mutual offers replacement cost coverage as standard rather than as an upgrade — a meaningful policy difference.", pros: ["Replacement cost included by default", "Long list of available discounts", "Online quote and bind"], cons: ["Pricing varies by state", "Customer experience scores are mid-pack"] },
   ]}
   methodologyPoints={[
-    "Affordability (50%): comparative quotes for $20K personal property, $100K liability, $1,000 deductible",
-    "Claims experience (30%): J.D. Power renters insurance studies, NAIC complaint ratios",
-    "Add-on availability (20%): replacement cost, valuable items, identity theft, water backup, earthquake",
+    "Cost (55%): comparative quotes pulled for $30K personal property, $100K liability, $1,000 deductible across mid-tier ZIP codes",
+    "Coverage breadth (25%): replacement cost, valuable items, identity theft, water backup, earthquake — base policy plus available endorsements",
+    "Customer experience (20%): J.D. Power renters insurance studies, NAIC complaint ratios, online application and claims experience",
+  ]}
+  methodologyWeights={[
+    { weight: 55, label: "Cost", body: "Comparative quotes pulled for $30K personal property, $100K liability, $1,000 deductible across mid-tier ZIP codes." },
+    { weight: 25, label: "Coverage breadth", body: "Replacement cost, valuable items, identity theft, water backup, earthquake — base policy plus available endorsements." },
+    { weight: 20, label: "Customer experience", body: "J.D. Power renters insurance studies, NAIC complaint ratios, online application and claims experience." },
   ]}
   faqs={[
     { q: "How much renters insurance do I need?", a: "At minimum, enough to cover the replacement cost of all your belongings. Most renters underestimate their inventory value by 50%+." },

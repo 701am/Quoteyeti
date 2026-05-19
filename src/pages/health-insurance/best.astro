@@ -25,10 +25,17 @@ const v = VERTICALS.health;
     { rank: 6, name: "Humana", score: 3.95, bestFor: "Medicare Advantage", monthlyRate: "Varies (MA)", satisfactionScore: 681, complaintRating: 0.74, financialStrength: "A-", description: "Humana is one of the largest Medicare Advantage providers in the country with strong member retention and dental/vision add-ons.", pros: ["Best-in-class Medicare Advantage", "Strong member loyalty", "Robust dental and vision packages"], cons: ["Less competitive on ACA marketplace plans", "Network gaps in rural areas"] },
   ]}
   methodologyPoints={[
-    "Network breadth (40%): provider count and geographic coverage relative to enrollment",
-    "Plan availability (30%): number of states served plus plan types (HMO, PPO, EPO, HSA-qualifying)",
-    "Customer satisfaction (30%): J.D. Power health plan studies, NCQA quality ratings, complaint volumes",
-    "Note: rates shown are illustrative; actual cost depends on age, income, plan tier, and ACA subsidy eligibility",
+    "Network quality (30%): provider count, geographic coverage, and access to in-demand specialties",
+    "Plan design (25%): availability of HMO, PPO, EPO, HSA-qualifying, and Medicare Advantage options across the markets each carrier serves",
+    "Cost relative to peer plans (25%): premiums normalized for actuarial value within metal tier",
+    "Customer experience (20%): J.D. Power health plan studies, NCQA quality ratings, CMS star ratings for Medicare Advantage",
+    "Note: rates shown are illustrative; actual cost depends on age, income, plan tier, and ACA subsidy eligibility.",
+  ]}
+  methodologyWeights={[
+    { weight: 30, label: "Network quality", body: "Provider count, geographic coverage, and access to in-demand specialties." },
+    { weight: 25, label: "Plan design", body: "Availability of HMO, PPO, EPO, HSA-qualifying, and Medicare Advantage options across markets served." },
+    { weight: 25, label: "Cost vs. peers", body: "Premiums normalized for actuarial value within each metal tier." },
+    { weight: 20, label: "Customer experience", body: "J.D. Power health plan studies, NCQA quality ratings, CMS star ratings for Medicare Advantage." },
   ]}
   faqs={[
     { q: "When can I buy health insurance?", a: "Open enrollment runs November-January for marketplace plans. Outside that window you need a qualifying life event." },

@@ -25,10 +25,17 @@ const v = VERTICALS.travel;
     { rank: 6, name: "Battleface", score: 4.05, bestFor: "Last-minute trips", monthlyRate: "$98/trip", description: "Battleface offers fast online buying and policies for travel destinations that other carriers won't cover, including remote and elevated-risk locations.", pros: ["Buy online quickly", "Covers more destinations than peers", "Modern app and experience"], cons: ["Newer brand", "Annual plans less developed"] },
   ]}
   methodologyPoints={[
-    "Coverage limits (40%): medical, evacuation, trip cancellation, baggage, and CFAR availability",
-    "Claims experience (35%): documented claim turnaround, denial rates, customer surveys",
-    "Pricing (25%): premium relative to coverage for $3K international trip, 60-day advance purchase",
-    "Note: rates are illustrative; actual quotes depend on trip cost, traveler age, and destination",
+    "Coverage breadth (40%): medical, evacuation, trip cancellation, baggage, and CFAR availability — limits and exclusions",
+    "Cost (30%): premium relative to coverage for a $3K international trip, 60-day advance purchase, traveler age 40",
+    "Claims experience (20%): documented claim turnaround, denial rates, complaint volume",
+    "Customer experience (10%): customer surveys, online portal usability, support responsiveness",
+    "Note: rates are illustrative; actual quotes depend on trip cost, traveler age, and destination.",
+  ]}
+  methodologyWeights={[
+    { weight: 40, label: "Coverage breadth", body: "Medical, evacuation, trip cancellation, baggage, and CFAR availability — limits and exclusions." },
+    { weight: 30, label: "Cost", body: "Premium relative to coverage for a $3K international trip, 60-day advance purchase, traveler age 40." },
+    { weight: 20, label: "Claims experience", body: "Documented claim turnaround, denial rates, complaint volume." },
+    { weight: 10, label: "Customer experience", body: "Customer surveys, online portal usability, support responsiveness." },
   ]}
   faqs={[
     { q: "When should I buy travel insurance?", a: "Within 14-21 days of your first trip deposit to get pre-existing condition waivers and CFAR eligibility." },

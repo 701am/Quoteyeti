@@ -25,10 +25,15 @@ const v = VERTICALS.pet;
     { rank: 6, name: "Fetch (Pet Insurance)", score: 4.05, bestFor: "Comprehensive coverage", monthlyRate: "$42/mo", description: "Fetch (formerly Petplan) includes behavioral therapy, holistic care, and exam fees in its base policy at competitive rates.", pros: ["Includes behavioral therapy and holistic care", "Covers exam fees by default", "No upper age limit"], cons: ["6-month waiting period for orthopedic conditions", "Slower claim turnaround"] },
   ]}
   methodologyPoints={[
-    "Coverage breadth (40%): hereditary, behavioral, dental, exam fees, prescription coverage, alternative therapies",
-    "Claims experience (35%): average claim turnaround, satisfaction surveys, denial rates",
-    "Value (25%): premium relative to coverage limits and deductible structure",
-    "Baseline: 3-year-old medium-breed mixed dog, $5K annual limit, $250 deductible, 80% reimbursement",
+    "Cost (35%): premium quotes pulled across multiple breed and age tiers for dogs and cats, normalized to comparable coverage limits and deductible structure",
+    "Coverage terms (35%): hereditary, behavioral, dental, exam fees, prescription coverage, alternative therapies",
+    "Customer experience (30%): average claim turnaround, satisfaction surveys, denial rates, reimbursement timing",
+    "Baseline: 3-year-old medium-breed mixed dog, $5K annual limit, $250 deductible, 80% reimbursement.",
+  ]}
+  methodologyWeights={[
+    { weight: 35, label: "Cost", body: "Premium quotes pulled across multiple breed and age tiers for dogs and cats, normalized to comparable coverage limits and deductible structure." },
+    { weight: 35, label: "Coverage terms", body: "Hereditary, behavioral, dental, exam fees, prescription coverage, alternative therapies." },
+    { weight: 30, label: "Customer experience", body: "Average claim turnaround, satisfaction surveys, denial rates, reimbursement timing." },
   ]}
   faqs={[
     { q: "Is pet insurance worth it?", a: "Yes for most pets, especially purebreds with known hereditary conditions. Math heavily favors enrollment before any health issues develop." },

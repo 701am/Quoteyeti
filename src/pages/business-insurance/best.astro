@@ -25,9 +25,16 @@ const v = VERTICALS.business;
     { rank: 6, name: "Travelers", score: 4.32, bestFor: "Industry-specific products", monthlyRate: "$78/mo", satisfactionScore: 705, complaintRating: 0.48, financialStrength: "A++", description: "Travelers offers some of the deepest industry-specific products in the small business segment, from construction to professional services.", pros: ["Industry specialization", "Strong claims process", "Broad agent network"], cons: ["Less competitive online experience", "Pricing varies by region"] },
   ]}
   methodologyPoints={[
-    "Coverage breadth (40%): availability of GL, BOP, workers' comp, professional liability, cyber, and industry-specific products",
-    "Pricing (35%): comparative quotes across 5 industries: consulting, retail, food service, trades, professional services",
-    "Claims experience (25%): J.D. Power Commercial Lines Customer Satisfaction, NAIC complaint data",
+    "Coverage relevance (35%): how well core products fit common small-business types — consulting, retail, food service, trades, professional services",
+    "Pricing (30%): comparative quotes pulled across the same five industries, normalized to comparable coverage levels",
+    "Underwriting accessibility (20%): ease of getting coverage for non-standard business types and online application speed",
+    "Customer experience (15%): J.D. Power Commercial Lines Customer Satisfaction, NAIC complaint data, and review-platform sentiment",
+  ]}
+  methodologyWeights={[
+    { weight: 35, label: "Coverage relevance", body: "How well core products fit common small-business types — consulting, retail, food service, trades, professional services." },
+    { weight: 30, label: "Pricing", body: "Comparative quotes pulled across the same five industries, normalized to comparable coverage levels." },
+    { weight: 20, label: "Underwriting accessibility", body: "Ease of getting coverage for non-standard business types and online application speed." },
+    { weight: 15, label: "Customer experience", body: "J.D. Power Commercial Lines Customer Satisfaction, NAIC complaint data, and review-platform sentiment." },
   ]}
   faqs={[
     { q: "What's a BOP?", a: "Business Owner's Policy bundles General Liability and Commercial Property at a discount. Good fit for most small businesses." },

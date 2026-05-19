@@ -25,10 +25,17 @@ const v = VERTICALS.life;
     { rank: 6, name: "Guardian Life", score: 4.08, bestFor: "Permanent coverage with riders", monthlyRate: "$36/mo", description: "Guardian's whole life products and rider availability make them strong for buyers building cash-value strategies.", pros: ["Strong rider lineup", "Long dividend history", "Good underwriting for some health conditions"], cons: ["Premium-heavy products", "Limited online presence"] },
   ]}
   methodologyPoints={[
-    "Financial strength (40%): combined AM Best, S&P, Moody's, and Fitch ratings",
-    "Rate competitiveness (35%): quotes pulled for 35-year-old non-smoker, $500K 20-year term across multiple health classifications",
-    "Product variety (25%): availability of term, whole, universal, indexed UL, plus quality of riders",
-    "Note: rates vary dramatically by age and health — your actual quote will differ",
+    "Cost (40%): quotes pulled for a 35-year-old non-smoker, $500K 20-year term, across multiple health classifications and age brackets",
+    "Underwriting accessibility (25%): no-exam thresholds, table-shave programs, willingness to underwrite non-standard health histories",
+    "Financial strength (20%): combined AM Best, S&P, Moody's, and Fitch ratings",
+    "Customer experience (15%): J.D. Power Life Insurance Customer Satisfaction, NAIC complaint data, online application speed",
+    "Note: rates vary dramatically by age and health — your actual quote will differ.",
+  ]}
+  methodologyWeights={[
+    { weight: 40, label: "Cost", body: "Quotes pulled for a 35-year-old non-smoker, $500K 20-year term, across multiple health classifications and age brackets." },
+    { weight: 25, label: "Underwriting accessibility", body: "No-exam thresholds, table-shave programs, willingness to underwrite non-standard health histories." },
+    { weight: 20, label: "Financial strength", body: "Combined AM Best, S&P, Moody's, and Fitch ratings." },
+    { weight: 15, label: "Customer experience", body: "J.D. Power Life Insurance Customer Satisfaction, NAIC complaint data, online application speed." },
   ]}
   faqs={[
     { q: "Term or whole life?", a: "Term for most people; whole life only if you have specific estate planning or cash value needs." },
