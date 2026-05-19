@@ -5,6 +5,7 @@ import AuthorCapsule from "~/components/AuthorCapsule.astro";
 import ZipForm from "~/components/ZipForm.astro";
 import FootprintDivider from "~/components/editorial/FootprintDivider.astro";
 import ScoreGauge from "~/components/editorial/ScoreGauge.astro";
+import RadarChart from "~/components/editorial/RadarChart.astro";
 import DataRefreshPill from "~/components/editorial/DataRefreshPill.astro";
 import PullQuote from "~/components/editorial/PullQuote.astro";
 import Footnote from "~/components/editorial/Footnote.astro";
@@ -134,15 +135,51 @@ const remainingTakeaways = takeaways.slice(1);
           <p class="review-hero__positioning">{carrier.headline}</p>
         </div>
       </div>
-
-      <a href={`${vertical.path}quotes/`} class="btn-pill btn-pill--accent review-hero__cta">
-        <span>See {vertical.short.toLowerCase()} rates</span>
-        <svg width="16" height="14" viewBox="0 0 16 14" fill="none" aria-hidden="true">
-          <path d="M9 1l6 6-6 6M1 7h14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-      </a>
     </div>
   </section>
+
+  <!-- BRIDGING CTA CARD — matches the Best Of treatment. Overlaps hero
+       bottom edge, navy CTA button, accent top bar, deep shadow lift. -->
+  <div class="container">
+    <div class="bridge-card">
+      <div class="bridge-card__head">
+        <p class="bridge-card__eyebrow">See live rates</p>
+        <p class="bridge-card__sub">Compare {carrier.name} against the {vertical.short.toLowerCase()} carriers we've reviewed.</p>
+      </div>
+
+      <form class="bridge-card__form" action={`${vertical.path}quotes/`} method="get" novalidate>
+        <div class="bridge-field">
+          <label for="rev-bridge-zip">ZIP code</label>
+          <input id="rev-bridge-zip" name="zip" type="text" inputmode="numeric" pattern="[0-9]{5}" maxlength="5" placeholder="90210" required autocomplete="postal-code" />
+        </div>
+        <div class="bridge-field">
+          <label for="rev-bridge-age">Age</label>
+          <select id="rev-bridge-age" name="age">
+            <option value="16-20">16–20</option>
+            <option value="21-24">21–24</option>
+            <option value="25-34" selected>25–34</option>
+            <option value="35-44">35–44</option>
+            <option value="45-54">45–54</option>
+            <option value="55-64">55–64</option>
+            <option value="65+">65+</option>
+          </select>
+        </div>
+        <div class="bridge-field">
+          <label for="rev-bridge-insured">Currently insured?</label>
+          <select id="rev-bridge-insured" name="insured">
+            <option value="yes" selected>Yes</option>
+            <option value="no">No</option>
+          </select>
+        </div>
+        <button class="bridge-card__submit" type="submit">
+          <span>Compare rates</span>
+          <svg width="14" height="12" viewBox="0 0 14 12" fill="none" aria-hidden="true">
+            <path d="M8 1l5 5-5 5M1 6h12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+      </form>
+    </div>
+  </div>
 
   <!-- ============== TWO-COLUMN BODY ============== -->
   <div class="review-page container">
@@ -224,26 +261,49 @@ const remainingTakeaways = takeaways.slice(1);
               />
             </div>
 
-            <div class="ratings-bars">
-              {ratings.breakdown.map((b) => {
-                const pct = Math.min(100, Math.max(0, (b.score / 5) * 100));
-                return (
-                  <div class="rating-bar">
-                    <div class="rating-bar__head">
-                      <span class="rating-bar__category">{b.category}</span>
-                      <span class="rating-bar__score">{b.score.toFixed(2)}<span class="rating-bar__max">/5</span></span>
-                    </div>
-                    <div class="rating-bar__track" role="img" aria-label={`${b.category}: ${b.score} out of 5`}>
-                      <div class="rating-bar__fill" style={`--bar-pct: ${pct}%;`}></div>
-                      <span class="rating-bar__tick" style="left: 20%"></span>
-                      <span class="rating-bar__tick" style="left: 40%"></span>
-                      <span class="rating-bar__tick" style="left: 60%"></span>
-                      <span class="rating-bar__tick" style="left: 80%"></span>
-                    </div>
-                    {b.rank && <p class="rating-bar__rank">National rank #{b.rank}</p>}
-                  </div>
-                );
-              })}
+            <div class="ratings-breakdown">
+              {ratings.breakdown.length >= 3 ? (
+                <>
+                  <RadarChart
+                    axes={ratings.breakdown.map((b) => ({ label: b.category, score: b.score, max: 5 }))}
+                    size={280}
+                    tone="default"
+                  />
+                  {ratings.breakdown.some(b => b.rank) && (
+                    <ul class="ratings-ranks">
+                      {ratings.breakdown.filter(b => b.rank).map(b => (
+                        <li>
+                          <span class="ratings-ranks__cat">{b.category}</span>
+                          <span class="ratings-ranks__sep" aria-hidden="true">·</span>
+                          <span class="ratings-ranks__rank">National rank #{b.rank}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </>
+              ) : (
+                <div class="ratings-bars">
+                  {ratings.breakdown.map((b) => {
+                    const pct = Math.min(100, Math.max(0, (b.score / 5) * 100));
+                    return (
+                      <div class="rating-bar">
+                        <div class="rating-bar__head">
+                          <span class="rating-bar__category">{b.category}</span>
+                          <span class="rating-bar__score">{b.score.toFixed(2)}<span class="rating-bar__max">/5</span></span>
+                        </div>
+                        <div class="rating-bar__track" role="img" aria-label={`${b.category}: ${b.score} out of 5`}>
+                          <div class="rating-bar__fill" style={`--bar-pct: ${pct}%;`}></div>
+                          <span class="rating-bar__tick" style="left: 20%"></span>
+                          <span class="rating-bar__tick" style="left: 40%"></span>
+                          <span class="rating-bar__tick" style="left: 60%"></span>
+                          <span class="rating-bar__tick" style="left: 80%"></span>
+                        </div>
+                        {b.rank && <p class="rating-bar__rank">National rank #{b.rank}</p>}
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
             </div>
           </div>
         </section>
@@ -450,14 +510,29 @@ const remainingTakeaways = takeaways.slice(1);
         <!-- ===== PROS & CONS ===== -->
         <section class="review-prosCons reveal" id="pros-cons">
           <h2>Pros and <span class="serif-italic">cons</span></h2>
+          <p class="prose review-prosCons__lede">Ordered by impact. The top item in each column is the one we'd weight heaviest in a recommendation.</p>
           <div class="prosCons-grid">
             <div class="prosCons__col prosCons__col--pros">
-              <h3>Pros</h3>
-              <ul>{pros.map((p) => <li>{p}</li>)}</ul>
+              <h3>What's working</h3>
+              <ul class="prosCons__list">
+                {pros.map((p, i) => (
+                  <li class={i === 0 ? "prosCons__item prosCons__item--top" : "prosCons__item"}>
+                    {i === 0 && <span class="prosCons__tag prosCons__tag--pro">Top pro</span>}
+                    <span class="prosCons__text">{p}</span>
+                  </li>
+                ))}
+              </ul>
             </div>
             <div class="prosCons__col prosCons__col--cons">
-              <h3>Cons</h3>
-              <ul>{cons.map((p) => <li>{p}</li>)}</ul>
+              <h3>What's not</h3>
+              <ul class="prosCons__list">
+                {cons.map((p, i) => (
+                  <li class={i === 0 ? "prosCons__item prosCons__item--top" : "prosCons__item"}>
+                    {i === 0 && <span class="prosCons__tag prosCons__tag--con">Top con</span>}
+                    <span class="prosCons__text">{p}</span>
+                  </li>
+                ))}
+              </ul>
             </div>
           </div>
         </section>
@@ -474,6 +549,12 @@ const remainingTakeaways = takeaways.slice(1);
             <span>See {vertical.short.toLowerCase()} rates</span>
             <svg width="16" height="14" viewBox="0 0 16 14" fill="none" aria-hidden="true">
               <path d="M9 1l6 6-6 6M1 7h14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </a>
+          <a href={`${vertical.path}best/`} class="bottom-line__compare">
+            <span>Compare against our top {vertical.short.toLowerCase()} carriers</span>
+            <svg width="14" height="12" viewBox="0 0 14 12" fill="none" aria-hidden="true">
+              <path d="M8 1l5 5-5 5M1 6h12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
           </a>
         </section>
@@ -521,6 +602,31 @@ const remainingTakeaways = takeaways.slice(1);
             />
           )}
         </section>
+
+        <!-- ===== RELATED RESEARCH ===== -->
+        <aside class="related-research" aria-label="Related research">
+          <p class="related-research__eyebrow">Related research</p>
+          <div class="related-research__grid">
+            <a href={`${vertical.path}best/`} class="related-research__card">
+              <p class="related-research__cat">Rankings</p>
+              <p class="related-research__title">Best {vertical.label.toLowerCase()} of 2026</p>
+              <p class="related-research__sub">Where {carrier.name} ranks against the carriers we cover</p>
+              <span class="related-research__cta">See the rankings →</span>
+            </a>
+            <a href="/methodology/" class="related-research__card">
+              <p class="related-research__cat">Methodology</p>
+              <p class="related-research__title">How we rate carriers</p>
+              <p class="related-research__sub">Our weighting, data sources, and editorial standards</p>
+              <span class="related-research__cta">Read the methodology →</span>
+            </a>
+            <a href="/about/" class="related-research__card">
+              <p class="related-research__cat">About us</p>
+              <p class="related-research__title">Editorial independence</p>
+              <p class="related-research__sub">Why our rankings can't be bought</p>
+              <span class="related-research__cta">Our standards →</span>
+            </a>
+          </div>
+        </aside>
 
       </article>
     </div>
@@ -613,7 +719,116 @@ const remainingTakeaways = takeaways.slice(1);
       max-width: 720px;
       line-height: 1.55;
     }
-    .review-hero__cta { margin-top: var(--space-5); }
+    /* Bridge card — matches Best Of treatment. Overlaps hero bottom edge,
+       navy CTA, section-accent top rule, deep layered shadow. */
+    .bridge-card {
+      margin-top: clamp(-6rem, -10vw, -4rem);
+      margin-bottom: var(--space-10);
+      background: var(--color-white);
+      border: 2px solid var(--color-resolution);
+      border-radius: var(--radius-lg);
+      box-shadow: 0 24px 48px -12px rgba(30, 42, 74, 0.22),
+                  0 12px 24px -8px rgba(30, 42, 74, 0.12),
+                  0 4px 8px rgba(30, 42, 74, 0.06);
+      padding: clamp(1.5rem, 3vw, 2rem);
+      position: relative;
+      z-index: 2;
+      transition: box-shadow var(--transition);
+    }
+    .bridge-card::before {
+      content: "";
+      position: absolute;
+      top: -2px; left: -2px; right: -2px;
+      height: 4px;
+      background: var(--section-accent);
+      border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    }
+    .bridge-card:hover {
+      box-shadow: 0 32px 64px -16px rgba(30, 42, 74, 0.28),
+                  0 16px 32px -8px rgba(30, 42, 74, 0.16),
+                  0 6px 12px rgba(30, 42, 74, 0.08);
+    }
+    .bridge-card__head { padding-bottom: var(--space-5); }
+    .bridge-card__eyebrow {
+      font-family: var(--font-display);
+      font-size: 0.6875rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.14em;
+      color: var(--color-text-muted);
+      margin: 0 0 4px;
+    }
+    .bridge-card__sub {
+      font-family: var(--font-display);
+      font-size: 1rem; font-weight: 500;
+      color: var(--color-resolution);
+      margin: 0;
+    }
+    .bridge-card__form {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr auto;
+      gap: var(--space-3);
+      align-items: end;
+    }
+    .bridge-field {
+      display: flex; flex-direction: column;
+      min-width: 0;
+    }
+    .bridge-field label {
+      font-family: var(--font-display);
+      font-size: 0.6875rem; font-weight: 600;
+      text-transform: uppercase; letter-spacing: 0.1em;
+      color: var(--color-text-muted);
+      margin-bottom: 6px;
+    }
+    .bridge-field input,
+    .bridge-field select {
+      height: 46px;
+      padding: 0 14px;
+      border: 1.5px solid var(--color-resolution);
+      border-radius: var(--radius);
+      background: var(--color-white);
+      font-family: var(--font-display);
+      font-size: 0.9375rem; font-weight: 500;
+      color: var(--color-resolution);
+      transition: border-color var(--transition), box-shadow var(--transition);
+      box-shadow: 0 1px 2px rgba(30, 42, 74, 0.04);
+    }
+    .bridge-field input:hover,
+    .bridge-field select:hover { border-color: var(--color-charcoal); }
+    .bridge-field input:focus,
+    .bridge-field select:focus {
+      outline: 0;
+      border-color: var(--section-accent);
+      box-shadow: 0 0 0 3px color-mix(in srgb, var(--section-accent) 22%, transparent);
+    }
+    .bridge-card__submit {
+      height: 48px;
+      padding: 0 var(--space-6);
+      background: var(--color-resolution);
+      color: var(--color-white);
+      border: 0;
+      border-radius: var(--radius);
+      font-family: var(--font-display);
+      font-size: 0.9375rem; font-weight: 600;
+      letter-spacing: 0.005em;
+      cursor: pointer;
+      display: inline-flex; align-items: center; gap: var(--space-2);
+      transition: background var(--transition), transform var(--transition), box-shadow var(--transition);
+      box-shadow: 0 4px 14px rgba(30, 42, 74, 0.25), 0 1px 3px rgba(30, 42, 74, 0.15);
+    }
+    .bridge-card__submit:hover {
+      background: var(--color-charcoal);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(30, 42, 74, 0.35), 0 2px 6px rgba(30, 42, 74, 0.2);
+    }
+    .bridge-card__submit svg { transition: transform var(--transition); }
+    .bridge-card__submit:hover svg { transform: translateX(3px); }
+    @media (max-width: 720px) {
+      .bridge-card__form { grid-template-columns: 1fr 1fr; }
+      .bridge-card__submit { grid-column: span 2; justify-content: center; }
+    }
+    @media (max-width: 480px) {
+      .bridge-card__form { grid-template-columns: 1fr; }
+    }
 
     /* Byline strip lives between hero and the two-column body. */
     .review-byline-wrap {
@@ -863,6 +1078,44 @@ const remainingTakeaways = takeaways.slice(1);
       font-weight: 700;
     }
 
+    /* Radar chart container — centers the chart within the right column */
+    .ratings-breakdown {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: var(--space-5);
+    }
+    .ratings-ranks {
+      list-style: none;
+      margin: 0;
+      padding: var(--space-3) var(--space-4);
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-2);
+      background: var(--color-snow);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius);
+      width: 100%;
+      max-width: 320px;
+    }
+    .ratings-ranks li {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+      font-family: var(--font-display);
+      font-size: 12px;
+    }
+    .ratings-ranks__cat {
+      font-weight: 600;
+      color: var(--color-resolution);
+    }
+    .ratings-ranks__sep { color: var(--color-text-muted); opacity: 0.6; }
+    .ratings-ranks__rank {
+      color: var(--color-text-muted);
+      font-variant-numeric: tabular-nums;
+    }
+
     .ratings-bars {
       display: flex; flex-direction: column;
       gap: var(--space-5);
@@ -1110,12 +1363,53 @@ const remainingTakeaways = takeaways.slice(1);
       margin: 0 0 var(--space-4);
       font-family: var(--font-display);
     }
+    .review-prosCons__lede {
+      font-size: 14px;
+      color: var(--color-text-muted);
+      margin: 0 0 var(--space-5);
+      font-style: italic;
+    }
     .prosCons__col ul { margin: 0; padding-left: 0; list-style: none; }
     .prosCons__col li {
       margin-bottom: var(--space-3);
       line-height: 1.55;
       padding-left: 28px;
       position: relative;
+    }
+    /* Top item — subtle highlight + accent badge */
+    .prosCons__item--top {
+      padding: var(--space-3) var(--space-3) var(--space-3) calc(28px + var(--space-3));
+      background: var(--color-snow);
+      border-radius: var(--radius);
+      border: 1px solid var(--color-border);
+      margin-bottom: var(--space-4);
+    }
+    .prosCons__item--top.prosCons__item::before {
+      left: var(--space-3);
+      top: calc(var(--space-3) + 6px);
+    }
+    .prosCons__tag {
+      display: inline-block;
+      font-family: var(--font-display);
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      padding: 2px 8px;
+      border-radius: var(--radius-pill);
+      margin-bottom: 4px;
+      line-height: 1.4;
+    }
+    .prosCons__tag--pro {
+      background: rgba(143, 179, 57, 0.15);
+      color: #5D7A1F;
+    }
+    .prosCons__tag--con {
+      background: rgba(244, 96, 54, 0.15);
+      color: #B33D14;
+    }
+    .prosCons__text {
+      display: block;
     }
     .prosCons__col--pros li::before {
       content: "";
@@ -1143,23 +1437,36 @@ const remainingTakeaways = takeaways.slice(1);
     }
 
     /* ==================================================
-       Bottom line
+       Bottom line / Verdict — distinct visual block
+       Navy background, white text. Reads as the conclusion of a
+       research report, not a section like the others.
     ================================================== */
     .bottom-line {
       padding: var(--space-10);
-      background: linear-gradient(135deg, var(--section-accent-soft), color-mix(in srgb, var(--section-accent-soft) 50%, white));
+      background: var(--color-resolution);
+      color: var(--color-white);
       border-radius: var(--radius-lg);
-      border-left: 4px solid var(--section-accent);
       position: relative;
       overflow: hidden;
+      box-shadow: 0 16px 32px -8px rgba(30, 42, 74, 0.25),
+                  0 4px 8px rgba(30, 42, 74, 0.1);
     }
     .bottom-line::before {
+      /* Section accent top bar */
+      content: "";
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 4px;
+      background: var(--section-accent);
+    }
+    .bottom-line::after {
+      /* Decorative accent watermark in the corner */
       content: "";
       position: absolute;
       top: -30px; right: -30px;
       width: 200px; height: 200px;
       background: var(--section-accent);
-      opacity: 0.06;
+      opacity: 0.12;
       border-radius: 50%;
       pointer-events: none;
     }
@@ -1169,10 +1476,71 @@ const remainingTakeaways = takeaways.slice(1);
       color: var(--section-accent);
       margin: 0 0 var(--space-3);
       position: relative;
+      z-index: 1;
     }
-    .bottom-line h2 { border-bottom: 0; padding-bottom: 0; position: relative; }
-    .bottom-line .prose { position: relative; }
-    .bottom-line__cta { margin-top: var(--space-5); position: relative; }
+    .bottom-line h2 {
+      border-bottom: 0; padding-bottom: 0;
+      position: relative;
+      color: var(--color-white);
+      z-index: 1;
+    }
+    .bottom-line h2 .serif-italic { color: var(--color-white); }
+    .bottom-line .prose {
+      position: relative;
+      color: rgba(255, 255, 255, 0.92);
+      z-index: 1;
+      font-size: 1.0625rem;
+      line-height: 1.65;
+    }
+    .bottom-line .prose :global(p) { color: rgba(255, 255, 255, 0.92); }
+    .bottom-line .prose :global(strong) { color: var(--color-white); font-weight: 700; }
+    .bottom-line .prose :global(a) {
+      color: var(--color-white);
+      text-decoration: underline;
+      text-underline-offset: 3px;
+      text-decoration-color: rgba(255, 255, 255, 0.4);
+    }
+    .bottom-line .prose :global(a:hover) {
+      text-decoration-color: var(--color-white);
+    }
+    .bottom-line__cta {
+      margin-top: var(--space-6);
+      position: relative;
+      z-index: 1;
+      background: var(--color-white);
+      color: var(--color-resolution);
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
+    }
+    .bottom-line__cta:hover {
+      background: var(--color-alice);
+      color: var(--color-resolution);
+      transform: translateY(-2px);
+    }
+
+    /* Comparison cross-link below the verdict CTA */
+    .bottom-line__compare {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-2);
+      margin: var(--space-5) 0 0 var(--space-4);
+      position: relative;
+      z-index: 1;
+      font-family: var(--font-display);
+      font-size: 14px;
+      font-weight: 600;
+      color: rgba(255, 255, 255, 0.85);
+      text-decoration: none;
+      letter-spacing: 0.005em;
+      transition: color var(--transition), gap var(--transition);
+    }
+    .bottom-line__compare:hover {
+      color: var(--color-white);
+      gap: var(--space-3);
+    }
+    .bottom-line__compare svg {
+      flex-shrink: 0;
+      opacity: 0.7;
+    }
 
     /* ==================================================
        FAQ — custom accordions with smooth animation
@@ -1224,6 +1592,81 @@ const remainingTakeaways = takeaways.slice(1);
     @keyframes faq-open {
       from { opacity: 0; transform: translateY(-4px); }
       to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ==================================================
+       Related Research — three-card cross-link block
+    ================================================== */
+    .related-research {
+      margin-top: var(--space-12);
+      padding-top: var(--space-8);
+      border-top: 1px solid var(--color-border);
+    }
+    .related-research__eyebrow {
+      font-family: var(--font-display);
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      color: var(--color-text-muted);
+      margin: 0 0 var(--space-5);
+    }
+    .related-research__grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: var(--space-4);
+    }
+    .related-research__card {
+      display: block;
+      padding: var(--space-5);
+      background: var(--color-white);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-lg);
+      text-decoration: none;
+      transition: border-color var(--transition), transform var(--transition), box-shadow var(--transition);
+    }
+    .related-research__card:hover {
+      border-color: var(--section-accent);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 16px -4px rgba(30, 42, 74, 0.08);
+    }
+    .related-research__cat {
+      font-family: var(--font-display);
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      color: var(--section-accent);
+      margin: 0 0 var(--space-2);
+    }
+    .related-research__title {
+      font-family: var(--font-display);
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--color-resolution);
+      margin: 0 0 4px;
+      letter-spacing: -0.01em;
+      line-height: 1.3;
+    }
+    .related-research__sub {
+      font-family: var(--font-display);
+      font-size: 13px;
+      line-height: 1.5;
+      color: var(--color-text-muted);
+      margin: 0 0 var(--space-4);
+    }
+    .related-research__cta {
+      font-family: var(--font-display);
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--color-resolution);
+      transition: color var(--transition);
+    }
+    .related-research__card:hover .related-research__cta {
+      color: var(--section-accent);
+    }
+    @media (max-width: 720px) {
+      .related-research__grid { grid-template-columns: 1fr; }
     }
 
     /* ==================================================

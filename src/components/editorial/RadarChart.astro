@@ -1,0 +1,232 @@
+---
+/**
+ * RadarChart — SVG radar chart for 3-axis scoring.
+ *
+ * Designed for carrier sub-scores on review pages:
+ *   Customer experience / Coverage breadth / Affordability
+ *
+ * For three axes, the chart renders as a triangle. The reviewer's point
+ * was that Liberty Mutual's profile ("strong coverage, weak affordability")
+ * should be readable in 0.5 seconds. A radar makes the trade-off shape
+ * immediately legible.
+ *
+ * Geometry: each axis is plotted from center outward at 360°/n intervals.
+ * Three axes start at the top (12 o'clock) and rotate 120°/240° clockwise.
+ *
+ * Props:
+ *   axes:   array of { label, score, max? } — 3-5 entries supported, 3 is the design target
+ *   max:    default scale ceiling, can be overridden per-axis
+ *   size:   pixel size of the chart (default 240)
+ *   tone:   'default' (navy fill) | 'accent' (section accent fill)
+ *
+ * Editorial note: we avoid color-coding individual axis points by score
+ * (red/yellow/green) because that competes with the section accent. The
+ * trade-off shape itself does the work.
+ */
+interface Axis {
+  label: string;
+  score: number;
+  max?: number;
+}
+interface Props {
+  axes: Axis[];
+  max?: number;
+  size?: number;
+  tone?: "default" | "accent";
+}
+
+const { axes, max = 5, size = 240, tone = "default" } = Astro.props;
+
+// Center the chart in a square viewBox
+const VIEW = 200;
+const CX = VIEW / 2;
+const CY = VIEW / 2;
+const R = 78; // max radius (leaves room for labels)
+
+const n = axes.length;
+// Calculate the (x, y) for each axis end point and for each score plot point
+// Start at 12 o'clock (angle = -90°) and rotate clockwise
+function pointForAxis(i: number, ratio: number) {
+  const angle = ((-90 + (360 / n) * i) * Math.PI) / 180;
+  return {
+    x: CX + Math.cos(angle) * R * ratio,
+    y: CY + Math.sin(angle) * R * ratio,
+  };
+}
+// Label positions extend further out
+function labelPos(i: number) {
+  const angle = ((-90 + (360 / n) * i) * Math.PI) / 180;
+  return {
+    x: CX + Math.cos(angle) * (R + 16),
+    y: CY + Math.sin(angle) * (R + 16),
+  };
+}
+
+// Polygon points string for the score shape
+const scorePoints = axes
+  .map((a, i) => {
+    const axMax = a.max ?? max;
+    const ratio = Math.max(0, Math.min(1, a.score / axMax));
+    const p = pointForAxis(i, ratio);
+    return `${p.x.toFixed(2)},${p.y.toFixed(2)}`;
+  })
+  .join(" ");
+
+// Outer boundary polygon (the full-scale shape, for the grid backdrop)
+const boundaryPoints = Array.from({ length: n }, (_, i) => {
+  const p = pointForAxis(i, 1);
+  return `${p.x.toFixed(2)},${p.y.toFixed(2)}`;
+}).join(" ");
+
+// Grid rings at 0.25, 0.5, 0.75 of full scale
+const ringRatios = [0.25, 0.5, 0.75];
+
+const fillColor = tone === "accent" ? "var(--section-accent)" : "var(--color-resolution)";
+const strokeColor = tone === "accent" ? "var(--section-accent)" : "var(--color-resolution)";
+---
+
+<figure class="radar-chart" style={`--radar-size: ${size}px;`}>
+  <svg viewBox={`0 0 ${VIEW} ${VIEW}`} xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    {/* Grid rings */}
+    {ringRatios.map((ratio) => {
+      const ringPoints = Array.from({ length: n }, (_, i) => {
+        const p = pointForAxis(i, ratio);
+        return `${p.x.toFixed(2)},${p.y.toFixed(2)}`;
+      }).join(" ");
+      return (
+        <polygon
+          points={ringPoints}
+          fill="none"
+          stroke="var(--color-gainsboro)"
+          stroke-width="0.5"
+        />
+      );
+    })}
+    {/* Outer boundary */}
+    <polygon
+      points={boundaryPoints}
+      fill="none"
+      stroke="var(--color-ship-cove)"
+      stroke-width="0.8"
+      opacity="0.5"
+    />
+    {/* Axis lines from center to outer */}
+    {axes.map((_, i) => {
+      const p = pointForAxis(i, 1);
+      return (
+        <line
+          x1={CX} y1={CY} x2={p.x.toFixed(2)} y2={p.y.toFixed(2)}
+          stroke="var(--color-gainsboro)"
+          stroke-width="0.5"
+        />
+      );
+    })}
+    {/* Score shape — filled translucent + outlined */}
+    <polygon
+      points={scorePoints}
+      fill={fillColor}
+      fill-opacity="0.15"
+      stroke={strokeColor}
+      stroke-width="2"
+      stroke-linejoin="round"
+    />
+    {/* Score points */}
+    {axes.map((a, i) => {
+      const axMax = a.max ?? max;
+      const ratio = Math.max(0, Math.min(1, a.score / axMax));
+      const p = pointForAxis(i, ratio);
+      return (
+        <circle
+          cx={p.x.toFixed(2)} cy={p.y.toFixed(2)} r="3.5"
+          fill={fillColor}
+          stroke="var(--color-white)"
+          stroke-width="1.5"
+        />
+      );
+    })}
+  </svg>
+
+  {/* Labels — positioned absolutely outside the SVG for typography control */}
+  <div class="radar-chart__labels">
+    {axes.map((a, i) => {
+      const pos = labelPos(i);
+      // Convert SVG units to percent of container
+      const xPct = (pos.x / VIEW) * 100;
+      const yPct = (pos.y / VIEW) * 100;
+      const axMax = a.max ?? max;
+      return (
+        <div
+          class="radar-chart__label"
+          style={`left: ${xPct}%; top: ${yPct}%;`}
+          data-quadrant={
+            yPct < 33 ? "top" : yPct > 66 ? "bottom" : "side"
+          }
+        >
+          <span class="radar-chart__label-text">{a.label}</span>
+          <span class="radar-chart__label-score">{a.score.toFixed(2)}<span class="radar-chart__label-max">/{axMax}</span></span>
+        </div>
+      );
+    })}
+  </div>
+</figure>
+
+<style>
+  .radar-chart {
+    position: relative;
+    width: var(--radar-size);
+    height: var(--radar-size);
+    margin: 0;
+    padding: 0;
+    display: inline-block;
+  }
+  .radar-chart svg {
+    width: 100%;
+    height: 100%;
+    display: block;
+    overflow: visible;
+  }
+  .radar-chart__labels {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+  .radar-chart__label {
+    position: absolute;
+    transform: translate(-50%, -50%);
+    font-family: var(--font-display);
+    text-align: center;
+    white-space: nowrap;
+    pointer-events: auto;
+  }
+  /* Top labels: nudge up so text doesn't overlap the polygon point */
+  .radar-chart__label[data-quadrant="top"] {
+    transform: translate(-50%, -100%);
+  }
+  /* Bottom labels: nudge down */
+  .radar-chart__label[data-quadrant="bottom"] {
+    transform: translate(-50%, 0);
+  }
+  .radar-chart__label-text {
+    display: block;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--color-text-muted);
+    line-height: 1.2;
+  }
+  .radar-chart__label-score {
+    display: block;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--color-resolution);
+    font-variant-numeric: tabular-nums;
+    margin-top: 2px;
+  }
+  .radar-chart__label-max {
+    font-size: 10px;
+    font-weight: 500;
+    color: var(--color-text-muted);
+    margin-left: 1px;
+  }
+</style>
