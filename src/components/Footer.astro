@@ -1,21 +1,133 @@
 ---
 import type { VerticalKey } from "~/data/verticals";
-import { DEFAULT_FOOTER, SECTION_FOOTERS } from "~/data/footers";
 import { VERTICAL_LIST } from "~/data/verticals";
+import { getCollection } from "astro:content";
 
 interface Props {
+  /** Which vertical's footer should be the active tab.
+   *  When omitted (homepage, about, etc.), footer renders in "brand mode" with
+   *  editorial teasers instead of vertical SEO sprawl. */
   section?: VerticalKey;
 }
 
 const { section } = Astro.props;
-const footer = section ? SECTION_FOOTERS[section] : DEFAULT_FOOTER;
 const year = new Date().getFullYear();
+const isBrandMode = !section;
 
-// Three columns + newsletter
-const cols = footer.columns.slice(0, 3);
+/**
+ * Footer data loader.
+ *
+ * For each vertical, pull every published carrier review, comparison combo,
+ * guide, and state page. These power the per-vertical tab content. We do this
+ * once per page render — Astro caches collections so this is fast.
+ *
+ * Auto also gets its 64+ brand families surfaced, but as a single "Browse
+ * brands & models" link (the full list lives at /auto/brands/, which is
+ * already the best place to navigate 441 model pages).
+ */
+async function safeCollection(name: string) {
+  try { return await getCollection(name as any, ({ data }: any) => !data.draft); }
+  catch { return []; }
+}
+
+interface VerticalFooterData {
+  key: VerticalKey;
+  reviews: any[];
+  comparisons: { slug: string; label: string }[];
+  guides: any[];
+  locations: any[];
+  brandFamilyCount: number;
+  brandPageTotal: number;
+  glossaryCount: number;
+  faqCount: number;
+}
+
+/** Mirrors the compare-page slug generator so the footer lists URLs that exist. */
+function buildComparePairs(reviews: any[]): { slug: string; label: string }[] {
+  const sorted = [...reviews].sort((a, b) => {
+    const ra = a.data.overallRank ?? 99;
+    const rb = b.data.overallRank ?? 99;
+    if (ra !== rb) return ra - rb;
+    return (b.data.overallScore ?? 0) - (a.data.overallScore ?? 0);
+  });
+  const out: { slug: string; label: string }[] = [];
+  for (let i = 0; i < sorted.length; i++) {
+    for (let j = i + 1; j < sorted.length; j++) {
+      const ids = [sorted[i].id, sorted[j].id].sort();
+      const names = [sorted[i].data.company ?? sorted[i].id, sorted[j].data.company ?? sorted[j].id].sort();
+      out.push({ slug: ids.join("-vs-"), label: `${names[0]} vs ${names[1]}` });
+    }
+  }
+  return out;
+}
+
+const verticalData: Record<VerticalKey, VerticalFooterData> = {} as any;
+
+for (const v of VERTICAL_LIST) {
+  const reviews = await safeCollection(`${v.key}-reviews`);
+  // Auto has no separate `guides` collection (guides live under its other
+  // collections — brands, FAQs, glossary, locations). Non-auto verticals
+  // expose guides via the bare-key collection.
+  const guides = v.key === "auto" ? [] : await safeCollection(v.key);
+  const locations = ["auto", "home", "life", "business"].includes(v.key)
+    ? await safeCollection(`${v.key}-locations`)
+    : [];
+  const isAuto = v.key === "auto";
+  const brands = isAuto ? await safeCollection("auto-brands") : [];
+  const glossary = isAuto ? await safeCollection("auto-glossary") : [];
+  const faqs = isAuto ? await safeCollection("auto-faqs") : [];
+
+  // Sort reviews by overall rank for stable display order
+  reviews.sort((a: any, b: any) => (a.data.overallRank ?? 99) - (b.data.overallRank ?? 99));
+  guides.sort((a: any, b: any) => (a.data.title ?? a.id).localeCompare(b.data.title ?? b.id));
+  locations.sort((a: any, b: any) =>
+    (a.data.state ?? a.data.title ?? a.id).localeCompare(b.data.state ?? b.data.title ?? b.id)
+  );
+
+  // Count distinct brand families (single-token slug = parent brand)
+  const brandFamilies = new Set<string>();
+  for (const b of brands) {
+    const key = b.data?.brand ? b.data.brand.toString().toLowerCase().split(" ")[0] : b.id.split("-")[0];
+    brandFamilies.add(key);
+  }
+
+  verticalData[v.key] = {
+    key: v.key,
+    reviews,
+    comparisons: buildComparePairs(reviews),
+    guides,
+    locations,
+    brandFamilyCount: brandFamilies.size,
+    brandPageTotal: brands.length,
+    glossaryCount: glossary.length,
+    faqCount: faqs.length,
+  };
+}
+
+/** US state code lookup — used to compress state-page lists into 2-letter pills.
+ *  We render the full state name in the title attribute for accessibility. */
+const STATE_ABBR: Record<string, string> = {
+  "Alabama":"AL","Alaska":"AK","Arizona":"AZ","Arkansas":"AR","California":"CA","Colorado":"CO","Connecticut":"CT","Delaware":"DE","Florida":"FL","Georgia":"GA","Hawaii":"HI","Idaho":"ID","Illinois":"IL","Indiana":"IN","Iowa":"IA","Kansas":"KS","Kentucky":"KY","Louisiana":"LA","Maine":"ME","Maryland":"MD","Massachusetts":"MA","Michigan":"MI","Minnesota":"MN","Mississippi":"MS","Missouri":"MO","Montana":"MT","Nebraska":"NE","Nevada":"NV","New Hampshire":"NH","New Jersey":"NJ","New Mexico":"NM","New York":"NY","North Carolina":"NC","North Dakota":"ND","Ohio":"OH","Oklahoma":"OK","Oregon":"OR","Pennsylvania":"PA","Rhode Island":"RI","South Carolina":"SC","South Dakota":"SD","Tennessee":"TN","Texas":"TX","Utah":"UT","Vermont":"VT","Virginia":"VA","Washington":"WA","West Virginia":"WV","Wisconsin":"WI","Wyoming":"WY","District of Columbia":"DC"
+};
+function stateAbbr(loc: any): string {
+  const name = (loc.data?.state ?? loc.data?.title ?? loc.id).toString();
+  return STATE_ABBR[name] ?? name.slice(0, 2).toUpperCase();
+}
+function stateFull(loc: any): string {
+  return (loc.data?.state ?? loc.data?.title ?? loc.id).toString();
+}
+
+/**
+ * Best-of teasers for brand-mode (homepage) footer. Each card surfaces one
+ * vertical's Best Of hub plus its key carrier count for a hook.
+ */
+const bestOfTeasers = VERTICAL_LIST.map((v) => ({
+  vertical: v,
+  reviewCount: verticalData[v.key].reviews.length,
+}));
 ---
 
-<footer class="site-footer" data-footer-section={section ?? "default"}>
+<footer class="site-footer" data-footer-section={section ?? "brand"}>
 
   <!-- ============== Newsletter band ============== -->
   <section class="footer-newsletter-band">
@@ -53,103 +165,275 @@ const cols = footer.columns.slice(0, 3);
     </div>
   </section>
 
-  <!-- ============== Mega-footer: per-vertical sitemap ============== -->
-  <section class="footer-verticals">
-    <div class="container">
-      <p class="footer-verticals__eyebrow">Browse by category</p>
-      <div class="footer-verticals__grid">
-        {VERTICAL_LIST.map((v) => (
-          <div class="footer-vertical" style={`--v-accent: ${v.accent};`}>
-            <a href={v.path} class="footer-vertical__head">
-              <img src={v.icon} alt="" width="20" height="20" loading="lazy" />
-              <span>{v.short}</span>
-            </a>
-            <ul class="footer-vertical__links">
-              <li><a href={`${v.path}reviews/`}>Carrier reviews</a></li>
-              <li><a href={`${v.path}best/`}>Best of {new Date().getFullYear()}</a></li>
-              {["auto","home","life","business"].includes(v.key) && <li><a href={`${v.path}cheapest/`}>Cheapest</a></li>}
-              {["auto","home","life","business"].includes(v.key) && <li><a href={`${v.path}by-state/`}>By state</a></li>}
-              {v.key === "auto" && <li><a href="/auto/brands/">Brand &amp; model rates</a></li>}
-              {v.key === "auto" && <li><a href="/auto/glossary/">Glossary</a></li>}
-              <li><a href={`${v.path}guides/`}>Guides</a></li>
-              <li><a href={`${v.path}compare/`}>Compare carriers</a></li>
-            </ul>
-          </div>
-        ))}
-      </div>
-    </div>
-  </section>
+  {isBrandMode ? (
+    <!-- ============== Brand-mode footer (homepage, about, methodology, blog) ============== -->
+    <section class="footer-brand-mode">
+      <div class="container footer-brand-mode__inner">
+        <!-- Brand block: logo, tagline, editorial nav -->
+        <div class="footer-brand-mode__head">
+          <a href="/" class="footer-brand-mode__mark" aria-label="QuoteYeti home">
+            <img src="/assets/images/quoteyeti-logo.svg" alt="QuoteYeti" />
+          </a>
+          <p class="footer-brand-mode__tagline">
+            We navigate the wilderness of the insurance market so you don't have to. Independent research, no paid rankings, no data routing.
+          </p>
+          <nav class="footer-brand-mode__nav" aria-label="QuoteYeti">
+            <a href="/about/">About</a>
+            <a href="/about/team/">Team</a>
+            <a href="/methodology/">Methodology</a>
+            <a href="/editorial/">Editorial standards</a>
+            <a href="/blog/">The Dispatch</a>
+            <a href="/contact/">Contact</a>
+            <a href="/sitemap/">Sitemap</a>
+          </nav>
+        </div>
 
-  <!-- ============== Main footer (dark) ============== -->
-  <section class="footer-main">
-    <div class="container footer-main__inner">
-      <!-- Brand column -->
-      <div class="footer-main__brand">
-        <a href="/" class="footer-main__mark" aria-label="QuoteYeti home">
-          <img src="/assets/images/quoteyeti-logo.svg" alt="QuoteYeti" class="footer-main__logo" />
-        </a>
-        <p class="footer-main__tagline">
-          We navigate the wilderness of the insurance market so you don't have to.
-        </p>
-        <div class="footer-main__verticals">
-          {VERTICAL_LIST.map((v) => (
-            <a href={v.path} class="footer-vertical-chip" style={`--chip-accent: ${v.accent}; --chip-accent-soft: ${v.accentSoft};`}>
-              <img src={v.icon} alt="" width="16" height="16" loading="lazy" />
-              <span>{v.short}</span>
-            </a>
-          ))}
+        <!-- Best-of teaser strip — one teaser per vertical -->
+        <div class="footer-brand-mode__teasers">
+          <p class="footer-eyebrow">Browse our research</p>
+          <div class="footer-teaser-grid">
+            {bestOfTeasers.map(({ vertical, reviewCount }) => (
+              <a class="footer-teaser" href={`${vertical.path}best/`} style={`--v-accent: ${vertical.accent}; --v-accent-soft: ${vertical.accentSoft};`}>
+                <span class="footer-teaser__icon">
+                  <img src={vertical.icon} alt="" width="20" height="20" loading="lazy" />
+                </span>
+                <span class="footer-teaser__body">
+                  <span class="footer-teaser__label">Best {vertical.short.toLowerCase()} insurance</span>
+                  <span class="footer-teaser__meta">
+                    {reviewCount} {reviewCount === 1 ? "carrier" : "carriers"} reviewed
+                  </span>
+                </span>
+                <svg class="footer-teaser__arrow" width="11" height="9" viewBox="0 0 14 12" fill="none" aria-hidden="true">
+                  <path d="M8 1l5 5-5 5M1 6h12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </a>
+            ))}
+          </div>
         </div>
       </div>
+    </section>
+  ) : (
+    <!-- ============== Vertical-mode footer: toggleable per-vertical content ============== -->
+    <section class="footer-vertical-mode" data-active-tab={section}>
+      <div class="container footer-vertical-mode__inner">
 
-      <!-- Link columns -->
-      <div class="footer-main__columns">
-        {cols.map((col) => (
-          <div class="footer-main__col">
-            <h3 class="footer-main__col-title">{col.title}</h3>
-            <ul>
-              {col.links.map((link) => <li><a href={link.href}>{link.label}</a></li>)}
-            </ul>
+        <!-- Tab bar: switch between verticals without leaving the page -->
+        <nav class="footer-tabs" aria-label="Switch footer category">
+          <p class="footer-tabs__label">You're viewing</p>
+          <div class="footer-tabs__pills" role="tablist">
+            {VERTICAL_LIST.map((v) => (
+              <button
+                type="button"
+                class={`footer-tab ${v.key === section ? "is-active" : ""}`}
+                data-tab={v.key}
+                role="tab"
+                aria-selected={v.key === section ? "true" : "false"}
+                aria-controls={`footer-panel-${v.key}`}
+                style={`--v-accent: ${v.accent}; --v-accent-soft: ${v.accentSoft};`}
+              >
+                <img src={v.icon} alt="" width="14" height="14" loading="lazy" />
+                <span>{v.short}</span>
+              </button>
+            ))}
           </div>
-        ))}
-      </div>
-    </div>
-  </section>
+        </nav>
 
-  <!-- ============== Independent-platform disclaimer ============== -->
-  <section class="footer-disclaimer">
-    <div class="container footer-disclaimer__inner">
-      <details class="footer-disclaimer__details">
-        <summary class="footer-disclaimer__btn" aria-label="Important disclaimers">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-            <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
-            <path d="M12 8v5M12 16.01l.01-.011" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-          </svg>
-          <span>Disclaimers</span>
-          <span class="footer-disclaimer__chev" aria-hidden="true">▾</span>
+        <!-- One panel per vertical. Only the active one is visible. The rest stay
+             in the DOM (hidden) so search engines can crawl them and so users can
+             switch without a page load. -->
+        {VERTICAL_LIST.map((v) => {
+          const d = verticalData[v.key];
+          const isAuto = v.key === "auto";
+          const isActive = v.key === section;
+          return (
+            <div
+              class="footer-panel"
+              id={`footer-panel-${v.key}`}
+              role="tabpanel"
+              data-panel={v.key}
+              hidden={!isActive}
+              style={`--v-accent: ${v.accent}; --v-accent-soft: ${v.accentSoft};`}
+            >
+              <header class="footer-panel__head">
+                <div class="footer-panel__title-wrap">
+                  <span class="footer-panel__icon">
+                    <img src={v.icon} alt="" width="24" height="24" />
+                  </span>
+                  <div>
+                    <h2 class="footer-panel__h2">{v.label} insurance</h2>
+                    <p class="footer-panel__sub">{d.reviews.length} carriers · {d.comparisons.length} comparisons · {d.guides.length} guides{d.locations.length > 0 && ` · ${d.locations.length} states`}{isAuto && ` · ${d.brandPageTotal} brand & model rate pages`}</p>
+                  </div>
+                </div>
+                <a href={v.path} class="footer-panel__hub">
+                  Visit {v.short.toLowerCase()} hub
+                  <svg width="11" height="9" viewBox="0 0 14 12" fill="none" aria-hidden="true">
+                    <path d="M8 1l5 5-5 5M1 6h12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </a>
+              </header>
+
+              <!-- Plan & compare strip -->
+              <div class="footer-block">
+                <p class="footer-eyebrow">Plan &amp; compare</p>
+                <div class="footer-pills">
+                  <a class="footer-pill" href={`${v.path}best/`}>Best {v.short.toLowerCase()} {year}</a>
+                  {["auto","home","life","business"].includes(v.key) && <a class="footer-pill" href={`${v.path}cheapest/`}>Cheapest {v.short.toLowerCase()}</a>}
+                  {["auto","home","life","business"].includes(v.key) && <a class="footer-pill" href={`${v.path}how-much-do-i-need/`}>How much do I need?</a>}
+                  {["auto","home","life","business"].includes(v.key) && <a class="footer-pill" href={`${v.path}coverage-types/`}>Coverage types</a>}
+                  {["auto","home","life","business"].includes(v.key) && <a class="footer-pill" href={`${v.path}discounts/`}>Discounts</a>}
+                  <a class="footer-pill" href={`${v.path}guides/`}>All guides</a>
+                  <a class="footer-pill" href={`${v.path}quotes/`}>Get quotes</a>
+                </div>
+              </div>
+
+              <!-- Carrier reviews -->
+              {d.reviews.length > 0 && (
+                <div class="footer-block">
+                  <div class="footer-block__head">
+                    <p class="footer-eyebrow">Carrier reviews <span class="footer-eyebrow__count">· {d.reviews.length}</span></p>
+                    <a class="footer-block__more" href={`${v.path}reviews/`}>All reviews →</a>
+                  </div>
+                  <div class="footer-pills">
+                    {d.reviews.map((r: any) => (
+                      <a class="footer-pill" href={`${v.path}reviews/${r.id}/`}>{r.data.company ?? r.data.title}</a>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              <!-- Comparisons. 158 across all verticals is real — we surface the
+                   most popular as pills and link out to the picker for the rest. -->
+              {d.comparisons.length > 0 && (
+                <div class="footer-block">
+                  <div class="footer-block__head">
+                    <p class="footer-eyebrow">Head-to-head comparisons <span class="footer-eyebrow__count">· {d.comparisons.length}</span></p>
+                    <a class="footer-block__more" href={`${v.path}compare/`}>Compare any two →</a>
+                  </div>
+                  <div class="footer-pills footer-pills--compact">
+                    {d.comparisons.slice(0, 12).map((c) => (
+                      <a class="footer-pill" href={`${v.path}compare/${c.slug}/`}>{c.label}</a>
+                    ))}
+                    {d.comparisons.length > 12 && (
+                      <a class="footer-pill footer-pill--more" href={`${v.path}compare/`}>+{d.comparisons.length - 12} more</a>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              <!-- By state — compressed to 2-letter pills à la Jerry -->
+              {d.locations.length > 0 && (
+                <div class="footer-block">
+                  <div class="footer-block__head">
+                    <p class="footer-eyebrow">{v.short} insurance by state <span class="footer-eyebrow__count">· {d.locations.length}</span></p>
+                    <a class="footer-block__more" href={`${v.path}by-state/`}>All states →</a>
+                  </div>
+                  <div class="footer-pills footer-pills--abbr">
+                    {d.locations.map((l: any) => (
+                      <a class="footer-pill footer-pill--abbr" href={`${v.path}by-state/${l.id}/`} title={stateFull(l)}>{stateAbbr(l)}</a>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              <!-- Guides (when there are enough to warrant a section) -->
+              {d.guides.length > 0 && (
+                <div class="footer-block">
+                  <div class="footer-block__head">
+                    <p class="footer-eyebrow">Guides <span class="footer-eyebrow__count">· {d.guides.length}</span></p>
+                    <a class="footer-block__more" href={`${v.path}guides/`}>All guides →</a>
+                  </div>
+                  <div class="footer-pills">
+                    {d.guides.slice(0, 10).map((g: any) => (
+                      <a class="footer-pill" href={`${v.path}guides/${g.id}/`}>{g.data.title}</a>
+                    ))}
+                    {d.guides.length > 10 && (
+                      <a class="footer-pill footer-pill--more" href={`${v.path}guides/`}>+{d.guides.length - 10} more</a>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              <!-- Auto-only: brand & model rate teasers + glossary + FAQ -->
+              {isAuto && d.brandPageTotal > 0 && (
+                <div class="footer-block">
+                  <div class="footer-block__head">
+                    <p class="footer-eyebrow">Brand &amp; model rates <span class="footer-eyebrow__count">· {d.brandPageTotal} pages, {d.brandFamilyCount} brands</span></p>
+                    <a class="footer-block__more" href="/auto/brands/">Browse all brands →</a>
+                  </div>
+                  <div class="footer-pills">
+                    <a class="footer-pill" href="/auto/brands/">Acura</a>
+                    <a class="footer-pill" href="/auto/brands/">Audi</a>
+                    <a class="footer-pill" href="/auto/brands/">BMW</a>
+                    <a class="footer-pill" href="/auto/brands/">Chevrolet</a>
+                    <a class="footer-pill" href="/auto/brands/">Ford</a>
+                    <a class="footer-pill" href="/auto/brands/">Honda</a>
+                    <a class="footer-pill" href="/auto/brands/">Hyundai</a>
+                    <a class="footer-pill" href="/auto/brands/">Jeep</a>
+                    <a class="footer-pill" href="/auto/brands/">Lexus</a>
+                    <a class="footer-pill" href="/auto/brands/">Mazda</a>
+                    <a class="footer-pill" href="/auto/brands/">Mercedes-Benz</a>
+                    <a class="footer-pill" href="/auto/brands/">Nissan</a>
+                    <a class="footer-pill" href="/auto/brands/">Subaru</a>
+                    <a class="footer-pill" href="/auto/brands/">Tesla</a>
+                    <a class="footer-pill" href="/auto/brands/">Toyota</a>
+                    <a class="footer-pill" href="/auto/brands/">Volkswagen</a>
+                    <a class="footer-pill footer-pill--more" href="/auto/brands/">+{d.brandFamilyCount - 16} more brands →</a>
+                  </div>
+                </div>
+              )}
+
+              {isAuto && d.glossaryCount > 0 && (
+                <div class="footer-block">
+                  <div class="footer-block__head">
+                    <p class="footer-eyebrow">Glossary &amp; FAQs <span class="footer-eyebrow__count">· {d.glossaryCount} terms, {d.faqCount} answers</span></p>
+                  </div>
+                  <div class="footer-pills">
+                    <a class="footer-pill" href="/auto/glossary/">Full glossary →</a>
+                    <a class="footer-pill" href="/auto/faqs/">All auto FAQs →</a>
+                  </div>
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    </section>
+  )}
+
+  <!-- ============== Bottom bar — disclaimer + copyright + legal ==============
+       Disclaimer is no longer on its own row. It sits inline above the copyright
+       as quiet fine print — readable for anyone who scrolls here, but visually
+       part of the bottom-bar block, not a separate island. -->
+  <section class="footer-bottom">
+    <div class="container footer-bottom__inner">
+
+      <!-- Disclaimer fine print, expandable. Closed by default — open exposes
+           the compensation and editorial-independence statements. -->
+      <details class="footer-bottom__disclaimer">
+        <summary>
+          <span class="footer-bottom__disclaimer-lede">
+            QuoteYeti is an independent comparison platform, not a licensed insurance broker or carrier.
+          </span>
+          <span class="footer-bottom__disclaimer-more">Read full disclaimer</span>
         </summary>
-        <div class="footer-disclaimer__body" role="note">
+        <div class="footer-bottom__disclaimer-body">
           <p>
-            QuoteYeti.com is an independent comparison platform, not a licensed insurance broker or carrier. We do not sell policies or bind coverage. We simply connect you with top U.S. providers to help you compare personalized rates.
+            We don't sell policies or bind coverage. We connect you with top U.S. providers so you can compare personalized rates from carriers you choose.
           </p>
-          <p class="footer-disclaimer__sub">
+          <p>
             QuoteYeti receives compensation from carriers and licensed partners when consumers obtain quotes through our platform. This compensation does not influence our editorial reviews, rankings, or recommendations — see our <a href="/methodology/">methodology</a> and <a href="/editorial/">editorial standards</a>. Insurance availability, rates, and terms vary by state and applicant.
           </p>
         </div>
       </details>
-    </div>
-  </section>
 
-  <!-- ============== Bottom bar ============== -->
-  <section class="footer-bottom">
-    <div class="container footer-bottom__inner">
-      <p class="footer-bottom__copy">© {year} QuoteYeti LLC. All rights reserved.</p>
-      <nav class="footer-bottom__legal" aria-label="Legal">
-        <a href="/privacy-policy/">Privacy</a>
-        <a href="/terms/">Terms</a>
-        <a href="/editorial/">Editorial standards</a>
-        <a href="/accessibility/">Accessibility</a>
-        <a href="/sitemap/">Sitemap</a>
-      </nav>
+      <div class="footer-bottom__row">
+        <p class="footer-bottom__copy">© {year} QuoteYeti LLC. All rights reserved.</p>
+        <nav class="footer-bottom__legal" aria-label="Legal">
+          <a href="/privacy-policy/">Privacy</a>
+          <a href="/terms/">Terms</a>
+          <a href="/accessibility/">Accessibility</a>
+        </nav>
+      </div>
     </div>
   </section>
 
@@ -276,174 +560,325 @@ const cols = footer.columns.slice(0, 3);
   .footer-newsletter-form__legal a:hover { color: var(--color-malibu); border-bottom-color: var(--color-malibu); }
 
   /* ============================================
-     Mega-footer: per-vertical sitemap row
+     BRAND-MODE FOOTER — used on homepage, about, methodology, blog, etc.
+     No vertical-specific SEO sprawl. Just brand + Best Of teasers.
   ============================================ */
-  .footer-verticals {
-    background: var(--color-alice);
-    padding-block: clamp(3rem, 6vw, 5rem);
-    border-top: 1px solid var(--color-border);
-  }
-  .footer-verticals__eyebrow {
-    font-family: var(--font-display);
-    font-size: 0.6875rem; font-weight: 700;
-    text-transform: uppercase; letter-spacing: 0.18em;
-    color: var(--color-text-muted);
-    margin: 0 0 var(--space-8);
-  }
-  .footer-verticals__grid {
-    display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: var(--space-8) var(--space-6);
-  }
-  .footer-vertical {
-    min-width: 0;
-  }
-  .footer-vertical__head {
-    display: inline-flex; align-items: center; gap: 8px;
-    font-family: var(--font-display);
-    font-weight: 700; font-size: 0.9375rem;
-    color: var(--color-resolution);
-    text-decoration: none;
-    padding-bottom: var(--space-3);
-    margin-bottom: var(--space-3);
-    border-bottom: 2px solid var(--v-accent);
-    transition: color var(--transition);
-  }
-  .footer-vertical__head:hover { color: var(--v-accent); }
-  .footer-vertical__links {
-    list-style: none; margin: 0; padding: 0;
-    display: flex; flex-direction: column;
-    gap: 4px;
-  }
-  .footer-vertical__links a {
-    display: inline-block;
-    font-family: var(--font-display);
-    font-size: 0.8125rem; font-weight: 500;
-    color: var(--color-text);
-    text-decoration: none;
-    padding: 3px 0;
-    transition: color var(--transition);
-  }
-  .footer-vertical__links a:hover { color: var(--v-accent); }
-
-  @media (max-width: 880px) {
-    .footer-verticals__grid {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-  }
-  @media (max-width: 480px) {
-    .footer-verticals__grid {
-      grid-template-columns: 1fr;
-      gap: var(--space-6);
-    }
-  }
-
-  /* ============================================
-     Main footer — dark navy, full width
-  ============================================ */
-  .footer-main {
+  .footer-brand-mode {
     background: linear-gradient(180deg, var(--color-resolution) 0%, #1F3258 100%);
     color: var(--color-white);
-    padding-block: var(--space-20) var(--space-16);
+    padding-block: clamp(4rem, 7vw, 6rem) clamp(3rem, 5vw, 5rem);
     position: relative;
     overflow: hidden;
   }
-  .footer-main::before {
+  .footer-brand-mode::before {
     content: "";
     position: absolute; inset: 0;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1200' height='600' viewBox='0 0 1200 600'%3E%3Cg fill='none' stroke='%23FFFFFF' stroke-width='0.5' stroke-opacity='0.05'%3E%3Cpath d='M0,300 Q300,200 600,300 T1200,300'/%3E%3Cpath d='M0,260 Q300,160 600,260 T1200,260'/%3E%3Cpath d='M0,340 Q300,240 600,340 T1200,340'/%3E%3Cpath d='M0,220 Q300,120 600,220 T1200,220'/%3E%3Cpath d='M0,380 Q300,280 600,380 T1200,380'/%3E%3Cpath d='M0,180 Q300,80 600,180 T1200,180'/%3E%3Cpath d='M0,420 Q300,320 600,420 T1200,420'/%3E%3C/g%3E%3C/svg%3E");
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1200' height='600' viewBox='0 0 1200 600'%3E%3Cg fill='none' stroke='%23FFFFFF' stroke-width='0.5' stroke-opacity='0.04'%3E%3Cpath d='M0,300 Q300,200 600,300 T1200,300'/%3E%3Cpath d='M0,260 Q300,160 600,260 T1200,260'/%3E%3Cpath d='M0,340 Q300,240 600,340 T1200,340'/%3E%3Cpath d='M0,220 Q300,120 600,220 T1200,220'/%3E%3C/g%3E%3C/svg%3E");
     pointer-events: none;
   }
-  .footer-main__inner {
+  .footer-brand-mode__inner {
     position: relative;
     display: grid;
-    grid-template-columns: 1.3fr 2fr;
-    gap: var(--space-16);
+    grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.5fr);
+    gap: clamp(2.5rem, 5vw, 5rem);
+    align-items: start;
   }
-
-  /* Brand column */
-  .footer-main__mark {
-    display: inline-block;
-    margin-bottom: var(--space-5);
-  }
-  .footer-main__logo {
-    height: 44px;
-    width: auto;
-    display: block;
+  .footer-brand-mode__mark { display: inline-block; margin-bottom: var(--space-5); }
+  .footer-brand-mode__mark img {
+    height: 44px; width: auto; display: block;
     filter: brightness(0) invert(1);
   }
-  .footer-main__tagline {
-    font-family: var(--font-serif, "Plantin", Georgia, serif);
+  .footer-brand-mode__tagline {
+    font-family: var(--font-serif);
     font-style: italic;
     font-size: 1.0625rem;
-    color: var(--color-white);
-    opacity: 0.9;
+    color: rgba(255,255,255,0.9);
     margin: 0 0 var(--space-6);
     line-height: 1.55;
     max-width: 360px;
   }
-  .footer-main__verticals {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--space-2);
+  .footer-brand-mode__nav {
+    display: flex; flex-wrap: wrap;
+    gap: var(--space-2) var(--space-5);
   }
-  .footer-vertical-chip {
-    display: inline-flex;
-    align-items: center;
-    gap: var(--space-2);
-    padding: 0.5rem 0.875rem;
-    background: rgba(255, 255, 255, 0.08);
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    border-radius: 100px;
+  .footer-brand-mode__nav a {
+    color: rgba(255,255,255,0.7);
     font-family: var(--font-display);
-    font-weight: 600;
-    font-size: 0.8125rem;
-    color: var(--color-white);
+    font-size: 0.875rem;
+    font-weight: 500;
     text-decoration: none;
-    transition: all 0.2s ease;
+    transition: color var(--transition);
   }
-  .footer-vertical-chip img {
-    width: 14px; height: 14px;
-    filter: brightness(0) invert(1);
-    opacity: 0.7;
-    transition: opacity 0.2s;
-  }
-  .footer-vertical-chip:hover {
-    background: var(--chip-accent);
-    border-color: var(--chip-accent);
-    transform: translateY(-1px);
-  }
-  .footer-vertical-chip:hover img { opacity: 1; }
+  .footer-brand-mode__nav a:hover { color: var(--color-white); }
 
-  /* Link columns */
-  .footer-main__columns {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: var(--space-10);
-  }
-  .footer-main__col-title {
+  /* Teaser grid: one card per vertical leading to its Best Of hub */
+  .footer-brand-mode__teasers { min-width: 0; }
+  .footer-eyebrow {
     font-family: var(--font-display);
     font-size: 0.6875rem; font-weight: 700;
-    text-transform: uppercase; letter-spacing: 0.18em;
-    color: var(--color-malibu);
+    text-transform: uppercase; letter-spacing: 0.16em;
+    color: rgba(255,255,255,0.55);
     margin: 0 0 var(--space-5);
-    padding-bottom: var(--space-3);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.12);
   }
-  .footer-main__col ul {
-    list-style: none;
-    margin: 0; padding: 0;
-    display: flex; flex-direction: column;
+  .footer-teaser-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: var(--space-3);
   }
-  .footer-main__col li a {
-    color: rgba(255, 255, 255, 0.78);
-    font-size: 0.9375rem;
+  .footer-teaser {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    padding: var(--space-4) var(--space-4);
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: var(--radius);
+    color: var(--color-white);
     text-decoration: none;
-    transition: color 0.2s;
-    line-height: 1.4;
+    transition: background var(--transition), border-color var(--transition), transform var(--transition);
   }
-  .footer-main__col li a:hover { color: var(--color-malibu); }
+  .footer-teaser:hover {
+    background: rgba(255,255,255,0.06);
+    border-color: var(--v-accent);
+    transform: translateY(-1px);
+  }
+  .footer-teaser__icon {
+    width: 36px; height: 36px;
+    border-radius: 8px;
+    background: var(--v-accent-soft);
+    display: inline-flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .footer-teaser__icon img { display: block; }
+  .footer-teaser__body { display: flex; flex-direction: column; gap: 2px; min-width: 0; flex: 1; }
+  .footer-teaser__label {
+    font-family: var(--font-display);
+    font-size: 0.875rem; font-weight: 600;
+    color: var(--color-white);
+    letter-spacing: -0.005em;
+    line-height: 1.25;
+  }
+  .footer-teaser__meta {
+    font-size: 0.75rem;
+    color: rgba(255,255,255,0.55);
+    line-height: 1.3;
+  }
+  .footer-teaser__arrow {
+    flex-shrink: 0;
+    color: rgba(255,255,255,0.5);
+    transition: color var(--transition), transform var(--transition);
+  }
+  .footer-teaser:hover .footer-teaser__arrow {
+    color: var(--v-accent);
+    transform: translateX(3px);
+  }
+  @media (max-width: 880px) {
+    .footer-brand-mode__inner { grid-template-columns: 1fr; gap: var(--space-10); }
+    .footer-teaser-grid { grid-template-columns: 1fr; }
+  }
+
+  /* ============================================
+     VERTICAL-MODE FOOTER — toggleable per-vertical
+     Renders 8 panels, one shown at a time.
+  ============================================ */
+  .footer-vertical-mode {
+    background: linear-gradient(180deg, var(--color-resolution) 0%, #1F3258 100%);
+    color: var(--color-white);
+    padding-block: clamp(3rem, 5vw, 4.5rem) clamp(2.5rem, 4vw, 4rem);
+    position: relative;
+    overflow: hidden;
+  }
+  .footer-vertical-mode::before {
+    content: "";
+    position: absolute; inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1200' height='600' viewBox='0 0 1200 600'%3E%3Cg fill='none' stroke='%23FFFFFF' stroke-width='0.5' stroke-opacity='0.04'%3E%3Cpath d='M0,300 Q300,200 600,300 T1200,300'/%3E%3Cpath d='M0,260 Q300,160 600,260 T1200,260'/%3E%3Cpath d='M0,340 Q300,240 600,340 T1200,340'/%3E%3C/g%3E%3C/svg%3E");
+    pointer-events: none;
+  }
+  .footer-vertical-mode__inner { position: relative; }
+
+  /* Tab bar — switches active panel without page navigation */
+  .footer-tabs {
+    margin-bottom: var(--space-8);
+    padding-bottom: var(--space-6);
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+  }
+  .footer-tabs__label {
+    font-family: var(--font-display);
+    font-size: 0.6875rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.16em;
+    color: rgba(255,255,255,0.45);
+    margin: 0 0 var(--space-3);
+  }
+  .footer-tabs__pills {
+    display: flex; flex-wrap: wrap;
+    gap: 4px;
+  }
+  .footer-tab {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 12px;
+    background: transparent;
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 100px;
+    cursor: pointer;
+    color: rgba(255,255,255,0.7);
+    font-family: var(--font-display);
+    font-size: 0.8125rem;
+    font-weight: 600;
+    transition: background var(--transition), border-color var(--transition), color var(--transition);
+  }
+  .footer-tab img {
+    filter: brightness(0) invert(1);
+    opacity: 0.6;
+    transition: opacity var(--transition);
+  }
+  .footer-tab:hover {
+    background: rgba(255,255,255,0.06);
+    border-color: rgba(255,255,255,0.25);
+    color: var(--color-white);
+  }
+  .footer-tab:hover img { opacity: 0.9; }
+  .footer-tab.is-active {
+    background: var(--v-accent);
+    border-color: var(--v-accent);
+    color: var(--color-white);
+  }
+  .footer-tab.is-active img { opacity: 1; }
+
+  /* Panel — one vertical's content. Hidden by default; JS toggles. */
+  .footer-panel[hidden] { display: none; }
+  .footer-panel__head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--space-5);
+    flex-wrap: wrap;
+    padding-bottom: var(--space-6);
+    margin-bottom: var(--space-8);
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+  }
+  .footer-panel__title-wrap {
+    display: flex; align-items: flex-start; gap: var(--space-4);
+    min-width: 0;
+  }
+  .footer-panel__icon {
+    width: 44px; height: 44px;
+    flex-shrink: 0;
+    background: var(--v-accent-soft);
+    border-radius: 10px;
+    display: inline-flex; align-items: center; justify-content: center;
+  }
+  .footer-panel__h2 {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 1.25rem;
+    letter-spacing: -0.015em;
+    color: var(--color-white);
+    margin: 0 0 2px;
+    line-height: 1.2;
+  }
+  .footer-panel__sub {
+    font-size: 0.8125rem;
+    color: rgba(255,255,255,0.6);
+    margin: 0;
+    line-height: 1.45;
+  }
+  .footer-panel__hub {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-family: var(--font-display);
+    font-weight: 600; font-size: 0.8125rem;
+    color: var(--v-accent);
+    text-decoration: none;
+    padding: 7px 14px;
+    background: var(--v-accent-soft);
+    border-radius: 100px;
+    transition: opacity var(--transition);
+  }
+  .footer-panel__hub:hover { opacity: 0.85; }
+
+  /* Content blocks within a panel: eyebrow + pills */
+  .footer-block {
+    margin-bottom: var(--space-7);
+  }
+  .footer-block:last-child { margin-bottom: 0; }
+  .footer-block__head {
+    display: flex; align-items: baseline;
+    justify-content: space-between;
+    gap: var(--space-3); flex-wrap: wrap;
+    margin-bottom: var(--space-3);
+  }
+  .footer-block .footer-eyebrow {
+    color: rgba(255,255,255,0.55);
+    margin: 0;
+  }
+  .footer-eyebrow__count {
+    color: rgba(255,255,255,0.4);
+    font-weight: 500;
+  }
+  .footer-block__more {
+    font-family: var(--font-display);
+    font-size: 0.75rem; font-weight: 600;
+    color: var(--v-accent);
+    text-decoration: none;
+    transition: opacity var(--transition);
+  }
+  .footer-block__more:hover { opacity: 0.85; }
+
+  .footer-pills {
+    display: flex; flex-wrap: wrap;
+    gap: 6px;
+  }
+  .footer-pill {
+    display: inline-flex; align-items: center;
+    padding: 5px 11px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 100px;
+    font-family: var(--font-display);
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: rgba(255,255,255,0.85);
+    text-decoration: none;
+    line-height: 1.3;
+    transition: background var(--transition), border-color var(--transition), color var(--transition);
+  }
+  .footer-pill:hover {
+    background: var(--v-accent-soft);
+    border-color: var(--v-accent);
+    color: var(--v-accent);
+  }
+  /* Compact comparison labels (long company names: tighter) */
+  .footer-pills--compact .footer-pill {
+    font-size: 0.75rem;
+    padding: 4px 10px;
+  }
+  /* 2-letter state pills */
+  .footer-pills--abbr {
+    gap: 4px;
+  }
+  .footer-pill--abbr {
+    min-width: 36px;
+    justify-content: center;
+    padding: 5px 8px;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+  }
+  .footer-pill--more {
+    background: transparent;
+    border-color: rgba(255,255,255,0.2);
+    color: rgba(255,255,255,0.65);
+    font-style: italic;
+  }
+  .footer-pill--more:hover {
+    background: transparent;
+    color: var(--v-accent);
+    border-color: var(--v-accent);
+  }
+
+  @media (max-width: 700px) {
+    .footer-panel__head { flex-direction: column; align-items: flex-start; }
+  }
 
   /* ============================================
      Independent-platform disclaimer
@@ -563,18 +998,59 @@ const cols = footer.columns.slice(0, 3);
   ============================================ */
   @media (max-width: 950px) {
     .footer-newsletter-band__inner { grid-template-columns: 1fr; gap: var(--space-8); }
-    .footer-main__inner { grid-template-columns: 1fr; gap: var(--space-12); }
-    .footer-main__columns { grid-template-columns: repeat(3, 1fr); gap: var(--space-8); }
-    .footer-main__tagline { max-width: none; }
   }
   @media (max-width: 700px) {
-    .footer-main__columns { grid-template-columns: repeat(2, 1fr); gap: var(--space-6); }
     .footer-newsletter-form__row { flex-direction: column; border-radius: var(--radius-lg); padding: var(--space-3); }
     .footer-newsletter-form__row input { padding: var(--space-3); }
     .footer-newsletter-form__btn { justify-content: center; }
     .footer-bottom__inner { flex-direction: column; align-items: flex-start; }
   }
-  @media (max-width: 480px) {
-    .footer-main__columns { grid-template-columns: 1fr; }
-  }
 </style>
+
+<script>
+  /**
+   * Footer tab switcher.
+   *
+   * On vertical-mode footers (any page inside /<vertical>/...), the footer
+   * renders one panel per vertical with the page's own vertical opened by
+   * default. Clicking any tab swaps the visible panel WITHOUT navigating —
+   * users can survey what's in the home or life footer while reading an auto
+   * page, then jump in via any pill.
+   *
+   * Implementation notes:
+   *  - All 8 panels are server-rendered in the HTML so they're crawlable.
+   *    The inactive ones get `[hidden]` which removes them from layout but
+   *    keeps them in the DOM.
+   *  - We bind one click handler at the footer root and delegate, so we don't
+   *    pay per-tab listener cost.
+   *  - The "active" state is reflected on both the tab and the panel via
+   *    a data attribute on the wrapper for any CSS that wants to react.
+   */
+  (function () {
+    const root = document.querySelector(".footer-vertical-mode");
+    if (!root) return;
+
+    const tabs = Array.from(root.querySelectorAll<HTMLButtonElement>(".footer-tab"));
+    const panels = Array.from(root.querySelectorAll<HTMLElement>(".footer-panel"));
+
+    function activate(key: string) {
+      for (const t of tabs) {
+        const isActive = t.dataset.tab === key;
+        t.classList.toggle("is-active", isActive);
+        t.setAttribute("aria-selected", isActive ? "true" : "false");
+      }
+      for (const p of panels) {
+        const isActive = p.dataset.panel === key;
+        p.hidden = !isActive;
+      }
+      root.setAttribute("data-active-tab", key);
+    }
+
+    root.addEventListener("click", (e) => {
+      const btn = (e.target as HTMLElement).closest<HTMLButtonElement>(".footer-tab");
+      if (!btn) return;
+      const key = btn.dataset.tab;
+      if (key) activate(key);
+    });
+  })();
+</script>
