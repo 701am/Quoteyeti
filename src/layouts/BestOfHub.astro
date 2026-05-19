@@ -4,12 +4,29 @@ import ContentByline from "~/components/ContentByline.astro";
 import ZipForm from "~/components/ZipForm.astro";
 import type { Vertical } from "~/data/verticals";
 
+/**
+ * Carrier data passed in by each best.astro page.
+ *
+ * Required: rank, name, score, bestFor, description, pros, cons.
+ * Optional fields below power the new LendingTree-style data list in the
+ * carrier panel — when present they render as a 4-cell grid; when absent,
+ * the grid hides that cell so legacy pages render cleanly during the rollout.
+ */
 interface RankedCarrier {
   rank: number;
   name: string;
   score: number;
   bestFor: string;
+  /** Monthly full-coverage rate, e.g. "$110". String to allow formatting flexibility. */
   monthlyRate?: string;
+  /** J.D. Power satisfaction score (typically 500–900). Display formats with descriptor. */
+  satisfactionScore?: number;
+  /** NAIC complaint index. 1.0 = average; lower = better. */
+  complaintRating?: number;
+  /** A.M. Best financial strength rating (A++, A+, A, A-, etc.) */
+  financialStrength?: string;
+  /** Logo path — when present, displayed in the panel header. Placeholder uses initials. */
+  logoUrl?: string;
   description: string;
   pros: string[];
   cons: string[];
@@ -21,14 +38,44 @@ interface Props {
   hero: { headline: string; lede: string };
   intro: string;
   carriers: RankedCarrier[];
+  /** 2-4 bullet TL;DR rendered in the bridging CTA card. The "key takeaways"
+   *  pattern is one of the most-stolen moves from LendingTree — it lets a
+   *  reader get the headline in 3 seconds before scrolling. Optional but
+   *  highly recommended. */
+  keyTakeaways?: string[];
   methodologyPoints?: string[];
   faqs?: { q: string; a: string }[];
 }
 
-const { vertical, hero, intro, carriers, methodologyPoints = [], faqs = [] } = Astro.props;
+const { vertical, hero, intro, carriers, keyTakeaways = [], methodologyPoints = [], faqs = [] } = Astro.props;
 
 // Find the top carrier for the editorial pull-quote
 const topCarrier = carriers[0];
+
+/** Format helpers for the new carrier data grid. */
+function satisfactionLabel(score: number | undefined): string {
+  if (score == null) return "";
+  if (score >= 700) return "Excellent";
+  if (score >= 660) return "Good";
+  if (score >= 640) return "Average";
+  return "Below avg";
+}
+function complaintLabel(idx: number | undefined): string {
+  if (idx == null) return "";
+  if (idx < 0.6) return "Excellent";
+  if (idx < 0.9) return "Good";
+  if (idx <= 1.1) return "Average";
+  return "Below avg";
+}
+function financialLabel(rating: string | undefined): string {
+  if (!rating) return "";
+  if (rating === "A++") return "Superior";
+  if (rating === "A+") return "Superior";
+  if (rating === "A") return "Excellent";
+  if (rating.startsWith("A")) return "Excellent";
+  if (rating.startsWith("B")) return "Good";
+  return "Fair";
+}
 ---
 
 <BaseLayout
@@ -47,8 +94,12 @@ const topCarrier = carriers[0];
   }}
 >
 
-  <!-- ============== HERO ============== -->
-  <section class="best-hero topo-bg">
+  <!-- ============== HERO + bridging CTA card ==============
+       The hero is intentionally shorter than v1 to make room for the
+       bridging card below. The card has a negative top margin so it
+       overlaps the bottom of the hero — visually unifying the hero copy
+       with the form/key-takeaways/disclosure in one block. -->
+  <section class="best-hero best-hero--lendingtree topo-bg">
     <div class="container">
       <nav class="breadcrumbs" aria-label="Breadcrumb">
         <a href="/">Home</a>
@@ -61,16 +112,109 @@ const topCarrier = carriers[0];
         <img src={vertical.icon} alt="" width="18" height="18" />
         {vertical.label}
       </p>
+      <h1 class="best-hero__h1">{hero.headline.split(" of ")[0]}<span class="serif-italic"> of {hero.headline.split(" of ")[1] ?? "2026"}</span></h1>
+      <p class="best-hero__lede">{hero.lede}</p>
       <ContentByline
         variant="inline"
         publishDate="2026-01-15T00:00:00.000Z"
         updatedDate={new Date()}
         compareVertical={vertical.key}
       />
-      <h1>{hero.headline.split(" of ")[0]}<span class="serif-italic"> of {hero.headline.split(" of ")[1] ?? "2026"}</span></h1>
-      <p class="best-hero__lede">{hero.lede}</p>
     </div>
   </section>
+
+  <!-- BRIDGING CTA CARD — overlaps hero bottom edge via negative margin. -->
+  <div class="container">
+    <div class="bridge-card">
+      <div class="bridge-card__head">
+        <p class="bridge-card__eyebrow">Find the cheapest rates</p>
+        <p class="bridge-card__sub">Compare quotes from the top carriers below in 60 seconds.</p>
+      </div>
+
+      <form class="bridge-card__form" action={`${vertical.path}quotes/`} method="get" novalidate>
+        <div class="bridge-field">
+          <label for="bridge-zip">ZIP code</label>
+          <input id="bridge-zip" name="zip" type="text" inputmode="numeric" pattern="[0-9]{5}" maxlength="5" placeholder="90210" required autocomplete="postal-code" />
+        </div>
+        <div class="bridge-field">
+          <label for="bridge-age">Age</label>
+          <select id="bridge-age" name="age">
+            <option value="16-20">16–20</option>
+            <option value="21-24">21–24</option>
+            <option value="25-34" selected>25–34</option>
+            <option value="35-44">35–44</option>
+            <option value="45-54">45–54</option>
+            <option value="55-64">55–64</option>
+            <option value="65+">65+</option>
+          </select>
+        </div>
+        <div class="bridge-field">
+          <label for="bridge-insured">Currently insured?</label>
+          <select id="bridge-insured" name="insured">
+            <option value="yes" selected>Yes</option>
+            <option value="no">No</option>
+          </select>
+        </div>
+        <button class="bridge-card__submit" type="submit">
+          <span>Compare rates</span>
+          <svg width="14" height="12" viewBox="0 0 14 12" fill="none" aria-hidden="true">
+            <path d="M8 1l5 5-5 5M1 6h12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+      </form>
+
+      <div class="bridge-card__split">
+        <div class="bridge-card__trust">
+          <ul class="trust-badges">
+            <li class="trust-badge">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M12 2l8 4v6c0 5-3.5 9.5-8 10-4.5-.5-8-5-8-10V6l8-4z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
+                <path d="M9 12l2 2 4-4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              <span>Editorially independent</span>
+            </li>
+            <li class="trust-badge">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <rect x="4" y="11" width="16" height="10" rx="2" stroke="currentColor" stroke-width="1.6"/>
+                <path d="M8 11V8a4 4 0 018 0v3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+              </svg>
+              <span>256-bit secure</span>
+            </li>
+            <li class="trust-badge">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M5 8h14M5 12h14M5 16h8" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+              </svg>
+              <span>Zero spam calls</span>
+            </li>
+          </ul>
+        </div>
+
+        {keyTakeaways.length > 0 && (
+          <div class="bridge-card__takeaways">
+            <p class="bridge-card__takeaways-label">Key takeaways</p>
+            <ul>
+              {keyTakeaways.map((t) => <li>{t}</li>)}
+            </ul>
+          </div>
+        )}
+      </div>
+
+      <details class="bridge-card__disclosure">
+        <summary>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.6"/>
+            <path d="M12 7v6M12 16.01l.01-.011" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+          </svg>
+          <span>How QuoteYeti makes money</span>
+        </summary>
+        <div class="bridge-card__disclosure-body">
+          <p>
+            Carriers and licensed partners pay us a commission when consumers obtain quotes through our platform. This compensation does not influence our editorial rankings or recommendations — see our <a href="/methodology/">methodology</a> and <a href="/editorial/">editorial standards</a>.
+          </p>
+        </div>
+      </details>
+    </div>
+  </div>
 
   <div class="best-page container">
     <div class="best-page__layout">
@@ -108,7 +252,7 @@ const topCarrier = carriers[0];
 
           <div class="rankings-list" data-rankings>
             {carriers.map((c) => {
-              const pct = Math.min(100, Math.max(0, (c.score / 5) * 100));
+              const pct = Math.min(100, Math.max(0, (c.score / 5) * 100)).toFixed(1);
               const anchor = c.name.toLowerCase().replace(/\s+/g, "-");
               return (
                 <a href={`#${anchor}`} class="ranking-row" data-rank-row>
@@ -144,51 +288,122 @@ const topCarrier = carriers[0];
           </aside>
         )}
 
-        <!-- ===== MID-ARTICLE ZIP CTA BAND ===== -->
-        <ZipForm
-          variant="band"
-          vertical={vertical.key}
-          eyebrow="Or skip to the rates"
-          heading={`See what <em>you'd actually pay</em>.`}
-          lede={`Compare quotes from the top ${carriers.length} carriers below — and others — in 60 seconds.`}
-          ctaLabel="Get quotes"
-        />
+        <!-- Detailed carrier panels — LendingTree-inspired data shape:
+             rank + logo + name + score, then a 4-cell data grid, then a
+             "Why people like X" paragraph, then a collapsible pros/cons drawer,
+             then a clean footer with the carrier-review link.
 
-        <!-- Detailed carrier cards -->
-        {carriers.map((c) => (
-          <section id={c.name.toLowerCase().replace(/\s+/g, "-")} class="carrier-card reveal">
-            <div class="carrier-card__head">
-              <span class="carrier-card__rank">{String(c.rank).padStart(2, "0")}</span>
-              <div>
-                <h3>{c.name}</h3>
-                <p class="carrier-card__meta">
-                  <span class="carrier-card__score">★ {c.score.toFixed(2)} / 5</span>
-                  {c.monthlyRate && <span class="carrier-card__rate">{c.monthlyRate}</span>}
-                  <span class="carrier-card__bestfor">Best for {c.bestFor.toLowerCase()}</span>
-                </p>
+             Carriers with logoUrl render the logo; others fall back to a
+             monogram tile so the panel header is always balanced. -->
+        {carriers.map((c) => {
+          const anchor = c.name.toLowerCase().replace(/\s+/g, "-");
+          const initials = c.name.split(/\s+/).slice(0, 2).map((w) => w[0]).join("").toUpperCase();
+          const hasDataGrid = c.monthlyRate || c.satisfactionScore || c.complaintRating || c.financialStrength;
+          return (
+            <section id={anchor} class="carrier-panel reveal">
+
+              <!-- Panel head: rank + logo slot + name + score badge -->
+              <header class="carrier-panel__head">
+                <span class="carrier-panel__rank" aria-hidden="true">{String(c.rank).padStart(2, "0")}</span>
+                <div class="carrier-panel__logo" aria-hidden="true">
+                  {c.logoUrl ? (
+                    <img src={c.logoUrl} alt="" loading="lazy" />
+                  ) : (
+                    <span class="carrier-panel__monogram">{initials}</span>
+                  )}
+                </div>
+                <div class="carrier-panel__title-wrap">
+                  <h3 class="carrier-panel__title">{c.name}</h3>
+                  <p class="carrier-panel__bestfor">Best for {c.bestFor.toLowerCase()}</p>
+                </div>
+                <div class="carrier-panel__score">
+                  <span class="carrier-panel__score-num">{c.score.toFixed(2)}</span>
+                  <span class="carrier-panel__score-max">/5.00</span>
+                  {c.rank === 1 && <span class="carrier-panel__score-pill">Top ranked</span>}
+                </div>
+              </header>
+
+              <!-- Data grid: 4 cells, each cell drops out if the data is missing -->
+              {hasDataGrid && (
+                <div class="carrier-panel__grid">
+                  {c.monthlyRate && (
+                    <div class="datacell">
+                      <span class="datacell__label">Monthly rate</span>
+                      <span class="datacell__value">{c.monthlyRate}</span>
+                      <span class="datacell__qual">Full coverage</span>
+                    </div>
+                  )}
+                  {c.satisfactionScore != null && (
+                    <div class="datacell">
+                      <span class="datacell__label">Satisfaction</span>
+                      <span class="datacell__value">{c.satisfactionScore}</span>
+                      <span class="datacell__qual">{satisfactionLabel(c.satisfactionScore)} <span class="datacell__src">(J.D. Power)</span></span>
+                    </div>
+                  )}
+                  {c.complaintRating != null && (
+                    <div class="datacell">
+                      <span class="datacell__label">Complaints</span>
+                      <span class="datacell__value">{c.complaintRating.toFixed(2)}</span>
+                      <span class="datacell__qual">{complaintLabel(c.complaintRating)} <span class="datacell__src">(NAIC)</span></span>
+                    </div>
+                  )}
+                  {c.financialStrength && (
+                    <div class="datacell">
+                      <span class="datacell__label">Financial strength</span>
+                      <span class="datacell__value">{c.financialStrength}</span>
+                      <span class="datacell__qual">{financialLabel(c.financialStrength)} <span class="datacell__src">(A.M. Best)</span></span>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              <!-- Why people like X -->
+              <div class="carrier-panel__why">
+                <p class="carrier-panel__why-label">Why people like {c.name}</p>
+                <p class="carrier-panel__why-body">{c.description}</p>
               </div>
-            </div>
-            <p class="carrier-card__desc">{c.description}</p>
-            <div class="carrier-card__prosCons">
-              <div class="prosCons__col prosCons__col--pros">
-                <h4>Pros</h4>
-                <ul>{c.pros.map((p) => <li>{p}</li>)}</ul>
-              </div>
-              <div class="prosCons__col prosCons__col--cons">
-                <h4>Cons</h4>
-                <ul>{c.cons.map((p) => <li>{p}</li>)}</ul>
-              </div>
-            </div>
-            {c.href && (
-              <a href={c.href} class="carrier-card__cta">
-                <span>Read the full {c.name} review</span>
-                <svg width="14" height="12" viewBox="0 0 14 12" fill="none" aria-hidden="true">
-                  <path d="M8 1l5 5-5 5M1 6h12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-              </a>
-            )}
-          </section>
-        ))}
+
+              <!-- Collapsible pros/cons — depth preserved but tucked behind a toggle -->
+              {(c.pros.length > 0 || c.cons.length > 0) && (
+                <details class="carrier-panel__drawer">
+                  <summary>
+                    <span>See full pros &amp; cons</span>
+                    <svg width="12" height="12" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+                      <path d="M3 5l4 4 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                  </summary>
+                  <div class="carrier-panel__drawer-body">
+                    {c.pros.length > 0 && (
+                      <div class="carrier-panel__pros">
+                        <h4>Pros</h4>
+                        <ul>{c.pros.map((p) => <li>{p}</li>)}</ul>
+                      </div>
+                    )}
+                    {c.cons.length > 0 && (
+                      <div class="carrier-panel__cons">
+                        <h4>Cons</h4>
+                        <ul>{c.cons.map((p) => <li>{p}</li>)}</ul>
+                      </div>
+                    )}
+                  </div>
+                </details>
+              )}
+
+              <!-- Panel footer: link to full carrier review (when published) -->
+              {c.href && (
+                <footer class="carrier-panel__footer">
+                  <a href={c.href} class="carrier-panel__review">
+                    <span>Read the full {c.name} review</span>
+                    <svg width="14" height="12" viewBox="0 0 14 12" fill="none" aria-hidden="true">
+                      <path d="M8 1l5 5-5 5M1 6h12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                  </a>
+                  <span class="carrier-panel__source">Methodology audit · Updated quarterly</span>
+                </footer>
+              )}
+            </section>
+          );
+        })}
 
         <!-- Methodology -->
         {methodologyPoints.length > 0 && (
@@ -247,6 +462,11 @@ const topCarrier = carriers[0];
       position: relative;
       overflow: hidden;
     }
+    /* LendingTree-style variant: extra bottom padding so the bridging CTA
+       card below can pull up with a negative margin and overlap cleanly. */
+    .best-hero--lendingtree {
+      padding-bottom: clamp(6rem, 12vw, 9rem);
+    }
     .topo-bg::before {
       content: "";
       position: absolute; inset: 0;
@@ -257,6 +477,192 @@ const topCarrier = carriers[0];
       z-index: 0;
     }
     .best-hero > * { position: relative; z-index: 1; }
+    .best-hero__h1 {
+      font-family: var(--font-display);
+      font-weight: 600;
+      font-size: clamp(2rem, 4vw, 2.75rem);
+      letter-spacing: -0.025em;
+      line-height: 1.05;
+      color: var(--color-resolution);
+      margin: 0 0 var(--space-4);
+      max-width: 22ch;
+    }
+
+    /* ============ BRIDGE CARD ============
+       Negative top margin pulls the card up to overlap the bottom of the hero.
+       The white card visually unifies hero copy + form + trust + takeaways
+       + disclosure into one block — the "bridging" effect. */
+    .bridge-card {
+      margin-top: clamp(-6rem, -10vw, -4rem);
+      margin-bottom: var(--space-10);
+      background: var(--color-white);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-pop);
+      padding: clamp(1.5rem, 3vw, 2rem) clamp(1.5rem, 3vw, 2rem) 0;
+      position: relative;
+      z-index: 2;
+    }
+    .bridge-card__head {
+      padding-bottom: var(--space-5);
+    }
+    .bridge-card__eyebrow {
+      font-family: var(--font-display);
+      font-size: 0.6875rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.14em;
+      color: var(--color-text-muted);
+      margin: 0 0 4px;
+    }
+    .bridge-card__sub {
+      font-family: var(--font-display);
+      font-size: 1rem; font-weight: 500;
+      color: var(--color-resolution);
+      margin: 0;
+    }
+
+    /* Form: 3 fields + submit. Stacks on narrow viewports. */
+    .bridge-card__form {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr auto;
+      gap: var(--space-3);
+      align-items: end;
+      padding-bottom: var(--space-5);
+      border-bottom: 1px solid var(--color-border);
+    }
+    .bridge-field {
+      display: flex; flex-direction: column;
+      min-width: 0;
+    }
+    .bridge-field label {
+      font-family: var(--font-display);
+      font-size: 0.6875rem; font-weight: 600;
+      text-transform: uppercase; letter-spacing: 0.1em;
+      color: var(--color-text-muted);
+      margin-bottom: 6px;
+    }
+    .bridge-field input,
+    .bridge-field select {
+      height: 44px;
+      padding: 0 12px;
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius);
+      background: var(--color-white);
+      font-family: var(--font-display);
+      font-size: 0.9375rem;
+      font-weight: 500;
+      color: var(--color-resolution);
+      transition: border-color var(--transition);
+    }
+    .bridge-field input:focus,
+    .bridge-field select:focus {
+      outline: 0;
+      border-color: var(--color-teal);
+      box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-teal) 18%, transparent);
+    }
+    .bridge-card__submit {
+      height: 44px;
+      padding: 0 var(--space-5);
+      background: var(--color-teal);
+      color: var(--color-white);
+      border: 0;
+      border-radius: var(--radius);
+      font-family: var(--font-display);
+      font-size: 0.9375rem; font-weight: 600;
+      letter-spacing: 0.005em;
+      cursor: pointer;
+      display: inline-flex; align-items: center; gap: var(--space-2);
+      transition: background var(--transition), transform var(--transition);
+    }
+    .bridge-card__submit:hover { background: var(--color-teal-dark); transform: translateY(-1px); }
+    .bridge-card__submit svg { transition: transform var(--transition); }
+    .bridge-card__submit:hover svg { transform: translateX(2px); }
+
+    /* Split: trust signals on the left, key takeaways on the right */
+    .bridge-card__split {
+      display: grid;
+      grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.4fr);
+      gap: var(--space-7);
+      padding: var(--space-5) 0;
+    }
+    .bridge-card__trust .trust-badges {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-3);
+      padding: 0;
+      list-style: none;
+      margin: 0;
+    }
+    .bridge-card__trust .trust-badge {
+      color: var(--color-resolution);
+      font-size: 0.875rem;
+      font-weight: 500;
+    }
+    .bridge-card__trust .trust-badge svg { color: var(--color-teal); }
+    .bridge-card__takeaways {
+      min-width: 0;
+    }
+    .bridge-card__takeaways-label {
+      font-family: var(--font-display);
+      font-size: 0.6875rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.14em;
+      color: var(--color-text-muted);
+      margin: 0 0 var(--space-3);
+    }
+    .bridge-card__takeaways ul {
+      margin: 0; padding-left: var(--space-5);
+      list-style: disc;
+    }
+    .bridge-card__takeaways li {
+      font-size: 0.9375rem;
+      line-height: 1.5;
+      color: var(--color-text);
+      margin-bottom: 4px;
+    }
+    .bridge-card__takeaways li::marker { color: var(--section-accent); }
+
+    /* Bottom: "How QuoteYeti makes money" disclosure */
+    .bridge-card__disclosure {
+      border-top: 1px solid var(--color-border);
+      padding: var(--space-4) 0;
+    }
+    .bridge-card__disclosure > summary {
+      cursor: pointer;
+      list-style: none;
+      display: inline-flex; align-items: center; gap: var(--space-2);
+      font-family: var(--font-display);
+      font-size: 0.8125rem; font-weight: 600;
+      color: var(--color-text-muted);
+      transition: color var(--transition);
+    }
+    .bridge-card__disclosure > summary::-webkit-details-marker { display: none; }
+    .bridge-card__disclosure > summary:hover { color: var(--color-resolution); }
+    .bridge-card__disclosure-body {
+      padding-top: var(--space-3);
+      max-width: 720px;
+    }
+    .bridge-card__disclosure-body p {
+      font-size: 0.8125rem;
+      line-height: 1.6;
+      color: var(--color-text-muted);
+      margin: 0;
+    }
+    .bridge-card__disclosure-body a {
+      color: var(--color-teal);
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+
+    @media (max-width: 760px) {
+      .bridge-card__form {
+        grid-template-columns: 1fr 1fr;
+      }
+      .bridge-card__submit { grid-column: span 2; justify-content: center; }
+      .bridge-card__split { grid-template-columns: 1fr; gap: var(--space-5); }
+    }
+    @media (max-width: 480px) {
+      .bridge-card__form { grid-template-columns: 1fr; }
+      .bridge-card__submit { grid-column: span 1; }
+    }
 
     .breadcrumbs {
       font-size: 0.8125rem;
@@ -514,122 +920,284 @@ const topCarrier = carriers[0];
     }
 
     /* ==================================================
-       Carrier card
+       Carrier panel — LendingTree-inspired data shape
     ================================================== */
-    .carrier-card {
-      padding: var(--space-8);
+    .carrier-panel {
       background: var(--color-white);
       border: 1px solid var(--color-border);
       border-radius: var(--radius-lg);
+      padding: clamp(1.25rem, 2.5vw, 1.75rem);
       position: relative;
-      transition: all 0.2s ease;
+      transition: border-color var(--transition), box-shadow var(--transition);
     }
-    .carrier-card::before {
-      content: "";
-      position: absolute;
-      top: 0; left: 0; right: 0;
-      height: 4px;
-      background: var(--section-accent);
-      border-radius: var(--radius-lg) var(--radius-lg) 0 0;
-    }
-    .carrier-card:hover {
+    .carrier-panel:hover {
       border-color: var(--section-accent);
-      transform: translateY(-2px);
-      box-shadow: 0 12px 28px rgba(0,0,0,0.05);
+      box-shadow: var(--shadow-card);
     }
-    .carrier-card__head {
-      display: flex; align-items: flex-start; gap: var(--space-5);
-      margin-bottom: var(--space-5);
+    .carrier-panel + .carrier-panel { margin-top: var(--space-5); }
+
+    /* Header row: rank | logo | name+best-for | score */
+    .carrier-panel__head {
+      display: grid;
+      grid-template-columns: auto auto minmax(0, 1fr) auto;
+      gap: var(--space-4);
+      align-items: center;
+      padding-bottom: var(--space-4);
+      margin-bottom: var(--space-4);
+      border-bottom: 1px solid var(--color-border);
     }
-    .carrier-card__rank {
-      flex-shrink: 0;
-      width: 64px; height: 64px;
-      display: flex; align-items: center; justify-content: center;
-      background: var(--section-accent-soft);
+    .carrier-panel__rank {
+      font-family: var(--font-serif);
+      font-style: italic;
+      font-weight: 400;
+      font-size: clamp(2rem, 4vw, 2.75rem);
       color: var(--section-accent);
-      font-family: var(--font-serif, "Plantin", Georgia, serif);
-      font-style: italic; font-weight: 500;
-      font-size: 1.875rem;
-      border-radius: var(--radius);
-      letter-spacing: -0.02em;
+      line-height: 0.85;
+      letter-spacing: -0.03em;
+      opacity: 0.85;
     }
-    .carrier-card__head h3 {
-      margin: 0 0 var(--space-2);
-      font-size: 1.625rem;
-      letter-spacing: -0.01em;
+    .carrier-panel__logo {
+      width: 64px; height: 44px;
+      flex-shrink: 0;
+      background: var(--color-alice);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-sm);
+      display: flex; align-items: center; justify-content: center;
+      overflow: hidden;
     }
-    .carrier-card__meta {
-      display: flex; flex-wrap: wrap; gap: var(--space-4);
-      font-size: 0.9375rem;
+    .carrier-panel__logo img {
+      max-width: 80%;
+      max-height: 80%;
+      object-fit: contain;
+    }
+    .carrier-panel__monogram {
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 0.75rem;
+      letter-spacing: 0.08em;
+      color: var(--color-text-muted);
+    }
+    .carrier-panel__title-wrap { min-width: 0; }
+    .carrier-panel__title {
+      font-family: var(--font-display);
+      font-weight: 600;
+      font-size: 1.25rem;
+      letter-spacing: -0.015em;
+      color: var(--color-resolution);
+      margin: 0 0 2px;
+      line-height: 1.2;
+    }
+    .carrier-panel__bestfor {
+      font-size: 0.8125rem;
+      color: var(--color-text-muted);
       margin: 0;
     }
-    .carrier-card__score {
-      font-family: var(--font-display); font-weight: 700;
-      color: var(--section-accent);
+    .carrier-panel__bestfor::first-letter { text-transform: uppercase; }
+    .carrier-panel__score {
+      flex-shrink: 0;
+      text-align: right;
+      min-width: 0;
     }
-    .carrier-card__rate {
-      font-family: var(--font-display); font-weight: 600;
-      color: var(--color-text);
+    .carrier-panel__score-num {
+      font-family: var(--font-serif);
+      font-weight: 400;
+      font-size: 1.625rem;
+      letter-spacing: -0.02em;
+      color: var(--color-resolution);
+      line-height: 1;
     }
-    .carrier-card__bestfor { color: var(--color-text-muted); }
-    .carrier-card__bestfor::first-letter { text-transform: uppercase; }
-    .carrier-card__desc { margin-bottom: var(--space-5); line-height: 1.65; }
-    .carrier-card__prosCons {
-      display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-5);
+    .carrier-panel__score-max {
+      font-family: var(--font-display);
+      font-size: 0.8125rem;
+      font-weight: 500;
+      color: var(--color-text-muted);
+      margin-left: 2px;
+    }
+    .carrier-panel__score-pill {
+      display: block;
+      margin-top: 4px;
+      font-family: var(--font-display);
+      font-size: 0.625rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      color: var(--color-teal);
+    }
+
+    /* 4-cell data grid */
+    .carrier-panel__grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: var(--space-3);
       margin-bottom: var(--space-5);
     }
-    .prosCons__col { padding: var(--space-5); border-radius: var(--radius); }
-    .prosCons__col--pros {
-      background: #F1F6E5;
-      border-left: 3px solid #8FB339;
+    .datacell {
+      background: var(--color-snow);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius);
+      padding: var(--space-3) var(--space-4);
+      min-width: 0;
     }
-    .prosCons__col--cons {
-      background: #FCF0EF;
-      border-left: 3px solid #F46036;
+    .datacell__label {
+      display: block;
+      font-family: var(--font-display);
+      font-size: 0.6875rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--color-text-muted);
+      margin-bottom: 4px;
     }
-    .prosCons__col h4 { font-size: 1rem; margin: 0 0 var(--space-3); }
-    .prosCons__col ul { margin: 0; padding-left: 0; list-style: none; }
-    .prosCons__col li {
-      margin-bottom: var(--space-2);
+    .datacell__value {
+      display: block;
+      font-family: var(--font-display);
+      font-weight: 600;
+      font-size: 1.25rem;
+      letter-spacing: -0.015em;
+      color: var(--color-resolution);
+      line-height: 1.1;
+      margin-bottom: 2px;
+    }
+    .datacell__qual {
+      display: block;
+      font-size: 0.75rem;
+      color: var(--color-text-muted);
+      line-height: 1.3;
+    }
+    .datacell__src {
+      color: var(--color-text-muted);
+      opacity: 0.7;
+    }
+
+    /* Why people like X */
+    .carrier-panel__why {
+      margin-bottom: var(--space-4);
+    }
+    .carrier-panel__why-label {
+      font-family: var(--font-display);
+      font-size: 0.6875rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.14em;
+      color: var(--color-text-muted);
+      margin: 0 0 var(--space-2);
+    }
+    .carrier-panel__why-body {
       font-size: 0.9375rem;
-      line-height: 1.5;
-      padding-left: 26px;
-      position: relative;
+      line-height: 1.65;
+      color: var(--color-text);
+      margin: 0;
+      max-width: 65ch;
     }
-    .prosCons__col--pros li::before {
-      content: "";
-      position: absolute;
-      left: 0; top: 4px;
-      width: 18px; height: 18px;
-      background: #8FB339;
-      border-radius: 50%;
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' fill='none' stroke='white' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M2 6.5l2.5 2.5L10 3.5'/%3E%3C/svg%3E");
-      background-size: 80%;
-      background-repeat: no-repeat;
-      background-position: center;
+
+    /* Pros/cons drawer */
+    .carrier-panel__drawer {
+      margin-bottom: var(--space-4);
     }
-    .prosCons__col--cons li::before {
-      content: "";
-      position: absolute;
-      left: 0; top: 4px;
-      width: 18px; height: 18px;
-      background: #F46036;
-      border-radius: 50%;
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' fill='none' stroke='white' stroke-width='2.5' stroke-linecap='round'%3E%3Cpath d='M3 3l6 6M9 3l-6 6'/%3E%3C/svg%3E");
-      background-size: 70%;
-      background-repeat: no-repeat;
-      background-position: center;
-    }
-    .carrier-card__cta {
+    .carrier-panel__drawer > summary {
+      cursor: pointer;
+      list-style: none;
       display: inline-flex; align-items: center; gap: var(--space-2);
-      font-family: var(--font-display); font-weight: 700;
-      color: var(--section-accent);
-      text-decoration: none;
-      transition: all 0.2s;
+      padding: 4px 0;
+      font-family: var(--font-display);
+      font-size: 0.8125rem; font-weight: 600;
+      color: var(--color-text-muted);
+      transition: color var(--transition);
     }
-    .carrier-card__cta svg { transition: transform 0.2s; }
-    .carrier-card__cta:hover { color: var(--color-resolution); }
-    .carrier-card__cta:hover svg { transform: translateX(4px); }
+    .carrier-panel__drawer > summary::-webkit-details-marker { display: none; }
+    .carrier-panel__drawer > summary:hover { color: var(--color-resolution); }
+    .carrier-panel__drawer > summary svg {
+      transition: transform var(--transition);
+    }
+    .carrier-panel__drawer[open] > summary svg {
+      transform: rotate(180deg);
+    }
+    .carrier-panel__drawer-body {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--space-5);
+      margin-top: var(--space-3);
+    }
+    .carrier-panel__pros,
+    .carrier-panel__cons {
+      padding: var(--space-4);
+      border-radius: var(--radius);
+    }
+    .carrier-panel__pros {
+      background: var(--color-teal-soft);
+      border-left: 3px solid var(--color-teal);
+    }
+    .carrier-panel__cons {
+      background: rgba(192, 43, 10, 0.06);
+      border-left: 3px solid var(--color-error);
+    }
+    .carrier-panel__pros h4,
+    .carrier-panel__cons h4 {
+      font-family: var(--font-display);
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      margin: 0 0 var(--space-3);
+    }
+    .carrier-panel__pros h4 { color: var(--color-teal-dark); }
+    .carrier-panel__cons h4 { color: var(--color-error); }
+    .carrier-panel__pros ul,
+    .carrier-panel__cons ul {
+      margin: 0;
+      padding-left: var(--space-4);
+      list-style: disc;
+    }
+    .carrier-panel__pros li,
+    .carrier-panel__cons li {
+      font-size: 0.875rem;
+      line-height: 1.55;
+      margin-bottom: 4px;
+      color: var(--color-text);
+    }
+    .carrier-panel__pros li::marker { color: var(--color-teal); }
+    .carrier-panel__cons li::marker { color: var(--color-error); }
+
+    /* Footer */
+    .carrier-panel__footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: var(--space-3);
+      padding-top: var(--space-4);
+      border-top: 1px solid var(--color-border);
+      flex-wrap: wrap;
+    }
+    .carrier-panel__review {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-2);
+      font-family: var(--font-display);
+      font-weight: 600;
+      font-size: 0.875rem;
+      color: var(--color-teal);
+      text-decoration: none;
+      transition: color var(--transition);
+    }
+    .carrier-panel__review:hover { color: var(--color-teal-dark); }
+    .carrier-panel__review svg { transition: transform var(--transition); }
+    .carrier-panel__review:hover svg { transform: translateX(3px); }
+    .carrier-panel__source {
+      font-size: 0.6875rem;
+      color: var(--color-text-muted);
+      letter-spacing: 0.02em;
+    }
+
+    @media (max-width: 700px) {
+      .carrier-panel__head {
+        grid-template-columns: auto auto 1fr;
+      }
+      .carrier-panel__score {
+        grid-column: 1 / -1;
+        text-align: left;
+        padding-top: var(--space-3);
+        border-top: 1px solid var(--color-border);
+      }
+      .carrier-panel__drawer-body { grid-template-columns: 1fr; }
+    }
 
     /* Methodology */
     .methodology__list {
@@ -690,19 +1258,14 @@ const topCarrier = carriers[0];
     @media (max-width: 950px) {
       .best-page__layout { grid-template-columns: 1fr; }
       .toc { position: static; margin-bottom: var(--space-8); }
-      .carrier-card__prosCons { grid-template-columns: 1fr; }
-      .carrier-card { padding: var(--space-6); }
       .ranking-row { grid-template-columns: 44px 1fr; gap: var(--space-3); padding: var(--space-4); }
       .ranking-row__rank { font-size: 2rem; }
       .pull-quote p { font-size: 1.25rem; }
     }
     @media (max-width: 640px) {
       .best-hero { padding-block: var(--space-10) var(--space-8); }
-      .best-hero h1 { font-size: 1.875rem; }
+      .best-hero__h1 { font-size: 1.875rem; }
       .best-hero__lede { font-size: 1rem; }
-      .carrier-card { padding: var(--space-5); }
-      .carrier-card h3 { font-size: 1.375rem; }
-      .carrier-card__head { flex-direction: column; align-items: flex-start; gap: var(--space-3); }
       .ranking-row { padding: var(--space-3); }
       .ranking-row__rank { font-size: 1.5rem; }
       .pull-quote { padding: var(--space-5); }
