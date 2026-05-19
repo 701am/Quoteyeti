@@ -646,7 +646,7 @@ const remainingTakeaways = takeaways.slice(1);
        Hero
     ================================================== */
     .review-hero {
-      padding-block: var(--space-12) var(--space-10);
+      padding-block: var(--space-12) clamp(6rem, 12vw, 9rem);
       background: var(--section-accent-soft);
       position: relative;
       overflow: hidden;
@@ -1732,7 +1732,7 @@ const remainingTakeaways = takeaways.slice(1);
       .takeaways-list__num { font-size: 2rem; }
     }
     @media (max-width: 640px) {
-      .review-hero { padding-block: var(--space-10) var(--space-8); }
+      .review-hero { padding-block: var(--space-10) clamp(5rem, 18vw, 7rem); }
       .review-hero__h1 { font-size: 1.5rem; line-height: 1.15; }
       .review-content { font-size: 0.9375rem; }
       .review-content h2 { font-size: 1.625rem; }

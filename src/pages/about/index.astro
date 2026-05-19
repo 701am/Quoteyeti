@@ -248,6 +248,45 @@ const team = [
           </ul>
         </aside>
       </div>
+
+      <!-- Editorial flow diagram — visualizes the commitment without inventing data -->
+      <div class="money__flow" aria-label="How QuoteYeti earns">
+        <p class="money__flow-eyebrow">The only path to revenue</p>
+        <ol class="money__flow-steps">
+          <li class="money__flow-step">
+            <span class="money__flow-num">01</span>
+            <p class="money__flow-label">You visit<br/>QuoteYeti</p>
+          </li>
+          <li class="money__flow-arrow" aria-hidden="true">
+            <svg width="32" height="14" viewBox="0 0 32 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M0 7 L29 7 M22 1 L29 7 L22 13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+            </svg>
+          </li>
+          <li class="money__flow-step">
+            <span class="money__flow-num">02</span>
+            <p class="money__flow-label">You read an<br/>independent review</p>
+          </li>
+          <li class="money__flow-arrow" aria-hidden="true">
+            <svg width="32" height="14" viewBox="0 0 32 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M0 7 L29 7 M22 1 L29 7 L22 13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+            </svg>
+          </li>
+          <li class="money__flow-step">
+            <span class="money__flow-num">03</span>
+            <p class="money__flow-label">You choose the<br/>carrier you want</p>
+          </li>
+          <li class="money__flow-arrow" aria-hidden="true">
+            <svg width="32" height="14" viewBox="0 0 32 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M0 7 L29 7 M22 1 L29 7 L22 13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+            </svg>
+          </li>
+          <li class="money__flow-step money__flow-step--terminal">
+            <span class="money__flow-num">04</span>
+            <p class="money__flow-label">QuoteYeti earns<br/>a commission</p>
+          </li>
+        </ol>
+        <p class="money__flow-footnote">We only earn when you choose. We never earn for placement, sponsorship, or routing your data.</p>
+      </div>
     </div>
   </section>
 
@@ -377,45 +416,7 @@ const team = [
           </article>
         ))}
       </div>
-    </div>
-  </section>
-
-  <!-- ============== LOCATION ============== -->
-  <section class="location">
-    <div class="container">
-      <div class="location__inner">
-        <div class="location__copy">
-          <p class="location__eyebrow">Where we work</p>
-          <h2>
-            Remote-first.
-            <span class="serif-italic">Globally distributed.</span>
-          </h2>
-          <p class="location__body">
-            QuoteYeti is built by a team that spans continents. Our editorial team works across the U.S. Our engineering and operations work from the Philippines, Europe, and Latin America. We hire for the work, not the zip code — and we think it makes the product better.
-          </p>
-          <p class="location__body">
-            If you want to work with us, we'd love to hear from you. Reach out via <a href="mailto:hello@quoteyeti.com">hello@quoteyeti.com</a>.
-          </p>
-        </div>
-        <div class="location__art" aria-hidden="true">
-          <svg class="location__compass" viewBox="0 0 240 240" width="240" height="240">
-            <circle cx="120" cy="120" r="110" fill="none" stroke="#64BCE1" stroke-width="1" stroke-opacity="0.35"/>
-            <circle cx="120" cy="120" r="88" fill="none" stroke="#64BCE1" stroke-width="1" stroke-opacity="0.25"/>
-            <circle cx="120" cy="120" r="64" fill="none" stroke="#64BCE1" stroke-width="1" stroke-opacity="0.18"/>
-            <line x1="120" y1="22" x2="120" y2="42" stroke="#64BCE1" stroke-width="2" stroke-linecap="round"/>
-            <line x1="120" y1="198" x2="120" y2="218" stroke="#64BCE1" stroke-width="2" stroke-linecap="round" opacity="0.5"/>
-            <line x1="22" y1="120" x2="42" y2="120" stroke="#64BCE1" stroke-width="2" stroke-linecap="round" opacity="0.5"/>
-            <line x1="198" y1="120" x2="218" y2="120" stroke="#64BCE1" stroke-width="2" stroke-linecap="round" opacity="0.5"/>
-            <path d="M120 50 L106 120 L120 110 L134 120 Z" fill="#64BCE1"/>
-            <path d="M120 190 L106 120 L120 130 L134 120 Z" fill="#64BCE1" opacity="0.35"/>
-            <text x="120" y="18" text-anchor="middle" font-family="Georgia, serif" font-style="italic" font-size="16" font-weight="500" fill="#FFFFFF">N</text>
-            <text x="120" y="232" text-anchor="middle" font-family="Georgia, serif" font-style="italic" font-size="16" font-weight="500" fill="#FFFFFF" opacity="0.5">S</text>
-            <text x="14" y="125" text-anchor="middle" font-family="Georgia, serif" font-style="italic" font-size="16" font-weight="500" fill="#FFFFFF" opacity="0.5">W</text>
-            <text x="226" y="125" text-anchor="middle" font-family="Georgia, serif" font-style="italic" font-size="16" font-weight="500" fill="#FFFFFF" opacity="0.5">E</text>
-            <circle cx="120" cy="120" r="5" fill="#FFFFFF"/>
-          </svg>
-        </div>
-      </div>
+      <p class="team__caption">Our team works across the U.S., Philippines, Europe, and Latin America. We hire for the work, not the zip code.</p>
     </div>
   </section>
 
@@ -519,67 +520,77 @@ const team = [
     ============================================ */
     .numbers {
       padding-block: var(--space-24);
-      background: var(--color-white);
+      background: var(--color-resolution);
+      color: var(--color-white);
     }
     .numbers__header {
       text-align: center;
       max-width: 720px;
       margin: 0 auto var(--space-14);
     }
+    .numbers__header .eyebrow {
+      color: rgba(255,255,255,0.55);
+    }
     .numbers__header h2 {
       font-size: clamp(2.25rem, 4vw, 3.25rem);
       letter-spacing: -0.025em;
       line-height: 1.1;
+      color: var(--color-white);
     }
+    .numbers__header h2 .serif-italic { color: var(--color-malibu); }
     .numbers__grid {
       list-style: none;
       margin: 0; padding: 0;
       display: grid;
       grid-template-columns: repeat(4, 1fr);
-      gap: var(--space-4);
+      gap: 0;
+      align-items: stretch;
     }
     .number-card {
       display: flex;
-      align-items: center;
-      gap: var(--space-5);
-      padding: var(--space-6);
-      background: var(--color-white);
-      border: 1px solid var(--color-border);
-      border-radius: 14px;
-      transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+      flex-direction: column;
+      gap: var(--space-4);
+      padding: 0 clamp(1rem, 2vw, 2rem);
+      background: transparent;
+      border: 0;
+      border-left: 1px solid rgba(255,255,255,0.14);
+      border-radius: 0;
+      transition: none;
     }
+    .number-card:first-child { border-left: 0; padding-left: 0; }
+    .number-card:last-child { padding-right: 0; }
     .number-card:hover {
-      transform: translateY(-4px);
-      border-color: var(--color-malibu);
-      box-shadow: 0 14px 28px rgba(44, 69, 119, 0.08);
+      transform: none;
+      box-shadow: none;
     }
     .number-card__value {
       flex-shrink: 0;
-      font-family: var(--font-serif, "Plantin", Georgia, serif);
-      font-style: italic;
-      font-weight: 500;
-      font-size: 3.25rem;
-      line-height: 0.95;
-      color: var(--color-malibu);
+      font-family: var(--font-serif);
+      font-style: normal;
+      font-weight: 300;
+      font-size: clamp(3.5rem, 7.5vw, 6.5rem);
+      line-height: 0.9;
+      color: var(--color-white);
       letter-spacing: -0.04em;
     }
     .number-card__text {
       display: flex;
       flex-direction: column;
-      gap: 4px;
+      gap: 6px;
       min-width: 0;
     }
     .number-card__label {
       font-family: var(--font-display);
-      font-weight: 700;
-      font-size: 0.9375rem;
-      color: var(--color-resolution);
-      letter-spacing: -0.005em;
-      line-height: 1.25;
+      font-weight: 600;
+      font-size: 0.6875rem;
+      color: rgba(255,255,255,0.65);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      line-height: 1.45;
     }
     .number-card__detail {
       font-size: 0.8125rem;
-      color: var(--color-text-muted);
+      color: rgba(255,255,255,0.6);
       line-height: 1.5;
     }
 
@@ -807,6 +818,115 @@ const team = [
     }
 
     /* ============================================
+       Editorial flow diagram — How QuoteYeti earns
+    ============================================ */
+    .money__flow {
+      margin-top: var(--space-12);
+      padding: var(--space-8);
+      background: var(--color-alice);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-lg);
+    }
+    .money__flow-eyebrow {
+      font-family: var(--font-display);
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      color: var(--color-text-muted);
+      margin: 0 0 var(--space-6);
+      text-align: center;
+    }
+    .money__flow-steps {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--space-3);
+      flex-wrap: nowrap;
+    }
+    .money__flow-step {
+      flex: 1 1 0;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: var(--space-3);
+      text-align: center;
+      padding: var(--space-5) var(--space-3);
+      background: var(--color-white);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius);
+      transition: border-color var(--transition);
+    }
+    .money__flow-step:hover { border-color: var(--color-resolution); }
+    .money__flow-step--terminal {
+      border-color: var(--color-resolution);
+      background: var(--color-resolution);
+    }
+    .money__flow-step--terminal .money__flow-num,
+    .money__flow-step--terminal .money__flow-label {
+      color: var(--color-white);
+    }
+    .money__flow-step--terminal .money__flow-num {
+      background: var(--color-malibu);
+      color: var(--color-resolution);
+    }
+    .money__flow-num {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 32px; height: 32px;
+      background: var(--color-resolution);
+      color: var(--color-white);
+      border-radius: 50%;
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 0.75rem;
+      line-height: 1;
+      letter-spacing: 0.04em;
+    }
+    .money__flow-label {
+      font-family: var(--font-display);
+      font-size: 13px;
+      font-weight: 600;
+      line-height: 1.35;
+      color: var(--color-resolution);
+      margin: 0;
+    }
+    .money__flow-arrow {
+      flex: 0 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--color-ship-cove);
+      opacity: 0.65;
+    }
+    .money__flow-footnote {
+      margin: var(--space-6) 0 0;
+      text-align: center;
+      font-family: var(--font-display);
+      font-size: 13px;
+      font-style: italic;
+      color: var(--color-text-muted);
+      line-height: 1.55;
+    }
+    @media (max-width: 768px) {
+      .money__flow-steps {
+        flex-direction: column;
+        align-items: stretch;
+        gap: var(--space-2);
+      }
+      .money__flow-arrow {
+        transform: rotate(90deg);
+        padding: var(--space-1) 0;
+      }
+      .money__flow-step { padding: var(--space-4); }
+    }
+
+    /* ============================================
        Methodology — vertical timeline
     ============================================ */
     .methodology {
@@ -990,6 +1110,16 @@ const team = [
       grid-template-columns: repeat(3, 1fr);
       gap: var(--space-7);
       position: relative;
+    }
+    .team__caption {
+      margin: var(--space-8) auto 0;
+      max-width: 640px;
+      text-align: center;
+      font-family: var(--font-display);
+      font-size: 14px;
+      color: var(--color-text-muted);
+      font-style: italic;
+      line-height: 1.55;
     }
 
     /* ==== Team card ==== */
@@ -1291,7 +1421,8 @@ const team = [
     @media (max-width: 1000px) {
       .about-hero__inner { grid-template-columns: 1fr; gap: var(--space-8); }
       .about-hero__art { order: -1; max-width: 240px; margin-inline: auto; }
-      .numbers__grid { grid-template-columns: repeat(2, 1fr); }
+      .numbers__grid { grid-template-columns: repeat(2, 1fr); gap: var(--space-10) 0; }
+      .number-card:nth-child(3) { border-left: 0; padding-left: 0; }
       .principles__grid { grid-template-columns: 1fr; gap: var(--space-5); }
       .principle, .team-card { padding: var(--space-7) var(--space-6); }
       .money__inner { grid-template-columns: 1fr; }
@@ -1306,7 +1437,8 @@ const team = [
       .principles, .numbers-section, .team, .money, .location, .methodology { padding-block: var(--space-14); }
     }
     @media (max-width: 600px) {
-      .numbers__grid { grid-template-columns: 1fr; }
+      .numbers__grid { grid-template-columns: 1fr; gap: var(--space-8); }
+      .number-card { border-left: 0; padding: 0; }
       .method-step { grid-template-columns: 56px 1fr; gap: var(--space-4); }
       .method-step__num { width: 44px; height: 44px; font-size: 1.25rem; }
       .about-hero__ctas { flex-direction: column; align-items: flex-start; }

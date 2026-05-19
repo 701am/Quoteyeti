@@ -270,16 +270,52 @@ const faqs = [
     </article>
   </section>
 
-  <section class="how">
-    <div class="container">
-      <header class="how__header"><p class="eyebrow">How it works</p><h2>Three steps. <span class="serif-italic">No catch.</span></h2></header>
-      <ol class="how__steps">
-        <li class="how__step"><div class="how__step-top"><div class="how__step-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="18" height="15" rx="2"/><path d="M3 10h18M8 3v6M16 3v6"/></svg></div><span class="how__step-eyebrow">Step 01</span></div><h3>Pick your coverage category</h3><p>Auto, home, life, business, health, renters, pet, travel. Each gets its own dedicated research, carrier reviews, and editorial guides.</p></li>
-        <li class="how__step"><div class="how__step-top"><div class="how__step-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16v16H4z"/><path d="M8 9h8M8 13h8M8 17h5"/></svg></div><span class="how__step-eyebrow">Step 02</span></div><h3>Read the analysis</h3><p>Independent carrier reviews, best-of rankings, state-specific breakdowns, and methodology you can audit. No paid placement, no surprise sponsorships.</p></li>
-        <li class="how__step"><div class="how__step-top"><div class="how__step-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></div><span class="how__step-eyebrow">Step 03</span></div><h3>Get quotes on your terms</h3><p>Request quotes only from the carriers you choose. We never auto-route your data. We never sell your information. You stay in control.</p></li>
-      </ol>
-    </div>
-  </section>
+  {/* THE DISPATCH — publication identity beat, replaces the cut Process section */}
+  {featuredPosts.length > 0 && (
+    <section class="dispatch-band">
+      <div class="container">
+        <div class="dispatch-band__inner">
+          <div class="dispatch-band__copy">
+            <p class="dispatch-band__masthead">
+              <span class="dispatch-band__masthead-name">The Dispatch</span>
+              <span class="dispatch-band__masthead-sep" aria-hidden="true">·</span>
+              <span class="dispatch-band__masthead-issue">QuoteYeti's weekly publication</span>
+            </p>
+            <h2 class="dispatch-band__h2">
+              We publish what the comparison sites <span class="serif-italic">won't</span>.
+            </h2>
+            <p class="dispatch-band__lede">
+              Honest analysis, regulatory updates, and carrier deep-dives. No clickbait. No sponsored content. One editorial brief every Tuesday for readers who want signal, not noise.
+            </p>
+            <div class="dispatch-band__actions">
+              <a href="/newsletter/" class="dispatch-band__cta">
+                <span>Subscribe to The Dispatch</span>
+                <svg width="14" height="12" viewBox="0 0 14 12" fill="none" aria-hidden="true">
+                  <path d="M8 1l5 5-5 5M1 6h12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </a>
+              <a href="/blog/" class="dispatch-band__link">Browse all issues →</a>
+            </div>
+          </div>
+          {featuredPosts[0] && (
+            <aside class="dispatch-band__featured" aria-label="Latest issue">
+              <p class="dispatch-band__featured-eyebrow">Latest issue</p>
+              <a href={`/blog/${featuredPosts[0].id}/`} class="dispatch-band__featured-link">
+                {featuredPosts[0].data.category && (
+                  <p class="dispatch-band__featured-cat">{featuredPosts[0].data.category}</p>
+                )}
+                <h3 class="dispatch-band__featured-title">{featuredPosts[0].data.title}</h3>
+                {featuredPosts[0].data.excerpt && (
+                  <p class="dispatch-band__featured-excerpt">{featuredPosts[0].data.excerpt}</p>
+                )}
+                <span class="dispatch-band__featured-cta">Read the issue →</span>
+              </a>
+            </aside>
+          )}
+        </div>
+      </div>
+    </section>
+  )}
 
   {featuredGuides.length > 0 && (
     <section class="hguides">
@@ -420,9 +456,9 @@ const faqs = [
     .hero__h1 {
       font-family: var(--font-display);
       font-weight: 600;
-      font-size: clamp(2.5rem, 5.2vw, 3.75rem);
-      line-height: 1.04;
-      letter-spacing: -0.03em;
+      font-size: clamp(2.75rem, 5.5vw, 4rem);
+      line-height: 1.02;
+      letter-spacing: -0.035em;
       color: var(--color-resolution);
       margin: 0 0 var(--space-6);
       max-width: 13ch;
@@ -501,44 +537,54 @@ const faqs = [
     .hstats__grid {
       display: grid;
       grid-template-columns: repeat(5, 1fr);
-      gap: clamp(1.5rem, 3vw, 3rem);
-      align-items: end;
+      gap: 0;
+      align-items: stretch;
     }
-    .hstat { min-width: 0; }
+    .hstat {
+      min-width: 0;
+      padding: 0 clamp(1rem, 2vw, 2rem);
+      text-align: left;
+      border-left: 1px solid rgba(255,255,255,0.14);
+    }
+    .hstat:first-child { border-left: 0; padding-left: 0; }
+    .hstat:last-child { padding-right: 0; }
     .hstat__num {
       font-family: var(--font-serif);
-      font-weight: 400;
+      font-weight: 300;
       font-style: normal;
-      font-size: clamp(3.5rem, 7vw, 6rem);
-      letter-spacing: -0.03em;
+      font-size: clamp(3.5rem, 7.5vw, 6.5rem);
+      letter-spacing: -0.04em;
       color: var(--color-white);
-      line-height: 0.95;
-      margin: 0 0 var(--space-3);
+      line-height: 0.9;
+      margin: 0 0 var(--space-4);
       display: flex; align-items: baseline;
     }
     .hstat__num-suffix {
       font-family: var(--font-serif);
-      font-weight: 400;
+      font-weight: 300;
       font-size: 0.55em;
       color: var(--color-malibu);
       margin-left: 0.1em;
     }
     .hstat__label {
       font-family: var(--font-display);
-      font-weight: 500;
-      font-size: 0.8125rem;
-      color: rgba(255,255,255,0.7);
-      line-height: 1.4;
-      letter-spacing: 0.005em;
-      padding-top: var(--space-3);
-      border-top: 1px solid rgba(255,255,255,0.18);
+      font-weight: 600;
+      font-size: 0.6875rem;
+      color: rgba(255,255,255,0.65);
+      line-height: 1.45;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      padding-top: 0;
+      border-top: 0;
     }
     @media (max-width: 980px) {
       .hstats__grid { grid-template-columns: repeat(3, 1fr); }
-      .hstat:nth-child(4), .hstat:nth-child(5) { grid-row: 2; }
+      .hstat:nth-child(4) { border-left: 0; padding-left: 0; }
+      .hstat:nth-child(4), .hstat:nth-child(5) { grid-row: 2; margin-top: var(--space-8); }
     }
     @media (max-width: 600px) {
       .hstats__grid { grid-template-columns: repeat(2, 1fr); gap: var(--space-6); }
+      .hstat { border-left: 0; padding: 0; }
       .hstat:nth-child(5) { grid-column: span 2; }
     }
 
@@ -611,12 +657,12 @@ const faqs = [
     .promise__numeral {
       font-family: var(--font-serif);
       font-style: italic;
-      font-weight: 400;
-      font-size: clamp(5rem, 11vw, 9rem);
-      line-height: 0.85;
+      font-weight: 300;
+      font-size: clamp(6rem, 14vw, 11rem);
+      line-height: 0.82;
       color: var(--color-malibu);
-      letter-spacing: -0.04em;
-      opacity: 0.85;
+      letter-spacing: -0.05em;
+      opacity: 0.92;
       display: block;
     }
     .promise__body {
@@ -625,11 +671,11 @@ const faqs = [
     .promise__heading {
       font-family: var(--font-display);
       font-weight: 600;
-      font-size: clamp(1.5rem, 2.6vw, 2rem);
-      letter-spacing: -0.022em;
+      font-size: clamp(1.75rem, 3.4vw, 2.625rem);
+      letter-spacing: -0.025em;
       color: var(--color-resolution);
       margin: 0 0 var(--space-5);
-      line-height: 1.15;
+      line-height: 1.08;
     }
     .promise__copy {
       font-size: clamp(1rem, 1.2vw, 1.0625rem);
@@ -661,18 +707,181 @@ const faqs = [
       .promise--right .promise__link { justify-content: flex-start; }
     }
 
-    .how { padding-block: var(--space-20); background: var(--color-alice); }
-    .how__header { text-align: center; margin-bottom: var(--space-12); }
-    .how__header h2 { font-size: clamp(2.25rem, 4vw, 3rem); letter-spacing: -0.025em; line-height: 1.05; margin: 0; color: var(--color-resolution); }
-    .how__header h2 .serif-italic { color: var(--color-malibu); }
-    .how__steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-8); list-style: none; padding: 0; margin: 0; }
-    .how__step { padding: var(--space-7); background: var(--color-white); border-radius: 14px; border: 1px solid var(--color-border); }
-    .how__step-top { display: flex; align-items: center; gap: var(--space-3); margin-bottom: var(--space-5); }
-    .how__step-icon { width: 40px; height: 40px; background: var(--color-malibu); color: var(--color-white); border-radius: 10px; display: flex; align-items: center; justify-content: center; }
-    .how__step-eyebrow { font-family: var(--font-display); font-size: 0.6875rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.18em; color: var(--color-text-muted); }
-    .how__step h3 { font-family: var(--font-display); font-weight: 700; font-size: 1.25rem; letter-spacing: -0.015em; color: var(--color-resolution); margin: 0 0 var(--space-3); line-height: 1.25; }
-    .how__step p { font-size: 0.9375rem; color: var(--color-text); line-height: 1.55; margin: 0; }
-    @media (max-width: 850px) { .how__steps { grid-template-columns: 1fr; } }
+    /* The Dispatch publication band — homepage editorial identity */
+    .dispatch-band {
+      padding-block: clamp(4rem, 8vw, 7rem);
+      background: var(--color-resolution);
+      color: var(--color-white);
+      position: relative;
+      overflow: hidden;
+    }
+    .dispatch-band::before {
+      /* Subtle topographic backdrop, very faint */
+      content: "";
+      position: absolute;
+      inset: 0;
+      background-image: radial-gradient(ellipse 60% 40% at 20% 30%, rgba(91, 168, 212, 0.08), transparent 70%);
+      pointer-events: none;
+    }
+    .dispatch-band__inner {
+      display: grid;
+      grid-template-columns: 1.2fr 1fr;
+      gap: clamp(2.5rem, 5vw, 5rem);
+      align-items: start;
+      position: relative;
+      z-index: 1;
+    }
+    .dispatch-band__masthead {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+      flex-wrap: wrap;
+      margin: 0 0 var(--space-5);
+      padding: 6px 14px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      border-radius: var(--radius-pill);
+      width: fit-content;
+    }
+    .dispatch-band__masthead-name {
+      font-family: var(--font-serif);
+      font-style: italic;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--color-white);
+      letter-spacing: -0.01em;
+    }
+    .dispatch-band__masthead-sep {
+      color: rgba(255,255,255,0.45);
+    }
+    .dispatch-band__masthead-issue {
+      font-family: var(--font-display);
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: rgba(255, 255, 255, 0.7);
+    }
+    .dispatch-band__h2 {
+      font-family: var(--font-display);
+      font-weight: 600;
+      font-size: clamp(2rem, 4vw, 3rem);
+      line-height: 1.05;
+      letter-spacing: -0.03em;
+      color: var(--color-white);
+      margin: 0 0 var(--space-5);
+      max-width: 18ch;
+    }
+    .dispatch-band__h2 .serif-italic {
+      color: var(--color-malibu);
+    }
+    .dispatch-band__lede {
+      font-size: 1.0625rem;
+      line-height: 1.6;
+      color: rgba(255, 255, 255, 0.78);
+      margin: 0 0 var(--space-7);
+      max-width: 52ch;
+    }
+    .dispatch-band__actions {
+      display: flex;
+      align-items: center;
+      gap: var(--space-5);
+      flex-wrap: wrap;
+    }
+    .dispatch-band__cta {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-2);
+      padding: 12px 22px;
+      background: var(--color-white);
+      color: var(--color-resolution);
+      border-radius: var(--radius-pill);
+      font-family: var(--font-display);
+      font-weight: 600;
+      font-size: 14px;
+      text-decoration: none;
+      letter-spacing: 0.005em;
+      transition: transform var(--transition), background var(--transition);
+    }
+    .dispatch-band__cta:hover {
+      transform: translateY(-1px);
+      background: var(--color-alice);
+    }
+    .dispatch-band__cta svg { transition: transform var(--transition); }
+    .dispatch-band__cta:hover svg { transform: translateX(2px); }
+    .dispatch-band__link {
+      font-family: var(--font-display);
+      font-size: 14px;
+      font-weight: 600;
+      color: rgba(255, 255, 255, 0.85);
+      text-decoration: none;
+      transition: color var(--transition);
+    }
+    .dispatch-band__link:hover { color: var(--color-white); }
+
+    /* Featured-issue card on the right */
+    .dispatch-band__featured {
+      padding: var(--space-6);
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      border-radius: var(--radius-lg);
+      transition: border-color var(--transition), background var(--transition);
+    }
+    .dispatch-band__featured:hover {
+      border-color: rgba(255, 255, 255, 0.32);
+      background: rgba(255, 255, 255, 0.09);
+    }
+    .dispatch-band__featured-eyebrow {
+      font-family: var(--font-display);
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      color: var(--color-malibu);
+      margin: 0 0 var(--space-4);
+    }
+    .dispatch-band__featured-link {
+      display: block;
+      text-decoration: none;
+      color: inherit;
+    }
+    .dispatch-band__featured-cat {
+      font-family: var(--font-display);
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: rgba(255, 255, 255, 0.6);
+      margin: 0 0 var(--space-2);
+    }
+    .dispatch-band__featured-title {
+      font-family: var(--font-display);
+      font-weight: 600;
+      font-size: 1.25rem;
+      line-height: 1.25;
+      letter-spacing: -0.015em;
+      color: var(--color-white);
+      margin: 0 0 var(--space-3);
+    }
+    .dispatch-band__featured-excerpt {
+      font-size: 14px;
+      line-height: 1.55;
+      color: rgba(255, 255, 255, 0.72);
+      margin: 0 0 var(--space-4);
+    }
+    .dispatch-band__featured-cta {
+      font-family: var(--font-display);
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--color-malibu);
+      transition: color var(--transition);
+    }
+    .dispatch-band__featured:hover .dispatch-band__featured-cta {
+      color: var(--color-white);
+    }
+    @media (max-width: 900px) {
+      .dispatch-band__inner { grid-template-columns: 1fr; }
+    }
 
     .hguides { padding-block: var(--space-20); background: var(--color-white); }
     .hguides__header { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-8); align-items: end; margin-bottom: var(--space-12); }
