@@ -41,6 +41,32 @@ const autoBrands = await safeCollection("auto-brands");
 const autoFaqs = await safeCollection("auto-faqs");
 const autoGlossary = await safeCollection("auto-glossary");
 
+// Group auto brands into parents vs model-specific pages.
+// Convention: model pages have a slug with multiple parts (e.g. "honda-crv"),
+// brand parent pages are single-token slugs (e.g. "honda").
+// We use the brand frontmatter field when present to do the grouping cleanly.
+function brandFamily(b: any): string {
+  // Prefer explicit field; otherwise infer from slug
+  if (b.data?.brand) return b.data.brand.toString().toLowerCase().split(" ")[0];
+  return (b.id ?? "").split("-")[0];
+}
+const brandGroups: Record<string, { parent: any | null; models: any[] }> = {};
+for (const b of autoBrands) {
+  const fam = brandFamily(b);
+  if (!brandGroups[fam]) brandGroups[fam] = { parent: null, models: [] };
+  // The "parent" page has a single-word slug like "honda"; models like "honda-crv"
+  if (b.id === fam) {
+    brandGroups[fam].parent = b;
+  } else {
+    brandGroups[fam].models.push(b);
+  }
+}
+// Sort families and their models
+const sortedBrandFamilies = Object.keys(brandGroups).sort();
+for (const fam of sortedBrandFamilies) {
+  brandGroups[fam].models.sort((a, b) => a.id.localeCompare(b.id));
+}
+
 // Sort helpers
 function sortByTitle(arr: any[]) {
   return arr.sort((a, b) => {
@@ -63,8 +89,53 @@ const posts = (await safeCollection("posts")).sort((a, b) => {
   return bD - aD;
 });
 
+// Build all comparison page slugs that ACTUALLY exist (mirrors the logic
+// in /[vertical]/compare/[slug].astro getStaticPaths). Used to surface every
+// comparison page on the sitemap with zero orphans.
+function buildComparePaths(vReviews: any[]): { pair: { slug: string; names: string[] }[]; triple: { slug: string; names: string[] }[] } {
+  const sorted = [...vReviews].sort((a, b) => {
+    const ra = a.data.overallRank ?? 99;
+    const rb = b.data.overallRank ?? 99;
+    if (ra !== rb) return ra - rb;
+    return (b.data.overallScore ?? 0) - (a.data.overallScore ?? 0);
+  });
+
+  const pair: { slug: string; names: string[] }[] = [];
+  for (let i = 0; i < sorted.length; i++) {
+    for (let j = i + 1; j < sorted.length; j++) {
+      const ids = [sorted[i].id, sorted[j].id].sort();
+      pair.push({ slug: ids.join("-vs-"), names: [sorted[i].data.company, sorted[j].data.company].sort() });
+    }
+  }
+
+  const triple: { slug: string; names: string[] }[] = [];
+  if (sorted.length >= 3) {
+    const [a, b, c] = sorted.slice(0, 3);
+    const ids = [a.id, b.id, c.id].sort();
+    triple.push({
+      slug: ids.join("-vs-"),
+      names: [a.data.company, b.data.company, c.data.company].sort(),
+    });
+  }
+  if (sorted.length >= 4) {
+    const top = sorted[0], second = sorted[1];
+    const tail = sorted.slice(2, Math.min(sorted.length, 6));
+    for (const cc of tail) {
+      if (cc.id === second.id) continue;
+      const ids = [top.id, second.id, cc.id].sort();
+      const namesSorted = [top.data.company, second.data.company, cc.data.company].sort();
+      if (!triple.some((t) => t.slug === ids.join("-vs-"))) {
+        triple.push({ slug: ids.join("-vs-"), names: namesSorted });
+      }
+    }
+  }
+  return { pair, triple };
+}
+
 // ============================================================
-// Per-vertical column tree. Every URL must be live.
+// Per-vertical column tree. Every URL must be live. NO truncation:
+// the sitemap is the human-facing index of record — it must list
+// every published page.
 // ============================================================
 
 interface SmColumn {
@@ -77,54 +148,103 @@ function columnsFor(v: Vertical): SmColumn[] {
   const vGuides = guides[v.key] ?? [];
   const vLocations = locations[v.key] ?? [];
   const isCore = ["auto", "home", "life", "business"].includes(v.key);
+  const cols: SmColumn[] = [];
 
-  const cols: SmColumn[] = [
-    {
-      title: "Compare",
-      links: [
-        { label: `${v.short} insurance overview`, href: v.path },
-        { label: `Best ${v.short.toLowerCase()} insurance`, href: `${v.path}best/` },
-        ...(isCore ? [{ label: `Cheapest ${v.short.toLowerCase()} insurance`, href: `${v.path}cheapest/` }] : []),
-        ...(vLocations.length > 0 ? [{ label: `${v.short} insurance by state`, href: `${v.path}by-state/` }] : []),
-        { label: `Get ${v.short.toLowerCase()} quotes`, href: `${v.path}quotes/` },
-      ],
-    },
+  // 1. Top of funnel — overview + cheapest/best/etc.
+  const topLinks: { label: string; href: string }[] = [
+    { label: `${v.short} insurance overview`, href: v.path },
+    { label: `Best ${v.short.toLowerCase()} insurance`, href: `${v.path}best/` },
   ];
-
+  if (isCore) topLinks.push({ label: `Cheapest ${v.short.toLowerCase()} insurance`, href: `${v.path}cheapest/` });
   if (isCore) {
+    topLinks.push({ label: `How much ${v.short.toLowerCase()} insurance do I need?`, href: `${v.path}how-much-do-i-need/` });
+    topLinks.push({ label: `Types of ${v.short.toLowerCase()} coverage`, href: `${v.path}coverage-types/` });
+    topLinks.push({ label: `${v.short} insurance discounts`, href: `${v.path}discounts/` });
+  }
+  topLinks.push({ label: `Get ${v.short.toLowerCase()} quotes`, href: `${v.path}quotes/` });
+  cols.push({ title: `${v.short} — plan & compare`, links: topLinks });
+
+  // 2. Every carrier review — never truncated
+  if (vReviews.length > 0) {
     cols.push({
-      title: "Plan your coverage",
+      title: `${v.short} carrier reviews (${vReviews.length})`,
       links: [
-        { label: "How much do I need?", href: `${v.path}how-much-do-i-need/` },
-        { label: "Types of coverage", href: `${v.path}coverage-types/` },
-        { label: "Common discounts", href: `${v.path}discounts/` },
+        { label: `All ${v.short.toLowerCase()} reviews`, href: `${v.path}reviews/` },
+        ...vReviews.map((r: any) => ({
+          label: r.data.company ?? r.data.title,
+          href: `${v.path}reviews/${r.id}/`,
+        })),
       ],
     });
   }
 
-  const answersLinks: { label: string; href: string }[] = [];
-  if (vGuides.length > 0) {
-    answersLinks.push({ label: `${v.short} guides (${vGuides.length})`, href: `${v.path}guides/` });
-  }
-  if (v.key === "auto") {
-    answersLinks.push({ label: "Auto FAQs", href: "/auto/faqs/" });
-    answersLinks.push({ label: "Auto glossary", href: "/auto/glossary/" });
-  } else if (isCore) {
-    answersLinks.push({ label: `${v.short} FAQs`, href: `${v.path}faqs/` });
-  }
-  if (answersLinks.length > 0) {
-    cols.push({ title: "Get answers", links: answersLinks });
-  }
-
-  if (vReviews.length > 0) {
-    const reviewLinks: { label: string; href: string }[] = [
-      { label: `All ${v.short.toLowerCase()} reviews`, href: `${v.path}reviews/` },
-      ...vReviews.slice(0, 8).map((r: any) => ({
-        label: r.data.company ?? r.data.title,
-        href: `${v.path}reviews/${r.id}/`,
+  // 3. Every comparison page — never truncated. This is the biggest fix:
+  //    167 compare pages were built but only the picker page was listed.
+  if (vReviews.length >= 2) {
+    const cmp = buildComparePaths(vReviews);
+    const cmpLinks: { label: string; href: string }[] = [
+      { label: `Compare ${v.short.toLowerCase()} carriers`, href: `${v.path}compare/` },
+      ...cmp.pair.map((p) => ({
+        label: p.names.join(" vs "),
+        href: `${v.path}compare/${p.slug}/`,
+      })),
+      ...cmp.triple.map((t) => ({
+        label: t.names.join(" vs "),
+        href: `${v.path}compare/${t.slug}/`,
       })),
     ];
-    cols.push({ title: "Carrier reviews", links: reviewLinks });
+    cols.push({
+      title: `${v.short} comparisons (${cmpLinks.length - 1})`,
+      links: cmpLinks,
+    });
+  }
+
+  // 4. Every guide — never truncated
+  if (vGuides.length > 0) {
+    cols.push({
+      title: `${v.short} guides (${vGuides.length})`,
+      links: [
+        { label: `All ${v.short.toLowerCase()} guides`, href: `${v.path}guides/` },
+        ...vGuides.map((g: any) => ({
+          label: g.data.title,
+          href: `${v.path}guides/${g.id}/`,
+        })),
+      ],
+    });
+  }
+
+  // 5. Every state page — never truncated
+  if (vLocations.length > 0) {
+    cols.push({
+      title: `${v.short} by state (${vLocations.length})`,
+      links: [
+        { label: `${v.short} insurance by state`, href: `${v.path}by-state/` },
+        ...vLocations.map((l: any) => ({
+          label: l.data.state ?? l.data.title,
+          href: `${v.path}by-state/${l.id}/`,
+        })),
+      ],
+    });
+  }
+
+  // 6. FAQs — auto only (the others don't have FAQ collections currently);
+  //    we surface the bare FAQ landing for non-core verticals where it exists
+  if (v.key === "auto" && autoFaqs.length > 0) {
+    cols.push({
+      title: `Auto FAQs (${autoFaqs.length})`,
+      links: [
+        { label: "All auto FAQs", href: "/auto/faqs/" },
+        ...autoFaqs.map((f: any) => ({
+          label: f.data.title ?? f.data.question ?? f.id,
+          href: `/auto/faqs/${f.id}/`,
+        })),
+      ],
+    });
+  } else if (isCore) {
+    cols.push({
+      title: "FAQs",
+      links: [{ label: `${v.short} FAQs`, href: `${v.path}faqs/` }],
+    });
   }
 
   return cols;
@@ -153,28 +273,62 @@ const resourceGroups: SmColumn[] = [
     ],
   },
   {
-    title: "Editorial",
+    title: `The Dispatch (${posts.length})`,
     links: [
-      { label: "The Dispatch (blog)", href: "/blog/" },
-      ...posts.slice(0, 6).map((p: any) => ({
+      { label: "All Dispatch posts", href: "/blog/" },
+      ...posts.map((p: any) => ({
         label: p.data.title,
         href: `/blog/${p.id}/`,
       })),
     ],
   },
-  {
-    title: "Auto brands",
-    links: autoBrands.length > 0
-      ? [
-          { label: "All car brands", href: "/auto/brands/" },
-          ...autoBrands.slice(0, 8).map((b: any) => ({
-            label: b.data.title?.replace(/ Car Insurance Rates?$/i, "") ?? b.id,
-            href: `/auto/brands/${b.id}/`,
-          })),
-        ]
-      : [{ label: "Car brands", href: "/auto/brands/" }],
-  },
 ];
+
+// Auto brands — grouped by family so users can find Honda + all Honda models
+// next to each other instead of buried in an alphabetical dump.
+if (autoBrands.length > 0) {
+  const brandLinks: { label: string; href: string }[] = [
+    { label: "All car brands", href: "/auto/brands/" },
+  ];
+  for (const fam of sortedBrandFamilies) {
+    const group = brandGroups[fam];
+    if (group.parent) {
+      const parentLabel = (group.parent.data.brand ?? group.parent.data.title ?? fam).toString();
+      brandLinks.push({
+        label: parentLabel,
+        href: `/auto/brands/${group.parent.id}/`,
+      });
+    }
+    for (const model of group.models) {
+      const modelLabel = (model.data.title ?? model.id)
+        .toString()
+        .replace(/ Car Insurance Rates?$/i, "")
+        .replace(/ Insurance Rates?$/i, "");
+      brandLinks.push({
+        label: `  ↳ ${modelLabel}`,
+        href: `/auto/brands/${model.id}/`,
+      });
+    }
+  }
+  resourceGroups.push({
+    title: `Car brands (${autoBrands.length})`,
+    links: brandLinks,
+  });
+}
+
+// Auto glossary — every term linked
+if (autoGlossary.length > 0) {
+  resourceGroups.push({
+    title: `Auto glossary (${autoGlossary.length})`,
+    links: [
+      { label: "Full glossary", href: "/auto/glossary/" },
+      ...autoGlossary.map((g: any) => ({
+        label: g.data.term ?? g.data.title ?? g.id,
+        href: `/auto/glossary/${g.id}/`,
+      })),
+    ],
+  });
+}
 
 const companyGroups: SmColumn[] = [
   {
@@ -334,21 +488,6 @@ const companyGroups: SmColumn[] = [
               </div>
             ))}
           </div>
-
-          {guides[v.key] && guides[v.key].length > 0 && (
-            <div class="sm-extras">
-              <h3 class="sm-extras__title">All {v.short} guides</h3>
-              <ul class="sm-extras__grid">
-                {guides[v.key].map((g: any) => (
-                  <li>
-                    <a href={`${v.path}guides/${g.id}/`}>
-                      {g.data.title}
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
         </div>
       </section>
     );
@@ -650,11 +789,13 @@ const companyGroups: SmColumn[] = [
     }
     .sm-vertical__cta svg { transition: transform 0.2s; }
     .sm-vertical__cta:hover svg { transform: translateX(3px); }
-    .sm-vertical__grid { display: grid; gap: var(--space-8); }
-    .sm-vertical__grid--cols-4 { grid-template-columns: repeat(4, 1fr); }
-    .sm-vertical__grid--cols-3 { grid-template-columns: repeat(3, 1fr); }
-    .sm-vertical__grid--cols-2 { grid-template-columns: repeat(2, 1fr); }
+    .sm-vertical__grid { display: grid; gap: var(--space-8); grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
+    .sm-vertical__grid--cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    .sm-vertical__grid--cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .sm-vertical__grid--cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .sm-vertical__grid--cols-1 { grid-template-columns: 1fr; }
+    .sm-vertical__grid--cols-5,
+    .sm-vertical__grid--cols-6 { grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
 
     /* COLUMN (reusable) */
     .sm-column { min-width: 0; }

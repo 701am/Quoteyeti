@@ -4,7 +4,7 @@ question: "What is Pay-As-You-Go Car Insurance?"
 description: ""
 category: "Migrated"
 publishDate: 2023-03-21
-draft: true
+draft: false
 author: "helpdesk"
 ---
 

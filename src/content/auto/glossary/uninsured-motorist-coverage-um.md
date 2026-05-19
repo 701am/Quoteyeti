@@ -3,7 +3,7 @@ title: "Uninsured Motorist Coverage (UM) — Auto Insurance Glossary"
 term: "Uninsured Motorist Coverage (UM)"
 description: ""
 publishDate: 2023-03-21
-draft: true
+draft: false
 author: "LaneHanson"
 ---
 

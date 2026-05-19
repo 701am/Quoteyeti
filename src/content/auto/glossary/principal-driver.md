@@ -3,7 +3,7 @@ title: "Principal Driver — Auto Insurance Glossary"
 term: "Principal Driver"
 description: ""
 publishDate: 2023-03-21
-draft: true
+draft: false
 author: "LaneHanson"
 ---
 

@@ -3,7 +3,7 @@ title: "Property Damage Liability Coverage — Auto Insurance Glossary"
 term: "Property Damage Liability Coverage"
 description: ""
 publishDate: 2023-03-21
-draft: true
+draft: false
 author: "LaneHanson"
 ---
 

@@ -3,7 +3,7 @@ title: "Verbal (or Descriptive) Threshold — Auto Insurance Glossary"
 term: "Verbal (or Descriptive) Threshold"
 description: ""
 publishDate: 2023-03-21
-draft: true
+draft: false
 author: "LaneHanson"
 ---
 

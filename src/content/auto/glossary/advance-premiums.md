@@ -3,7 +3,7 @@ title: "Advance Premiums — Auto Insurance Glossary"
 term: "Advance Premiums"
 description: ""
 publishDate: 2023-03-21
-draft: true
+draft: false
 author: "LaneHanson"
 ---
 

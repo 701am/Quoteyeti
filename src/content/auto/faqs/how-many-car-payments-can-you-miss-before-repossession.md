@@ -4,7 +4,7 @@ question: "How many car payments can you miss before repossession?"
 description: ""
 category: "Migrated"
 publishDate: 2023-03-21
-draft: true
+draft: false
 author: "KatieHenderson"
 ---
 

@@ -5,14 +5,32 @@ import { VERTICALS } from "~/data/verticals";
 
 const v = VERTICALS.pet;
 const reviews = await getCollection("pet-reviews", ({ data }) => !data.draft);
-reviews.sort((a, b) => a.data.title.localeCompare(b.data.title));
+
+// Default sort: by overall score descending (highest-rated first). Client can
+// re-sort via the toolbar.
+reviews.sort((a, b) => (b.data.overallScore ?? 0) - (a.data.overallScore ?? 0));
+
+const total = reviews.length;
+
+// "Best for" snippet — first takeaway truncated, falls back to positioning.
+function bestFor(r: any): string {
+  const t = r.data.takeaways?.[0];
+  if (t && typeof t === "string" && t.length > 0 && t.length < 110) return t;
+  const p = r.data.positioning ?? r.data.description ?? "";
+  return p.split(".")[0].slice(0, 110);
+}
 ---
 
 <BaseLayout
-  title={`${v.label} Company Reviews`}
-  description={`Independent reviews of major ${v.short.toLowerCase()} insurance carriers.`}
+  title={`${v.label} Company Reviews — All ${total} Carriers`}
+  description={`Independent reviews of ${total} ${v.short.toLowerCase()} insurance carriers — overall ratings, pros and cons, costs.`}
+  breadcrumbs={[
+    { name: "Home", url: "/" },
+    { name: v.short, url: v.path },
+    { name: "Reviews", url: `${v.path}reviews/` },
+  ]}
 >
-  <section class="page-hero topo-bg">
+  <section class="page-hero">
     <div class="container">
       <nav class="breadcrumbs" aria-label="Breadcrumb">
         <a href="/">Home</a>
@@ -25,210 +43,220 @@ reviews.sort((a, b) => a.data.title.localeCompare(b.data.title));
         <img src={v.icon} alt="" width="18" height="18" />
         {v.label}
       </p>
-      <h1>Insurance company <span class="serif-italic">reviews</span></h1>
+      <h1>All <span class="serif-italic">{total}</span> carriers, reviewed.</h1>
       <p class="page-hero__lede">
-        Independent reviews of major {v.short.toLowerCase()} insurance carriers — ratings, pros and cons, and what to expect.
+        Independent reviews of every major {v.short.toLowerCase()} insurance carrier — overall scores, ratings breakdown, pros and cons, what each one's best for.
       </p>
     </div>
   </section>
 
-  <section class="container index-list">
-    {reviews.length === 0 ? (
-      <div class="empty-state">
-        <div class="empty-state__art" aria-hidden="true">
-          <img src="/assets/images/yeti-hero.svg" alt="" />
-        </div>
-        <p class="empty-state__eyebrow">No reviews yet</p>
-        <h2>The Yeti hasn't surveyed this <span class="serif-italic">territory</span> yet</h2>
-        <p class="empty-state__lede">
-          We're working on {v.short.toLowerCase()} carrier reviews. Check back soon, or browse another category in the meantime.
-        </p>
-        <div class="empty-state__actions">
-          <a href={v.path} class="btn-tertiary">Back to {v.short} →</a>
-          <a href="/" class="btn-tertiary">Or pick another category →</a>
-        </div>
+  <section class="container reviews-toolbar">
+    <div class="reviews-toolbar__inner">
+      <label class="reviews-filter" for="reviews-filter-input">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2"/>
+          <path d="M21 21l-4.35-4.35" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+        <input id="reviews-filter-input" type="text" placeholder="Filter by carrier name…" autocomplete="off" />
+        <button type="button" class="reviews-filter__clear" id="reviews-filter-clear" aria-label="Clear filter" hidden>×</button>
+      </label>
+
+      <div class="reviews-sort" role="group" aria-label="Sort carriers">
+        <span class="reviews-sort__label">Sort:</span>
+        <button type="button" class="reviews-sort__btn is-active" data-sort="score">Highest score</button>
+        <button type="button" class="reviews-sort__btn" data-sort="rank">By rank</button>
+        <button type="button" class="reviews-sort__btn" data-sort="name">Alphabetical</button>
       </div>
+    </div>
+    <p class="reviews-toolbar__count">
+      Showing <strong id="reviews-visible-count">{total}</strong> of {total} {total === 1 ? "carrier" : "carriers"}
+    </p>
+  </section>
+
+  <section class="container reviews-index">
+    {reviews.length === 0 ? (
+      <p class="reviews-empty">No reviews published yet.</p>
     ) : (
-      <ul class="index-list__grid">
-        {reviews.map((entry) => (
-          <li>
-            <a href={`${v.path}reviews/${entry.id}/`} class="review-card">
-              {entry.data.companyLogo && (
-                <div class="review-card__logo">
-                  <img src={entry.data.companyLogo} alt="" />
-                </div>
-              )}
-              <div class="review-card__body">
+      <ul class="reviews-grid" id="reviews-grid">
+        {reviews.map((entry) => {
+          const score = entry.data.overallScore ?? 0;
+          const rank = entry.data.overallRank ?? 999;
+          const name = (entry.data.company ?? entry.data.title ?? entry.id).toString();
+          return (
+            <li
+              class="review-card"
+              data-name={name.toLowerCase()}
+              data-score={score}
+              data-rank={rank}
+              data-name-sort={name}
+            >
+              <a href={`${v.path}reviews/${entry.id}/`} class="review-card__link">
                 <div class="review-card__head">
-                  <h2 class="review-card__title">{entry.data.company ?? entry.data.title}</h2>
-                  {entry.data.starRating && (
-                    <span class="review-card__rating">★ {entry.data.starRating.toFixed(2)}</span>
+                  {entry.data.companyLogo ? (
+                    <div class="review-card__logo">
+                      <img src={entry.data.companyLogo} alt="" loading="lazy" />
+                    </div>
+                  ) : (
+                    <div class="review-card__logo review-card__logo--placeholder" aria-hidden="true">
+                      {name.charAt(0)}
+                    </div>
                   )}
+                  <div class="review-card__id">
+                    <h2 class="review-card__name">{name}</h2>
+                    {entry.data.foundedYear && (
+                      <p class="review-card__meta">Est. {entry.data.foundedYear}</p>
+                    )}
+                  </div>
+                  <div class="review-card__score">
+                    <div class="review-card__score-num">
+                      {score > 0 ? score.toFixed(2) : "—"}
+                    </div>
+                    <div class="review-card__score-of">/5.00</div>
+                    {entry.data.overallRank && (
+                      <div class="review-card__rank">#{entry.data.overallRank}</div>
+                    )}
+                  </div>
                 </div>
-                {(entry.data.positioning ?? entry.data.description) && (
-                  <p class="review-card__desc">{entry.data.positioning ?? entry.data.description}</p>
-                )}
+
+                <p class="review-card__bestfor">{bestFor(entry)}</p>
+
                 <span class="review-card__cta">
-                  Read review
-                  <svg width="14" height="12" viewBox="0 0 14 12" fill="none" aria-hidden="true">
+                  Read full review
+                  <svg width="12" height="10" viewBox="0 0 14 12" fill="none" aria-hidden="true">
                     <path d="M8 1l5 5-5 5M1 6h12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                   </svg>
                 </span>
-              </div>
-            </a>
-          </li>
-        ))}
+              </a>
+            </li>
+          );
+        })}
       </ul>
     )}
+    <p class="reviews-empty-state" id="reviews-empty-state" hidden>No carriers match that filter.</p>
   </section>
 
   <style>
-    .page-hero {
-      padding-block: var(--space-16) var(--space-10);
-      background: var(--section-accent-soft);
-      position: relative;
-      overflow: hidden;
-    }
-    .topo-bg::before {
-      content: "";
-      position: absolute; inset: 0;
-      background-image:
-        radial-gradient(ellipse 80% 50% at 80% 50%, rgba(255,255,255,0) 0%, rgba(255,255,255,0.3) 100%),
-        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='600' viewBox='0 0 600 600'%3E%3Cg fill='none' stroke='%23000' stroke-width='0.5' stroke-opacity='0.04'%3E%3Cpath d='M0,300 Q150,200 300,300 T600,300'/%3E%3Cpath d='M0,260 Q150,160 300,260 T600,260'/%3E%3Cpath d='M0,340 Q150,240 300,340 T600,340'/%3E%3Cpath d='M0,220 Q150,120 300,220 T600,220'/%3E%3Cpath d='M0,380 Q150,280 300,380 T600,380'/%3E%3C/g%3E%3C/svg%3E");
-      pointer-events: none;
-      z-index: 0;
-    }
-    .page-hero > * { position: relative; z-index: 1; }
-    .breadcrumbs {
-      font-size: 0.8125rem; color: var(--color-text-muted);
-      margin-bottom: var(--space-5);
-      display: flex; align-items: center; gap: var(--space-2); flex-wrap: wrap;
-    }
+    .breadcrumbs { font-size: 0.8125rem; color: var(--color-text-muted); margin-bottom: var(--space-5); display: flex; align-items: center; gap: var(--space-2); flex-wrap: wrap; }
     .breadcrumbs a { color: var(--color-text-muted); text-decoration: none; }
     .breadcrumbs a:hover { color: var(--section-accent); }
     .breadcrumbs__sep { opacity: 0.4; }
-    .eyebrow {
-      display: inline-flex; align-items: center; gap: var(--space-2);
-      font-family: var(--font-display); font-size: 0.75rem; font-weight: 700;
-      text-transform: uppercase; letter-spacing: 0.14em;
-      color: var(--section-accent);
-      background: var(--color-white);
-      padding: var(--space-2) var(--space-4);
-      border-radius: 100px;
-      margin-bottom: var(--space-4);
-      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-    }
-    .page-hero h1 {
-      font-size: clamp(2.25rem, 4vw, 3rem);
-      letter-spacing: -0.025em;
-    }
-    .serif-italic {
-      font-family: var(--font-serif, "Plantin", Georgia, serif);
-      font-style: italic;
-      font-weight: 500;
-      color: var(--section-accent);
-    }
-    .page-hero__lede {
-      font-size: 1.25rem; color: var(--color-text-strong);
-      margin-top: var(--space-4); max-width: 640px;
-      line-height: 1.55;
-    }
-    .index-list { padding-block: var(--space-16) var(--space-20); }
-    .index-list__grid {
-      list-style: none; margin: 0; padding: 0;
-      display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-5);
-    }
-    .review-card {
-      display: flex; gap: var(--space-5);
-      padding: var(--space-6);
-      background: var(--color-white);
-      border: 1px solid var(--color-border);
-      border-radius: var(--radius-lg);
-      text-decoration: none; color: inherit;
-      transition: all 0.2s ease;
-      height: 100%;
-    }
-    .review-card:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 12px 24px rgba(0,0,0,0.06);
-      border-color: var(--section-accent);
-    }
-    .review-card__logo {
-      flex-shrink: 0;
-      width: 56px; height: 56px;
-      background: var(--section-accent-soft);
-      border-radius: var(--radius);
-      padding: var(--space-2);
-      display: flex; align-items: center; justify-content: center;
-    }
-    .review-card__logo img { max-width: 100%; max-height: 100%; object-fit: contain; }
-    .review-card__body { flex: 1; display: flex; flex-direction: column; }
-    .review-card__head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: var(--space-3); gap: var(--space-3); }
-    .review-card__title { font-size: 1.25rem; margin: 0; letter-spacing: -0.01em; }
-    .review-card__rating {
-      font-family: var(--font-display); font-weight: 700;
-      color: var(--section-accent);
-      font-size: 0.875rem;
-      white-space: nowrap;
-    }
-    .review-card__desc { font-size: 0.9375rem; color: var(--color-text); margin: 0 0 var(--space-4); line-height: 1.55; flex: 1; }
-    .review-card__cta {
-      display: inline-flex; align-items: center; gap: var(--space-2);
-      font-family: var(--font-display); font-weight: 700;
-      font-size: 0.8125rem;
-      color: var(--section-accent);
-      text-transform: uppercase; letter-spacing: 0.08em;
-    }
+    .serif-italic { font-family: var(--font-serif, "Plantin", Georgia, serif); font-style: italic; font-weight: 500; color: var(--section-accent); }
+    .eyebrow { display: inline-flex; align-items: center; gap: var(--space-2); font-family: var(--font-display); font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.14em; color: var(--section-accent); background: var(--color-white); padding: 4px 12px; border-radius: 100px; margin: 0 0 var(--space-3); }
+    .page-hero { padding-block: var(--space-14) var(--space-10); background: var(--section-accent-soft); border-bottom: 1px solid var(--color-border); }
+    .page-hero h1 { font-size: clamp(2rem, 4vw, 3rem); letter-spacing: -0.025em; line-height: 1.1; margin: 0 0 var(--space-4); color: var(--color-resolution); }
+    .page-hero__lede { font-size: 1.0625rem; color: var(--color-text-strong); line-height: 1.55; max-width: 720px; margin: 0; }
+
+    .reviews-toolbar { position: sticky; top: var(--header-height, 72px); z-index: 20; background: rgba(255,255,255,0.92); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); padding-block: var(--space-4); border-bottom: 1px solid var(--color-border); }
+    .reviews-toolbar__inner { display: flex; align-items: center; gap: var(--space-5); flex-wrap: wrap; }
+    .reviews-filter { display: flex; align-items: center; gap: var(--space-2); flex: 1 1 280px; min-width: 220px; padding: 10px 14px; background: var(--color-white); border: 1.5px solid var(--color-border); border-radius: 100px; color: var(--color-text-muted); transition: border-color 0.15s, box-shadow 0.15s; }
+    .reviews-filter:focus-within { border-color: var(--section-accent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--section-accent) 22%, transparent); color: var(--section-accent); }
+    .reviews-filter input { flex: 1; border: 0; outline: 0; font: inherit; font-size: 0.9375rem; font-family: var(--font-display); font-weight: 500; color: var(--color-resolution); background: transparent; }
+    .reviews-filter__clear { background: transparent; border: 0; cursor: pointer; font-size: 1.25rem; line-height: 1; color: var(--color-text-muted); width: 22px; height: 22px; display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; }
+    .reviews-filter__clear:hover { background: var(--color-alice); color: var(--color-resolution); }
+
+    .reviews-sort { display: inline-flex; align-items: center; gap: 4px; padding: 4px; background: var(--color-alice); border-radius: 100px; }
+    .reviews-sort__label { font-family: var(--font-display); font-size: 0.75rem; font-weight: 600; color: var(--color-text-muted); padding: 0 var(--space-2) 0 var(--space-3); text-transform: uppercase; letter-spacing: 0.1em; }
+    .reviews-sort__btn { background: transparent; border: 0; cursor: pointer; padding: 6px 14px; font-family: var(--font-display); font-size: 0.8125rem; font-weight: 600; color: var(--color-text-muted); border-radius: 100px; transition: background 0.12s, color 0.12s; }
+    .reviews-sort__btn:hover { color: var(--color-resolution); }
+    .reviews-sort__btn.is-active { background: var(--color-white); color: var(--color-resolution); box-shadow: 0 1px 2px rgba(0,0,0,0.06); }
+
+    .reviews-toolbar__count { font-size: 0.8125rem; color: var(--color-text-muted); margin: var(--space-3) 0 0; }
+    .reviews-toolbar__count strong { color: var(--color-resolution); font-weight: 700; }
+
+    .reviews-index { padding-block: var(--space-8) var(--space-20); }
+    .reviews-empty { text-align: center; color: var(--color-text-muted); padding-block: var(--space-12); }
+    .reviews-empty-state { text-align: center; color: var(--color-text-muted); font-size: 0.9375rem; font-style: italic; padding: var(--space-8) 0; }
+    .reviews-grid { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: var(--space-4); }
+    .review-card { margin: 0; padding: 0; }
+    .review-card[hidden] { display: none; }
+    .review-card__link { display: flex; flex-direction: column; gap: var(--space-3); padding: var(--space-5); background: var(--color-white); border: 1px solid var(--color-border); border-radius: 12px; text-decoration: none; color: inherit; height: 100%; transition: border-color 0.15s, transform 0.15s, box-shadow 0.15s; }
+    .review-card__link:hover { border-color: var(--section-accent); transform: translateY(-2px); box-shadow: 0 10px 24px -8px color-mix(in srgb, var(--section-accent) 30%, transparent); }
+    .review-card__head { display: flex; align-items: flex-start; gap: var(--space-3); }
+    .review-card__logo { width: 44px; height: 44px; flex-shrink: 0; border-radius: 8px; background: var(--color-alice); display: flex; align-items: center; justify-content: center; overflow: hidden; }
+    .review-card__logo img { max-width: 80%; max-height: 80%; object-fit: contain; }
+    .review-card__logo--placeholder { font-family: var(--font-display); font-weight: 800; font-size: 1.125rem; color: var(--section-accent); background: var(--section-accent-soft); }
+    .review-card__id { flex: 1; min-width: 0; }
+    .review-card__name { font-family: var(--font-display); font-weight: 700; font-size: 1.0625rem; letter-spacing: -0.01em; line-height: 1.2; color: var(--color-resolution); margin: 0; }
+    .review-card__meta { font-size: 0.75rem; color: var(--color-text-muted); margin: 2px 0 0; }
+    .review-card__score { flex-shrink: 0; text-align: right; display: inline-flex; flex-direction: column; align-items: flex-end; gap: 0; }
+    .review-card__score-num { font-family: var(--font-display); font-weight: 800; font-size: 1.5rem; line-height: 1; color: var(--section-accent); letter-spacing: -0.02em; }
+    .review-card__score-of { font-family: var(--font-display); font-size: 0.6875rem; color: var(--color-text-muted); margin-top: 2px; }
+    .review-card__rank { font-family: var(--font-display); font-size: 0.6875rem; font-weight: 700; color: var(--color-resolution); background: var(--color-alice); padding: 2px 8px; border-radius: 100px; margin-top: 4px; }
+    .review-card__bestfor { font-size: 0.875rem; line-height: 1.5; color: var(--color-text-strong); margin: 0; flex: 1; }
+    .review-card__cta { display: inline-flex; align-items: center; gap: 6px; font-family: var(--font-display); font-size: 0.8125rem; font-weight: 700; color: var(--section-accent); margin-top: auto; }
+    .review-card__link:hover .review-card__cta svg { transform: translateX(3px); }
     .review-card__cta svg { transition: transform 0.2s; }
-    .review-card:hover .review-card__cta svg { transform: translateX(4px); }
 
-    /* Empty state */
-    .empty-state {
-      text-align: center;
-      max-width: 540px;
-      margin: 0 auto;
-      padding: var(--space-12) var(--space-6);
-    }
-    .empty-state__art {
-      max-width: 180px;
-      margin: 0 auto var(--space-6);
-      opacity: 0.85;
-    }
-    .empty-state__art img { width: 100%; filter: drop-shadow(0 8px 24px rgba(44, 69, 119, 0.12)); }
-    .empty-state__eyebrow {
-      font-family: var(--font-display);
-      font-size: 0.75rem; font-weight: 700;
-      text-transform: uppercase; letter-spacing: 0.16em;
-      color: var(--section-accent);
-      margin: 0 0 var(--space-4);
-    }
-    .empty-state h2 {
-      font-size: 1.875rem;
-      letter-spacing: -0.02em;
-      line-height: 1.2;
-    }
-    .empty-state__lede {
-      margin: var(--space-5) auto var(--space-8);
-      line-height: 1.6;
-      color: var(--color-text);
-    }
-    .empty-state__actions {
-      display: flex; gap: var(--space-5); justify-content: center; flex-wrap: wrap;
-    }
-    .btn-tertiary {
-      font-family: var(--font-display); font-weight: 600;
-      font-size: 0.9375rem;
-      color: var(--section-accent);
-      text-decoration: none;
-      border-bottom: 1px solid var(--section-accent);
-      padding-bottom: 2px;
-      transition: all 0.2s;
-    }
-    .btn-tertiary:hover { color: var(--color-resolution); border-bottom-color: var(--color-resolution); }
-
-    @media (max-width: 720px) {
-      .index-list__grid { grid-template-columns: 1fr; }
-      .review-card { flex-direction: column; }
+    @media (max-width: 700px) {
+      .reviews-toolbar__inner { flex-direction: column; align-items: stretch; }
+      .reviews-sort { justify-content: center; flex-wrap: wrap; }
+      .review-card__head { flex-wrap: wrap; }
     }
   </style>
+
+  <script>
+    (function () {
+      const input = document.getElementById("reviews-filter-input") as HTMLInputElement | null;
+      const clear = document.getElementById("reviews-filter-clear") as HTMLButtonElement | null;
+      const grid = document.getElementById("reviews-grid") as HTMLUListElement | null;
+      const emptyState = document.getElementById("reviews-empty-state") as HTMLElement | null;
+      const countEl = document.getElementById("reviews-visible-count") as HTMLElement | null;
+      if (!input || !grid) return;
+
+      const cards = Array.from(grid.querySelectorAll<HTMLElement>(".review-card"));
+      let currentSort: "score" | "rank" | "name" = "score";
+      let currentQuery = "";
+
+      function applyFilterAndSort() {
+        let visible = 0;
+        for (const c of cards) {
+          const name = c.dataset.name ?? "";
+          const show = !currentQuery || name.includes(currentQuery);
+          c.hidden = !show;
+          if (show) visible++;
+        }
+        if (emptyState) emptyState.hidden = visible > 0;
+        if (countEl) countEl.textContent = String(visible);
+        if (clear) clear.hidden = !currentQuery;
+
+        const sorted = [...cards].sort((a, b) => {
+          if (currentSort === "score") {
+            return (Number(b.dataset.score) || 0) - (Number(a.dataset.score) || 0);
+          }
+          if (currentSort === "rank") {
+            return (Number(a.dataset.rank) || 999) - (Number(b.dataset.rank) || 999);
+          }
+          return (a.dataset.nameSort ?? "").localeCompare(b.dataset.nameSort ?? "");
+        });
+        let needsReorder = false;
+        for (let i = 0; i < sorted.length; i++) {
+          if (grid.children[i] !== sorted[i]) { needsReorder = true; break; }
+        }
+        if (needsReorder) {
+          for (const c of sorted) grid.appendChild(c);
+        }
+      }
+
+      input.addEventListener("input", () => {
+        currentQuery = input.value.trim().toLowerCase();
+        applyFilterAndSort();
+      });
+      clear?.addEventListener("click", () => {
+        input.value = "";
+        currentQuery = "";
+        applyFilterAndSort();
+        input.focus();
+      });
+
+      document.querySelectorAll<HTMLButtonElement>(".reviews-sort__btn").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const sort = btn.dataset.sort as "score" | "rank" | "name";
+          currentSort = sort;
+          document.querySelectorAll(".reviews-sort__btn").forEach((b) => b.classList.remove("is-active"));
+          btn.classList.add("is-active");
+          applyFilterAndSort();
+        });
+      });
+    })();
+  </script>
 </BaseLayout>

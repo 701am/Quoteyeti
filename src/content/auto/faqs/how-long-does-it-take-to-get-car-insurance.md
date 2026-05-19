@@ -4,7 +4,7 @@ question: "How Long Does It Take to Get Car Insurance?"
 description: ""
 category: "Migrated"
 publishDate: 2023-05-03
-draft: true
+draft: false
 author: "KatieHenderson"
 ---
 

@@ -4,7 +4,7 @@ question: "Can I get my down payment back on my car if I totaled it ?  "
 description: ""
 category: "Migrated"
 publishDate: 2023-03-21
-draft: true
+draft: false
 author: "KatieHenderson"
 ---
 

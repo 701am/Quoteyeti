@@ -3,7 +3,7 @@ title: "Lapse — Auto Insurance Glossary"
 term: "Lapse"
 description: ""
 publishDate: 2023-03-21
-draft: true
+draft: false
 author: "LaneHanson"
 ---
 

@@ -4,7 +4,7 @@ question: "How to fix a dead cell on a car battery?"
 description: ""
 category: "Migrated"
 publishDate: 2023-03-21
-draft: true
+draft: false
 author: "LisaHuyhn"
 ---
 

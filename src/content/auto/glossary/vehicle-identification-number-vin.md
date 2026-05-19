@@ -3,7 +3,7 @@ title: "Vehicle Identification Number (VIN) — Auto Insurance Glossary"
 term: "Vehicle Identification Number (VIN)"
 description: ""
 publishDate: 2023-03-21
-draft: true
+draft: false
 author: "helpdesk"
 ---
 

@@ -3,7 +3,7 @@ title: "Towing and Labor Coverage — Auto Insurance Glossary"
 term: "Towing and Labor Coverage"
 description: ""
 publishDate: 2023-03-21
-draft: true
+draft: false
 author: "LaneHanson"
 ---
 

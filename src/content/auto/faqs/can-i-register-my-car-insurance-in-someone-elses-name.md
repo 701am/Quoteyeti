@@ -4,7 +4,7 @@ question: "Can I register my car insurance in someone else's name?"
 description: ""
 category: "Migrated"
 publishDate: 2023-03-21
-draft: true
+draft: false
 author: "helpdesk"
 ---
 

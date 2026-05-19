@@ -3,7 +3,7 @@ title: "Claimant — Auto Insurance Glossary"
 term: "Claimant"
 description: ""
 publishDate: 2023-03-21
-draft: true
+draft: false
 author: "LaneHanson"
 ---
 

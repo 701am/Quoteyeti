@@ -4,7 +4,7 @@ question: "How Much Is Car Insurance in Georgia?"
 description: ""
 category: "Migrated"
 publishDate: 2023-03-26
-draft: true
+draft: false
 author: "LisaHuyhn"
 ---
 

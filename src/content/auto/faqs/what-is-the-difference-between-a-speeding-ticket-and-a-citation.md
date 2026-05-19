@@ -4,7 +4,7 @@ question: "What is the difference between a speeding ticket and a citation?"
 description: ""
 category: "Migrated"
 publishDate: 2023-03-21
-draft: true
+draft: false
 author: "PeterMondrose"
 ---
 

@@ -4,7 +4,7 @@ question: "<strong>Can You Return a Financed Car Without Getting a Penalty?</str
 description: ""
 category: "Migrated"
 publishDate: 2023-03-23
-draft: true
+draft: false
 author: "JeffSpringer"
 ---
 

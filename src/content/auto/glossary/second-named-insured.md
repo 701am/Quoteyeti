@@ -3,7 +3,7 @@ title: "Second Named Insured — Auto Insurance Glossary"
 term: "Second Named Insured"
 description: ""
 publishDate: 2023-03-21
-draft: true
+draft: false
 author: "LaneHanson"
 ---
 

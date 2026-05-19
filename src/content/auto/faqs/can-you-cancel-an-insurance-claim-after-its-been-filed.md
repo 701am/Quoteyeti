@@ -4,7 +4,7 @@ question: "Can you cancel an insurance claim after it's been filed?"
 description: ""
 category: "Migrated"
 publishDate: 2023-03-21
-draft: true
+draft: false
 author: "KatieHenderson"
 ---
 

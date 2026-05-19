@@ -3,7 +3,7 @@ title: "Additional Interest Insured — Auto Insurance Glossary"
 term: "Additional Interest Insured"
 description: ""
 publishDate: 2023-03-21
-draft: true
+draft: false
 author: "LaneHanson"
 ---
 

@@ -3,7 +3,7 @@ title: "Occasional Driver — Auto Insurance Glossary"
 term: "Occasional Driver"
 description: ""
 publishDate: 2023-03-21
-draft: true
+draft: false
 author: "LaneHanson"
 ---
 

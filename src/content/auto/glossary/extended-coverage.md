@@ -3,7 +3,7 @@ title: "Extended Coverage — Auto Insurance Glossary"
 term: "Extended Coverage"
 description: ""
 publishDate: 2023-03-21
-draft: true
+draft: false
 author: "LaneHanson"
 ---
 

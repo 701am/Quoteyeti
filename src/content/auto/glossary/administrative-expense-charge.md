@@ -3,7 +3,7 @@ title: "Administrative Expense Charge — Auto Insurance Glossary"
 term: "Administrative Expense Charge"
 description: ""
 publishDate: 2023-03-21
-draft: true
+draft: false
 author: "LaneHanson"
 ---
 

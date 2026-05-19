@@ -3,7 +3,7 @@ title: "Actuarial Report — Auto Insurance Glossary"
 term: "Actuarial Report"
 description: ""
 publishDate: 2023-03-21
-draft: true
+draft: false
 author: "LaneHanson"
 ---
 

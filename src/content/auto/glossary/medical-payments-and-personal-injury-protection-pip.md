@@ -3,7 +3,7 @@ title: "Medical Payments and Personal Injury Protection (PIP) — Auto Insurance
 term: "Medical Payments and Personal Injury Protection (PIP)"
 description: ""
 publishDate: 2023-03-21
-draft: true
+draft: false
 author: "LaneHanson"
 ---
 

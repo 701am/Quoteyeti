@@ -4,7 +4,7 @@ question: "How to buy cars on Facebook Marketplace?"
 description: ""
 category: "Migrated"
 publishDate: 2023-03-21
-draft: true
+draft: false
 author: "KatieHenderson"
 ---
 

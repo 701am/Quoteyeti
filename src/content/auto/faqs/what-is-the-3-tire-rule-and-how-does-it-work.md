@@ -4,7 +4,7 @@ question: "What is the 3 Tire Rule and How Does It Work?"
 description: ""
 category: "Migrated"
 publishDate: 2023-05-05
-draft: true
+draft: false
 author: "JohnHoward"
 ---
 

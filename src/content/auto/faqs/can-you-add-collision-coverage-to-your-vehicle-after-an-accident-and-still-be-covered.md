@@ -4,7 +4,7 @@ question: "Can You Add Collision Coverage to Your Vehicle After an Accident and 
 description: ""
 category: "Migrated"
 publishDate: 2023-03-21
-draft: true
+draft: false
 author: "helpdesk"
 ---
 

@@ -3,7 +3,7 @@ title: "Medical Payments Coverage — Auto Insurance Glossary"
 term: "Medical Payments Coverage"
 description: ""
 publishDate: 2023-03-21
-draft: true
+draft: false
 author: "LaneHanson"
 ---
 

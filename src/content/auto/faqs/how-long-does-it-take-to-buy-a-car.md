@@ -4,7 +4,7 @@ question: "How long does it take to buy a car?"
 description: ""
 category: "Migrated"
 publishDate: 2023-03-21
-draft: true
+draft: false
 author: "LisaHuyhn"
 ---
 

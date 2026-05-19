@@ -3,7 +3,7 @@ title: "Bodily Injury Liability Coverage — Auto Insurance Glossary"
 term: "Bodily Injury Liability Coverage"
 description: ""
 publishDate: 2023-03-21
-draft: true
+draft: false
 author: "LaneHanson"
 ---
 

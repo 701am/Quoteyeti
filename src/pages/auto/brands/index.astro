@@ -5,67 +5,422 @@ import { VERTICALS } from "~/data/verticals";
 
 const v = VERTICALS.auto;
 const brands = await getCollection("auto-brands", ({ data }) => !data.draft);
-brands.sort((a, b) => a.data.title.localeCompare(b.data.title));
+
+/**
+ * Group brands into families. Convention:
+ *   - Brand-parent page  → single-token slug   (e.g. "honda")
+ *   - Model rate page     → multi-token slug    (e.g. "honda-civic")
+ *
+ * We prefer the explicit `brand` frontmatter field for the display name; the
+ * slug fallback ensures it still works when frontmatter is missing.
+ */
+function brandFamily(b: any): string {
+  if (b.data?.brand) return b.data.brand.toString().toLowerCase().split(" ")[0];
+  return (b.id ?? "").split("-")[0];
+}
+
+interface Family {
+  key: string;
+  name: string;
+  parent: any | null;
+  models: any[];
+}
+
+const familyMap: Record<string, Family> = {};
+for (const b of brands) {
+  const k = brandFamily(b);
+  if (!familyMap[k]) {
+    familyMap[k] = {
+      key: k,
+      name: k.charAt(0).toUpperCase() + k.slice(1),
+      parent: null,
+      models: [],
+    };
+  }
+  if (b.id === k) {
+    familyMap[k].parent = b;
+    if (b.data.brand) familyMap[k].name = b.data.brand;
+  } else {
+    familyMap[k].models.push(b);
+  }
+}
+
+const families: Family[] = Object.values(familyMap).sort((a, b) => a.name.localeCompare(b.name));
+for (const f of families) {
+  f.models.sort((a, b) => {
+    const aT = (a.data.title ?? a.id).toString();
+    const bT = (b.data.title ?? b.id).toString();
+    return aT.localeCompare(bT);
+  });
+}
+
+// Letters with at least one family — used for the A-Z quick-jump
+const activeLetters = new Set<string>();
+for (const f of families) activeLetters.add(f.name.charAt(0).toUpperCase());
+const allLetters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
+
+const totalBrands = families.length;
+const totalModels = families.reduce((s, f) => s + f.models.length, 0);
+const totalPages = families.reduce((s, f) => s + (f.parent ? 1 : 0) + f.models.length, 0);
+
+// Strip the trailing "Car Insurance Rates" / "Insurance Rates" from model
+// titles so the index is scannable. e.g. "Honda CR-V Car Insurance Rates"
+// becomes "Honda CR-V".
+function modelLabel(t: string): string {
+  return t
+    .replace(/ Car Insurance Rates?$/i, "")
+    .replace(/ Insurance Rates?$/i, "")
+    .replace(/ Auto Insurance$/i, "")
+    .replace(/ Insurance$/i, "");
+}
 ---
 
 <BaseLayout
-  title={`Car Insurance Rates by Brand - ${v.label}`}
-  description="Compare auto insurance rates for every major car make and model. Find what BMW, Honda, Tesla, and more cost to insure."
+  title="Car Insurance Rates by Brand & Model — QuoteYeti"
+  description={`Browse car insurance rates for ${totalBrands} brands and ${totalModels} specific models. Find what your car costs to insure.`}
+  breadcrumbs={[
+    { name: "Home", url: "/" },
+    { name: "Auto", url: "/auto/" },
+    { name: "Brands", url: "/auto/brands/" },
+  ]}
 >
-
   <section class="page-hero">
     <div class="container">
+      <nav class="breadcrumbs" aria-label="Breadcrumb">
+        <a href="/">Home</a>
+        <span class="breadcrumbs__sep" aria-hidden="true">›</span>
+        <a href="/auto/">Auto</a>
+        <span class="breadcrumbs__sep" aria-hidden="true">›</span>
+        <span aria-current="page">Brands</span>
+      </nav>
       <p class="eyebrow">Auto Insurance</p>
-      <h1>Insurance rates by <span class="highlight underline-accent">brand</span></h1>
+      <h1>Insurance rates by <span class="serif-italic">brand &amp; model</span></h1>
       <p class="page-hero__lede">
-        Average annual insurance costs for every major make and model — from Acura to Volvo.
+        {totalBrands} brands · {totalModels} model-specific rate pages · {totalPages} pages total. Find what your make and model costs to insure.
       </p>
     </div>
   </section>
 
-  <section class="container index-list">
-    {brands.length === 0 ? (
-      <p class="index-list__empty">No brands published yet. Add entries via <a href="/admin/">/admin/</a>.</p>
-    ) : (
-      <ul class="index-list__grid">
-        {brands.map((entry) => (
-          <li>
-            <a href={`/auto/brands/${entry.id}/`} class="index-card">
-              <h2 class="index-card__title">{entry.data.title}</h2>
-              {entry.data.description && <p class="index-card__desc">{entry.data.description}</p>}
-              <span class="index-card__arrow" aria-hidden="true">→</span>
-            </a>
-          </li>
+  <section class="container brand-toolbar">
+    <div class="brand-toolbar__inner">
+      <label class="brand-filter" for="brand-filter-input">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2"/>
+          <path d="M21 21l-4.35-4.35" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+        <input
+          id="brand-filter-input"
+          type="text"
+          placeholder="Filter by brand or model…"
+          autocomplete="off"
+        />
+        <button type="button" class="brand-filter__clear" id="brand-filter-clear" aria-label="Clear filter" hidden>×</button>
+      </label>
+
+      <nav class="brand-alphabet" aria-label="Jump to letter">
+        {allLetters.map((L) => (
+          activeLetters.has(L) ? (
+            <a href={`#letter-${L}`} class="brand-alphabet__letter">{L}</a>
+          ) : (
+            <span class="brand-alphabet__letter brand-alphabet__letter--disabled" aria-disabled="true">{L}</span>
+          )
         ))}
-      </ul>
+      </nav>
+    </div>
+    <p class="brand-empty-state" id="brand-empty-state" hidden>No matches. Try a different brand or model.</p>
+  </section>
+
+  <section class="container brand-index" id="brand-index">
+    {families.length === 0 ? (
+      <p class="brand-empty">No brands published yet.</p>
+    ) : (
+      families.map((fam) => {
+        const letter = fam.name.charAt(0).toUpperCase();
+        return (
+          <div
+            class="brand-family"
+            data-family={fam.key}
+            data-letter={letter}
+            data-search-text={`${fam.name} ${fam.models.map((m) => modelLabel(m.data.title ?? m.id)).join(" ")}`.toLowerCase()}
+            id={`letter-${letter}`}
+          >
+            <header class="brand-family__head">
+              <span class="brand-family__letter" aria-hidden="true">{letter}</span>
+              {fam.parent ? (
+                <a href={`/auto/brands/${fam.parent.id}/`} class="brand-family__name brand-family__name--linked">
+                  <span>{fam.name}</span>
+                  <span class="brand-family__tag">Brand overview</span>
+                </a>
+              ) : (
+                <span class="brand-family__name">
+                  <span>{fam.name}</span>
+                </span>
+              )}
+              <span class="brand-family__count">
+                {fam.models.length} {fam.models.length === 1 ? "model" : "models"}
+              </span>
+            </header>
+
+            {fam.models.length > 0 && (
+              <ul class="brand-family__models">
+                {fam.models.map((m) => (
+                  <li class="brand-model" data-model-search={modelLabel(m.data.title ?? m.id).toLowerCase()}>
+                    <a href={`/auto/brands/${m.id}/`}>
+                      <span class="brand-model__name">{modelLabel(m.data.title ?? m.id)}</span>
+                      <span class="brand-model__arrow" aria-hidden="true">→</span>
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        );
+      })
     )}
   </section>
 
   <style>
-    .page-hero {
-      padding-block: var(--space-16) var(--space-10);
-      background: var(--section-accent-soft);
+    .breadcrumbs { font-size: 0.8125rem; color: var(--color-text-muted); margin-bottom: var(--space-5); display: flex; align-items: center; gap: var(--space-2); flex-wrap: wrap; }
+    .breadcrumbs a { color: var(--color-text-muted); text-decoration: none; }
+    .breadcrumbs a:hover { color: var(--section-accent); }
+    .breadcrumbs__sep { opacity: 0.4; }
+    .serif-italic { font-family: var(--font-serif, "Plantin", Georgia, serif); font-style: italic; font-weight: 500; color: var(--section-accent); }
+    .eyebrow {
+      display: inline-block; font-family: var(--font-display);
+      font-size: 0.75rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.14em;
+      color: var(--section-accent);
+      margin: 0 0 var(--space-3);
     }
-    .page-hero__lede { font-size: 1.25rem; color: var(--color-text-strong); max-width: 640px; }
-    .index-list { padding-block: var(--space-16); }
-    .index-list__grid {
-      list-style: none; margin: 0; padding: 0;
-      display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-5);
+
+    .page-hero { padding-block: var(--space-14) var(--space-10); background: var(--section-accent-soft); border-bottom: 1px solid var(--color-border); }
+    .page-hero h1 { font-size: clamp(2rem, 4vw, 3rem); letter-spacing: -0.025em; line-height: 1.1; margin: 0 0 var(--space-4); color: var(--color-resolution); }
+    .page-hero__lede { font-size: 1.0625rem; color: var(--color-text-strong); line-height: 1.55; max-width: 700px; margin: 0; }
+
+    /* ============ Toolbar: filter + A–Z ============ */
+    .brand-toolbar {
+      position: sticky;
+      top: var(--header-height, 72px);
+      z-index: 20;
+      background: rgba(255,255,255,0.92);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      padding-block: var(--space-4);
+      border-bottom: 1px solid var(--color-border);
+      margin-top: 0;
     }
-    .index-list__empty { font-size: 1.125rem; color: var(--color-text-muted); text-align: center; padding-block: var(--space-12); }
-    .index-card {
-      display: block;
-      padding: var(--space-5);
+    .brand-toolbar__inner {
+      display: flex; align-items: center; gap: var(--space-5);
+      flex-wrap: wrap;
+    }
+    .brand-filter {
+      display: flex; align-items: center; gap: var(--space-2);
+      flex: 1 1 280px;
+      min-width: 220px;
+      padding: 10px 14px;
+      background: var(--color-white);
+      border: 1.5px solid var(--color-border);
+      border-radius: 100px;
+      color: var(--color-text-muted);
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+    .brand-filter:focus-within {
+      border-color: var(--section-accent);
+      box-shadow: 0 0 0 3px color-mix(in srgb, var(--section-accent) 22%, transparent);
+      color: var(--section-accent);
+    }
+    .brand-filter input {
+      flex: 1; border: 0; outline: 0;
+      font: inherit; font-size: 0.9375rem; font-family: var(--font-display); font-weight: 500;
+      color: var(--color-resolution);
+      background: transparent;
+    }
+    .brand-filter__clear {
+      background: transparent; border: 0; cursor: pointer;
+      font-size: 1.25rem; line-height: 1;
+      color: var(--color-text-muted);
+      width: 22px; height: 22px;
+      display: inline-flex; align-items: center; justify-content: center;
+      border-radius: 50%;
+    }
+    .brand-filter__clear:hover { background: var(--color-alice); color: var(--color-resolution); }
+
+    .brand-alphabet {
+      display: flex; gap: 2px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .brand-alphabet__letter {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 26px; height: 26px;
+      border-radius: 6px;
+      font-family: var(--font-display); font-weight: 700; font-size: 0.75rem;
+      color: var(--color-resolution);
+      text-decoration: none;
+      transition: background 0.12s, color 0.12s;
+    }
+    .brand-alphabet__letter:hover {
+      background: var(--section-accent);
+      color: var(--color-white);
+    }
+    .brand-alphabet__letter--disabled {
+      color: var(--color-border);
+      pointer-events: none;
+    }
+
+    .brand-empty-state {
+      margin: var(--space-3) 0 0;
+      font-size: 0.875rem;
+      color: var(--color-text-muted);
+      font-style: italic;
+    }
+
+    /* ============ Index ============ */
+    .brand-index {
+      padding-block: var(--space-10) var(--space-20);
+      display: flex; flex-direction: column;
+      gap: var(--space-5);
+    }
+    .brand-empty {
+      text-align: center; color: var(--color-text-muted);
+      padding-block: var(--space-12);
+    }
+    .brand-family {
       background: var(--color-white);
       border: 1px solid var(--color-border);
-      border-radius: var(--radius);
-      position: relative;
-      transition: all var(--transition);
+      border-radius: 12px;
+      padding: var(--space-5) var(--space-6);
+      scroll-margin-top: calc(var(--header-height, 72px) + 80px);
     }
-    .index-card:hover { transform: translateY(-2px); box-shadow: var(--shadow); border-color: var(--section-accent); }
-    .index-card__title { font-size: 1.125rem; margin-bottom: var(--space-2); }
-    .index-card__desc { font-size: 0.9375rem; color: var(--color-text); margin: 0 0 var(--space-3); }
-    .index-card__arrow { position: absolute; right: var(--space-5); top: var(--space-5); color: var(--section-accent); }
-    @media (max-width: 950px) { .index-list__grid { grid-template-columns: 1fr; } }
+    .brand-family[hidden] { display: none; }
+
+    .brand-family__head {
+      display: flex; align-items: center; gap: var(--space-4);
+      padding-bottom: var(--space-4);
+      border-bottom: 1px solid var(--color-border);
+      margin-bottom: var(--space-4);
+    }
+    .brand-family__letter {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 32px; height: 32px;
+      flex-shrink: 0;
+      background: var(--section-accent-soft);
+      color: var(--section-accent);
+      border-radius: 8px;
+      font-family: var(--font-display); font-weight: 800; font-size: 0.875rem;
+    }
+    .brand-family__name {
+      display: inline-flex; align-items: baseline; gap: var(--space-3);
+      flex: 1;
+      font-family: var(--font-display);
+      font-size: 1.25rem; font-weight: 700; letter-spacing: -0.01em;
+      color: var(--color-resolution);
+      text-decoration: none;
+    }
+    .brand-family__name--linked { transition: color 0.15s; }
+    .brand-family__name--linked:hover { color: var(--section-accent); }
+    .brand-family__tag {
+      font-size: 0.6875rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.12em;
+      color: var(--section-accent);
+      padding: 2px 8px;
+      background: var(--section-accent-soft);
+      border-radius: 100px;
+    }
+    .brand-family__count {
+      font-family: var(--font-display);
+      font-size: 0.8125rem; font-weight: 600;
+      color: var(--color-text-muted);
+    }
+
+    .brand-family__models {
+      list-style: none; margin: 0; padding: 0;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 4px;
+    }
+    .brand-model[hidden] { display: none; }
+    .brand-model a {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 8px 12px;
+      border-radius: 6px;
+      color: var(--color-resolution);
+      text-decoration: none;
+      font-family: var(--font-display); font-size: 0.9375rem; font-weight: 500;
+      transition: background 0.12s, color 0.12s;
+    }
+    .brand-model a:hover {
+      background: var(--section-accent-soft);
+      color: var(--section-accent);
+    }
+    .brand-model__arrow {
+      opacity: 0; transform: translateX(-4px);
+      transition: opacity 0.12s, transform 0.12s;
+      color: var(--section-accent);
+    }
+    .brand-model a:hover .brand-model__arrow {
+      opacity: 1; transform: translateX(0);
+    }
+
+    @media (max-width: 700px) {
+      .brand-toolbar__inner { flex-direction: column; align-items: stretch; }
+      .brand-alphabet { justify-content: center; }
+      .brand-family__head { flex-wrap: wrap; }
+    }
   </style>
+
+  <script>
+    /**
+     * Live filter for the brand index. Filters families AND individual models
+     * within families. If a family's name matches, all its models stay; if only
+     * specific models match, the family stays open and only matching models show.
+     */
+    (function () {
+      const input = document.getElementById("brand-filter-input") as HTMLInputElement | null;
+      const clear = document.getElementById("brand-filter-clear") as HTMLButtonElement | null;
+      const emptyState = document.getElementById("brand-empty-state") as HTMLElement | null;
+      const families = Array.from(document.querySelectorAll<HTMLElement>(".brand-family"));
+      if (!input || !families.length) return;
+
+      function applyFilter(q: string) {
+        const query = q.trim().toLowerCase();
+        let visibleFamilies = 0;
+
+        for (const fam of families) {
+          const famText = fam.dataset.searchText ?? "";
+          const familyMatch = !query || famText.includes(query);
+
+          // Decide per-model visibility. If the family name matches the
+          // query, all models in that family are shown. Otherwise we filter
+          // models individually.
+          const famHeadName = fam.querySelector(".brand-family__name span")?.textContent?.toLowerCase() ?? "";
+          const famNameMatches = !query || famHeadName.includes(query);
+          const models = Array.from(fam.querySelectorAll<HTMLElement>(".brand-model"));
+
+          let visibleModels = 0;
+          for (const m of models) {
+            const text = m.dataset.modelSearch ?? "";
+            const show = famNameMatches || !query || text.includes(query);
+            m.hidden = !show;
+            if (show) visibleModels++;
+          }
+
+          // Show the family if its name matches, OR if any of its models match
+          const shouldShow = familyMatch || visibleModels > 0 || famNameMatches;
+          fam.hidden = !shouldShow;
+          if (shouldShow) visibleFamilies++;
+        }
+
+        if (emptyState) emptyState.hidden = visibleFamilies > 0;
+        if (clear) clear.hidden = !query;
+      }
+
+      input.addEventListener("input", () => applyFilter(input.value));
+      clear?.addEventListener("click", () => {
+        input.value = "";
+        applyFilter("");
+        input.focus();
+      });
+    })();
+  </script>
 </BaseLayout>

@@ -4,7 +4,7 @@ question: "Where can I obtain car insurance as an out-of-state college student?"
 description: ""
 category: "Migrated"
 publishDate: 2023-03-21
-draft: true
+draft: false
 author: "LaneHanson"
 ---
 

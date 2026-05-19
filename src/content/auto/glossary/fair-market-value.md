@@ -3,7 +3,7 @@ title: "Fair Market Value — Auto Insurance Glossary"
 term: "Fair Market Value"
 description: ""
 publishDate: 2023-03-21
-draft: true
+draft: false
 author: "LaneHanson"
 ---
 

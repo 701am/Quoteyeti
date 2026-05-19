@@ -4,7 +4,7 @@ question: "Can you get Gap Insurance on a Used Car?"
 description: ""
 category: "Migrated"
 publishDate: 2023-05-05
-draft: true
+draft: false
 author: "JeffSpringer"
 ---
 

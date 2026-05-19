@@ -4,7 +4,7 @@ question: "Can I register a car in a different state than I live in?"
 description: ""
 category: "Migrated"
 publishDate: 2023-03-21
-draft: true
+draft: false
 author: "LaneHanson"
 ---
 

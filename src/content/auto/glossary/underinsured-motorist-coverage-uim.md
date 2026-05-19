@@ -3,7 +3,7 @@ title: "Underinsured Motorist Coverage (UIM) — Auto Insurance Glossary"
 term: "Underinsured Motorist Coverage (UIM)"
 description: ""
 publishDate: 2023-03-21
-draft: true
+draft: false
 author: "LaneHanson"
 ---
 

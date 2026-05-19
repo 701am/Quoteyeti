@@ -4,7 +4,7 @@ question: "Does car insurance cover slashed tires?"
 description: ""
 category: "Migrated"
 publishDate: 2023-03-21
-draft: true
+draft: false
 author: "JeffSpringer"
 ---
 

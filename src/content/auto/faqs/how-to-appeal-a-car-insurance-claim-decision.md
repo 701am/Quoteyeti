@@ -4,7 +4,7 @@ question: "How to appeal a car insurance claim decision?"
 description: ""
 category: "Migrated"
 publishDate: 2023-03-21
-draft: true
+draft: false
 author: "JohnHoward"
 ---
 
