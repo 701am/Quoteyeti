@@ -3,6 +3,8 @@ import BaseLayout from "~/layouts/BaseLayout.astro";
 import ContentByline from "~/components/ContentByline.astro";
 import CompareOutline from "~/components/CompareOutline.astro";
 import AuthorCapsule from "~/components/AuthorCapsule.astro";
+import FootprintDivider from "~/components/editorial/FootprintDivider.astro";
+import MastheadPill from "~/components/editorial/MastheadPill.astro";
 import { getCollection, render } from "astro:content";
 
 export async function getStaticPaths() {
@@ -27,6 +29,11 @@ const ctaVerticalMap: Record<string, string> = {
   "Travel": "travel", "Travel insurance": "travel",
 };
 const ctaVertical = (ctaVerticalMap[d.category ?? ""] ?? "auto") as any;
+
+// Format publishDate for the masthead pill — "May 2026" style
+const issueLabel = d.publishDate
+  ? new Date(d.publishDate).toLocaleDateString("en-US", { month: "long", year: "numeric" })
+  : "Current edition";
 ---
 
 <BaseLayout
@@ -53,6 +60,7 @@ const ctaVertical = (ctaVerticalMap[d.category ?? ""] ?? "auto") as any;
         <nav class="breadcrumbs" aria-label="Breadcrumb">
           <a href="/">Home</a> › <a href="/blog/">The Dispatch</a> › <span>{d.title}</span>
         </nav>
+        <MastheadPill eyebrow="The Dispatch" value={issueLabel} />
         {d.category && <p class="eyebrow">{d.category}</p>}
         <ContentByline
           variant="inline"
@@ -73,6 +81,7 @@ const ctaVertical = (ctaVerticalMap[d.category ?? ""] ?? "auto") as any;
         <CompareOutline vertical={ctaVertical} />
       </div>
       <Content />
+      <FootprintDivider width="medium" margin="tight" />
       <AuthorCapsule
         author={d.author}
         updatedDate={d.updatedDate ?? d.publishDate}

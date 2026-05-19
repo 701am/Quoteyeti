@@ -2,6 +2,13 @@
 import BaseLayout from "~/layouts/BaseLayout.astro";
 import ContentByline from "~/components/ContentByline.astro";
 import ZipForm from "~/components/ZipForm.astro";
+import FootprintDivider from "~/components/editorial/FootprintDivider.astro";
+import ScoreGauge from "~/components/editorial/ScoreGauge.astro";
+import MethodologyBar from "~/components/editorial/MethodologyBar.astro";
+import DataSourcesStrip from "~/components/editorial/DataSourcesStrip.astro";
+import PullQuote from "~/components/editorial/PullQuote.astro";
+import MastheadPill from "~/components/editorial/MastheadPill.astro";
+import Footnote from "~/components/editorial/Footnote.astro";
 import type { Vertical } from "~/data/verticals";
 
 /**
@@ -278,15 +285,16 @@ function financialLabel(rating: string | undefined): string {
 
         <!-- Editorial pull-quote -->
         {topCarrier && (
-          <aside class="pull-quote reveal">
-            <p>
-              <span class="pull-quote__open" aria-hidden="true">"</span>
-              For {vertical.short.toLowerCase()}, <strong>{topCarrier.name}</strong> is our top pick — but the right carrier depends on what matters most to you. Read on for the trade-offs.
-              <span class="pull-quote__close" aria-hidden="true">"</span>
-            </p>
-            <cite>— QuoteYeti editorial</cite>
-          </aside>
+          <PullQuote cite="QuoteYeti editorial" tone="tinted">
+            For {vertical.short.toLowerCase()}, <strong>{topCarrier.name}</strong> is our top pick — but the right carrier depends on what matters most to you. Read on for the trade-offs.
+          </PullQuote>
         )}
+
+        <!-- Data sources trust strip — sits between overview and deep dives -->
+        <DataSourcesStrip reviewed="Q1 2026" />
+
+        <!-- Footprint divider — visual signature before the carrier deep-dives -->
+        <FootprintDivider width="medium" />
 
         <!-- Detailed carrier panels — LendingTree-inspired data shape:
              rank + logo + name + score, then a 4-cell data grid, then a
@@ -317,8 +325,12 @@ function financialLabel(rating: string | undefined): string {
                   <p class="carrier-panel__bestfor">Best for {c.bestFor.toLowerCase()}</p>
                 </div>
                 <div class="carrier-panel__score">
-                  <span class="carrier-panel__score-num">{c.score.toFixed(2)}</span>
-                  <span class="carrier-panel__score-max">/5.00</span>
+                  <ScoreGauge
+                    score={c.score}
+                    max={5}
+                    size="lg"
+                    tone="default"
+                  />
                   {c.rank === 1 && <span class="carrier-panel__score-pill">Top ranked</span>}
                 </div>
               </header>
@@ -405,6 +417,9 @@ function financialLabel(rating: string | undefined): string {
           );
         })}
 
+        <!-- Footprint divider — section break before methodology -->
+        {methodologyPoints.length > 0 && <FootprintDivider width="medium" />}
+
         <!-- Methodology -->
         {methodologyPoints.length > 0 && (
           <section id="methodology" class="methodology reveal">
@@ -412,11 +427,34 @@ function financialLabel(rating: string | undefined): string {
             <p class="prose">
               Our rankings reflect a comprehensive analysis of rates, customer satisfaction data, coverage breadth, and financial strength. We don't accept payment for placement on this list.
             </p>
-            <ul class="methodology__list">
-              {methodologyPoints.map((point) => <li>{point}</li>)}
-            </ul>
+
+            <!-- Weighted bar — replaces the old wall-of-bullets format -->
+            <MethodologyBar
+              title="How the score is weighted"
+              factors={[
+                { weight: 60, label: "Cost", body: "Multi-profile rate quotes normalized to comparable coverage levels in your state." },
+                { weight: 30, label: "Customer satisfaction", body: "J.D. Power surveys, NAIC complaint ratios, and public review sources." },
+                { weight: 10, label: "Coverage breadth", body: "Variety of available endorsements, unique features, and gap-filling options." },
+              ]}
+            />
+
+            <!-- What we evaluated — the original bullet content, kept for SEO + transparency -->
+            <details class="methodology-points">
+              <summary>
+                <span>What we evaluated in detail</span>
+                <svg viewBox="0 0 14 14" width="14" height="14" aria-hidden="true">
+                  <path d="M2 5l5 5 5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+                </svg>
+              </summary>
+              <ul class="methodology__list">
+                {methodologyPoints.map((point) => <li>{point}</li>)}
+              </ul>
+            </details>
           </section>
         )}
+
+        <!-- Footprint divider — break before FAQ -->
+        {faqs.length > 0 && <FootprintDivider width="medium" />}
 
         <!-- FAQ -->
         {faqs.length > 0 && (
@@ -994,33 +1032,23 @@ function financialLabel(rating: string | undefined): string {
     .carrier-panel__bestfor::first-letter { text-transform: uppercase; }
     .carrier-panel__score {
       flex-shrink: 0;
-      text-align: right;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: var(--space-2);
       min-width: 0;
     }
-    .carrier-panel__score-num {
-      font-family: var(--font-serif);
-      font-weight: 400;
-      font-size: 1.625rem;
-      letter-spacing: -0.02em;
-      color: var(--color-resolution);
-      line-height: 1;
-    }
-    .carrier-panel__score-max {
-      font-family: var(--font-display);
-      font-size: 0.8125rem;
-      font-weight: 500;
-      color: var(--color-text-muted);
-      margin-left: 2px;
-    }
     .carrier-panel__score-pill {
-      display: block;
-      margin-top: 4px;
+      display: inline-block;
       font-family: var(--font-display);
       font-size: 0.625rem;
       font-weight: 700;
       text-transform: uppercase;
       letter-spacing: 0.14em;
       color: var(--color-teal);
+      background: var(--color-teal-soft);
+      padding: 3px 8px;
+      border-radius: var(--radius-pill);
     }
 
     /* 4-cell data grid */
@@ -1207,6 +1235,34 @@ function financialLabel(rating: string | undefined): string {
       margin-bottom: var(--space-3);
       line-height: 1.65;
     }
+
+    /* Collapsible "What we evaluated in detail" — under the weighted bar */
+    .methodology-points {
+      margin-top: var(--space-6);
+      border-top: 1px dashed var(--color-border);
+    }
+    .methodology-points > summary {
+      list-style: none;
+      cursor: pointer;
+      padding: var(--space-4) 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-family: var(--font-display);
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--color-text-muted);
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      transition: color var(--transition);
+    }
+    .methodology-points > summary::-webkit-details-marker { display: none; }
+    .methodology-points > summary:hover { color: var(--color-resolution); }
+    .methodology-points > summary svg {
+      transition: transform var(--transition);
+    }
+    .methodology-points[open] > summary svg { transform: rotate(180deg); }
+    .methodology-points[open] > summary { color: var(--color-resolution); }
 
     /* ==================================================
        FAQ (matches review FAQ)

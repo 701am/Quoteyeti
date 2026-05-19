@@ -1,6 +1,8 @@
 ---
 import BaseLayout from "~/layouts/BaseLayout.astro";
 import ZipForm from "~/components/ZipForm.astro";
+import FootprintDivider from "~/components/editorial/FootprintDivider.astro";
+import MastheadPill from "~/components/editorial/MastheadPill.astro";
 import { VERTICAL_LIST } from "~/data/verticals";
 import { getCollection } from "astro:content";
 
@@ -188,6 +190,8 @@ const faqs = [
     </div>
   </section>
 
+  <div class="container"><FootprintDivider width="medium" margin="tight" /></div>
+
   <section class="manifesto">
     <div class="container">
       <div class="manifesto__inner">
@@ -306,6 +310,7 @@ const faqs = [
   {featuredPosts.length > 0 && (
     <section class="hposts">
       <div class="container">
+        <FootprintDivider width="medium" margin="tight" />
         <header class="hposts__header">
           <div><p class="eyebrow">From The Dispatch</p><h2>Reading that <span class="serif-italic">pays for itself</span>.</h2></div>
           <a href="/blog/" class="hposts__view-all">All Dispatch posts
@@ -353,9 +358,12 @@ const faqs = [
     </div>
   </section>
 
+  <div class="container"><FootprintDivider width="medium" margin="tight" /></div>
+
   <section class="hfinal">
     <div class="container">
       <div class="hfinal__inner">
+        <MastheadPill eyebrow="Vol. II" value="The Wilderness Edition" tone="ghost" />
         <p class="hfinal__eyebrow">Ready when you are</p>
         <h2 class="hfinal__h2">Start where the <span class="serif-italic">coverage</span> lives.</h2>
         <p class="hfinal__lede">

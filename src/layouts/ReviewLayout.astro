@@ -3,6 +3,11 @@ import BaseLayout from "~/layouts/BaseLayout.astro";
 import ContentByline from "~/components/ContentByline.astro";
 import AuthorCapsule from "~/components/AuthorCapsule.astro";
 import ZipForm from "~/components/ZipForm.astro";
+import FootprintDivider from "~/components/editorial/FootprintDivider.astro";
+import ScoreGauge from "~/components/editorial/ScoreGauge.astro";
+import DataRefreshPill from "~/components/editorial/DataRefreshPill.astro";
+import PullQuote from "~/components/editorial/PullQuote.astro";
+import Footnote from "~/components/editorial/Footnote.astro";
 import type { Vertical } from "~/data/verticals";
 
 interface ReviewProps {
@@ -108,6 +113,9 @@ const remainingTakeaways = takeaways.slice(1);
           </div>
         )}
         <div class="review-hero__title">
+          <div class="review-hero__meta">
+            <DataRefreshPill label="Last reviewed" value={carrier.updated} />
+          </div>
           <p class="eyebrow">
             <img src={vertical.icon} alt="" width="18" height="18" />
             {vertical.label} Review
@@ -206,10 +214,14 @@ const remainingTakeaways = takeaways.slice(1);
           <h2>{carrier.name} <span class="serif-italic">ratings</span></h2>
           <div class="ratings-overview">
             <div class="ratings-overview__score">
-              <p class="ratings-overview__label">Overall score</p>
-              <p class="ratings-overview__number">{ratings.overall.toFixed(2)}</p>
-              <p class="ratings-overview__outof">out of 5.00</p>
-              {ratings.rank && <p class="ratings-overview__rank">National rank · <strong>#{ratings.rank}</strong></p>}
+              <ScoreGauge
+                score={ratings.overall}
+                max={5}
+                size="xl"
+                label="Overall score"
+                rank={ratings.rank ? `National rank · #${ratings.rank}` : undefined}
+                tone="default"
+              />
             </div>
 
             <div class="ratings-bars">
@@ -293,14 +305,9 @@ const remainingTakeaways = takeaways.slice(1);
 
         <!-- ===== EDITORIAL PULL-QUOTE ===== -->
         {ratings.rank && (
-          <aside class="pull-quote reveal">
-            <p>
-              <span class="pull-quote__open" aria-hidden="true">"</span>
-              {carrier.name} earns <strong>#{ratings.rank}</strong> overall in our {vertical.short.toLowerCase()} rankings — the kind of performance that rewards a closer look, not a coin flip.
-              <span class="pull-quote__close" aria-hidden="true">"</span>
-            </p>
-            <cite>— What we'd choose</cite>
-          </aside>
+          <PullQuote cite="What we'd choose" tone="tinted">
+            {carrier.name} earns <strong>#{ratings.rank}</strong> overall in our {vertical.short.toLowerCase()} rankings — the kind of performance that rewards a closer look, not a coin flip.
+          </PullQuote>
         )}
 
         <!-- ===== CUSTOMER EXPERIENCE ===== -->
@@ -336,6 +343,9 @@ const remainingTakeaways = takeaways.slice(1);
           </div>
         </section>
 
+        <!-- Section break: footprint divider before independent ratings -->
+        <FootprintDivider width="medium" />
+
         <!-- ===== INDUSTRY RATINGS ===== -->
         <section id="industry-ratings" class="reveal">
           <h2><span class="serif-italic">Independent</span> industry ratings</h2>
@@ -349,13 +359,37 @@ const remainingTakeaways = takeaways.slice(1);
               </tr>
             </thead>
             <tbody>
-              {industryRatings.map((r) => (
-                <tr>
-                  <td><strong>{r.source}</strong></td>
-                  <td><span class="score-pill">{r.score}</span></td>
-                  <td>{r.overview}</td>
-                </tr>
-              ))}
+              {industryRatings.map((r, i) => {
+                // Known industry sources get a footnote tooltip explaining what they measure.
+                // Use substring matching since real source names vary ("J.D. Power Claims
+                // Satisfaction" rather than just "J.D. Power").
+                const footnoteDefs = [
+                  { key: "J.D. Power",      term: "J.D. Power",   body: "Consumer satisfaction surveys with 12,000+ policyholders annually. Scores run 0–1000; above 800 is considered excellent." },
+                  { key: "A.M. Best",       term: "A.M. Best",    body: "Insurance-industry credit rating agency since 1899. A++ is the highest financial-strength grade." },
+                  { key: "AM Best",         term: "A.M. Best",    body: "Insurance-industry credit rating agency since 1899. A++ is the highest financial-strength grade." },
+                  { key: "NAIC",            term: "NAIC",         body: "National Association of Insurance Commissioners. Their complaint index is 1.0 = average; lower is better." },
+                  { key: "BBB",             term: "BBB",          body: "Better Business Bureau. Letter grades A+ through F based on complaint volume and resolution rate." },
+                  { key: "Consumer Reports",term: "Consumer Reports", body: "Independent product testing nonprofit. Insurance ratings are reader-survey based." },
+                  { key: "S&P",             term: "S&P Global",   body: "Standard & Poor's Global Ratings. Insurance financial-strength grades from AAA (strongest) to D." },
+                  { key: "Moody",           term: "Moody's",      body: "Moody's Ratings. Insurance financial-strength grades from Aaa (highest) to C." },
+                  { key: "Fitch",           term: "Fitch",        body: "Fitch Ratings. Insurance financial-strength grades from AAA (highest) to D." },
+                ];
+                const match = footnoteDefs.find(f => r.source.includes(f.key));
+                return (
+                  <tr>
+                    <td>
+                      <strong>{r.source}</strong>
+                      {match && (
+                        <Footnote n={i + 1} term={match.term}>
+                          {match.body}
+                        </Footnote>
+                      )}
+                    </td>
+                    <td><span class="score-pill">{r.score}</span></td>
+                    <td>{r.overview}</td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </section>
@@ -410,6 +444,9 @@ const remainingTakeaways = takeaways.slice(1);
           </table>
         </section>
 
+        <!-- Section break: footprint divider before pros & cons -->
+        <FootprintDivider width="medium" />
+
         <!-- ===== PROS & CONS ===== -->
         <section class="review-prosCons reveal" id="pros-cons">
           <h2>Pros and <span class="serif-italic">cons</span></h2>
@@ -424,6 +461,9 @@ const remainingTakeaways = takeaways.slice(1);
             </div>
           </div>
         </section>
+
+        <!-- Section break: footprint divider before bottom line -->
+        <FootprintDivider width="medium" />
 
         <!-- ===== BOTTOM LINE ===== -->
         <section id="bottom-line" class="bottom-line reveal">
@@ -562,6 +602,9 @@ const remainingTakeaways = takeaways.slice(1);
     .review-hero__h1 {
       margin-bottom: var(--space-4);
       letter-spacing: -0.02em;
+    }
+    .review-hero__meta {
+      margin: 0 0 var(--space-4);
     }
     .review-hero__positioning {
       font-size: 1.25rem;
@@ -785,6 +828,9 @@ const remainingTakeaways = takeaways.slice(1);
       background: var(--color-white);
       border-radius: var(--radius);
       border: 1px solid var(--color-border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
     .ratings-overview__label {
       font-family: var(--font-display); font-size: 0.6875rem; font-weight: 700;

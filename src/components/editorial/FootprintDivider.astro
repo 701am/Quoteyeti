@@ -1,0 +1,85 @@
+---
+/**
+ * FootprintDivider — small Yeti footprint glyph between hairlines.
+ *
+ * The signature section delimiter for QuoteYeti. Used to break long
+ * editorial pages into chapters without resorting to a generic <hr>.
+ *
+ * Props:
+ *   width: how wide the line should extend on each side of the footprint.
+ *          'short' = ~48px, 'medium' = ~96px, 'full' = container-wide. Default 'medium'.
+ *   tone:  'default' (navy on cream) or 'muted' (light gray, for darker bg).
+ *   margin: vertical spacing applied. Default uses space-10/space-12 generous rhythm.
+ */
+interface Props {
+  width?: "short" | "medium" | "full";
+  tone?: "default" | "muted";
+  margin?: "tight" | "normal" | "loose";
+  class?: string;
+}
+
+const {
+  width = "medium",
+  tone = "default",
+  margin = "normal",
+  class: cls = "",
+} = Astro.props;
+---
+
+<div class={`footprint-divider footprint-divider--${width} footprint-divider--${tone} footprint-divider--${margin} ${cls}`} aria-hidden="true">
+  <span class="footprint-divider__rule"></span>
+  <span class="footprint-divider__glyph">
+    <svg width="18" height="22" viewBox="0 0 54.6 83.1" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+      <path d="M42.5,16.9c1.4-2,3.8-2.7,5.4-1.6c1.6,1.1,1.8,3.6,0.4,5.6c-1.4,2-3.8,2.7-5.4,1.6S41.1,18.9,42.5,16.9z"/>
+      <path d="M32.6,11.9c1-2.8,3.5-4.4,5.8-3.7c2.2,0.8,3.3,3.7,2.3,6.4c-1,2.8-3.5,4.4-5.8,3.7C32.6,17.6,31.7,14.7,32.6,11.9z"/>
+      <path d="M26,3.7c2.6,0.2,4.6,2.9,4.4,6.2s-2.5,5.8-5.1,5.6s-4.6-2.9-4.4-6.2C21.1,6.1,23.3,3.6,26,3.7z"/>
+      <path d="M0.4,12.6C-1.1,6.9,1.5,1.4,6,0.2c4.6-1.2,9.5,2.5,10.9,8.2c1.5,5.7-1.1,11.2-5.6,12.4S1.8,18.3,0.4,12.6z"/>
+      <path d="M49.6,47.1c-0.5,3.5-1.6,6.8-3,10.1c-2.1,5.1-4.6,9.9-7.8,14.3c-2.4,3.4-5.1,6.5-8.6,8.8c-1.3,0.9-8.8,5-15.8,1.3c-4.5-2.4-5.2-7.5-2.9-10.7c1.3-1.9,2.9-3.5,4.4-5.1c7.1-7.4,8.8-14.4,5.5-18.3c-1.9-2.2-4.3-3.7-7-4.8c-1.4-0.6-2.8-1.3-3.8-2.5c-2.3-2.6-2.5-5.7-1.8-8.9s2.3-5.9,4.5-8.3c2-2.2,4.5-3.7,7.4-4.3c5.4-1,10.6,0,15.6,2.3c3.2,1.5,5.9,3.6,8.4,6.1c2.7,2.7,4.5,5.9,5.1,9.7C50.4,40.2,50.1,43.7,49.6,47.1z"/>
+      <path d="M53.2,28.2c-1.5,1.3-3.6,1.4-4.6,0.2c-1.1-1.2-0.7-3.2,0.8-4.5s3.6-1.4,4.6-0.2S54.7,26.9,53.2,28.2z"/>
+    </svg>
+  </span>
+  <span class="footprint-divider__rule"></span>
+</div>
+
+<style>
+  .footprint-divider {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-4);
+    color: var(--color-resolution);
+  }
+
+  .footprint-divider--muted {
+    color: var(--color-ship-cove);
+    opacity: 0.55;
+  }
+
+  .footprint-divider--tight  { margin: var(--space-6) 0; }
+  .footprint-divider--normal { margin: var(--space-10) 0; }
+  .footprint-divider--loose  { margin: var(--space-14) 0; }
+
+  .footprint-divider__rule {
+    flex: 0 0 auto;
+    height: 1px;
+    background: currentColor;
+    opacity: 0.18;
+  }
+  .footprint-divider--short .footprint-divider__rule  { width: 56px; }
+  .footprint-divider--medium .footprint-divider__rule { width: 120px; }
+  .footprint-divider--full .footprint-divider__rule   { flex: 1 1 auto; max-width: 280px; }
+
+  .footprint-divider__glyph {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    /* Subtle motion: a gentle tilt makes the print feel like a step, not a stamp */
+    transform: rotate(-8deg);
+  }
+  .footprint-divider__glyph svg {
+    display: block;
+    color: currentColor;
+    opacity: 0.85;
+  }
+</style>

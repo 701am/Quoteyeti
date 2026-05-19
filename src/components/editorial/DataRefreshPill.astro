@@ -1,0 +1,103 @@
+---
+/**
+ * DataRefreshPill — small pill at the top of rate-heavy pages.
+ *
+ * Says "Most recent rate filings reviewed: Q1 2026" or whatever the
+ * current data window is. Restrained design — small, navy/cream, with
+ * a tiny live-dot to signal "we keep this fresh."
+ *
+ * This is one of QuoteYeti's editorial signatures: a small commitment
+ * to data freshness that compounds trust over a long reading session.
+ *
+ * Props:
+ *   label   — left-side noun phrase, e.g. "Most recent rate filings"
+ *   value   — right-side period, e.g. "Q1 2026"
+ *   tone    — 'default' (navy bg) or 'light' (cream bg, for use on navy)
+ */
+interface Props {
+  label?: string;
+  value?: string;
+  tone?: "default" | "light";
+}
+
+const {
+  label = "Most recent rate filings reviewed",
+  value = "Q1 2026",
+  tone = "default",
+} = Astro.props;
+---
+
+<p class={`refresh-pill refresh-pill--${tone}`}>
+  <span class="refresh-pill__dot" aria-hidden="true"></span>
+  <span class="refresh-pill__label">{label}:</span>
+  <span class="refresh-pill__value">{value}</span>
+</p>
+
+<style>
+  .refresh-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    margin: 0;
+    padding: 6px var(--space-3) 6px var(--space-3);
+    background: var(--color-alice);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-pill);
+    font-family: var(--font-display);
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--color-text-muted);
+    letter-spacing: 0.01em;
+    line-height: 1;
+    white-space: nowrap;
+  }
+
+  .refresh-pill--light {
+    background: rgba(255, 255, 255, 0.12);
+    border-color: rgba(255, 255, 255, 0.2);
+    color: rgba(255, 255, 255, 0.85);
+  }
+
+  .refresh-pill__dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--color-teal);
+    flex-shrink: 0;
+    /* Soft pulse — slow enough not to be annoying */
+    animation: refreshPulse 2.4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    box-shadow: 0 0 0 0 rgba(14, 124, 123, 0.4);
+  }
+  .refresh-pill--light .refresh-pill__dot {
+    background: var(--color-teal-bright);
+    box-shadow: 0 0 0 0 rgba(20, 163, 139, 0.5);
+  }
+
+  .refresh-pill__label {
+    color: var(--color-text-muted);
+  }
+  .refresh-pill__value {
+    color: var(--color-resolution);
+    font-weight: 600;
+  }
+  .refresh-pill--light .refresh-pill__label,
+  .refresh-pill--light .refresh-pill__value {
+    color: var(--color-white);
+  }
+
+  @keyframes refreshPulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(14, 124, 123, 0.4); }
+    50%      { box-shadow: 0 0 0 4px rgba(14, 124, 123, 0); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .refresh-pill__dot { animation: none; }
+  }
+
+  @media (max-width: 500px) {
+    .refresh-pill {
+      white-space: normal;
+      text-align: left;
+    }
+  }
+</style>

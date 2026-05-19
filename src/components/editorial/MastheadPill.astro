@@ -1,0 +1,69 @@
+---
+/**
+ * MastheadPill — editorial issue/edition pill.
+ *
+ * The kind of small typographic marker you see above the masthead of
+ * a magazine: "ISSUE 23 · MAY 2026" or "VOL. II · AUTO RANKINGS".
+ *
+ * Used on blog post hero, Best Of hero, and the homepage hfinal section.
+ * Helps the site read as a publication, not a comparison tool.
+ *
+ * Props:
+ *   eyebrow: left-side text, e.g. "Issue 23"
+ *   value:   right-side text, e.g. "May 2026"
+ *   sep:     separator character (default "·")
+ *   tone:    'default' (navy bg, white text) | 'ghost' (transparent, navy text)
+ */
+interface Props {
+  eyebrow: string;
+  value: string;
+  sep?: string;
+  tone?: "default" | "ghost";
+}
+
+const { eyebrow, value, sep = "·", tone = "default" } = Astro.props;
+---
+
+<p class={`masthead-pill masthead-pill--${tone}`}>
+  <span class="masthead-pill__eyebrow">{eyebrow}</span>
+  <span class="masthead-pill__sep" aria-hidden="true">{sep}</span>
+  <span class="masthead-pill__value">{value}</span>
+</p>
+
+<style>
+  .masthead-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    margin: 0 0 var(--space-4);
+    padding: 6px 14px;
+    border-radius: var(--radius-pill);
+    font-family: var(--font-display);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    line-height: 1;
+  }
+
+  .masthead-pill--default {
+    background: var(--color-resolution);
+    color: var(--color-white);
+  }
+  .masthead-pill--ghost {
+    background: transparent;
+    color: var(--color-resolution);
+    border: 1px solid var(--color-resolution);
+  }
+
+  .masthead-pill__sep {
+    opacity: 0.5;
+    font-weight: 400;
+  }
+  .masthead-pill__eyebrow {
+    font-weight: 700;
+  }
+  .masthead-pill__value {
+    font-weight: 500;
+  }
+</style>

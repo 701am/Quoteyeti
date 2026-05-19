@@ -1,0 +1,136 @@
+---
+/**
+ * Footnote — superscript number with a hover/tap tooltip explaining
+ * a piece of jargon. Used after terms like "J.D. Power", "NAIC",
+ * "A.M. Best", "written premium", "loss ratio".
+ *
+ * On desktop: hover shows tooltip.
+ * On touch: tap toggles the tooltip (browser handles via focus).
+ *
+ * Usage:
+ *   J.D. Power<Footnote n={1} term="J.D. Power">
+ *     Consumer satisfaction surveys with 12,000+ policyholders annually.
+ *   </Footnote>
+ *
+ * Numbering: pass `n` explicitly to control. Different page sections may
+ * want different numbering. We don't auto-number because Astro renders
+ * statically — there's no easy counter shared across components.
+ */
+interface Props {
+  n: number;
+  term?: string;
+}
+const { n, term } = Astro.props;
+---
+
+<span class="fn-host">
+  <sup class="fn-sup" tabindex="0" aria-label={term ? `Footnote ${n}: ${term}` : `Footnote ${n}`}>
+    {n}
+  </sup>
+  <span class="fn-pop" role="tooltip">
+    {term && <span class="fn-pop__term">{term}</span>}
+    <span class="fn-pop__body">
+      <slot />
+    </span>
+  </span>
+</span>
+
+<style>
+  .fn-host {
+    position: relative;
+    display: inline;
+    /* No box on the host — superscript is the only visible thing in flow */
+  }
+
+  .fn-sup {
+    font-family: var(--font-display);
+    font-size: 0.6em;
+    font-weight: 700;
+    color: var(--color-teal);
+    cursor: help;
+    margin-left: 1px;
+    padding: 0 2px;
+    border-radius: 3px;
+    transition: background var(--transition-fast), color var(--transition-fast);
+    user-select: none;
+    /* Subtle dotted underline to signal "interactive" without a button look */
+    text-decoration: underline dotted var(--color-teal);
+    text-decoration-thickness: 1px;
+    text-underline-offset: 1px;
+  }
+  .fn-sup:hover,
+  .fn-sup:focus-visible {
+    background: var(--color-teal-soft);
+    color: var(--color-teal-dark);
+    outline: none;
+  }
+
+  .fn-pop {
+    /* Hidden by default */
+    position: absolute;
+    bottom: calc(100% + 6px);
+    left: 50%;
+    transform: translateX(-50%) translateY(4px);
+    width: max-content;
+    max-width: 280px;
+    padding: var(--space-3) var(--space-4);
+    background: var(--color-resolution);
+    color: var(--color-white);
+    border-radius: var(--radius-sm);
+    box-shadow: var(--shadow-modal);
+    font-family: var(--font-display);
+    font-size: 12.5px;
+    font-weight: 400;
+    line-height: 1.5;
+    letter-spacing: -0.005em;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity var(--transition-fast), transform var(--transition-fast);
+    z-index: 100;
+    white-space: normal;
+    text-align: left;
+  }
+  .fn-host:hover .fn-pop,
+  .fn-host:focus-within .fn-pop {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+  .fn-pop::after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 6px solid transparent;
+    border-top-color: var(--color-resolution);
+  }
+  .fn-pop__term {
+    display: block;
+    font-weight: 700;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--color-malibu);
+    margin-bottom: 3px;
+  }
+  .fn-pop__body {
+    display: block;
+    color: var(--color-white);
+  }
+
+  /* Mobile: flip below if no room above. Edge-cases handled by max-width. */
+  @media (max-width: 600px) {
+    .fn-pop {
+      /* On narrow viewports, position absolute can clip — let it overflow safely */
+      left: auto;
+      right: 0;
+      transform: translateX(0) translateY(4px);
+      max-width: min(280px, calc(100vw - 32px));
+    }
+    .fn-host:hover .fn-pop,
+    .fn-host:focus-within .fn-pop {
+      transform: translateX(0) translateY(0);
+    }
+    .fn-pop::after { left: auto; right: 8px; transform: none; }
+  }
+</style>

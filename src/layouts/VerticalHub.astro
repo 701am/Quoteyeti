@@ -1,6 +1,7 @@
 ---
 import BaseLayout from "~/layouts/BaseLayout.astro";
 import ZipForm from "~/components/ZipForm.astro";
+import FootprintDivider from "~/components/editorial/FootprintDivider.astro";
 import type { Vertical } from "~/data/verticals";
 import { getCollection } from "astro:content";
 
@@ -183,13 +184,16 @@ const featuredPosts = relatedPosts.length >= 3
 
   <!-- ============== EDITORIAL INTRO ============== -->
   {intro && (
-    <section class="vintro reveal">
-      <div class="container container--narrow">
-        {intro.eyebrow && <p class="eyebrow">{intro.eyebrow}</p>}
-        <h2 class="vintro__heading">{intro.heading}</h2>
-        <div class="vintro__body" set:html={intro.body} />
-      </div>
-    </section>
+    <>
+      <div class="container"><FootprintDivider width="medium" margin="tight" /></div>
+      <section class="vintro reveal">
+        <div class="container container--narrow">
+          {intro.eyebrow && <p class="eyebrow">{intro.eyebrow}</p>}
+          <h2 class="vintro__heading">{intro.heading}</h2>
+          <div class="vintro__body" set:html={intro.body} />
+        </div>
+      </section>
+    </>
   )}
 
   <!-- ============== STATS STRIP ============== -->
@@ -235,13 +239,15 @@ const featuredPosts = relatedPosts.length >= 3
 
   <!-- ============== CARRIER REVIEWS ============== -->
   {reviews.length > 0 && (
-    <section class="vreviews reveal">
-      <div class="container">
-        <header class="vreviews__header">
-          <div>
-            <p class="eyebrow">Carriers we've reviewed</p>
-            <h2>
-              The {reviews.length}+ carriers
+    <>
+      <div class="container"><FootprintDivider width="medium" margin="tight" /></div>
+      <section class="vreviews reveal">
+        <div class="container">
+          <header class="vreviews__header">
+            <div>
+              <p class="eyebrow">Carriers we've reviewed</p>
+              <h2>
+                The {reviews.length}+ carriers
               <span class="serif-italic">competing</span>
               for your business
             </h2>
@@ -293,6 +299,7 @@ const featuredPosts = relatedPosts.length >= 3
         </div>
       </div>
     </section>
+    </>
   )}
 
   <!-- ============== FEATURED GUIDES ============== -->
@@ -406,6 +413,7 @@ const featuredPosts = relatedPosts.length >= 3
   {featuredPosts.length > 0 && (
     <section class="vposts reveal">
       <div class="container">
+        <FootprintDivider width="medium" margin="tight" />
         <header class="vposts__header">
           <div>
             <p class="eyebrow">From The Dispatch</p>
@@ -441,6 +449,7 @@ const featuredPosts = relatedPosts.length >= 3
   {faqs.length > 0 && (
     <section class="vfaq reveal">
       <div class="container-narrow">
+        <FootprintDivider width="medium" margin="tight" />
         <header class="vfaq__header">
           <p class="eyebrow">Frequently asked</p>
           <h2>

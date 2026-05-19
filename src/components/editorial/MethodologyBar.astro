@@ -1,0 +1,172 @@
+---
+/**
+ * MethodologyBar — horizontal stacked bar showing how a ranking is weighted.
+ *
+ * Replaces the bullet list in the methodology section. A single bar with
+ * segments proportional to each factor's weight. Labels below the bar
+ * with weight % and a short description.
+ *
+ * Why a stacked bar, not a pie: 3 segments close to 60/30/10 are far more
+ * legible as horizontal proportions than as pie slices. The eye reads
+ * "bigger half" instantly without checking the legend.
+ *
+ * Props:
+ *   factors: array of { weight: number 0-100, label: string, body?: string }
+ *            Weights must sum to 100.
+ *   title:   optional H4 above the bar
+ *   compact: if true, hides body descriptions (just label + %)
+ */
+interface Factor {
+  weight: number;
+  label: string;
+  body?: string;
+}
+interface Props {
+  factors: Factor[];
+  title?: string;
+  compact?: boolean;
+}
+
+const { factors, title, compact = false } = Astro.props;
+
+// Validate weights sum to 100 — silently log a comment if not, don't fail render
+const sum = factors.reduce((acc, f) => acc + f.weight, 0);
+const valid = Math.abs(sum - 100) < 1;
+
+// Palette: navy, mid-navy, ship-cove. Editorial — no rainbow, no warning colors.
+const palette = [
+  "var(--color-resolution)",
+  "var(--color-resolution-2)",
+  "var(--color-ship-cove)",
+  "var(--color-malibu)",
+];
+---
+
+<div class="method-bar">
+  {title && <h4 class="method-bar__title">{title}</h4>}
+
+  {!valid && (
+    <!-- Weights don't sum to 100. Sum was {sum}. -->
+  )}
+
+  <div class="method-bar__track" role="img" aria-label={`Ranking weighted ${factors.map(f => `${f.weight}% ${f.label}`).join(", ")}`}>
+    {factors.map((f, i) => (
+      <div
+        class="method-bar__segment"
+        style={`flex: ${f.weight}; background: ${palette[i % palette.length]};`}
+      >
+        <span class="method-bar__segment-pct">{f.weight}%</span>
+      </div>
+    ))}
+  </div>
+
+  <ul class="method-bar__legend">
+    {factors.map((f, i) => (
+      <li class="method-bar__legend-item">
+        <span class="method-bar__legend-dot" style={`background: ${palette[i % palette.length]};`} aria-hidden="true"></span>
+        <div class="method-bar__legend-text">
+          <p class="method-bar__legend-label">
+            <strong>{f.label}</strong>
+            <span class="method-bar__legend-weight">{f.weight}%</span>
+          </p>
+          {!compact && f.body && <p class="method-bar__legend-body">{f.body}</p>}
+        </div>
+      </li>
+    ))}
+  </ul>
+</div>
+
+<style>
+  .method-bar {
+    margin: var(--space-6) 0;
+  }
+  .method-bar__title {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 1rem;
+    color: var(--color-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    margin: 0 0 var(--space-4);
+  }
+
+  .method-bar__track {
+    display: flex;
+    width: 100%;
+    height: 36px;
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+    box-shadow: var(--shadow-xs);
+  }
+
+  .method-bar__segment {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-white);
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 13px;
+    letter-spacing: -0.005em;
+    transition: opacity var(--transition);
+    min-width: 32px;
+  }
+  .method-bar__segment:hover { opacity: 0.92; }
+  .method-bar__segment-pct {
+    font-variant-numeric: tabular-nums;
+  }
+
+  .method-bar__legend {
+    list-style: none;
+    margin: var(--space-5) 0 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: var(--space-4) var(--space-6);
+  }
+  .method-bar__legend-item {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-3);
+  }
+  .method-bar__legend-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 2px;
+    flex-shrink: 0;
+    margin-top: 6px;
+  }
+  .method-bar__legend-text {
+    flex: 1;
+    min-width: 0;
+  }
+  .method-bar__legend-label {
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: 14px;
+    color: var(--color-resolution);
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-2);
+    flex-wrap: wrap;
+  }
+  .method-bar__legend-label strong {
+    font-weight: 600;
+  }
+  .method-bar__legend-weight {
+    font-weight: 500;
+    color: var(--color-text-muted);
+    font-variant-numeric: tabular-nums;
+  }
+  .method-bar__legend-body {
+    margin: 4px 0 0;
+    font-size: 13px;
+    line-height: 1.5;
+    color: var(--color-text-muted);
+  }
+
+  @media (max-width: 600px) {
+    .method-bar__track { height: 28px; }
+    .method-bar__segment { font-size: 11px; }
+  }
+</style>

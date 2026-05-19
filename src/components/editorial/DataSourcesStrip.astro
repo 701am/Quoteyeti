@@ -1,0 +1,157 @@
+---
+/**
+ * DataSourcesStrip — small trust strip listing data sources.
+ *
+ * Sits between the comparison overview and the deep-dive carrier profiles.
+ * Says "Data sources" + four or five named sources with short descriptions.
+ *
+ * We use typographic treatment rather than logos — logos require trademark
+ * vetting on a per-source basis, and a clean typographic grid reads more
+ * editorial anyway (Bloomberg, FT, The Economist all do this).
+ *
+ * Props:
+ *   sources: array of { name, sub?, source? }
+ *            - name: short name displayed prominently (e.g. "J.D. Power")
+ *            - sub:  one-line descriptor (e.g. "Customer satisfaction")
+ *            - source: optional link to source's homepage
+ *   title:   defaults to "Sources & methodology"
+ */
+interface Source {
+  name: string;
+  sub?: string;
+  source?: string;
+}
+interface Props {
+  sources?: Source[];
+  title?: string;
+  reviewed?: string; // e.g. "Q1 2026"
+}
+
+const DEFAULT_SOURCES: Source[] = [
+  { name: "J.D. Power",  sub: "Consumer satisfaction" },
+  { name: "NAIC",        sub: "Complaint indexes" },
+  { name: "A.M. Best",   sub: "Financial strength" },
+  { name: "State filings", sub: "Rate data by ZIP" },
+];
+
+const { sources = DEFAULT_SOURCES, title = "Sources & methodology", reviewed } = Astro.props;
+---
+
+<aside class="data-sources" aria-label="Data sources">
+  <div class="data-sources__head">
+    <p class="data-sources__title">{title}</p>
+    {reviewed && (
+      <p class="data-sources__reviewed">
+        <span class="data-sources__dot" aria-hidden="true"></span>
+        Reviewed {reviewed}
+      </p>
+    )}
+  </div>
+  <ul class="data-sources__list">
+    {sources.map((s) => (
+      <li class="data-sources__item">
+        <span class="data-sources__name">{s.name}</span>
+        {s.sub && <span class="data-sources__sub">{s.sub}</span>}
+      </li>
+    ))}
+  </ul>
+  <p class="data-sources__footnote">
+    Independent rankings · No paid placement · <a href="/methodology/">Read our full methodology →</a>
+  </p>
+</aside>
+
+<style>
+  .data-sources {
+    background: var(--color-alice);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    padding: var(--space-6);
+    margin: var(--space-8) 0;
+  }
+
+  .data-sources__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+    margin-bottom: var(--space-5);
+    padding-bottom: var(--space-4);
+    border-bottom: 1px solid var(--color-border);
+  }
+  .data-sources__title {
+    font-family: var(--font-display);
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    color: var(--color-text-muted);
+    margin: 0;
+  }
+  .data-sources__reviewed {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-family: var(--font-display);
+    font-size: 12px;
+    color: var(--color-resolution);
+    font-weight: 600;
+    margin: 0;
+  }
+  .data-sources__dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--color-teal);
+  }
+
+  .data-sources__list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: var(--space-4);
+  }
+  .data-sources__item {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    /* Each item gets a left rule for that editorial-list feel */
+    padding-left: var(--space-3);
+    border-left: 2px solid var(--color-resolution);
+  }
+  .data-sources__name {
+    font-family: var(--font-display);
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--color-resolution);
+    line-height: 1.2;
+    letter-spacing: -0.01em;
+  }
+  .data-sources__sub {
+    font-family: var(--font-display);
+    font-size: 12px;
+    color: var(--color-text-muted);
+    line-height: 1.3;
+  }
+
+  .data-sources__footnote {
+    margin: var(--space-5) 0 0;
+    padding-top: var(--space-4);
+    border-top: 1px dashed var(--color-border);
+    font-family: var(--font-display);
+    font-size: 12px;
+    color: var(--color-text-muted);
+    text-align: center;
+    line-height: 1.5;
+  }
+  .data-sources__footnote a {
+    color: var(--color-teal);
+    text-decoration: none;
+    font-weight: 600;
+  }
+  .data-sources__footnote a:hover {
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+</style>

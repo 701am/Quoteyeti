@@ -1,0 +1,113 @@
+---
+/**
+ * PullQuote — large editorial pull-quote.
+ *
+ * One of the signature editorial elements. Source Serif 4 italic,
+ * large (28px+), with a vertical accent bar on the left in the
+ * section accent color (orange for auto, green for home, etc.).
+ *
+ * Used at the start of long-form guides, between major sections in
+ * Best Of pages, and as a "verdict" element on reviews.
+ *
+ * Props:
+ *   cite:  optional attribution line (defaults to no cite)
+ *   tone:  'default' (white bg) | 'tinted' (section-accent-soft bg)
+ *   align: 'left' (default) | 'center' (centered, used for hero placements)
+ */
+interface Props {
+  cite?: string;
+  tone?: "default" | "tinted";
+  align?: "left" | "center";
+}
+
+const { cite, tone = "default", align = "left" } = Astro.props;
+---
+
+<figure class={`pull-quote pull-quote--${tone} pull-quote--${align}`}>
+  <div class="pull-quote__mark" aria-hidden="true">"</div>
+  <blockquote class="pull-quote__body">
+    <slot />
+  </blockquote>
+  {cite && (
+    <figcaption class="pull-quote__cite">— {cite}</figcaption>
+  )}
+</figure>
+
+<style>
+  .pull-quote {
+    position: relative;
+    margin: var(--space-10) 0;
+    padding: var(--space-6) var(--space-6) var(--space-6) var(--space-10);
+    border-left: 4px solid var(--section-accent, var(--color-orange));
+  }
+  .pull-quote--tinted {
+    background: var(--section-accent-soft);
+    border-radius: var(--radius);
+    padding: var(--space-8) var(--space-8) var(--space-8) var(--space-10);
+  }
+
+  .pull-quote--center {
+    text-align: center;
+    border-left: 0;
+    border-top: 4px solid var(--section-accent, var(--color-orange));
+    padding: var(--space-8) var(--space-6);
+    max-width: 720px;
+    margin-inline: auto;
+  }
+
+  /* The big serif "open quote" mark */
+  .pull-quote__mark {
+    position: absolute;
+    top: -8px;
+    left: var(--space-4);
+    font-family: var(--font-serif);
+    font-weight: 700;
+    font-size: 80px;
+    line-height: 1;
+    color: var(--section-accent, var(--color-orange));
+    opacity: 0.35;
+    font-style: italic;
+    pointer-events: none;
+    user-select: none;
+  }
+  .pull-quote--center .pull-quote__mark {
+    left: 50%;
+    transform: translateX(-50%);
+    top: -50px;
+  }
+
+  .pull-quote__body {
+    margin: 0;
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-weight: 400;
+    font-size: clamp(1.25rem, 2.2vw, 1.75rem);
+    line-height: 1.4;
+    letter-spacing: -0.01em;
+    color: var(--color-resolution);
+  }
+
+  .pull-quote__body :global(strong),
+  .pull-quote__body :global(em) {
+    color: var(--color-resolution);
+    font-weight: 700;
+  }
+
+  .pull-quote__cite {
+    margin-top: var(--space-4);
+    font-family: var(--font-display);
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--color-text-muted);
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+  }
+
+  @media (max-width: 600px) {
+    .pull-quote {
+      padding-left: var(--space-6);
+    }
+    .pull-quote__mark { font-size: 56px; top: -4px; }
+    .pull-quote--center .pull-quote__mark { top: -38px; }
+  }
+</style>
