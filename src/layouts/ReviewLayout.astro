@@ -128,7 +128,7 @@ const remainingTakeaways = takeaways.slice(1);
       </div>
 
       <a href={`${vertical.path}quotes/`} class="btn-pill btn-pill--accent review-hero__cta">
-        <span>Get {vertical.short.toLowerCase()} quotes</span>
+        <span>See {vertical.short.toLowerCase()} rates</span>
         <svg width="16" height="14" viewBox="0 0 16 14" fill="none" aria-hidden="true">
           <path d="M9 1l6 6-6 6M1 7h14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
@@ -162,9 +162,9 @@ const remainingTakeaways = takeaways.slice(1);
           variant="sidebar"
           vertical={vertical.key}
           eyebrow="See your rate"
-          heading={`Compare in <em>60s</em>`}
+          heading={`Compare <em>your rate</em>`}
           lede="Drop your ZIP. We'll do the rest."
-          ctaLabel="Get quotes"
+          ctaLabel="See rates"
         />
       </aside>
 
@@ -195,10 +195,10 @@ const remainingTakeaways = takeaways.slice(1);
         <ZipForm
           variant="band"
           vertical={vertical.key}
-          eyebrow="Ready to compare?"
-          heading={`Get your <em>actual rate</em> in 60 seconds.`}
-          lede={`See what ${carrier.name} and other top carriers will charge you in your area.`}
-          ctaLabel="Get quotes"
+          eyebrow="See live rates"
+          heading={`Compare <em>your actual rate</em>, not a marketing average.`}
+          lede={`See what ${carrier.name} and the other carriers we cover will charge in your area.`}
+          ctaLabel="See rates"
         />
 
         <!-- ===== RATINGS (bar chart) ===== -->
@@ -431,7 +431,7 @@ const remainingTakeaways = takeaways.slice(1);
           <h2>The <span class="serif-italic">bottom line</span></h2>
           <div class="prose" set:html={bottomLine} />
           <a href={`${vertical.path}quotes/`} class="btn-pill btn-pill--accent bottom-line__cta">
-            <span>Get {vertical.short.toLowerCase()} quotes</span>
+            <span>See {vertical.short.toLowerCase()} rates</span>
             <svg width="16" height="14" viewBox="0 0 16 14" fill="none" aria-hidden="true">
               <path d="M9 1l6 6-6 6M1 7h14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
@@ -490,10 +490,9 @@ const remainingTakeaways = takeaways.slice(1);
   <ZipForm
     variant="banner"
     vertical={vertical.key}
-    eyebrow="Free · 60 seconds · No spam"
-    heading={`Stop overpaying for <em>${vertical.short.toLowerCase()} insurance</em>.`}
-    lede={`You've read the ${carrier.name} review. Now see what you'd actually pay — and what other carriers will charge.`}
-    ctaLabel={`Get ${vertical.short.toLowerCase()} quotes`}
+    heading={`See what you'd <em>actually pay</em> for ${vertical.short.toLowerCase()} insurance.`}
+    lede={`You've read the ${carrier.name} review. Now compare it against the other carriers we cover — your real rate, not a marketing average.`}
+    ctaLabel={`See ${vertical.short.toLowerCase()} rates`}
   />
 
   <style>

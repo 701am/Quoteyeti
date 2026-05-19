@@ -18,7 +18,7 @@ const {
   eyebrow,
   heading,
   lede,
-  ctaLabel = "Get quotes",
+  ctaLabel = "See rates",
 } = Astro.props;
 
 const v = VERTICALS[vertical];
@@ -79,9 +79,9 @@ const inputId = `zip-${variant}-${vertical}-${Math.random().toString(36).slice(2
   <aside class="zipcta zipcta--band" style={`--zip-accent: ${v.accent};`}>
     <div class="zipcta__band-overlay" aria-hidden="true"></div>
     <div class="zipcta__band-copy">
-      <p class="zipcta__band-eyebrow">{eyebrow ?? "Ready to compare?"}</p>
-      <h3 class="zipcta__band-heading" set:html={heading ?? `Get your <em>actual rate</em> in 60 seconds.`} />
-      <p class="zipcta__band-lede">{lede ?? "Drop your ZIP. We'll pull live rates for your area."}</p>
+      <p class="zipcta__band-eyebrow">{eyebrow ?? "See live rates"}</p>
+      <h3 class="zipcta__band-heading" set:html={heading ?? `Compare <em>your actual rate</em>, not a marketing average.`} />
+      <p class="zipcta__band-lede">{lede ?? "Drop your ZIP. We pull live rates for your area from the carriers we cover."}</p>
     </div>
     <form class="zipcta__band-form" action={formAction} method="get" novalidate>
       <label class="sr-only" for={inputId}>ZIP code</label>
@@ -139,9 +139,9 @@ const inputId = `zip-${variant}-${vertical}-${Math.random().toString(36).slice(2
   <section class="zipcta zipcta--banner" style={`--zip-accent: ${v.accent};`}>
     <div class="zipcta__banner-topo" aria-hidden="true"></div>
     <div class="zipcta__banner-inner">
-      <p class="zipcta__banner-tag">{eyebrow ?? "Free · 60 seconds · No spam"}</p>
-      <h3 class="zipcta__banner-heading" set:html={heading ?? `Stop overpaying for <em>${v.short.toLowerCase()} insurance</em>.`} />
-      <p class="zipcta__banner-lede">{lede ?? `Compare rates from 40+ carriers in 60 seconds. The cheapest option may save you hundreds.`}</p>
+      <p class="zipcta__banner-tag">{eyebrow ?? "Carriers pay us only when you switch"}</p>
+      <h3 class="zipcta__banner-heading" set:html={heading ?? `See what you'd <em>actually pay</em> for ${v.short.toLowerCase()} insurance.`} />
+      <p class="zipcta__banner-lede">{lede ?? `Compare your real rate against the carriers we've reviewed. No phone calls. No data routing without your okay.`}</p>
       <form class="zipcta__banner-form" action={formAction} method="get" novalidate>
         <label class="sr-only" for={inputId}>ZIP code</label>
         <input
@@ -181,7 +181,7 @@ const inputId = `zip-${variant}-${vertical}-${Math.random().toString(36).slice(2
       autocomplete="postal-code"
     />
     <button type="submit">
-      <span>{ctaLabel === "Get quotes" ? `Get ${v.short.toLowerCase()} quotes` : ctaLabel}</span>
+      <span>{ctaLabel === "See rates" ? `See ${v.short.toLowerCase()} rates` : ctaLabel}</span>
       <svg width="11" height="9" viewBox="0 0 14 12" fill="none" aria-hidden="true">
         <path d="M8 1l5 5-5 5M1 6h12" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
       </svg>
@@ -191,7 +191,7 @@ const inputId = `zip-${variant}-${vertical}-${Math.random().toString(36).slice(2
 
 {variant === "picker" && (
   <div class="zipcta zipcta--picker" data-zip-picker>
-    <p class="zipcta__picker-eyebrow">{eyebrow ?? "Compare in seconds"}</p>
+    <p class="zipcta__picker-eyebrow">{eyebrow ?? "Start comparing"}</p>
     <h4 class="zipcta__picker-heading">{heading ?? "What are you insuring?"}</h4>
     <div class="zipcta__picker-grid" role="radiogroup" aria-label="Choose insurance type">
       {VERTICAL_LIST.map((vert) => (
@@ -229,7 +229,7 @@ const inputId = `zip-${variant}-${vertical}-${Math.random().toString(36).slice(2
         />
       </div>
       <button type="submit">
-        <span>{ctaLabel === "Get quotes" ? "Continue" : ctaLabel}</span>
+        <span>{ctaLabel === "See rates" ? "Continue" : ctaLabel}</span>
         <svg width="12" height="10" viewBox="0 0 14 12" fill="none" aria-hidden="true">
           <path d="M8 1l5 5-5 5M1 6h12" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>

@@ -3,19 +3,19 @@ import BaseLayout from "~/layouts/BaseLayout.astro";
 ---
 
 <BaseLayout
-  title="The YetiLetter"
-  description="Insurance intel, weekly. Hot takes on rates, carriers, and money — straight to your inbox."
+  title="The Dispatch — QuoteYeti's weekly newsletter"
+  description="One editorial brief every Tuesday. Rate movements, carrier news, and analysis worth your time."
   breadcrumbs={[
     { name: "Home", url: "/" },
-    { name: "Newsletter", url: "/newsletter/" },
+    { name: "The Dispatch", url: "/newsletter/" },
   ]}
 >
   <section class="newsletter-hero">
     <div class="container newsletter-hero__inner">
-      <p class="eyebrow">The YetiLetter</p>
-      <h1>Insurance intel, <span class="serif-italic">weekly</span></h1>
+      <p class="eyebrow">The Dispatch</p>
+      <h1>The week in <span class="serif-italic">insurance</span></h1>
       <p class="newsletter-hero__lede">
-        Hot takes on rates, carriers, and money — straight to your inbox. No spam. No paid placement. Unsubscribe anytime.
+        One editorial brief every Tuesday. Rate movements, carrier news, and analysis worth your time. No paid placement. Unsubscribe whenever.
       </p>
 
       <form class="signup-form" action="/api/newsletter-subscribe" method="post">

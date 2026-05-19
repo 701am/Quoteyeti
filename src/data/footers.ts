@@ -82,9 +82,9 @@ export const DEFAULT_FOOTER: SectionFooter = {
 export const SECTION_FOOTERS: Record<VerticalKey, SectionFooter> = {
   auto: {
     heroCTA: {
-      eyebrow: "Still paying too much?",
-      heading: "Don't leave before you see how much we can help you save.",
-      ctaLabel: "Let the savings begin!",
+      eyebrow: "See your real rate",
+      heading: "Compare your auto rate against the carriers we cover.",
+      ctaLabel: "See auto rates",
       ctaHref: "/auto/quotes/",
       illustration: "/assets/images/thumbs-up-left-wink.svg",
     },
@@ -136,7 +136,7 @@ export const SECTION_FOOTERS: Record<VerticalKey, SectionFooter> = {
     heroCTA: {
       eyebrow: "Protect your biggest investment",
       heading: "See what your home really costs to insure.",
-      ctaLabel: "Get home quotes",
+      ctaLabel: "See home rates",
       ctaHref: "/home-insurance/quotes/",
       illustration: "/assets/images/yeti-hero.svg",
     },
@@ -174,7 +174,7 @@ export const SECTION_FOOTERS: Record<VerticalKey, SectionFooter> = {
     heroCTA: {
       eyebrow: "For the people who count on you",
       heading: "Term, whole, or universal — find the right fit.",
-      ctaLabel: "Get life quotes",
+      ctaLabel: "See life rates",
       ctaHref: "/life-insurance/quotes/",
       illustration: "/assets/images/yeti-hero.svg",
     },
@@ -212,7 +212,7 @@ export const SECTION_FOOTERS: Record<VerticalKey, SectionFooter> = {
     heroCTA: {
       eyebrow: "Built for the work you do",
       heading: "Get coverage that scales with your business.",
-      ctaLabel: "Get business quotes",
+      ctaLabel: "See business rates",
       ctaHref: "/business-insurance/quotes/",
       illustration: "/assets/images/yeti-hero.svg",
     },
@@ -284,7 +284,7 @@ export const SECTION_FOOTERS: Record<VerticalKey, SectionFooter> = {
     heroCTA: {
       eyebrow: "$15/month coverage you'll actually appreciate",
       heading: "Cover your stuff for less than a streaming subscription.",
-      ctaLabel: "Get renters quotes",
+      ctaLabel: "See renters rates",
       ctaHref: "/renters-insurance/quotes/",
       illustration: "/assets/images/yeti-hero.svg",
     },
@@ -318,7 +318,7 @@ export const SECTION_FOOTERS: Record<VerticalKey, SectionFooter> = {
     heroCTA: {
       eyebrow: "Because they're family too",
       heading: "Compare pet plans without the upsell.",
-      ctaLabel: "Get pet quotes",
+      ctaLabel: "See pet rates",
       ctaHref: "/pet-insurance/quotes/",
       illustration: "/assets/images/yeti-hero.svg",
     },
@@ -352,7 +352,7 @@ export const SECTION_FOOTERS: Record<VerticalKey, SectionFooter> = {
     heroCTA: {
       eyebrow: "Cover the unexpected",
       heading: "Don't let one canceled flight wreck the trip.",
-      ctaLabel: "Get travel quotes",
+      ctaLabel: "See travel rates",
       ctaHref: "/travel-insurance/quotes/",
       illustration: "/assets/images/yeti-hero.svg",
     },

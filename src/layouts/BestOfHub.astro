@@ -127,8 +127,8 @@ function financialLabel(rating: string | undefined): string {
   <div class="container">
     <div class="bridge-card">
       <div class="bridge-card__head">
-        <p class="bridge-card__eyebrow">Find the cheapest rates</p>
-        <p class="bridge-card__sub">Compare quotes from the top carriers below in 60 seconds.</p>
+        <p class="bridge-card__eyebrow">See live rates</p>
+        <p class="bridge-card__sub">Compare your real rate against the carriers ranked below.</p>
       </div>
 
       <form class="bridge-card__form" action={`${vertical.path}quotes/`} method="get" novalidate>
@@ -448,10 +448,9 @@ function financialLabel(rating: string | undefined): string {
   <ZipForm
     variant="banner"
     vertical={vertical.key}
-    eyebrow="Free · 60 seconds · No spam"
-    heading={`Ready to compare <em>${vertical.short.toLowerCase()} quotes?</em>`}
+    heading={`Ready to compare <em>${vertical.short.toLowerCase()} rates?</em>`}
     lede={`You've seen the rankings. Now see which of these carriers actually offers the best rate for your specific area and situation.`}
-    ctaLabel={`Get ${vertical.short.toLowerCase()} quotes`}
+    ctaLabel={`See ${vertical.short.toLowerCase()} rates`}
   />
 
   <style>
@@ -1324,8 +1323,8 @@ function financialLabel(rating: string | undefined): string {
   <aside class="bestbar" id="bestbar" data-vertical={vertical.key} hidden>
     <div class="bestbar__inner container">
       <div class="bestbar__copy">
-        <span class="bestbar__eyebrow">Compare in 60 seconds</span>
-        <span class="bestbar__heading">See your {vertical.short.toLowerCase()} insurance rate from top carriers</span>
+        <span class="bestbar__eyebrow">Live rates in your area</span>
+        <span class="bestbar__heading">See {vertical.short.toLowerCase()} rates from the carriers we cover</span>
       </div>
       <form class="bestbar__form" action={`${vertical.path}quotes/`} method="get" novalidate>
         <label class="sr-only" for="bestbar-zip">ZIP code</label>
@@ -1341,7 +1340,7 @@ function financialLabel(rating: string | undefined): string {
           autocomplete="postal-code"
         />
         <button type="submit" class="bestbar__cta">
-          <span>Get quotes</span>
+          <span>See rates</span>
           <svg width="12" height="10" viewBox="0 0 14 12" fill="none" aria-hidden="true">
             <path d="M8 1l5 5-5 5M1 6h12" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
