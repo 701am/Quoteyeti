@@ -1,7 +1,7 @@
 ---
 import BaseLayout from "~/layouts/BaseLayout.astro";
 import ContentByline from "~/components/ContentByline.astro";
-import ZipForm from "~/components/ZipForm.astro";
+import CompareRail from "~/components/CompareRail.astro";
 import { getCollection, render } from "astro:content";
 import { VERTICALS } from "~/data/verticals";
 
@@ -54,6 +54,7 @@ const effectivePublished = d.publishDate ?? effectiveUpdated;
           publishDate={effectivePublished}
           updatedDate={effectiveUpdated}
           showData={true}
+          compareVertical={v.key}
         />
         <h1>{d.title}</h1>
         {d.description && <p class="entry-hero__lede">{d.description}</p>}
@@ -64,20 +65,19 @@ const effectivePublished = d.publishDate ?? effectiveUpdated;
             {d.minLiabilityRequired && <li><strong>Min liability:</strong> {d.minLiabilityRequired}</li>}
           </ul>
         )}
-
-        <div class="entry-hero__cta">
-          <ZipForm
-            variant="band"
-            vertical={v.key}
-            eyebrow={d.state ? `${d.state} rates` : "Compare in 60s"}
-            heading={`See your real ${v.short.toLowerCase()} insurance rate${d.state ? ` in ${d.state}` : ""}`}
-            lede="State-specific quotes from top carriers. No phone calls."
-          />
-        </div>
       </div>
     </header>
 
-    <div class="container-narrow entry-body"><Content /></div>
+    <div class="container entry-body-wrap">
+      <div class="entry-body"><Content /></div>
+      <div class="entry-rail">
+        <CompareRail
+          vertical={v.key}
+          eyebrow={d.state ? `${d.state} rates` : "In your area"}
+          heading={`See actual ${v.short.toLowerCase()} insurance rates${d.state ? ` in ${d.state}` : ""}.`}
+        />
+      </div>
+    </div>
   </article>
 
   <style>
@@ -123,9 +123,28 @@ const effectivePublished = d.publishDate ?? effectiveUpdated;
       border: 1px solid var(--color-border);
     }
     .entry-hero__facts strong { color: var(--section-accent); margin-right: var(--space-2); }
-    .entry-hero__cta { margin-top: var(--space-6); max-width: 720px; }
+    .entry-body-wrap {
+      padding-block: var(--space-10) var(--space-20);
+      display: grid;
+      grid-template-columns: minmax(0, 720px) 280px;
+      gap: var(--space-12);
+      align-items: start;
+      justify-content: center;
+    }
+    .entry-rail {
+      position: sticky;
+      top: calc(var(--header-height, 72px) + var(--space-4));
+    }
+    @media (max-width: 1100px) {
+      .entry-body-wrap { grid-template-columns: minmax(0, 720px) 260px; gap: var(--space-8); }
+    }
+    @media (max-width: 960px) {
+      .entry-body-wrap { grid-template-columns: 1fr; gap: var(--space-6); justify-content: stretch; }
+      .entry-body { max-width: 780px; margin-inline: auto; }
+      .entry-rail { position: static; max-width: 780px; margin-inline: auto; }
+      .entry-rail :global(.compare-rail) { max-width: none; }
+    }
     .entry-body {
-      padding-block: var(--space-12) var(--space-20);
       font-size: 1.0625rem; line-height: 1.7;
     }
     .entry-body :global(h2) {

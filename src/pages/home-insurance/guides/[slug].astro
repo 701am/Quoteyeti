@@ -1,7 +1,7 @@
 ---
 import BaseLayout from "~/layouts/BaseLayout.astro";
 import ContentByline from "~/components/ContentByline.astro";
-import ZipForm from "~/components/ZipForm.astro";
+import CompareRail from "~/components/CompareRail.astro";
 import { getCollection, render } from "astro:content";
 import { VERTICALS } from "~/data/verticals";
 
@@ -45,22 +45,28 @@ const v = VERTICALS.home;
           <img src={v.icon} alt="" width="18" height="18" />
           <span>{v.label} Guide</span>
         </p>
+        <!-- Variant E (Compare rates pill) lives inside ContentByline -->
         <ContentByline
           variant="inline"
           author={d.author}
           publishDate={d.publishDate}
           updatedDate={d.updatedDate}
+          compareVertical={v.key}
         />
         <h1>{d.title}</h1>
         {d.description && <p class="guide-hero__lede">{d.description}</p>}
-
-        <!-- Hero ZipForm CTA — fast conversion path -->
-        <div class="guide-hero__cta">
-          <ZipForm variant="band" vertical={v.key} eyebrow="Compare rates" heading={`Get personalized ${v.short.toLowerCase()} insurance quotes`} lede="Drop your ZIP. We'll show you what real coverage costs in your area." />
-        </div>
       </div>
     </header>
-    <div class="container-narrow guide-body"><Content /></div>
+
+    <!-- Two-column body wrapper: prose + Variant B margin rail.
+         Uses the wider .container so the rail fits beside the prose
+         without squeezing. -->
+    <div class="container guide-body-wrap">
+      <div class="guide-body"><Content /></div>
+      <div class="guide-rail">
+        <CompareRail vertical={v.key} />
+      </div>
+    </div>
   </article>
 
   <style>
@@ -98,14 +104,31 @@ const v = VERTICALS.home;
       font-size: 1.1875rem;
       color: var(--color-text-strong);
       line-height: 1.55;
-      margin: 0 0 var(--space-5);
+      margin: 0;
     }
-    .guide-hero__cta {
-      margin-top: var(--space-6);
-      max-width: 640px;
+    /* Two-column body: prose (max 720px to stay readable) + sticky rail. */
+    .guide-body-wrap {
+      padding-block: var(--space-10) var(--space-20);
+      display: grid;
+      grid-template-columns: minmax(0, 720px) 280px;
+      gap: var(--space-12);
+      align-items: start;
+      justify-content: center;
+    }
+    .guide-rail {
+      position: sticky;
+      top: calc(var(--header-height, 72px) + var(--space-4));
+    }
+    @media (max-width: 1100px) {
+      .guide-body-wrap { grid-template-columns: minmax(0, 720px) 260px; gap: var(--space-8); }
+    }
+    @media (max-width: 960px) {
+      .guide-body-wrap { grid-template-columns: 1fr; gap: var(--space-6); justify-content: stretch; }
+      .guide-body { max-width: 780px; margin-inline: auto; }
+      .guide-rail { position: static; max-width: 780px; margin-inline: auto; }
+      .guide-rail :global(.compare-rail) { max-width: none; }
     }
     .guide-body {
-      padding-block: var(--space-12) var(--space-20);
       font-size: 1.0625rem;
       line-height: 1.7;
     }

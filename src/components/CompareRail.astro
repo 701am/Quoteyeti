@@ -1,0 +1,134 @@
+---
+/**
+ * CompareRail — Variant B from the mockup.
+ *
+ * Renders inside the article body as a small framed aside that floats
+ * inside the prose. Designed for content/guide pages where the user is
+ * deep in long-form copy and the CTA needs to be available without
+ * crashing the editorial tone.
+ *
+ * Layout: we render it as a self-contained card. Templates can wrap it
+ * in their own positioning if they want it to float right of the body.
+ * Default placement is "after the lede, before the article body" — a
+ * compact, restrained framed widget with a single accent rule on the left.
+ */
+import { VERTICALS, type VerticalKey } from "~/data/verticals";
+
+interface Props {
+  vertical: VerticalKey;
+  /** Optional override for the eyebrow line. Defaults to "In your area". */
+  eyebrow?: string;
+  /** Optional override headline. Two short lines max. */
+  heading?: string;
+  /** Optional override sub-text. Single line. */
+  sub?: string;
+  /** Optional CTA label override. */
+  cta?: string;
+}
+
+const { vertical, eyebrow, heading, sub, cta } = Astro.props;
+const v = VERTICALS[vertical];
+const formAction = `${v.path}quotes/`;
+const inputId = `cr-${vertical}-${Math.random().toString(36).slice(2, 8)}`;
+---
+
+<aside
+  class="compare-rail"
+  style={`--cr-accent: ${v.accent};`}
+  aria-label={`Compare ${v.short.toLowerCase()} rates in your area`}
+>
+  <div class="compare-rail__eyebrow">
+    {eyebrow ?? `In your area`}
+  </div>
+  <p class="compare-rail__heading">
+    {heading ?? `See actual ${v.short.toLowerCase()} rates from the carriers covered in this guide.`}
+  </p>
+  <form class="compare-rail__form" action={formAction} method="get" novalidate>
+    <label class="sr-only" for={inputId}>ZIP code</label>
+    <input
+      id={inputId}
+      name="zip"
+      type="text"
+      inputmode="numeric"
+      pattern="[0-9]{5}"
+      maxlength="5"
+      placeholder="ZIP code"
+      required
+      autocomplete="postal-code"
+    />
+    <button type="submit">
+      {cta ?? "Compare quotes"}
+    </button>
+  </form>
+  <p class="compare-rail__fine">{sub ?? "Free · No phone calls · 60 seconds"}</p>
+</aside>
+
+<style>
+  .compare-rail {
+    align-self: start;
+    background: var(--color-white);
+    border-left: 3px solid var(--cr-accent);
+    padding: var(--space-4) var(--space-5);
+    font-family: var(--font-display);
+    /* Sized to fit a margin position; templates can override with width/max-width */
+    max-width: 280px;
+  }
+  .compare-rail__eyebrow {
+    font-size: 0.6875rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    color: var(--cr-accent);
+    margin-bottom: 6px;
+  }
+  .compare-rail__heading {
+    font-size: 0.9375rem;
+    font-weight: 600;
+    line-height: 1.35;
+    color: var(--color-resolution);
+    margin: 0 0 var(--space-3);
+    letter-spacing: -0.005em;
+  }
+  .compare-rail__form {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .compare-rail__form input {
+    width: 100%;
+    padding: 9px 12px;
+    border: 1px solid var(--color-border);
+    border-radius: 6px;
+    font: inherit;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--color-resolution);
+    background: var(--color-white);
+    box-sizing: border-box;
+    transition: border-color 0.15s, box-shadow 0.15s;
+  }
+  .compare-rail__form input:focus {
+    outline: none;
+    border-color: var(--cr-accent);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--cr-accent) 25%, transparent);
+  }
+  .compare-rail__form button {
+    padding: 9px 14px;
+    background: var(--cr-accent);
+    color: var(--color-white);
+    border: 0;
+    border-radius: 6px;
+    font: inherit;
+    font-size: 0.8125rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: opacity 0.15s, transform 0.15s;
+  }
+  .compare-rail__form button:hover { opacity: 0.92; transform: translateY(-1px); }
+  .compare-rail__fine {
+    font-size: 0.6875rem;
+    line-height: 1.5;
+    color: var(--color-text-muted);
+    margin: 8px 0 0;
+  }
+</style>

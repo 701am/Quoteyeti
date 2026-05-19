@@ -20,6 +20,7 @@
  */
 
 import { DEFAULT_BYLINE, resolveAuthor, isDataHeavyPage, type Author } from "~/data/authors";
+import { VERTICALS, type VerticalKey } from "~/data/verticals";
 
 interface Props {
   /** Author name or slug. Falls back to default writer (Rai Antonio). */
@@ -43,6 +44,10 @@ interface Props {
   variant?: "card" | "compact" | "inline";
   /** Back-compat alias for variant="compact" */
   compact?: boolean;
+  /** When set on the inline variant, renders a "Compare rates" pill that opens
+   *  a small ZIP popover. Pass the vertical key to route to its quotes flow.
+   *  Set to false to suppress. */
+  compareVertical?: VerticalKey | false;
 }
 
 const {
@@ -54,10 +59,22 @@ const {
   readTime,
   variant,
   compact = false,
+  compareVertical,
 } = Astro.props;
 
 // Resolve final variant (back-compat: compact prop → variant="compact")
 const v: "card" | "compact" | "inline" = variant ?? (compact ? "compact" : "card");
+
+// Default the compare-rates pill ON when rendering the inline variant
+// (template can pass compareVertical={false} to suppress, or pass an explicit key)
+const compareV: VerticalKey | null =
+  compareVertical === false
+    ? null
+    : (compareVertical ?? null);
+const compareVertObj = compareV ? VERTICALS[compareV] : null;
+const compareAction = compareVertObj ? `${compareVertObj.path}quotes/` : null;
+// Stable per-render id so the popover-trigger pairs uniquely
+const compareId = `cmp-${Math.random().toString(36).slice(2, 9)}`;
 
 const writer: Author = resolveAuthor(author);
 const reviewerAuthor: Author = resolveAuthor(reviewer, DEFAULT_BYLINE.reviewer);
@@ -138,6 +155,47 @@ const showUpdated = updatedFmt && publishedFmt !== updatedFmt;
             </a>
           </span>
         </>
+      )}
+
+      {compareAction && compareVertObj && (
+        <details class="byline-inline__compare" id={compareId}>
+          <summary aria-label={`Compare ${compareVertObj.short.toLowerCase()} rates in your area`}>
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <circle cx="12" cy="10" r="3" stroke="currentColor" stroke-width="2"/>
+            </svg>
+            <span>Compare rates in your area</span>
+          </summary>
+          <div class="byline-inline__compare-body">
+            <p class="byline-inline__compare-eyebrow">
+              <span style={`color: ${compareVertObj.accent};`}>● </span>
+              {compareVertObj.label}
+            </p>
+            <p class="byline-inline__compare-text">
+              See actual {compareVertObj.short.toLowerCase()} rates from the carriers covered here. Free, 60 seconds, no phone calls.
+            </p>
+            <form action={compareAction} method="get" class="byline-inline__compare-form" novalidate>
+              <label class="sr-only" for={`${compareId}-zip`}>ZIP code</label>
+              <input
+                id={`${compareId}-zip`}
+                name="zip"
+                type="text"
+                inputmode="numeric"
+                pattern="[0-9]{5}"
+                maxlength="5"
+                placeholder="ZIP code"
+                required
+                autocomplete="postal-code"
+              />
+              <button type="submit" style={`background: ${compareVertObj.accent};`}>
+                Get rates
+                <svg width="10" height="10" viewBox="0 0 14 12" fill="none" aria-hidden="true">
+                  <path d="M8 1l5 5-5 5M1 6h12" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </button>
+            </form>
+          </div>
+        </details>
       )}
 
       <details class="byline-inline__trust">
@@ -580,6 +638,102 @@ const showUpdated = updatedFmt && publishedFmt !== updatedFmt;
     text-decoration: underline; text-underline-offset: 3px;
   }
 
+  /* ---- Compare-rates pill — same shape as Trust, slightly louder ---- */
+  .byline-inline__compare {
+    margin-left: auto;
+    position: relative;
+  }
+  .byline-inline__compare + .byline-inline__trust {
+    margin-left: 0;
+  }
+  .byline-inline__compare summary {
+    display: inline-flex; align-items: center; gap: 6px;
+    cursor: pointer;
+    list-style: none;
+    color: var(--color-resolution);
+    font-weight: 600;
+    padding: 4px 12px;
+    border-radius: 100px;
+    background: color-mix(in srgb, var(--color-malibu) 14%, transparent);
+    border: 1px solid color-mix(in srgb, var(--color-malibu) 30%, transparent);
+    transition: background 0.15s, border-color 0.15s;
+  }
+  .byline-inline__compare summary::-webkit-details-marker { display: none; }
+  .byline-inline__compare summary:hover {
+    background: color-mix(in srgb, var(--color-malibu) 22%, transparent);
+    border-color: var(--color-malibu);
+  }
+  .byline-inline__compare[open] summary {
+    background: var(--color-malibu);
+    color: var(--color-white);
+    border-color: var(--color-malibu);
+  }
+  .byline-inline__compare-body {
+    position: absolute;
+    top: calc(100% + 6px);
+    right: 0;
+    width: 340px;
+    max-width: calc(100vw - 32px);
+    background: var(--color-white);
+    border: 1px solid var(--color-border);
+    border-radius: 10px;
+    box-shadow: 0 12px 28px rgba(0,0,0,0.12);
+    padding: var(--space-4);
+    z-index: 12;
+    font-weight: normal;
+  }
+  .byline-inline__compare-eyebrow {
+    font-family: var(--font-display);
+    font-size: 0.6875rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--color-text-muted);
+    margin: 0 0 4px;
+  }
+  .byline-inline__compare-text {
+    font-size: 0.8125rem;
+    line-height: 1.5;
+    color: var(--color-text);
+    margin: 0 0 12px;
+  }
+  .byline-inline__compare-form {
+    display: flex;
+    gap: 6px;
+  }
+  .byline-inline__compare-form input {
+    flex: 1;
+    padding: 8px 12px;
+    border: 1.5px solid var(--color-border);
+    border-radius: 6px;
+    font: inherit;
+    font-size: 0.875rem;
+    font-family: var(--font-display);
+    font-weight: 600;
+    color: var(--color-resolution);
+    transition: border-color 0.15s, box-shadow 0.15s;
+    background: var(--color-white);
+  }
+  .byline-inline__compare-form input:focus {
+    outline: none;
+    border-color: var(--color-malibu);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-malibu) 25%, transparent);
+  }
+  .byline-inline__compare-form button {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 8px 14px;
+    color: var(--color-white);
+    border: 0;
+    border-radius: 6px;
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 0.8125rem;
+    cursor: pointer;
+    transition: opacity 0.15s, transform 0.15s;
+    white-space: nowrap;
+  }
+  .byline-inline__compare-form button:hover { opacity: 0.92; transform: translateY(-1px); }
+
   @media (max-width: 700px) {
     .byline-inline__trust {
       margin-left: 0;
@@ -588,5 +742,7 @@ const showUpdated = updatedFmt && publishedFmt !== updatedFmt;
     .byline-inline__trust-body {
       left: 0; right: auto; width: 100%;
     }
+    .byline-inline__compare { margin-left: 0; width: 100%; }
+    .byline-inline__compare-body { left: 0; right: auto; width: 100%; }
   }
 </style>

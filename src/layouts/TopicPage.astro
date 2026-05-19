@@ -1,6 +1,7 @@
 ---
 import BaseLayout from "~/layouts/BaseLayout.astro";
 import ContentByline from "~/components/ContentByline.astro";
+import CompareRail from "~/components/CompareRail.astro";
 import ZipForm from "~/components/ZipForm.astro";
 import type { Vertical } from "~/data/verticals";
 
@@ -102,30 +103,22 @@ const effectivePublished = publishDate ?? effectiveUpdated;
           reviewer={reviewer}
           publishDate={effectivePublished}
           updatedDate={effectiveUpdated}
+          compareVertical={vertical.key}
         />
         <h1 class="topic__h1">{headline}</h1>
         <p class="topic__lede">{lede}</p>
-
-        <div class="topic__hero-cta">
-          <ZipForm
-            variant="band"
-            vertical={vertical.key}
-            eyebrow="Compare in 60s"
-            heading={`See your ${vertical.short.toLowerCase()} insurance rate`}
-            lede="Drop your ZIP. We'll show you what real coverage costs from top carriers."
-          />
-        </div>
       </div>
     </header>
 
     <div class="topic__body">
-      <div class="container container--narrow">
-        {sections.map((s) => (
-          <section class="topic__section">
-            {s.heading && <h2>{s.heading}</h2>}
-            <div set:html={s.body} />
-          </section>
-        ))}
+      <div class="container topic__body-wrap">
+        <div class="topic__body-prose">
+          {sections.map((s) => (
+            <section class="topic__section">
+              {s.heading && <h2>{s.heading}</h2>}
+              <div set:html={s.body} />
+            </section>
+          ))}
 
         {showCTA && (
           <div class="topic__cta">
@@ -163,6 +156,10 @@ const effectivePublished = publishDate ?? effectiveUpdated;
             </ul>
           </aside>
         )}
+        </div>
+        <div class="topic__body-rail">
+          <CompareRail vertical={vertical.key} />
+        </div>
       </div>
     </div>
   </article>
@@ -207,10 +204,31 @@ const effectivePublished = publishDate ?? effectiveUpdated;
       max-width: 640px;
       margin: 0;
     }
-    .topic__hero-cta { margin-top: var(--space-6); max-width: 720px; }
+    .topic__hero-cta { display: none; } /* deprecated — was the dark band */
     .topic__body {
       padding-block: var(--space-12) var(--space-20);
       background: var(--color-white);
+    }
+    .topic__body-wrap {
+      display: grid;
+      grid-template-columns: minmax(0, 720px) 280px;
+      gap: var(--space-12);
+      align-items: start;
+      justify-content: center;
+    }
+    .topic__body-prose { min-width: 0; }
+    .topic__body-rail {
+      position: sticky;
+      top: calc(var(--header-height, 72px) + var(--space-4));
+    }
+    @media (max-width: 1100px) {
+      .topic__body-wrap { grid-template-columns: minmax(0, 720px) 260px; gap: var(--space-8); }
+    }
+    @media (max-width: 960px) {
+      .topic__body-wrap { grid-template-columns: 1fr; gap: var(--space-6); justify-content: stretch; }
+      .topic__body-prose { max-width: 780px; margin-inline: auto; }
+      .topic__body-rail { position: static; max-width: 780px; margin-inline: auto; }
+      .topic__body-rail :global(.compare-rail) { max-width: none; }
     }
     .container--narrow { max-width: 760px; margin: 0 auto; }
     .topic__section {

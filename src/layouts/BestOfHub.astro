@@ -65,19 +65,10 @@ const topCarrier = carriers[0];
         variant="inline"
         publishDate="2026-01-15T00:00:00.000Z"
         updatedDate={new Date()}
+        compareVertical={vertical.key}
       />
       <h1>{hero.headline.split(" of ")[0]}<span class="serif-italic"> of {hero.headline.split(" of ")[1] ?? "2026"}</span></h1>
       <p class="best-hero__lede">{hero.lede}</p>
-
-      <div class="best-hero__cta">
-        <ZipForm
-          variant="band"
-          vertical={vertical.key}
-          eyebrow={`Top-rated ${vertical.short.toLowerCase()} carriers`}
-          heading="Get a quote from the carriers ranked here"
-          lede="Drop your ZIP. We'll show you what the best-rated carriers charge for your profile."
-        />
-      </div>
     </div>
   </section>
 
