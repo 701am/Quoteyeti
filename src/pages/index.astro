@@ -403,22 +403,29 @@ const faqs = [
         <p class="hfinal__eyebrow">Ready when you are</p>
         <h2 class="hfinal__h2">Start where the <span class="serif-italic">coverage</span> lives.</h2>
         <p class="hfinal__lede">
-          Eight verticals. Independent research. No data routing. No relentless sales calls. Find your category and we'll take it from there.
+          Eight verticals. Independent research. No data routing. No relentless sales calls. Pick a category and we'll take it from there.
         </p>
-        <div class="hfinal__actions">
-          <a href="#explore" class="btn-pill btn-pill--navy">
-            Choose a coverage category
-            <svg width="14" height="12" viewBox="0 0 14 12" fill="none" aria-hidden="true">
-              <path d="M8 1l5 5-5 5M1 6h12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-          </a>
+        <ul class="hfinal__verticals">
+          {VERTICAL_LIST.map((v) => (
+            <li>
+              <a href={v.path} class="hfinal__vertical" style={`--v-accent: ${v.accent};`}>
+                <span class="hfinal__vertical-icon" aria-hidden="true">
+                  <img src={v.icon} alt="" width="20" height="20" loading="lazy" />
+                </span>
+                <span class="hfinal__vertical-label">{v.short}</span>
+                <span class="hfinal__vertical-arrow" aria-hidden="true">→</span>
+              </a>
+            </li>
+          ))}
+        </ul>
+        <p class="hfinal__tertiary-wrap">
           <a href="/sitemap/" class="hfinal__tertiary">
             Or browse every page on QuoteYeti
             <svg width="11" height="9" viewBox="0 0 14 12" fill="none" aria-hidden="true">
               <path d="M8 1l5 5-5 5M1 6h12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
           </a>
-        </div>
+        </p>
       </div>
     </div>
   </section>
@@ -1052,9 +1059,85 @@ const faqs = [
       font-size: 1.0625rem; color: var(--color-text-strong);
       line-height: 1.6; margin: 0 0 var(--space-8);
     }
-    .hfinal__actions {
-      display: flex; flex-direction: column; align-items: center;
-      gap: var(--space-4);
+    /* Vertical-selector grid — 8 verticals as the final action */
+    .hfinal__verticals {
+      list-style: none;
+      margin: 0 0 var(--space-7);
+      padding: 0;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: var(--space-3);
+      width: 100%;
+      max-width: 720px;
+    }
+    .hfinal__vertical {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      padding: var(--space-4) var(--space-5);
+      background: var(--color-white);
+      border: 1.5px solid var(--color-border);
+      border-radius: var(--radius);
+      text-decoration: none;
+      color: var(--color-resolution);
+      font-family: var(--font-display);
+      transition: border-color var(--transition), transform var(--transition), box-shadow var(--transition);
+      position: relative;
+      overflow: hidden;
+    }
+    .hfinal__vertical::before {
+      content: "";
+      position: absolute;
+      top: 0; left: 0;
+      width: 3px; height: 100%;
+      background: var(--v-accent);
+      opacity: 0;
+      transition: opacity var(--transition);
+    }
+    .hfinal__vertical:hover {
+      border-color: var(--v-accent);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 16px -4px rgba(30, 42, 74, 0.1);
+    }
+    .hfinal__vertical:hover::before { opacity: 1; }
+    .hfinal__vertical-icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      width: 28px; height: 28px;
+    }
+    .hfinal__vertical-icon img { width: 20px; height: 20px; display: block; }
+    .hfinal__vertical-label {
+      flex: 1;
+      font-size: 0.9375rem;
+      font-weight: 600;
+      letter-spacing: -0.005em;
+    }
+    .hfinal__vertical-arrow {
+      flex-shrink: 0;
+      font-family: var(--font-display);
+      font-size: 14px;
+      color: var(--color-text-muted);
+      opacity: 0;
+      transform: translateX(-4px);
+      transition: opacity var(--transition), transform var(--transition), color var(--transition);
+    }
+    .hfinal__vertical:hover .hfinal__vertical-arrow {
+      opacity: 1;
+      transform: translateX(0);
+      color: var(--v-accent);
+    }
+    @media (max-width: 780px) {
+      .hfinal__verticals { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 480px) {
+      .hfinal__verticals { grid-template-columns: 1fr; }
+    }
+
+    .hfinal__tertiary-wrap {
+      margin: 0;
+      text-align: center;
     }
     .hfinal__tertiary {
       display: inline-flex; align-items: center; gap: 6px;

@@ -336,6 +336,54 @@ const remainingTakeaways = takeaways.slice(1);
             </div>
           )}
 
+          {/* Cost comparison mini-chart — visualizes the +/- vs national avg.
+              Derived purely from avgMonthly and differenceFromAvg fields, no invented data. */}
+          {(() => {
+            if (!cost.avgMonthly || !cost.differenceFromAvg) return null;
+            const monthlyNum = parseFloat(cost.avgMonthly.replace(/[^0-9.]/g, ""));
+            const deltaMatch = cost.differenceFromAvg.match(/-?\d+(\.\d+)?/);
+            if (!monthlyNum || !deltaMatch) return null;
+            const deltaPct = parseFloat(deltaMatch[0]);
+            // If carrier is +12% above avg, then avg = carrier / 1.12
+            // If carrier is -8% below avg, then avg = carrier / 0.92
+            const avgNum = monthlyNum / (1 + deltaPct / 100);
+            // Bar widths — normalize to the larger value
+            const max = Math.max(monthlyNum, avgNum);
+            const carrierPct = (monthlyNum / max) * 100;
+            const avgPct = (avgNum / max) * 100;
+            const isAbove = deltaPct > 0;
+            const isBelow = deltaPct < 0;
+            return (
+              <div class="cost-compare">
+                <p class="cost-compare__eyebrow">How {carrier.name} compares</p>
+                <div class="cost-compare__bars">
+                  <div class="cost-compare__row">
+                    <span class="cost-compare__label">{carrier.name}</span>
+                    <div class="cost-compare__track">
+                      <div
+                        class={`cost-compare__fill ${isAbove ? "cost-compare__fill--above" : isBelow ? "cost-compare__fill--below" : ""}`}
+                        style={`width: ${carrierPct.toFixed(1)}%;`}
+                      ></div>
+                    </div>
+                    <span class="cost-compare__num">${monthlyNum.toFixed(0)}<span class="cost-compare__per">/mo</span></span>
+                  </div>
+                  <div class="cost-compare__row">
+                    <span class="cost-compare__label cost-compare__label--avg">National average</span>
+                    <div class="cost-compare__track">
+                      <div class="cost-compare__fill cost-compare__fill--avg" style={`width: ${avgPct.toFixed(1)}%;`}></div>
+                    </div>
+                    <span class="cost-compare__num cost-compare__num--avg">${avgNum.toFixed(0)}<span class="cost-compare__per">/mo</span></span>
+                  </div>
+                </div>
+                <p class="cost-compare__footnote">
+                  {isAbove && <><strong>+{Math.abs(deltaPct).toFixed(0)}%</strong> above the national average for comparable coverage.</>}
+                  {isBelow && <><strong>−{Math.abs(deltaPct).toFixed(0)}%</strong> below the national average for comparable coverage.</>}
+                  {deltaPct === 0 && <>In line with the national average for comparable coverage.</>}
+                </p>
+              </div>
+            );
+          })()}
+
           {cost.byCategory && cost.byCategory.length > 0 && (
             <>
               <h3>Rates by category</h3>
@@ -1241,6 +1289,107 @@ const remainingTakeaways = takeaways.slice(1);
       letter-spacing: -0.02em;
     }
     .cost-summary__value--delta { font-size: 1.625rem; }
+
+    /* Cost comparison mini-chart — two-bar layout, this carrier vs national average */
+    .cost-compare {
+      margin: var(--space-6) 0 var(--space-8);
+      padding: var(--space-6);
+      background: var(--color-snow);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius);
+    }
+    .cost-compare__eyebrow {
+      font-family: var(--font-display);
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      color: var(--color-text-muted);
+      margin: 0 0 var(--space-5);
+    }
+    .cost-compare__bars {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-4);
+    }
+    .cost-compare__row {
+      display: grid;
+      grid-template-columns: 140px 1fr 88px;
+      gap: var(--space-4);
+      align-items: center;
+    }
+    .cost-compare__label {
+      font-family: var(--font-display);
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--color-resolution);
+      line-height: 1.3;
+    }
+    .cost-compare__label--avg {
+      color: var(--color-text-muted);
+    }
+    .cost-compare__track {
+      height: 16px;
+      background: var(--color-gainsboro);
+      border-radius: var(--radius-sm);
+      overflow: hidden;
+      position: relative;
+    }
+    .cost-compare__fill {
+      height: 100%;
+      background: var(--color-resolution);
+      border-radius: var(--radius-sm);
+      transition: width var(--transition-slow);
+    }
+    .cost-compare__fill--above {
+      background: var(--color-warning);
+    }
+    .cost-compare__fill--below {
+      background: var(--color-teal);
+    }
+    .cost-compare__fill--avg {
+      background: var(--color-ship-cove);
+      opacity: 0.5;
+    }
+    .cost-compare__num {
+      font-family: var(--font-display);
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--color-resolution);
+      letter-spacing: -0.01em;
+      text-align: right;
+      font-variant-numeric: tabular-nums;
+    }
+    .cost-compare__num--avg {
+      color: var(--color-text-muted);
+      font-weight: 600;
+    }
+    .cost-compare__per {
+      font-weight: 500;
+      font-size: 11px;
+      color: var(--color-text-muted);
+      margin-left: 2px;
+    }
+    .cost-compare__footnote {
+      margin: var(--space-4) 0 0;
+      padding-top: var(--space-3);
+      border-top: 1px dashed var(--color-border);
+      font-family: var(--font-display);
+      font-size: 13px;
+      color: var(--color-text-muted);
+      line-height: 1.5;
+    }
+    .cost-compare__footnote strong {
+      color: var(--color-resolution);
+      font-weight: 700;
+    }
+    @media (max-width: 600px) {
+      .cost-compare__row {
+        grid-template-columns: 1fr;
+        gap: var(--space-2);
+      }
+      .cost-compare__num { text-align: left; }
+    }
 
     /* ==================================================
        Pull-quote (editorial callout between sections)
