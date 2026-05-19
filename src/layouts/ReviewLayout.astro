@@ -1,6 +1,7 @@
 ---
 import BaseLayout from "~/layouts/BaseLayout.astro";
 import ContentByline from "~/components/ContentByline.astro";
+import AuthorCapsule from "~/components/AuthorCapsule.astro";
 import ZipForm from "~/components/ZipForm.astro";
 import type { Vertical } from "~/data/verticals";
 
@@ -472,10 +473,12 @@ const remainingTakeaways = takeaways.slice(1);
           </div>
 
           {carrier.author && (
-            <div class="author-bio">
-              <h3>About <span class="serif-italic">{carrier.author.name}</span></h3>
-              <p>{carrier.author.bio}</p>
-            </div>
+            <AuthorCapsule
+              author={carrier.author.name}
+              reviewer={carrier.editor?.name}
+              updatedDate={carrier.updated}
+              bio={carrier.author.bio}
+            />
           )}
         </section>
 

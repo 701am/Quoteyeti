@@ -77,6 +77,35 @@ const faqs = [
             <ZipForm variant="picker" eyebrow="Compare in seconds" heading="What are you insuring?" />
           </div>
         </div>
+        <ul class="trust-badges hero__trust">
+          <li class="trust-badge">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <rect x="4" y="11" width="16" height="10" rx="2" stroke="currentColor" stroke-width="1.6"/>
+              <path d="M8 11V8a4 4 0 018 0v3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+            </svg>
+            <span>256-bit secure</span>
+          </li>
+          <li class="trust-badge">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M12 2l8 4v6c0 5-3.5 9.5-8 10-4.5-.5-8-5-8-10V6l8-4z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
+              <path d="M9 12l2 2 4-4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <span>Editorially independent</span>
+          </li>
+          <li class="trust-badge">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.6"/>
+              <path d="M12 7v5l3 2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+            </svg>
+            <span>60-second comparison</span>
+          </li>
+          <li class="trust-badge">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M5 8h14M5 12h14M5 16h8" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+            </svg>
+            <span>Zero spam calls</span>
+          </li>
+        </ul>
       </div>
     </div>
   </section>
@@ -267,6 +296,15 @@ const faqs = [
     .hero__kicker { font-family: var(--font-display); font-size: 1rem; font-weight: 700; color: var(--color-resolution); margin: 0 0 var(--space-5); }
     .hero__about-link { display: inline-flex; }
     .hero__cta-stage { position: relative; isolation: isolate; padding-top: 100px; }
+    .hero__trust {
+      list-style: none;
+      margin: var(--space-5) 0 0;
+      padding: 0;
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-3) var(--space-5);
+      justify-content: center;
+    }
     .hero__cta-yeti { position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 240px; height: auto; z-index: 1; pointer-events: none; filter: drop-shadow(0 8px 16px rgba(44, 69, 119, 0.25)); }
     .hero__cta-wrap { position: relative; z-index: 2; }
 

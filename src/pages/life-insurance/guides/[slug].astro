@@ -2,6 +2,7 @@
 import BaseLayout from "~/layouts/BaseLayout.astro";
 import ContentByline from "~/components/ContentByline.astro";
 import CompareRail from "~/components/CompareRail.astro";
+import AuthorCapsule from "~/components/AuthorCapsule.astro";
 import { getCollection, render } from "astro:content";
 import { VERTICALS } from "~/data/verticals";
 
@@ -62,7 +63,13 @@ const v = VERTICALS.life;
          Uses the wider .container so the rail fits beside the prose
          without squeezing. -->
     <div class="container guide-body-wrap">
-      <div class="guide-body"><Content /></div>
+      <div class="guide-body">
+        <Content />
+        <AuthorCapsule
+          author={d.author}
+          updatedDate={d.updatedDate ?? d.publishDate}
+        />
+      </div>
       <div class="guide-rail">
         <CompareRail vertical={v.key} />
       </div>

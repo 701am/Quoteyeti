@@ -1,0 +1,45 @@
+---
+/**
+ * Drawer — accordion accordion drawer for collapsible content.
+ *
+ * Use to wrap long-form SEO text walls (the "What is X insurance"
+ * paragraphs that pad out the bottom of best-of pages), FAQ groups,
+ * and "what we evaluated" sections.
+ *
+ * Uses the native <details>/<summary> elements — works without JS, SEO-
+ * friendly (search engines index the body even when collapsed).
+ *
+ * Slot in the body content directly:
+ *   <Drawer summary="Is gap insurance worth it?">
+ *     <p>Paragraph one…</p>
+ *     <p>Paragraph two…</p>
+ *   </Drawer>
+ */
+
+interface Props {
+  /** The heading text shown on the closed drawer. */
+  summary: string;
+  /** Open by default? Defaults to closed. */
+  open?: boolean;
+  /** Heading level for the summary — use h3 for top-level drawers in an
+   *  article body, h4 for nested drawers. Affects semantics & SEO. */
+  level?: 2 | 3 | 4;
+}
+
+const { summary, open = false, level = 3 } = Astro.props;
+const Tag = `h${level}` as "h2" | "h3" | "h4";
+---
+
+<details class="drawer" open={open}>
+  <summary>
+    <Tag style="font: inherit; margin: 0; color: inherit; letter-spacing: inherit;">{summary}</Tag>
+    <span class="drawer__icon" aria-hidden="true">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+        <path d="M7 2v10M2 7h10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+    </span>
+  </summary>
+  <div class="drawer__body">
+    <slot />
+  </div>
+</details>

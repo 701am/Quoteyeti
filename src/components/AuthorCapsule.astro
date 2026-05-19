@@ -1,0 +1,87 @@
+---
+/**
+ * AuthorCapsule — fuller author treatment for the bottom of articles.
+ *
+ * Goes beyond the inline byline at the top: photo, role, credentials,
+ * short bio, link to full profile, link to all the writer's articles.
+ *
+ * Designed to sit at the END of long-form pieces (guides, state pages,
+ * carrier reviews) — gives the author real estate and reinforces E-E-A-T.
+ */
+import { resolveAuthor, DEFAULT_BYLINE, type Author } from "~/data/authors";
+
+interface Props {
+  /** Author slug or display name; falls back to default writer. */
+  author?: string;
+  /** Optional explicit reviewer to also show (for rate-heavy pages). */
+  reviewer?: string;
+  /** ISO date or Date for last-updated stamp. */
+  updatedDate?: string | Date;
+  /** Override the bio text (defaults to author.bio). */
+  bio?: string;
+}
+
+const { author, reviewer, updatedDate, bio } = Astro.props;
+
+const writer: Author = resolveAuthor(author);
+const reviewerAuthor: Author | null = reviewer ? resolveAuthor(reviewer, DEFAULT_BYLINE.reviewer) : null;
+
+function fmt(d: string | Date | undefined): string | null {
+  if (!d) return null;
+  try {
+    const dt = typeof d === "string" ? new Date(d) : d;
+    return dt.toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
+  } catch {
+    return null;
+  }
+}
+const updatedFmt = fmt(updatedDate);
+---
+
+<aside class="authorcapsule" aria-labelledby={`author-${writer.slug}`}>
+  <a href={`/about/team/${writer.slug}/`} class="authorcapsule__avatar" aria-hidden="true">
+    {writer.avatar ? (
+      <img src={writer.avatar} alt="" loading="lazy" width="56" height="56" />
+    ) : (
+      <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:var(--color-teal-soft);color:var(--color-teal);font-family:var(--font-display);font-weight:700;font-size:1.125rem;">
+        {writer.name.charAt(0)}
+      </div>
+    )}
+  </a>
+
+  <div>
+    <p class="authorcapsule__head">
+      <a href={`/about/team/${writer.slug}/`} id={`author-${writer.slug}`} class="authorcapsule__name" style="text-decoration:none;">
+        Written by {writer.name}
+      </a>
+      <span class="authorcapsule__role">{writer.role}</span>
+      {writer.credential && (
+        <span class="authorcapsule__cred">
+          <svg width="10" height="10" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+            <circle cx="7" cy="7" r="7" fill="currentColor"/>
+            <path d="M3.8 7.2l2 2 4.4-4.4" stroke="#FFFFFF" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+          </svg>
+          {writer.credential}
+        </span>
+      )}
+    </p>
+
+    {(bio ?? writer.bio) && (
+      <p class="authorcapsule__bio">{bio ?? writer.bio}</p>
+    )}
+
+    {reviewerAuthor && (
+      <p class="authorcapsule__bio" style="font-size:0.875rem;color:var(--color-text-muted);margin-bottom:var(--space-3);">
+        <strong style="font-weight:600;color:var(--color-resolution);">Editorially reviewed by{" "}</strong>
+        <a href={`/about/team/${reviewerAuthor.slug}/`} style="color:var(--color-resolution);font-weight:600;">{reviewerAuthor.name}</a>
+        <span>, {reviewerAuthor.role}.</span>
+      </p>
+    )}
+
+    <p class="authorcapsule__meta">
+      <a href={`/about/team/${writer.slug}/`}>Full profile →</a>
+      <a href={`/about/team/${writer.slug}/#articles`}>All articles by {writer.name.split(" ")[0]} →</a>
+      {updatedFmt && <span>Last updated {updatedFmt}</span>}
+    </p>
+  </div>
+</aside>

@@ -2,6 +2,7 @@
 import BaseLayout from "~/layouts/BaseLayout.astro";
 import ContentByline from "~/components/ContentByline.astro";
 import CompareOutline from "~/components/CompareOutline.astro";
+import AuthorCapsule from "~/components/AuthorCapsule.astro";
 import { getCollection, render } from "astro:content";
 
 export async function getStaticPaths() {
@@ -72,6 +73,10 @@ const ctaVertical = (ctaVerticalMap[d.category ?? ""] ?? "auto") as any;
         <CompareOutline vertical={ctaVertical} />
       </div>
       <Content />
+      <AuthorCapsule
+        author={d.author}
+        updatedDate={d.updatedDate ?? d.publishDate}
+      />
     </div>
   </article>
 

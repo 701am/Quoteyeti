@@ -3,10 +3,14 @@ import BaseLayout from "~/layouts/BaseLayout.astro";
 import { getCollection } from "astro:content";
 import { VERTICAL_LIST, type Vertical } from "~/data/verticals";
 
-// ============================================================
-// Pull ALL live content for each vertical.
-// Drafts are excluded.
-// ============================================================
+/**
+ * Sitemap data layer.
+ *
+ * Pulls every non-draft entry from every collection, organizes them per
+ * vertical into facets, generates compare-page slugs, and groups brands
+ * into families. The template below renders this into a search-first,
+ * tab-filtered structure.
+ */
 
 async function safeCollection(name: string) {
   try {
@@ -16,19 +20,16 @@ async function safeCollection(name: string) {
   }
 }
 
+// Per-vertical content (reviews, guides, locations)
 const reviews: Record<string, any[]> = {};
 const guides: Record<string, any[]> = {};
 const locations: Record<string, any[]> = {};
 
 for (const v of VERTICAL_LIST) {
   reviews[v.key] = await safeCollection(`${v.key}-reviews`);
-  // Guides collection is registered as bare vertical key for non-auto verticals
-  if (v.key !== "auto") {
-    guides[v.key] = await safeCollection(v.key);
-  } else {
-    guides[v.key] = [];
-  }
-  // Locations exist for auto, home, life, business
+  // Non-auto verticals expose guides via the bare-key collection;
+  // auto has dedicated /auto/guides/ items too — pulled separately.
+  guides[v.key] = await safeCollection(v.key === "auto" ? "auto-guides" : v.key);
   if (["auto", "home", "life", "business"].includes(v.key)) {
     locations[v.key] = await safeCollection(`${v.key}-locations`);
   } else {
@@ -36,63 +37,79 @@ for (const v of VERTICAL_LIST) {
   }
 }
 
-// Auto-specific collections
+// Auto-only collections
 const autoBrands = await safeCollection("auto-brands");
 const autoFaqs = await safeCollection("auto-faqs");
 const autoGlossary = await safeCollection("auto-glossary");
-
-// Group auto brands into parents vs model-specific pages.
-// Convention: model pages have a slug with multiple parts (e.g. "honda-crv"),
-// brand parent pages are single-token slugs (e.g. "honda").
-// We use the brand frontmatter field when present to do the grouping cleanly.
-function brandFamily(b: any): string {
-  // Prefer explicit field; otherwise infer from slug
-  if (b.data?.brand) return b.data.brand.toString().toLowerCase().split(" ")[0];
-  return (b.id ?? "").split("-")[0];
-}
-const brandGroups: Record<string, { parent: any | null; models: any[] }> = {};
-for (const b of autoBrands) {
-  const fam = brandFamily(b);
-  if (!brandGroups[fam]) brandGroups[fam] = { parent: null, models: [] };
-  // The "parent" page has a single-word slug like "honda"; models like "honda-crv"
-  if (b.id === fam) {
-    brandGroups[fam].parent = b;
-  } else {
-    brandGroups[fam].models.push(b);
-  }
-}
-// Sort families and their models
-const sortedBrandFamilies = Object.keys(brandGroups).sort();
-for (const fam of sortedBrandFamilies) {
-  brandGroups[fam].models.sort((a, b) => a.id.localeCompare(b.id));
-}
-
-// Sort helpers
-function sortByTitle(arr: any[]) {
-  return arr.sort((a, b) => {
-    const aN = (a.data.company ?? a.data.title ?? a.data.state ?? "").toString();
-    const bN = (b.data.company ?? b.data.title ?? b.data.state ?? "").toString();
-    return aN.localeCompare(bN);
-  });
-}
-for (const key of Object.keys(reviews)) sortByTitle(reviews[key]);
-for (const key of Object.keys(guides)) sortByTitle(guides[key]);
-for (const key of Object.keys(locations)) sortByTitle(locations[key]);
-sortByTitle(autoBrands);
-sortByTitle(autoFaqs);
-sortByTitle(autoGlossary);
-
-// Blog posts (newest first)
 const posts = (await safeCollection("posts")).sort((a, b) => {
   const aD = a.data.publishDate?.valueOf() ?? 0;
   const bD = b.data.publishDate?.valueOf() ?? 0;
   return bD - aD;
 });
 
-// Build all comparison page slugs that ACTUALLY exist (mirrors the logic
-// in /[vertical]/compare/[slug].astro getStaticPaths). Used to surface every
-// comparison page on the sitemap with zero orphans.
-function buildComparePaths(vReviews: any[]): { pair: { slug: string; names: string[] }[]; triple: { slug: string; names: string[] }[] } {
+// ============ Brand family grouping ============
+// Slug convention: brand parent = single token ("honda"), model = multi-token ("honda-crv").
+// Use the `brand` frontmatter field when present; fall back to slug parsing.
+function brandFamilyKey(b: any): string {
+  if (b.data?.brand) return b.data.brand.toString().toLowerCase().split(" ")[0];
+  return (b.id ?? "").split("-")[0];
+}
+
+interface BrandFamily {
+  key: string;
+  name: string;
+  parent: any | null;
+  models: any[];
+}
+
+const familyMap: Record<string, BrandFamily> = {};
+for (const b of autoBrands) {
+  const k = brandFamilyKey(b);
+  if (!familyMap[k]) {
+    familyMap[k] = {
+      key: k,
+      name: k.charAt(0).toUpperCase() + k.slice(1),
+      parent: null,
+      models: [],
+    };
+  }
+  if (b.id === k) {
+    familyMap[k].parent = b;
+    if (b.data.brand) familyMap[k].name = b.data.brand;
+  } else {
+    familyMap[k].models.push(b);
+  }
+}
+
+const brandFamilies: BrandFamily[] = Object.values(familyMap).sort((a, b) =>
+  a.name.localeCompare(b.name)
+);
+for (const f of brandFamilies) {
+  f.models.sort((a, b) => {
+    const aT = (a.data.title ?? a.id).toString();
+    const bT = (b.data.title ?? b.id).toString();
+    return aT.localeCompare(bT);
+  });
+}
+
+// Letter index for the brand quick-jump
+const brandLetters = new Set<string>();
+for (const f of brandFamilies) brandLetters.add(f.name.charAt(0).toUpperCase());
+const allLetters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
+
+// Strip the "Car Insurance Rates" suffix from model titles for compact display
+function modelLabel(t: string): string {
+  return t
+    .replace(/ Car Insurance Rates?$/i, "")
+    .replace(/ Insurance Rates?$/i, "")
+    .replace(/ Auto Insurance$/i, "")
+    .replace(/ Insurance$/i, "");
+}
+
+// ============ Compare page generator ============
+// Mirrors the logic in /[vertical]/compare/[slug].astro getStaticPaths so
+// the sitemap lists exactly the URLs that exist.
+function buildComparePaths(vReviews: any[]) {
   const sorted = [...vReviews].sort((a, b) => {
     const ra = a.data.overallRank ?? 99;
     const rb = b.data.overallRank ?? 99;
@@ -100,944 +117,930 @@ function buildComparePaths(vReviews: any[]): { pair: { slug: string; names: stri
     return (b.data.overallScore ?? 0) - (a.data.overallScore ?? 0);
   });
 
-  const pair: { slug: string; names: string[] }[] = [];
+  const out: { slug: string; label: string; count: number }[] = [];
+  // All pairs
   for (let i = 0; i < sorted.length; i++) {
     for (let j = i + 1; j < sorted.length; j++) {
       const ids = [sorted[i].id, sorted[j].id].sort();
-      pair.push({ slug: ids.join("-vs-"), names: [sorted[i].data.company, sorted[j].data.company].sort() });
+      const names = [sorted[i].data.company, sorted[j].data.company];
+      out.push({ slug: ids.join("-vs-"), label: names.join(" vs "), count: 2 });
     }
   }
-
-  const triple: { slug: string; names: string[] }[] = [];
+  // Top-3 triple
   if (sorted.length >= 3) {
-    const [a, b, c] = sorted.slice(0, 3);
-    const ids = [a.id, b.id, c.id].sort();
-    triple.push({
-      slug: ids.join("-vs-"),
-      names: [a.data.company, b.data.company, c.data.company].sort(),
-    });
+    const t = sorted.slice(0, 3);
+    const ids = [t[0].id, t[1].id, t[2].id].sort();
+    const names = [t[0].data.company, t[1].data.company, t[2].data.company];
+    out.push({ slug: ids.join("-vs-"), label: names.join(" vs "), count: 3 });
   }
+  // Top-1 + top-2 + tail triples
   if (sorted.length >= 4) {
     const top = sorted[0], second = sorted[1];
     const tail = sorted.slice(2, Math.min(sorted.length, 6));
     for (const cc of tail) {
       if (cc.id === second.id) continue;
       const ids = [top.id, second.id, cc.id].sort();
-      const namesSorted = [top.data.company, second.data.company, cc.data.company].sort();
-      if (!triple.some((t) => t.slug === ids.join("-vs-"))) {
-        triple.push({ slug: ids.join("-vs-"), names: namesSorted });
+      const label = [top.data.company, second.data.company, cc.data.company].join(" vs ");
+      const slug = ids.join("-vs-");
+      if (!out.some((x) => x.slug === slug)) {
+        out.push({ slug, label, count: 3 });
       }
     }
   }
-  return { pair, triple };
+  return out;
 }
 
-// ============================================================
-// Per-vertical column tree. Every URL must be live. NO truncation:
-// the sitemap is the human-facing index of record — it must list
-// every published page.
-// ============================================================
-
-interface SmColumn {
-  title: string;
-  links: { label: string; href: string }[];
+// ============ Per-vertical assembled view-model ============
+interface VerticalSection {
+  v: Vertical;
+  reviews: any[];
+  comparisons: { slug: string; label: string; count: number }[];
+  guides: any[];
+  locations: any[];
+  faqs: any[];           // auto only
+  glossary: any[];       // auto only
+  brandFamilies: BrandFamily[]; // auto only
+  totalPages: number;
 }
 
-function columnsFor(v: Vertical): SmColumn[] {
-  const vReviews = reviews[v.key] ?? [];
-  const vGuides = guides[v.key] ?? [];
-  const vLocations = locations[v.key] ?? [];
-  const isCore = ["auto", "home", "life", "business"].includes(v.key);
-  const cols: SmColumn[] = [];
+const sections: VerticalSection[] = VERTICAL_LIST.map((v) => {
+  const r = reviews[v.key] ?? [];
+  const cmp = r.length >= 2 ? buildComparePaths(r) : [];
+  const g = guides[v.key] ?? [];
+  const loc = locations[v.key] ?? [];
+  const isAuto = v.key === "auto";
 
-  // 1. Top of funnel — overview + cheapest/best/etc.
-  const topLinks: { label: string; href: string }[] = [
-    { label: `${v.short} insurance overview`, href: v.path },
-    { label: `Best ${v.short.toLowerCase()} insurance`, href: `${v.path}best/` },
-  ];
-  if (isCore) topLinks.push({ label: `Cheapest ${v.short.toLowerCase()} insurance`, href: `${v.path}cheapest/` });
-  if (isCore) {
-    topLinks.push({ label: `How much ${v.short.toLowerCase()} insurance do I need?`, href: `${v.path}how-much-do-i-need/` });
-    topLinks.push({ label: `Types of ${v.short.toLowerCase()} coverage`, href: `${v.path}coverage-types/` });
-    topLinks.push({ label: `${v.short} insurance discounts`, href: `${v.path}discounts/` });
-  }
-  topLinks.push({ label: `Get ${v.short.toLowerCase()} quotes`, href: `${v.path}quotes/` });
-  cols.push({ title: `${v.short} — plan & compare`, links: topLinks });
+  // Count of pages surfaced under this vertical
+  const planAndCompare = 2 + (["auto","home","life","business"].includes(v.key) ? 4 : 1); // overview, best, [cheapest, how-much, coverage, discounts], quotes
+  const total =
+    planAndCompare +
+    r.length +
+    cmp.length +
+    g.length +
+    loc.length +
+    (isAuto ? autoFaqs.length + autoGlossary.length + autoBrands.length : 0);
 
-  // 2. Every carrier review — never truncated
-  if (vReviews.length > 0) {
-    cols.push({
-      title: `${v.short} carrier reviews (${vReviews.length})`,
-      links: [
-        { label: `All ${v.short.toLowerCase()} reviews`, href: `${v.path}reviews/` },
-        ...vReviews.map((r: any) => ({
-          label: r.data.company ?? r.data.title,
-          href: `${v.path}reviews/${r.id}/`,
-        })),
-      ],
-    });
-  }
+  return {
+    v,
+    reviews: r,
+    comparisons: cmp,
+    guides: g,
+    locations: loc,
+    faqs: isAuto ? autoFaqs : [],
+    glossary: isAuto ? autoGlossary : [],
+    brandFamilies: isAuto ? brandFamilies : [],
+    totalPages: total,
+  };
+});
 
-  // 3. Every comparison page — never truncated. This is the biggest fix:
-  //    167 compare pages were built but only the picker page was listed.
-  if (vReviews.length >= 2) {
-    const cmp = buildComparePaths(vReviews);
-    const cmpLinks: { label: string; href: string }[] = [
-      { label: `Compare ${v.short.toLowerCase()} carriers`, href: `${v.path}compare/` },
-      ...cmp.pair.map((p) => ({
-        label: p.names.join(" vs "),
-        href: `${v.path}compare/${p.slug}/`,
-      })),
-      ...cmp.triple.map((t) => ({
-        label: t.names.join(" vs "),
-        href: `${v.path}compare/${t.slug}/`,
-      })),
-    ];
-    cols.push({
-      title: `${v.short} comparisons (${cmpLinks.length - 1})`,
-      links: cmpLinks,
-    });
-  }
+// Totals strip
+const grandTotal = sections.reduce((s, x) => s + x.totalPages, 0) + posts.length + 8; // +8 for cross-site pages
 
-  // 4. Every guide — never truncated
-  if (vGuides.length > 0) {
-    cols.push({
-      title: `${v.short} guides (${vGuides.length})`,
-      links: [
-        { label: `All ${v.short.toLowerCase()} guides`, href: `${v.path}guides/` },
-        ...vGuides.map((g: any) => ({
-          label: g.data.title,
-          href: `${v.path}guides/${g.id}/`,
-        })),
-      ],
-    });
-  }
-
-  // 5. Every state page — never truncated
-  if (vLocations.length > 0) {
-    cols.push({
-      title: `${v.short} by state (${vLocations.length})`,
-      links: [
-        { label: `${v.short} insurance by state`, href: `${v.path}by-state/` },
-        ...vLocations.map((l: any) => ({
-          label: l.data.state ?? l.data.title,
-          href: `${v.path}by-state/${l.id}/`,
-        })),
-      ],
-    });
-  }
-
-  // 6. FAQs — auto only (the others don't have FAQ collections currently);
-  //    we surface the bare FAQ landing for non-core verticals where it exists
-  if (v.key === "auto" && autoFaqs.length > 0) {
-    cols.push({
-      title: `Auto FAQs (${autoFaqs.length})`,
-      links: [
-        { label: "All auto FAQs", href: "/auto/faqs/" },
-        ...autoFaqs.map((f: any) => ({
-          label: f.data.title ?? f.data.question ?? f.id,
-          href: `/auto/faqs/${f.id}/`,
-        })),
-      ],
-    });
-  } else if (isCore) {
-    cols.push({
-      title: "FAQs",
-      links: [{ label: `${v.short} FAQs`, href: `${v.path}faqs/` }],
-    });
-  }
-
-  return cols;
-}
-
-// ============================================================
-// Hero stats
-// ============================================================
-const totalGuides = Object.values(guides).reduce((s, arr) => s + arr.length, 0);
-const totalReviews = Object.values(reviews).reduce((s, arr) => s + arr.length, 0);
-const totalLocations = Object.values(locations).reduce((s, arr) => s + arr.length, 0);
-const totalBlogPosts = posts.length;
-
-// ============================================================
-// Resources & Company groups for the bottom of the sitemap.
-// ============================================================
-
-const resourceGroups: SmColumn[] = [
-  {
-    title: "Cross-vertical",
-    links: [
-      { label: "Glossary", href: "/glossary/" },
-      { label: "All FAQs", href: "/faqs/" },
-      { label: "Methodology", href: "/methodology/" },
-      { label: "Editorial standards", href: "/editorial/" },
-    ],
-  },
-  {
-    title: `The Dispatch (${posts.length})`,
-    links: [
-      { label: "All Dispatch posts", href: "/blog/" },
-      ...posts.map((p: any) => ({
-        label: p.data.title,
-        href: `/blog/${p.id}/`,
-      })),
-    ],
-  },
+// Cross-vertical / company pages (not tied to a vertical)
+const crossLinks: { label: string; href: string }[] = [
+  { label: "Methodology", href: "/methodology/" },
+  { label: "Editorial standards", href: "/editorial/" },
+  { label: "About the team", href: "/about/team/" },
+  { label: "Press", href: "/press/" },
+  { label: "Contact", href: "/contact/" },
+  { label: "Partner with us", href: "/partners/" },
+  { label: "Newsletter", href: "/newsletter/" },
+  { label: "Privacy policy", href: "/privacy-policy/" },
+  { label: "Terms of use", href: "/terms/" },
+  { label: "Accessibility", href: "/accessibility/" },
 ];
 
-// Auto brands — grouped by family so users can find Honda + all Honda models
-// next to each other instead of buried in an alphabetical dump.
-if (autoBrands.length > 0) {
-  const brandLinks: { label: string; href: string }[] = [
-    { label: "All car brands", href: "/auto/brands/" },
-  ];
-  for (const fam of sortedBrandFamilies) {
-    const group = brandGroups[fam];
-    if (group.parent) {
-      const parentLabel = (group.parent.data.brand ?? group.parent.data.title ?? fam).toString();
-      brandLinks.push({
-        label: parentLabel,
-        href: `/auto/brands/${group.parent.id}/`,
-      });
-    }
-    for (const model of group.models) {
-      const modelLabel = (model.data.title ?? model.id)
-        .toString()
-        .replace(/ Car Insurance Rates?$/i, "")
-        .replace(/ Insurance Rates?$/i, "");
-      brandLinks.push({
-        label: `  ↳ ${modelLabel}`,
-        href: `/auto/brands/${model.id}/`,
-      });
-    }
-  }
-  resourceGroups.push({
-    title: `Car brands (${autoBrands.length})`,
-    links: brandLinks,
-  });
-}
-
-// Auto glossary — every term linked
-if (autoGlossary.length > 0) {
-  resourceGroups.push({
-    title: `Auto glossary (${autoGlossary.length})`,
-    links: [
-      { label: "Full glossary", href: "/auto/glossary/" },
-      ...autoGlossary.map((g: any) => ({
-        label: g.data.term ?? g.data.title ?? g.id,
-        href: `/auto/glossary/${g.id}/`,
-      })),
-    ],
-  });
-}
-
-const companyGroups: SmColumn[] = [
-  {
-    title: "About QuoteYeti",
-    links: [
-      { label: "About us", href: "/about/" },
-      { label: "Editorial team", href: "/about/team/" },
-      { label: "Rai Antonio — Senior Writer", href: "/about/team/rai-antonio/" },
-      { label: "David Krug — Editor-in-Chief", href: "/about/team/david-krug/" },
-      { label: "Felix Lucero — Data Scientist", href: "/about/team/felix-lucero/" },
-      { label: "Editorial standards", href: "/editorial/" },
-      { label: "Methodology", href: "/methodology/" },
-      { label: "Press room", href: "/press/" },
-    ],
-  },
-  {
-    title: "Talk to us",
-    links: [
-      { label: "Contact", href: "/contact/" },
-      { label: "Partner with us", href: "/partners/" },
-      { label: "Newsletter", href: "/newsletter/" },
-    ],
-  },
-  {
-    title: "Legal",
-    links: [
-      { label: "Privacy policy", href: "/privacy-policy/" },
-      { label: "Terms of use", href: "/terms/" },
-      { label: "Accessibility", href: "/accessibility/" },
-      { label: "Sitemap (you are here)", href: "/sitemap/" },
-    ],
-  },
-];
+// Editorial / blog
+const blog = {
+  total: posts.length,
+  recent: posts.slice(0, 10),
+  all: posts,
+};
 ---
 
 <BaseLayout
   title="Sitemap — Every QuoteYeti page, organized"
-  description="Browse every page on QuoteYeti — eight insurance verticals, carrier reviews, guides, state pages, and resources, all in one place."
+  description={`Search and browse every page on QuoteYeti — ${grandTotal} pages across 8 insurance verticals, carrier reviews, brand & model rates, guides, comparisons, state pages, and resources.`}
+  breadcrumbs={[
+    { name: "Home", url: "/" },
+    { name: "Sitemap", url: "/sitemap/" },
+  ]}
 >
-  <!-- ============== HERO ============== -->
-  <section class="sm-hero">
-    <div class="sm-hero__topo" aria-hidden="true"></div>
+  <!-- ============== HERO + SEARCH ============== -->
+  <section class="sm2-hero">
     <div class="container">
-      <nav class="breadcrumbs" aria-label="Breadcrumb">
-        <a href="/">Home</a>
-        <span class="breadcrumbs__sep" aria-hidden="true">›</span>
-        <span aria-current="page">Sitemap</span>
-      </nav>
-      <p class="eyebrow">Every QuoteYeti page</p>
-      <h1>
-        The full
-        <span class="serif-italic">map</span>.
-      </h1>
-      <p class="sm-hero__lede">
-        Eight insurance verticals. Every guide, review, state page, and blog post — organized by category. Click anywhere to dive in.
+      <p class="sm2-hero__eyebrow">Sitemap</p>
+      <h1 class="sm2-hero__h1">Every page on <span class="serif-italic">QuoteYeti</span>.</h1>
+      <p class="sm2-hero__lede">
+        {grandTotal.toLocaleString()} pages across 8 insurance verticals, carrier reviews, brand &amp; model rates, comparisons, guides, state pages, and editorial. Search to jump to anything.
       </p>
 
-      <div class="sm-hero__stats">
-        <div class="sm-hero__stat">
-          <span class="sm-hero__stat-num">{VERTICAL_LIST.length}</span>
-          <span class="sm-hero__stat-label">Verticals</span>
-        </div>
-        <div class="sm-hero__stat">
-          <span class="sm-hero__stat-num">{totalReviews}</span>
-          <span class="sm-hero__stat-label">Carrier reviews</span>
-        </div>
-        <div class="sm-hero__stat">
-          <span class="sm-hero__stat-num">{totalGuides}</span>
-          <span class="sm-hero__stat-label">Guides</span>
-        </div>
-        <div class="sm-hero__stat">
-          <span class="sm-hero__stat-num">{totalLocations}</span>
-          <span class="sm-hero__stat-label">State pages</span>
-        </div>
-        <div class="sm-hero__stat">
-          <span class="sm-hero__stat-num">{totalBlogPosts}</span>
-          <span class="sm-hero__stat-label">Blog posts</span>
-        </div>
+      <div class="sm2-search">
+        <label for="sm-search-input" class="sm2-search__icon" aria-hidden="true">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+            <circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2"/>
+            <path d="M21 21l-4.35-4.35" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+        </label>
+        <input
+          id="sm-search-input"
+          type="text"
+          placeholder="Search — try 'Honda', 'GEICO', 'California', 'collision', 'gap insurance'…"
+          autocomplete="off"
+        />
+        <button type="button" class="sm2-search__clear" id="sm-search-clear" aria-label="Clear search" hidden>×</button>
       </div>
-
-      <nav class="sm-hero__chips" aria-label="Jump to vertical">
-        {VERTICAL_LIST.map((v) => (
-          <a href={`#${v.key}`} class="sm-chip" style={`--chip-accent: ${v.accent}; --chip-accent-soft: ${v.accentSoft};`}>
-            <span class="sm-chip__dot"></span>
-            <span>{v.short}</span>
-          </a>
-        ))}
-        <a href="#states" class="sm-chip sm-chip--neutral">
-          <span class="sm-chip__dot"></span>
-          <span>States</span>
-        </a>
-        <a href="#dispatch" class="sm-chip sm-chip--neutral">
-          <span class="sm-chip__dot"></span>
-          <span>Dispatch</span>
-        </a>
-        <a href="#resources" class="sm-chip sm-chip--neutral">
-          <span class="sm-chip__dot"></span>
-          <span>Resources</span>
-        </a>
-        <a href="#company" class="sm-chip sm-chip--neutral">
-          <span class="sm-chip__dot"></span>
-          <span>Company</span>
-        </a>
-      </nav>
+      <p class="sm2-search__count" id="sm-search-count" hidden>
+        <strong id="sm-search-num">0</strong> matches
+      </p>
     </div>
   </section>
 
-  <!-- ============== VERTICAL SECTIONS ============== -->
-  {VERTICAL_LIST.map((v, idx) => {
-    const cols = columnsFor(v);
-    const isAlt = idx % 2 === 1;
-    return (
-      <section
-        id={v.key}
-        class={`sm-vertical ${isAlt ? "sm-vertical--alt" : ""}`}
-        style={`--v-accent: ${v.accent}; --v-accent-soft: ${v.accentSoft};`}
-      >
-        <div class="container">
-          <header class="sm-vertical__header">
-            <div class="sm-vertical__heading-line">
-              <span class="sm-vertical__num">{String(idx + 1).padStart(2, "0")}</span>
-              <div class="sm-vertical__heading-text">
-                <p class="sm-vertical__eyebrow">
-                  <img src={v.icon} alt="" width="14" height="14" />
-                  Section {idx + 1} of {VERTICAL_LIST.length}
-                </p>
-                <h2>
-                  {v.label}
-                  <span class="serif-italic"> · {v.short.toLowerCase()}</span>
-                </h2>
-              </div>
-              <a href={v.path} class="sm-vertical__cta">
-                <span>Explore {v.short.toLowerCase()}</span>
-                <svg width="14" height="12" viewBox="0 0 14 12" fill="none" aria-hidden="true">
-                  <path d="M8 1l5 5-5 5M1 6h12" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-              </a>
-            </div>
-          </header>
+  <!-- ============== TAB FILTERS ============== -->
+  <section class="sm2-tabs-wrap">
+    <div class="container">
+      <div class="sm2-tabs" role="tablist" aria-label="Filter by section">
+        <button class="sm2-tab is-active" data-tab="all" type="button">All sections <span class="sm2-tab__count">{grandTotal.toLocaleString()}</span></button>
+        {sections.map((s) => (
+          <button class="sm2-tab" data-tab={s.v.key} type="button">
+            {s.v.short}
+            <span class="sm2-tab__count">{s.totalPages.toLocaleString()}</span>
+          </button>
+        ))}
+        <button class="sm2-tab" data-tab="editorial" type="button">Editorial <span class="sm2-tab__count">{blog.total}</span></button>
+        <button class="sm2-tab" data-tab="company" type="button">Company <span class="sm2-tab__count">{crossLinks.length}</span></button>
+      </div>
+    </div>
+  </section>
 
-          <div class={`sm-vertical__grid sm-vertical__grid--cols-${cols.length}`}>
-            {cols.map((col) => (
-              <div class="sm-column">
-                <h3 class="sm-column__title">{col.title}</h3>
-                <ul>
-                  {col.links.map((link) => (
-                    <li>
-                      <a href={link.href}>
-                        <span>{link.label}</span>
-                        <svg class="sm-column__arrow" width="10" height="8" viewBox="0 0 14 12" fill="none" aria-hidden="true">
-                          <path d="M8 1l5 5-5 5M1 6h12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        </svg>
-                      </a>
+  <!-- ============== EMPTY STATE ============== -->
+  <section class="container">
+    <p class="sm2-empty" id="sm-empty-state" hidden>No matches for that search. Try a brand, carrier, or state.</p>
+  </section>
+
+  <!-- ============== VERTICAL SECTIONS ============== -->
+  <section class="container sm2-sections">
+    {sections.map((s, i) => {
+      const isAuto = s.v.key === "auto";
+      return (
+        <details
+          class="sm2-section"
+          data-tab-target={s.v.key}
+          data-search-text={`${s.v.short} ${s.v.label}`.toLowerCase()}
+          open={i === 0}
+        >
+          <summary class="sm2-section__head" style={`--c-accent: ${s.v.accent}; --c-accent-soft: ${s.v.accentSoft};`}>
+            <span class="sm2-section__badge">
+              <img src={s.v.icon} alt="" width="20" height="20" />
+            </span>
+            <span class="sm2-section__title-wrap">
+              <span class="sm2-section__title">{s.v.label}</span>
+              <span class="sm2-section__meta">
+                {s.totalPages.toLocaleString()} pages
+                {s.reviews.length > 0 && <> · {s.reviews.length} {s.reviews.length === 1 ? "carrier" : "carriers"}</>}
+                {s.comparisons.length > 0 && <> · {s.comparisons.length} {s.comparisons.length === 1 ? "comparison" : "comparisons"}</>}
+                {isAuto && s.brandFamilies.length > 0 && <> · {autoBrands.length} brand &amp; model pages</>}
+                {s.guides.length > 0 && <> · {s.guides.length} guides</>}
+                {s.locations.length > 0 && <> · {s.locations.length} states</>}
+                {isAuto && s.faqs.length > 0 && <> · {s.faqs.length} FAQs</>}
+                {isAuto && s.glossary.length > 0 && <> · {s.glossary.length} glossary terms</>}
+              </span>
+            </span>
+            <span class="sm2-section__chev" aria-hidden="true">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </span>
+          </summary>
+
+          <div class="sm2-section__body">
+
+            <!-- Plan & compare facet -->
+            <div class="sm2-facet">
+              <header class="sm2-facet__head">
+                <h3 class="sm2-facet__title">Plan &amp; compare</h3>
+              </header>
+              <ul class="sm2-link-grid">
+                <li><a href={s.v.path}>{s.v.short} insurance overview</a></li>
+                <li><a href={`${s.v.path}best/`}>Best {s.v.short.toLowerCase()} insurance</a></li>
+                {["auto", "home", "life", "business"].includes(s.v.key) && <>
+                  <li><a href={`${s.v.path}cheapest/`}>Cheapest {s.v.short.toLowerCase()} insurance</a></li>
+                  <li><a href={`${s.v.path}how-much-do-i-need/`}>How much do I need?</a></li>
+                  <li><a href={`${s.v.path}coverage-types/`}>Coverage types</a></li>
+                  <li><a href={`${s.v.path}discounts/`}>Discounts</a></li>
+                </>}
+                <li><a href={`${s.v.path}quotes/`}>Get {s.v.short.toLowerCase()} quotes</a></li>
+              </ul>
+            </div>
+
+            <!-- Carrier reviews -->
+            {s.reviews.length > 0 && (
+              <div class="sm2-facet">
+                <header class="sm2-facet__head">
+                  <h3 class="sm2-facet__title">Carrier reviews <span class="sm2-facet__count">· {s.reviews.length}</span></h3>
+                  <a href={`${s.v.path}reviews/`} class="sm2-facet__action">View carrier index →</a>
+                </header>
+                <ul class="sm2-link-grid" data-searchable>
+                  {s.reviews.map((r: any) => (
+                    <li data-search={`${r.data.company ?? r.data.title}`.toLowerCase()}>
+                      <a href={`${s.v.path}reviews/${r.id}/`}>{r.data.company ?? r.data.title}</a>
                     </li>
                   ))}
                 </ul>
               </div>
-            ))}
+            )}
+
+            <!-- Brands & models — auto only — A-Z + collapsible families -->
+            {isAuto && s.brandFamilies.length > 0 && (
+              <div class="sm2-facet">
+                <header class="sm2-facet__head">
+                  <h3 class="sm2-facet__title">Brands &amp; models <span class="sm2-facet__count">· {autoBrands.length} pages, {s.brandFamilies.length} brands</span></h3>
+                  <a href="/auto/brands/" class="sm2-facet__action">View brand index →</a>
+                </header>
+
+                <nav class="sm2-letters" aria-label="Jump to brand letter">
+                  {allLetters.map((L) => (
+                    brandLetters.has(L) ? (
+                      <a href={`#brand-${L}`} class="sm2-letter">{L}</a>
+                    ) : (
+                      <span class="sm2-letter sm2-letter--off" aria-disabled="true">{L}</span>
+                    )
+                  ))}
+                </nav>
+
+                <ul class="sm2-families" data-searchable>
+                  {s.brandFamilies.map((fam) => {
+                    const letter = fam.name.charAt(0).toUpperCase();
+                    const allText = `${fam.name} ${fam.models.map((m) => modelLabel(m.data.title ?? m.id)).join(" ")}`.toLowerCase();
+                    return (
+                      <li
+                        class="sm2-family"
+                        id={`brand-${letter}`}
+                        data-search={allText}
+                        data-family-name={fam.name.toLowerCase()}
+                      >
+                        <details>
+                          <summary>
+                            <span class="sm2-family__chev" aria-hidden="true">
+                              <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
+                                <path d="M9 18l6-6-6-6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+                              </svg>
+                            </span>
+                            {fam.parent ? (
+                              <a href={`/auto/brands/${fam.parent.id}/`} class="sm2-family__name sm2-family__name--linked" onclick="event.stopPropagation()">{fam.name}</a>
+                            ) : (
+                              <span class="sm2-family__name">{fam.name}</span>
+                            )}
+                            <span class="sm2-family__count">{fam.models.length} {fam.models.length === 1 ? "model" : "models"}</span>
+                          </summary>
+                          {fam.models.length > 0 && (
+                            <ul class="sm2-models">
+                              {fam.models.map((m) => (
+                                <li data-search={modelLabel(m.data.title ?? m.id).toLowerCase()}>
+                                  <a href={`/auto/brands/${m.id}/`}>{modelLabel(m.data.title ?? m.id)}</a>
+                                </li>
+                              ))}
+                            </ul>
+                          )}
+                        </details>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </div>
+            )}
+
+            <!-- Comparisons -->
+            {s.comparisons.length > 0 && (
+              <div class="sm2-facet">
+                <header class="sm2-facet__head">
+                  <h3 class="sm2-facet__title">Compare carriers <span class="sm2-facet__count">· {s.comparisons.length}</span></h3>
+                  <a href={`${s.v.path}compare/`} class="sm2-facet__action">Build your own →</a>
+                </header>
+                <ul class="sm2-link-grid" data-searchable>
+                  {s.comparisons.map((c) => (
+                    <li data-search={c.label.toLowerCase()}>
+                      <a href={`${s.v.path}compare/${c.slug}/`}>{c.label}</a>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            <!-- Guides -->
+            {s.guides.length > 0 && (
+              <div class="sm2-facet">
+                <header class="sm2-facet__head">
+                  <h3 class="sm2-facet__title">Guides <span class="sm2-facet__count">· {s.guides.length}</span></h3>
+                  <a href={`${s.v.path}guides/`} class="sm2-facet__action">View all guides →</a>
+                </header>
+                <ul class="sm2-link-grid" data-searchable>
+                  {s.guides.map((g: any) => (
+                    <li data-search={(g.data.title ?? "").toLowerCase()}>
+                      <a href={`${s.v.path}guides/${g.id}/`}>{g.data.title}</a>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            <!-- State pages -->
+            {s.locations.length > 0 && (
+              <div class="sm2-facet">
+                <header class="sm2-facet__head">
+                  <h3 class="sm2-facet__title">By state <span class="sm2-facet__count">· {s.locations.length}</span></h3>
+                  <a href={`${s.v.path}by-state/`} class="sm2-facet__action">View state index →</a>
+                </header>
+                <ul class="sm2-link-grid" data-searchable>
+                  {s.locations.map((l: any) => (
+                    <li data-search={(l.data.state ?? l.data.title ?? "").toLowerCase()}>
+                      <a href={`${s.v.path}by-state/${l.id}/`}>{l.data.state ?? l.data.title}</a>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            <!-- Auto FAQs -->
+            {isAuto && s.faqs.length > 0 && (
+              <div class="sm2-facet">
+                <header class="sm2-facet__head">
+                  <h3 class="sm2-facet__title">FAQs <span class="sm2-facet__count">· {s.faqs.length}</span></h3>
+                  <a href="/auto/faqs/" class="sm2-facet__action">View all FAQs →</a>
+                </header>
+                <ul class="sm2-link-grid" data-searchable>
+                  {s.faqs.map((f: any) => (
+                    <li data-search={(f.data.question ?? f.data.title ?? "").toLowerCase()}>
+                      <a href={`/auto/faqs/${f.id}/`}>{f.data.question ?? f.data.title}</a>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            <!-- Auto glossary -->
+            {isAuto && s.glossary.length > 0 && (
+              <div class="sm2-facet">
+                <header class="sm2-facet__head">
+                  <h3 class="sm2-facet__title">Glossary <span class="sm2-facet__count">· {s.glossary.length}</span></h3>
+                  <a href="/auto/glossary/" class="sm2-facet__action">View glossary →</a>
+                </header>
+                <ul class="sm2-link-grid" data-searchable>
+                  {s.glossary.map((g: any) => (
+                    <li data-search={(g.data.term ?? g.data.title ?? "").toLowerCase()}>
+                      <a href={`/auto/glossary/${g.id}/`}>{g.data.term ?? g.data.title}</a>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
           </div>
-        </div>
-      </section>
-    );
-  })}
+        </details>
+      );
+    })}
 
-  <!-- ============== STATES SECTION ============== -->
-  <section id="states" class="sm-bonus sm-bonus--states">
-    <div class="container">
-      <header class="sm-bonus__header">
-        <span class="sm-bonus__num">09</span>
-        <div>
-          <p class="sm-bonus__eyebrow">Every state page</p>
-          <h2>By <span class="serif-italic">state</span></h2>
-          <p class="sm-bonus__lede">{totalLocations} state-specific pages across auto, home, and life insurance — covering rates, regulations, and carrier availability.</p>
-        </div>
-      </header>
-
-      <div class="sm-bonus__grid sm-bonus__grid--states">
-        {["auto", "home", "life"].map((key) => {
-          const v = VERTICAL_LIST.find((vv) => vv.key === key)!;
-          const locs = locations[key] ?? [];
-          return locs.length > 0 ? (
-            <div class="sm-column" style={`--v-accent: ${v.accent};`}>
-              <h3 class="sm-column__title">{v.short} by state</h3>
-              <ul>
-                <li>
-                  <a href={`${v.path}by-state/`}>
-                    <strong>All {v.short.toLowerCase()} state guides →</strong>
-                  </a>
-                </li>
-                {locs.map((loc: any) => (
-                  <li>
-                    <a href={`${v.path}by-state/${loc.id}/`}>
-                      {loc.data.state ?? loc.data.title}
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ) : null;
-        })}
-      </div>
-    </div>
-  </section>
-
-  <!-- ============== BLOG / DISPATCH SECTION ============== -->
-  {posts.length > 0 && (
-    <section id="dispatch" class="sm-bonus">
-      <div class="container">
-        <header class="sm-bonus__header">
-          <span class="sm-bonus__num">10</span>
-          <div>
-            <p class="sm-bonus__eyebrow">The Dispatch</p>
-            <h2>Every <span class="serif-italic">blog</span> post</h2>
-            <p class="sm-bonus__lede">Evergreen insurance reporting, money moves, and reality checks. {posts.length} posts and counting.</p>
-          </div>
-        </header>
-
-        <ul class="sm-extras__grid sm-extras__grid--posts">
-          {posts.map((p: any) => (
-            <li>
-              <a href={`/blog/${p.id}/`}>
-                {p.data.category && <span class="sm-extras__tag">{p.data.category}</span>}
-                <span class="sm-extras__post-title">{p.data.title}</span>
-              </a>
-            </li>
-          ))}
-        </ul>
-      </div>
-    </section>
-  )}
-
-  <!-- ============== RESOURCES SECTION ============== -->
-  <section id="resources" class="sm-bonus sm-bonus--alt">
-    <div class="container">
-      <header class="sm-bonus__header">
-        <span class="sm-bonus__num">11</span>
-        <div>
-          <p class="sm-bonus__eyebrow">Cross-vertical resources</p>
-          <h2>Tools & <span class="serif-italic">references</span></h2>
-          <p class="sm-bonus__lede">The glossary, FAQs, methodology, and editorial standards that anchor everything else.</p>
-        </div>
-      </header>
-
-      <div class="sm-bonus__grid">
-        {resourceGroups.map((group) => (
-          <div class="sm-column">
-            <h3 class="sm-column__title">{group.title}</h3>
-            <ul>
-              {group.links.map((link) => (
-                <li>
-                  <a href={link.href}>
-                    <span>{link.label}</span>
-                    <svg class="sm-column__arrow" width="10" height="8" viewBox="0 0 14 12" fill="none" aria-hidden="true">
-                      <path d="M8 1l5 5-5 5M1 6h12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </div>
-        ))}
-      </div>
-    </div>
-  </section>
-
-  <!-- ============== COMPANY SECTION (DARK) ============== -->
-  <section id="company" class="sm-bonus sm-bonus--dark">
-    <div class="sm-bonus__topo" aria-hidden="true"></div>
-    <div class="container">
-      <header class="sm-bonus__header">
-        <span class="sm-bonus__num">12</span>
-        <div>
-          <p class="sm-bonus__eyebrow">Company</p>
-          <h2>About <span class="serif-italic">QuoteYeti</span></h2>
-          <p class="sm-bonus__lede">Independent insurance research. No paid placement. No relentless sales calls.</p>
-        </div>
-      </header>
-
-      <div class="sm-bonus__grid">
-        {companyGroups.map((group) => (
-          <div class="sm-column sm-column--dark">
-            <h3 class="sm-column__title">{group.title}</h3>
-            <ul>
-              {group.links.map((link) => (
-                <li>
-                  <a href={link.href}>
-                    <span>{link.label}</span>
-                    <svg class="sm-column__arrow" width="10" height="8" viewBox="0 0 14 12" fill="none" aria-hidden="true">
-                      <path d="M8 1l5 5-5 5M1 6h12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </div>
-        ))}
-      </div>
-    </div>
-  </section>
-
-  <!-- ============== FINAL CTA ============== -->
-  <section class="sm-final">
-    <div class="container">
-      <div class="sm-final__inner">
-        <h2>
-          Ready to <span class="serif-italic">start</span>?
-        </h2>
-        <p class="sm-final__lede">
-          We compare quotes across <a href="/auto/">auto</a>, <a href="/home-insurance/">home</a>, <a href="/life-insurance/">life</a>, <a href="/business-insurance/">business</a>, <a href="/health-insurance/">health</a>, <a href="/renters-insurance/">renters</a>, <a href="/pet-insurance/">pet</a>, and <a href="/travel-insurance/">travel</a> insurance — all in one place.
-        </p>
-        <a href="/auto/quotes/" class="sm-final__cta">
-          <span>Get auto quotes</span>
-          <svg width="14" height="12" viewBox="0 0 14 12" fill="none" aria-hidden="true">
-            <path d="M8 1l5 5-5 5M1 6h12" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+    <!-- Editorial section -->
+    <details class="sm2-section" data-tab-target="editorial" data-search-text="editorial dispatch blog">
+      <summary class="sm2-section__head" style="--c-accent: #2C4577; --c-accent-soft: rgba(44, 69, 119, 0.08);">
+        <span class="sm2-section__badge">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+            <path d="M4 5h16v14H4z M4 9h16M9 13h7M9 17h5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
           </svg>
-        </a>
+        </span>
+        <span class="sm2-section__title-wrap">
+          <span class="sm2-section__title">Editorial</span>
+          <span class="sm2-section__meta">{blog.total} Dispatch posts</span>
+        </span>
+        <span class="sm2-section__chev" aria-hidden="true">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+            <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </span>
+      </summary>
+      <div class="sm2-section__body">
+        <div class="sm2-facet">
+          <header class="sm2-facet__head">
+            <h3 class="sm2-facet__title">The Dispatch <span class="sm2-facet__count">· {blog.total}</span></h3>
+            <a href="/blog/" class="sm2-facet__action">View blog →</a>
+          </header>
+          <ul class="sm2-link-grid" data-searchable>
+            {blog.all.map((p: any) => (
+              <li data-search={(p.data.title ?? "").toLowerCase()}>
+                <a href={`/blog/${p.id}/`}>{p.data.title}</a>
+              </li>
+            ))}
+          </ul>
+        </div>
       </div>
-    </div>
+    </details>
+
+    <!-- Company section -->
+    <details class="sm2-section" data-tab-target="company" data-search-text="company about contact legal team">
+      <summary class="sm2-section__head" style="--c-accent: #5F5E5A; --c-accent-soft: rgba(95, 94, 90, 0.08);">
+        <span class="sm2-section__badge">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+            <path d="M12 2l3 6 6 1-4 4 1 6-6-3-6 3 1-6-4-4 6-1 3-6z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
+          </svg>
+        </span>
+        <span class="sm2-section__title-wrap">
+          <span class="sm2-section__title">QuoteYeti as a company</span>
+          <span class="sm2-section__meta">Editorial standards · About · Contact · Legal</span>
+        </span>
+        <span class="sm2-section__chev" aria-hidden="true">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+            <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </span>
+      </summary>
+      <div class="sm2-section__body">
+        <div class="sm2-facet">
+          <ul class="sm2-link-grid" data-searchable>
+            {crossLinks.map((link) => (
+              <li data-search={link.label.toLowerCase()}>
+                <a href={link.href}>{link.label}</a>
+              </li>
+            ))}
+            <li data-search="rai antonio writer"><a href="/about/team/rai-antonio/">Rai Antonio — Senior Writer</a></li>
+            <li data-search="david krug editor"><a href="/about/team/david-krug/">David Krug — Editor-in-Chief</a></li>
+            <li data-search="felix lucero data"><a href="/about/team/felix-lucero/">Felix Lucero — Data Scientist</a></li>
+          </ul>
+        </div>
+      </div>
+    </details>
   </section>
 
   <style>
-    /* HERO */
-    .sm-hero {
-      position: relative;
-      padding-block: var(--space-20) var(--space-14);
-      background: linear-gradient(180deg, var(--color-alice) 0%, var(--color-white) 100%);
-      overflow: hidden;
+    :root {
+      --sm2-radius: 12px;
+      --sm2-link-color: var(--color-resolution, #1A1F2E);
     }
-    .sm-hero__topo {
-      position: absolute; inset: 0;
-      background-image:
-        radial-gradient(ellipse 80% 60% at 80% 30%, color-mix(in srgb, var(--color-malibu) 12%, transparent) 0%, transparent 60%),
-        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='800' height='600' viewBox='0 0 800 600'%3E%3Cg fill='none' stroke='%232C4577' stroke-width='0.5' stroke-opacity='0.05'%3E%3Cpath d='M0,300 Q200,200 400,300 T800,300'/%3E%3Cpath d='M0,260 Q200,160 400,260 T800,260'/%3E%3Cpath d='M0,340 Q200,240 400,340 T800,340'/%3E%3C/g%3E%3C/svg%3E");
-      pointer-events: none;
-    }
-    .sm-hero .container { position: relative; }
-    .breadcrumbs {
-      font-size: 0.8125rem; color: var(--color-text-muted);
-      margin-bottom: var(--space-5);
-      display: flex; align-items: center; gap: var(--space-2);
-    }
-    .breadcrumbs a { color: var(--color-text-muted); text-decoration: none; }
-    .breadcrumbs a:hover { color: var(--color-malibu); }
-    .breadcrumbs__sep { opacity: 0.4; }
-    .eyebrow {
-      display: inline-flex; align-items: center; gap: var(--space-2);
-      font-family: var(--font-display); font-size: 0.75rem; font-weight: 700;
-      text-transform: uppercase; letter-spacing: 0.14em;
-      color: var(--color-malibu);
-      background: var(--color-white);
-      padding: var(--space-2) var(--space-4);
-      border-radius: 100px;
-      margin: 0 0 var(--space-5);
-      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-    }
-    .sm-hero h1 {
-      font-size: clamp(2.5rem, 5vw, 4rem);
-      letter-spacing: -0.03em; line-height: 1;
-      margin: 0 0 var(--space-5);
-    }
+    .container { max-width: 1200px; margin-inline: auto; padding-inline: var(--space-5, 24px); }
+
     .serif-italic {
       font-family: var(--font-serif, "Plantin", Georgia, serif);
       font-style: italic; font-weight: 500;
-      color: var(--color-malibu);
-    }
-    .sm-hero__lede {
-      font-size: 1.25rem; color: var(--color-text-strong);
-      max-width: 640px; line-height: 1.55;
-      margin: 0 0 var(--space-10);
-    }
-    .sm-hero__stats {
-      display: flex; flex-wrap: wrap; gap: var(--space-8);
-      padding: var(--space-6) 0; margin-bottom: var(--space-8);
-      border-top: 1px solid var(--color-border);
-      border-bottom: 1px solid var(--color-border);
-    }
-    .sm-hero__stat { display: flex; flex-direction: column; gap: 4px; }
-    .sm-hero__stat-num {
-      font-family: var(--font-display); font-weight: 800;
-      font-size: 2.5rem; letter-spacing: -0.02em;
-      color: var(--color-resolution); line-height: 1;
-    }
-    .sm-hero__stat-label {
-      font-family: var(--font-display); font-size: 0.75rem; font-weight: 700;
-      text-transform: uppercase; letter-spacing: 0.14em;
-      color: var(--color-text-muted);
-    }
-    .sm-hero__chips { display: flex; flex-wrap: wrap; gap: var(--space-2); }
-    .sm-chip {
-      display: inline-flex; align-items: center; gap: var(--space-2);
-      padding: 8px 14px;
-      background: var(--color-white);
-      border: 1px solid var(--color-border);
-      border-radius: 100px;
-      text-decoration: none; color: var(--color-text);
-      font-family: var(--font-display); font-size: 0.8125rem; font-weight: 600;
-      transition: transform 0.15s, border-color 0.15s, background 0.15s;
-    }
-    .sm-chip:hover {
-      transform: translateY(-1px);
-      border-color: var(--chip-accent, var(--color-malibu));
-      background: var(--chip-accent-soft, var(--color-alice));
-    }
-    .sm-chip__dot {
-      width: 8px; height: 8px; border-radius: 50%;
-      background: var(--chip-accent, var(--color-malibu));
+      color: var(--color-malibu, #64BCE1);
     }
 
-    /* VERTICAL SECTIONS */
-    .sm-vertical {
-      padding-block: var(--space-16);
-      background: var(--color-white);
-      scroll-margin-top: 80px;
+    /* ============ HERO ============ */
+    .sm2-hero {
+      padding-block: var(--space-12, 56px) var(--space-8, 32px);
+      background: var(--color-alice, #F2F2EE);
+      border-bottom: 1px solid var(--color-border, rgba(0,0,0,0.08));
     }
-    .sm-vertical--alt { background: var(--color-alice); }
-    .sm-vertical__header { margin-bottom: var(--space-10); }
-    .sm-vertical__heading-line {
-      display: grid;
-      grid-template-columns: auto 1fr auto;
-      gap: var(--space-6); align-items: center;
-      padding-bottom: var(--space-6);
-      border-bottom: 2px solid var(--v-accent);
-    }
-    .sm-vertical__num {
-      font-family: var(--font-serif, "Plantin", Georgia, serif);
-      font-style: italic; font-weight: 500;
-      font-size: 4rem; line-height: 0.9;
-      color: var(--v-accent);
-      letter-spacing: -0.04em; opacity: 0.7;
-    }
-    .sm-vertical__eyebrow {
-      display: inline-flex; align-items: center; gap: var(--space-2);
+    .sm2-hero__eyebrow {
+      display: inline-block;
       font-family: var(--font-display); font-size: 0.6875rem; font-weight: 700;
       text-transform: uppercase; letter-spacing: 0.16em;
-      color: var(--v-accent);
-      margin: 0 0 var(--space-2);
-    }
-    .sm-vertical h2 {
-      font-size: clamp(1.875rem, 3vw, 2.5rem);
-      letter-spacing: -0.025em; line-height: 1.05;
-      margin: 0; color: var(--color-resolution);
-    }
-    .sm-vertical h2 .serif-italic { color: var(--v-accent); }
-    .sm-vertical__cta {
-      display: inline-flex; align-items: center; gap: var(--space-2);
-      padding: 0.75rem 1.25rem;
-      background: var(--v-accent); color: var(--color-white);
-      border-radius: 100px; text-decoration: none;
-      font-family: var(--font-display); font-weight: 700;
-      font-size: 0.8125rem; letter-spacing: 0.02em;
-      box-shadow: 0 4px 12px color-mix(in srgb, var(--v-accent) 30%, transparent);
-      transition: transform 0.2s, box-shadow 0.2s;
-      white-space: nowrap;
-    }
-    .sm-vertical__cta:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 20px color-mix(in srgb, var(--v-accent) 40%, transparent);
-    }
-    .sm-vertical__cta svg { transition: transform 0.2s; }
-    .sm-vertical__cta:hover svg { transform: translateX(3px); }
-    .sm-vertical__grid { display: grid; gap: var(--space-8); grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
-    .sm-vertical__grid--cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
-    .sm-vertical__grid--cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-    .sm-vertical__grid--cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-    .sm-vertical__grid--cols-1 { grid-template-columns: 1fr; }
-    .sm-vertical__grid--cols-5,
-    .sm-vertical__grid--cols-6 { grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
-
-    /* COLUMN (reusable) */
-    .sm-column { min-width: 0; }
-    .sm-column__title {
-      font-family: var(--font-display);
-      font-size: 0.6875rem; font-weight: 700;
-      text-transform: uppercase; letter-spacing: 0.18em;
-      color: var(--color-resolution);
-      margin: 0 0 var(--space-5);
-      padding-bottom: var(--space-3);
-      border-bottom: 2px solid var(--v-accent, var(--color-malibu));
-      display: inline-block;
-      min-width: 70%;
-    }
-    .sm-column ul {
-      list-style: none; margin: 0; padding: 0;
-      display: flex; flex-direction: column; gap: 2px;
-    }
-    .sm-column li a {
-      display: flex; align-items: center; justify-content: space-between;
-      gap: var(--space-3);
-      padding: var(--space-2) 0;
-      color: var(--color-text);
-      text-decoration: none;
-      font-size: 0.9375rem; line-height: 1.4;
-      transition: color 0.15s, padding 0.15s;
-      border-bottom: 1px solid transparent;
-    }
-    .sm-column li a:hover {
-      color: var(--v-accent, var(--color-malibu));
-      padding-left: 4px;
-    }
-    .sm-column__arrow {
-      flex-shrink: 0; opacity: 0;
-      transform: translateX(-4px);
-      transition: opacity 0.2s, transform 0.2s;
-    }
-    .sm-column li a:hover .sm-column__arrow {
-      opacity: 1; transform: translateX(0);
-    }
-
-    /* EXTRAS (guides + posts) */
-    .sm-extras {
-      margin-top: var(--space-10);
-      padding-top: var(--space-8);
-      border-top: 1px solid var(--color-border);
-    }
-    .sm-extras__title {
-      font-family: var(--font-display);
-      font-size: 0.6875rem; font-weight: 700;
-      text-transform: uppercase; letter-spacing: 0.18em;
       color: var(--color-text-muted);
-      margin: 0 0 var(--space-5);
+      margin: 0 0 var(--space-3);
     }
-    .sm-extras__grid {
-      list-style: none; margin: 0; padding: 0;
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-      gap: var(--space-3);
+    .sm2-hero__h1 {
+      font-size: clamp(2rem, 4.5vw, 3.25rem);
+      letter-spacing: -0.025em; line-height: 1.05;
+      margin: 0 0 var(--space-4);
+      color: var(--color-resolution);
     }
-    .sm-extras__grid li a {
-      display: block;
-      padding: var(--space-3) var(--space-4);
-      background: var(--color-white);
-      border: 1px solid var(--color-border);
-      border-radius: 8px;
-      text-decoration: none; color: var(--color-text);
-      font-size: 0.875rem; line-height: 1.4;
-      transition: border-color 0.15s, transform 0.15s;
-    }
-    .sm-extras__grid li a:hover {
-      border-color: var(--v-accent, var(--color-malibu));
-      transform: translateY(-1px);
-      color: var(--v-accent, var(--color-malibu));
-    }
-    .sm-extras__grid--posts li a {
-      display: flex; flex-direction: column; gap: 4px;
-    }
-    .sm-extras__tag {
-      display: inline-block;
-      font-family: var(--font-display);
-      font-size: 0.625rem; font-weight: 700;
-      text-transform: uppercase; letter-spacing: 0.12em;
-      color: var(--color-malibu);
-    }
-    .sm-extras__post-title {
-      font-size: 0.9375rem; font-weight: 500;
-      color: var(--color-resolution); line-height: 1.35;
+    .sm2-hero__lede {
+      font-size: 1.0625rem; line-height: 1.55;
+      color: var(--color-text-strong);
+      max-width: 720px;
+      margin: 0 0 var(--space-7, 28px);
     }
 
-    /* BONUS SECTIONS */
-    .sm-bonus {
-      padding-block: var(--space-16);
-      background: var(--color-white);
-      position: relative;
-      scroll-margin-top: 80px;
+    /* ============ SEARCH ============ */
+    .sm2-search {
+      display: flex; align-items: center; gap: 12px;
+      padding: 14px 18px;
+      background: var(--color-white, #fff);
+      border: 1px solid var(--color-border);
+      border-radius: 100px;
+      max-width: 760px;
+      transition: border-color 0.15s, box-shadow 0.15s;
     }
-    .sm-bonus--alt { background: var(--color-alice); }
-    .sm-bonus--states {
-      background: linear-gradient(180deg, var(--color-white) 0%, var(--color-alice) 100%);
+    .sm2-search:focus-within {
+      border-color: var(--color-malibu);
+      box-shadow: 0 0 0 4px color-mix(in srgb, var(--color-malibu) 22%, transparent);
     }
-    .sm-bonus__header {
-      display: grid;
-      grid-template-columns: auto 1fr;
-      gap: var(--space-6); align-items: center;
-      margin-bottom: var(--space-10);
-      padding-bottom: var(--space-6);
+    .sm2-search__icon { color: var(--color-text-muted); flex-shrink: 0; display: inline-flex; }
+    .sm2-search input {
+      flex: 1; border: 0; outline: 0;
+      font: inherit; font-size: 0.9375rem;
+      font-family: var(--font-display); font-weight: 500;
+      color: var(--color-resolution); background: transparent;
+    }
+    .sm2-search input::placeholder { color: var(--color-text-muted); font-weight: 400; }
+    .sm2-search__clear {
+      background: transparent; border: 0; cursor: pointer;
+      width: 26px; height: 26px;
+      display: inline-flex; align-items: center; justify-content: center;
+      border-radius: 50%;
+      font-size: 1.25rem; line-height: 1;
+      color: var(--color-text-muted);
+    }
+    .sm2-search__clear:hover { background: var(--color-alice); color: var(--color-resolution); }
+    .sm2-search__count {
+      font-size: 0.8125rem; color: var(--color-text-muted);
+      margin: var(--space-3) 0 0;
+    }
+    .sm2-search__count strong { color: var(--color-resolution); font-weight: 700; }
+
+    /* ============ TABS ============ */
+    .sm2-tabs-wrap {
+      position: sticky;
+      top: var(--header-height, 72px);
+      z-index: 20;
+      background: rgba(255,255,255,0.92);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      padding-block: var(--space-4);
       border-bottom: 1px solid var(--color-border);
     }
-    .sm-bonus__num {
-      font-family: var(--font-serif, "Plantin", Georgia, serif);
-      font-style: italic; font-weight: 500;
-      font-size: 4rem; line-height: 0.9;
-      color: var(--color-malibu);
-      letter-spacing: -0.04em; opacity: 0.6;
+    .sm2-tabs {
+      display: flex; gap: 4px; align-items: center;
+      padding: 4px;
+      background: var(--color-alice);
+      border-radius: 100px;
+      overflow-x: auto;
+      scrollbar-width: none;
     }
-    .sm-bonus__eyebrow {
+    .sm2-tabs::-webkit-scrollbar { display: none; }
+    .sm2-tab {
+      background: transparent; border: 0; cursor: pointer;
+      padding: 8px 14px;
       font-family: var(--font-display);
-      font-size: 0.6875rem; font-weight: 700;
-      text-transform: uppercase; letter-spacing: 0.18em;
-      color: var(--color-malibu);
-      margin: 0 0 var(--space-2);
+      font-size: 0.8125rem; font-weight: 600;
+      color: var(--color-text-muted);
+      white-space: nowrap;
+      border-radius: 100px;
+      transition: background 0.12s, color 0.12s;
+      display: inline-flex; align-items: center; gap: 6px;
     }
-    .sm-bonus h2 {
-      font-size: clamp(1.875rem, 3vw, 2.5rem);
-      letter-spacing: -0.025em; line-height: 1.05;
-      margin: 0 0 var(--space-3);
+    .sm2-tab:hover { color: var(--color-resolution); }
+    .sm2-tab.is-active {
+      background: var(--color-white);
+      color: var(--color-resolution);
+      box-shadow: 0 1px 2px rgba(0,0,0,0.06);
+    }
+    .sm2-tab__count {
+      font-size: 0.6875rem; font-weight: 700;
+      color: var(--color-text-muted);
+      padding: 2px 7px;
+      background: var(--color-alice);
+      border-radius: 100px;
+    }
+    .sm2-tab.is-active .sm2-tab__count {
+      background: color-mix(in srgb, var(--color-malibu) 14%, transparent);
       color: var(--color-resolution);
     }
-    .sm-bonus h2 .serif-italic { color: var(--color-malibu); }
-    .sm-bonus__lede {
-      font-size: 1rem; color: var(--color-text-muted);
-      margin: 0; max-width: 600px;
-    }
-    .sm-bonus__grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: var(--space-8);
-    }
-    .sm-bonus__grid--states { grid-template-columns: repeat(3, 1fr); }
 
-    /* Dark variant */
-    .sm-bonus--dark {
-      background: linear-gradient(135deg, var(--color-resolution) 0%, #1F3258 100%);
-      color: var(--color-white);
+    .sm2-empty {
+      text-align: center; padding: var(--space-12) 0;
+      color: var(--color-text-muted);
+      font-style: italic;
+    }
+
+    /* ============ VERTICAL SECTIONS ============ */
+    .sm2-sections {
+      padding-block: var(--space-8) var(--space-20);
+      display: flex; flex-direction: column; gap: var(--space-4);
+    }
+    .sm2-section {
+      background: var(--color-white);
+      border: 1px solid var(--color-border);
+      border-radius: var(--sm2-radius);
       overflow: hidden;
     }
-    .sm-bonus__topo {
-      position: absolute; inset: 0;
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1200' height='600' viewBox='0 0 1200 600'%3E%3Cg fill='none' stroke='%23FFFFFF' stroke-width='0.5' stroke-opacity='0.06'%3E%3Cpath d='M0,300 Q300,200 600,300 T1200,300'/%3E%3Cpath d='M0,260 Q300,160 600,260 T1200,260'/%3E%3Cpath d='M0,340 Q300,240 600,340 T1200,340'/%3E%3C/g%3E%3C/svg%3E");
-      pointer-events: none;
+    .sm2-section[hidden] { display: none; }
+    .sm2-section__head {
+      display: flex; align-items: center; gap: var(--space-3);
+      padding: var(--space-4) var(--space-5);
+      cursor: pointer;
+      list-style: none;
+      user-select: none;
+      transition: background 0.12s;
     }
-    .sm-bonus--dark .container { position: relative; }
-    .sm-bonus--dark .sm-bonus__header {
-      border-bottom-color: rgba(255,255,255,0.12);
-    }
-    .sm-bonus--dark .sm-bonus__num { color: var(--color-malibu); }
-    .sm-bonus--dark .sm-bonus__eyebrow { color: var(--color-malibu); }
-    .sm-bonus--dark h2 { color: var(--color-white); }
-    .sm-bonus--dark h2 .serif-italic { color: var(--color-malibu); }
-    .sm-bonus--dark .sm-bonus__lede { color: rgba(255,255,255,0.7); }
-    .sm-column--dark .sm-column__title {
-      color: var(--color-white);
-      border-bottom-color: var(--color-malibu);
-    }
-    .sm-column--dark li a { color: rgba(255,255,255,0.78); }
-    .sm-column--dark li a:hover { color: var(--color-malibu); }
+    .sm2-section__head:hover { background: var(--c-accent-soft); }
+    .sm2-section__head::-webkit-details-marker { display: none; }
+    .sm2-section[open] .sm2-section__head { border-bottom: 1px solid var(--color-border); }
 
-    /* FINAL CTA */
-    .sm-final {
-      padding-block: var(--space-20);
-      background: linear-gradient(180deg, var(--color-alice) 0%, var(--color-white) 100%);
-      text-align: center;
+    .sm2-section__badge {
+      width: 36px; height: 36px;
+      flex-shrink: 0;
+      background: var(--c-accent-soft);
+      color: var(--c-accent);
+      border-radius: 10px;
+      display: inline-flex; align-items: center; justify-content: center;
     }
-    .sm-final__inner { max-width: 640px; margin: 0 auto; }
-    .sm-final h2 {
-      font-size: clamp(2.25rem, 4vw, 3rem);
-      letter-spacing: -0.025em; line-height: 1.1;
-      margin: 0 0 var(--space-5);
-    }
-    .sm-final h2 .serif-italic { color: var(--color-malibu); }
-    .sm-final__lede {
-      font-size: 1.125rem;
-      color: var(--color-text-strong);
-      line-height: 1.6;
-      margin: 0 0 var(--space-8);
-    }
-    .sm-final__lede a {
-      color: var(--color-malibu);
-      text-decoration: underline;
-      text-underline-offset: 3px;
-    }
-    .sm-final__lede a:hover { color: var(--color-resolution); }
-    .sm-final__cta {
-      display: inline-flex; align-items: center; gap: var(--space-2);
-      padding: 1rem 1.75rem;
-      background: var(--color-resolution); color: var(--color-white);
-      border-radius: 100px; text-decoration: none;
-      font-family: var(--font-display); font-weight: 700;
-      font-size: 0.9375rem;
-      box-shadow: 0 8px 20px rgba(44, 69, 119, 0.25);
-      transition: background 0.18s, color 0.18s, transform 0.15s;
-    }
-    .sm-final__cta:hover {
-      background: var(--color-malibu);
+    .sm2-section__title-wrap { flex: 1; min-width: 0; }
+    .sm2-section__title {
+      display: block;
+      font-family: var(--font-display);
+      font-weight: 700; font-size: 1.0625rem;
+      letter-spacing: -0.01em;
       color: var(--color-resolution);
-      transform: translateY(-1px);
     }
-    .sm-final__cta svg { transition: transform 0.2s; }
-    .sm-final__cta:hover svg { transform: translateX(3px); }
+    .sm2-section__meta {
+      display: block;
+      font-size: 0.75rem; line-height: 1.45;
+      color: var(--color-text-muted);
+      margin-top: 2px;
+    }
+    .sm2-section__chev {
+      flex-shrink: 0;
+      color: var(--color-text-muted);
+      transition: transform 0.2s;
+    }
+    .sm2-section[open] .sm2-section__chev { transform: rotate(180deg); }
 
-    /* RESPONSIVE */
-    @media (max-width: 1100px) {
-      .sm-vertical__grid--cols-4 { grid-template-columns: repeat(2, 1fr); }
+    .sm2-section__body {
+      padding: var(--space-5) var(--space-5) var(--space-6);
+      display: flex; flex-direction: column; gap: var(--space-7);
     }
-    @media (max-width: 850px) {
-      .sm-vertical__heading-line { grid-template-columns: auto 1fr; }
-      .sm-vertical__cta { grid-column: 1 / -1; justify-self: start; margin-top: var(--space-3); }
-      .sm-vertical__grid--cols-3 { grid-template-columns: repeat(2, 1fr); }
-      .sm-bonus__grid { grid-template-columns: 1fr; gap: var(--space-6); }
-      .sm-bonus__grid--states { grid-template-columns: 1fr; }
-      .sm-hero__stats { gap: var(--space-5); }
-      .sm-hero__stat-num { font-size: 1.875rem; }
-      .sm-vertical, .sm-bonus { padding-block: var(--space-12); }
+
+    /* ============ FACETS ============ */
+    .sm2-facet { display: flex; flex-direction: column; gap: var(--space-3); }
+    .sm2-facet__head {
+      display: flex; align-items: baseline; justify-content: space-between;
+      gap: var(--space-3); flex-wrap: wrap;
+      padding-bottom: var(--space-2);
     }
-    @media (max-width: 600px) {
-      .sm-hero { padding-block: var(--space-12) var(--space-10); }
-      .sm-hero h1 { font-size: 2.5rem; }
-      .sm-hero__lede { font-size: 1.0625rem; }
-      .sm-vertical__grid--cols-4,
-      .sm-vertical__grid--cols-3,
-      .sm-vertical__grid--cols-2 { grid-template-columns: 1fr; gap: var(--space-6); }
-      .sm-vertical__heading-line { grid-template-columns: 1fr; gap: var(--space-3); }
-      .sm-vertical__num { font-size: 3rem; }
-      .sm-vertical h2 { font-size: 1.625rem; }
-      .sm-bonus__header { grid-template-columns: 1fr; }
-      .sm-bonus__num { font-size: 3rem; }
-      .sm-bonus h2 { font-size: 1.625rem; }
-      .sm-vertical, .sm-bonus { padding-block: var(--space-10); }
-      .sm-final { padding-block: var(--space-14); }
-      .sm-final h2 { font-size: 1.875rem; }
-      .sm-extras__grid { grid-template-columns: 1fr; }
+    .sm2-facet__title {
+      font-family: var(--font-display);
+      font-weight: 700; font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      color: var(--color-resolution);
+      margin: 0;
+    }
+    .sm2-facet__count {
+      color: var(--color-text-muted);
+      font-weight: 500;
+      text-transform: none;
+      letter-spacing: 0;
+    }
+    .sm2-facet__action {
+      font-family: var(--font-display);
+      font-size: 0.75rem; font-weight: 600;
+      color: var(--c-accent, var(--color-malibu));
+      text-decoration: none;
+    }
+    .sm2-facet__action:hover { text-decoration: underline; text-underline-offset: 3px; }
+
+    .sm2-link-grid {
+      list-style: none; margin: 0; padding: 0;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 2px;
+    }
+    .sm2-link-grid li { margin: 0; }
+    .sm2-link-grid li[hidden] { display: none; }
+    .sm2-link-grid a {
+      display: block;
+      padding: 7px 10px;
+      font-family: var(--font-display);
+      font-size: 0.875rem;
+      color: var(--sm2-link-color);
+      text-decoration: none;
+      border-radius: 6px;
+      transition: background 0.1s, color 0.1s;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .sm2-link-grid a:hover {
+      background: var(--c-accent-soft);
+      color: var(--c-accent, var(--color-malibu));
+    }
+
+    /* ============ A–Z LETTERS ============ */
+    .sm2-letters {
+      display: flex; flex-wrap: wrap; gap: 3px;
+      padding-bottom: var(--space-3);
+    }
+    .sm2-letter {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 26px; height: 26px;
+      font-family: var(--font-display); font-weight: 700; font-size: 0.75rem;
+      color: var(--color-resolution);
+      background: var(--color-alice);
+      border-radius: 6px;
+      text-decoration: none;
+      transition: background 0.1s, color 0.1s;
+    }
+    .sm2-letter:hover {
+      background: var(--c-accent, var(--color-malibu));
+      color: var(--color-white);
+    }
+    .sm2-letter--off {
+      color: var(--color-border);
+      pointer-events: none;
+      background: transparent;
+    }
+
+    /* ============ BRAND FAMILIES ============ */
+    .sm2-families {
+      list-style: none; margin: 0; padding: 0;
+      display: flex; flex-direction: column; gap: 1px;
+    }
+    .sm2-family { margin: 0; padding: 0; scroll-margin-top: 160px; }
+    .sm2-family[hidden] { display: none; }
+    .sm2-family details summary {
+      display: flex; align-items: center; gap: 8px;
+      padding: 7px 8px;
+      cursor: pointer;
+      list-style: none;
+      border-radius: 6px;
+      transition: background 0.1s;
+    }
+    .sm2-family details summary:hover { background: var(--color-alice); }
+    .sm2-family details summary::-webkit-details-marker { display: none; }
+    .sm2-family__chev {
+      color: var(--color-text-muted);
+      display: inline-flex;
+      transition: transform 0.15s;
+    }
+    .sm2-family details[open] .sm2-family__chev { transform: rotate(90deg); }
+    .sm2-family__name {
+      font-family: var(--font-display); font-weight: 600; font-size: 0.9375rem;
+      color: var(--color-resolution);
+      text-decoration: none;
+    }
+    .sm2-family__name--linked:hover { color: var(--c-accent, var(--color-malibu)); }
+    .sm2-family__count {
+      font-size: 0.6875rem;
+      color: var(--color-text-muted);
+      margin-left: auto;
+    }
+    .sm2-models {
+      list-style: none; margin: 0; padding: 4px 0 6px 30px;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+      gap: 1px;
+    }
+    .sm2-models li { margin: 0; }
+    .sm2-models li[hidden] { display: none; }
+    .sm2-models a {
+      display: block;
+      padding: 5px 8px;
+      font-family: var(--font-display); font-size: 0.8125rem;
+      color: var(--color-text);
+      text-decoration: none;
+      border-radius: 5px;
+      transition: background 0.1s, color 0.1s;
+    }
+    .sm2-models a:hover {
+      background: var(--c-accent-soft, var(--color-alice));
+      color: var(--c-accent, var(--color-malibu));
+    }
+
+    @media (max-width: 700px) {
+      .sm2-tabs { padding: 3px; }
+      .sm2-tab { padding: 7px 10px; font-size: 0.75rem; }
+      .sm2-section__head { padding: 14px 16px; }
+      .sm2-section__body { padding: 16px; gap: var(--space-5); }
     }
   </style>
+
+  <script>
+    /**
+     * Sitemap interactivity:
+     *
+     * 1. SEARCH — typing in the search input filters every `<li data-search>`
+     *    AND closes/opens parents (facet sections, brand families, top-level
+     *    vertical details) so a search for "Honda" finds it inside the
+     *    collapsed Auto > Brands > Honda hierarchy.
+     *
+     * 2. TABS — clicking a tab hides sections whose `data-tab-target` doesn't
+     *    match the selected tab. "All sections" shows everything.
+     *
+     * 3. The two interactions compose: tab filters which sections render,
+     *    then search filters within whatever remains visible.
+     */
+    (function () {
+      const search = document.getElementById("sm-search-input") as HTMLInputElement | null;
+      const clear = document.getElementById("sm-search-clear") as HTMLButtonElement | null;
+      const countWrap = document.getElementById("sm-search-count") as HTMLElement | null;
+      const countNum = document.getElementById("sm-search-num") as HTMLElement | null;
+      const emptyState = document.getElementById("sm-empty-state") as HTMLElement | null;
+      const tabs = Array.from(document.querySelectorAll<HTMLButtonElement>(".sm2-tab"));
+      const sections = Array.from(document.querySelectorAll<HTMLElement>(".sm2-section"));
+
+      let activeTab = "all";
+      let activeQuery = "";
+
+      function matchTab(section: HTMLElement): boolean {
+        if (activeTab === "all") return true;
+        return section.dataset.tabTarget === activeTab;
+      }
+
+      function applyFilters() {
+        let totalMatches = 0;
+        let visibleSections = 0;
+
+        for (const section of sections) {
+          const passesTab = matchTab(section);
+          if (!passesTab) {
+            section.hidden = true;
+            continue;
+          }
+
+          if (!activeQuery) {
+            // No query — restore everything
+            section.hidden = false;
+            visibleSections++;
+            section.querySelectorAll<HTMLElement>("li[hidden]").forEach((el) => { el.hidden = false; });
+            // Close everything except auto (the first section)
+            const isFirst = section === sections[0];
+            (section as HTMLDetailsElement).open = isFirst;
+            // Close nested family details
+            section.querySelectorAll<HTMLDetailsElement>(".sm2-family details").forEach((d) => { d.open = false; });
+            continue;
+          }
+
+          // With a query, search through all searchable items inside this section
+          const searchables = Array.from(section.querySelectorAll<HTMLElement>("li[data-search]"));
+          let sectionMatches = 0;
+
+          for (const li of searchables) {
+            const txt = li.dataset.search ?? "";
+            const hit = txt.includes(activeQuery);
+            li.hidden = !hit;
+            if (hit) sectionMatches++;
+          }
+
+          // Also handle brand families: a family is visible if its name matches
+          // OR any of its models matches. When a family matches, open it.
+          for (const fam of Array.from(section.querySelectorAll<HTMLElement>(".sm2-family"))) {
+            const famText = fam.dataset.search ?? "";
+            const famNameOnly = fam.dataset.familyName ?? "";
+            const famNameHit = famNameOnly.includes(activeQuery);
+            const anyChild = Array.from(fam.querySelectorAll<HTMLElement>(".sm2-models li")).some(
+              (li) => !li.hidden
+            );
+            const famHit = famText.includes(activeQuery) || famNameHit || anyChild;
+            fam.hidden = !famHit;
+
+            // If we're searching, expand the family so the matching models are visible
+            const det = fam.querySelector<HTMLDetailsElement>("details");
+            if (det) det.open = famHit;
+            // If the family name itself matches, show ALL its models
+            if (famNameHit && det) {
+              fam.querySelectorAll<HTMLElement>(".sm2-models li").forEach((li) => { li.hidden = false; });
+              sectionMatches += fam.querySelectorAll(".sm2-models li").length;
+            }
+          }
+
+          // Show the section if it has any matches
+          section.hidden = sectionMatches === 0;
+          if (sectionMatches > 0) {
+            (section as HTMLDetailsElement).open = true;
+            visibleSections++;
+            totalMatches += sectionMatches;
+          }
+        }
+
+        // Update count & empty state
+        if (activeQuery && countWrap && countNum) {
+          countWrap.hidden = false;
+          countNum.textContent = String(totalMatches);
+        } else if (countWrap) {
+          countWrap.hidden = true;
+        }
+        if (emptyState) emptyState.hidden = visibleSections > 0;
+        if (clear) clear.hidden = !activeQuery;
+      }
+
+      // Wire search
+      search?.addEventListener("input", () => {
+        activeQuery = (search.value ?? "").trim().toLowerCase();
+        applyFilters();
+      });
+      clear?.addEventListener("click", () => {
+        if (!search) return;
+        search.value = "";
+        activeQuery = "";
+        applyFilters();
+        search.focus();
+      });
+
+      // Wire tabs
+      tabs.forEach((tab) => {
+        tab.addEventListener("click", () => {
+          activeTab = tab.dataset.tab ?? "all";
+          tabs.forEach((t) => t.classList.remove("is-active"));
+          tab.classList.add("is-active");
+          applyFilters();
+        });
+      });
+
+      // Keyboard shortcut: ⌘K / Ctrl+K focuses search
+      document.addEventListener("keydown", (e) => {
+        if ((e.metaKey || e.ctrlKey) && e.key === "k") {
+          e.preventDefault();
+          search?.focus();
+          search?.select();
+        }
+      });
+    })();
+  </script>
 </BaseLayout>

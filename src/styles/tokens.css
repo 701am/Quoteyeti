@@ -6,31 +6,53 @@
    ================================================================ */
 
 :root {
-  /* ---- Master color palette (named in the original theme) ---- */
-  --color-alice:        #EFF4F8;
-  --color-ship-cove:    #8495B2;
-  --color-malibu:       #64BCE1;
-  --color-resolution:   #2C4577;
-  --color-charcoal:     #212529;
-  --color-snow:         #F9F9F9;
-  --color-white-smoke:  #F1F1F1;
-  --color-gainsboro:    #DFDFDF;
-  --color-matterhorn:   #505050;
-  --color-orange:       #F46036;
-  --color-error:        #C02B0A;
+  /* ---- Master color palette ----
+     Premium editorial palette. The navy + cream pairing is the QuoteYeti
+     foundation; teal is the new primary CTA color (replaces orange as the
+     primary "go" signal — orange is retained as the auto-vertical accent
+     and secondary CTA for energy moments). */
+
+  /* Foundations */
+  --color-alice:        #F5F5F0;  /* warm cream background (was #EFF4F8, too cool/blue) */
+  --color-snow:         #FAFAF7;  /* off-white surface */
   --color-white:        #FFFFFF;
+  --color-white-smoke:  #F1F1ED;
+  --color-gainsboro:    #E5E5E0;
+
+  /* Navy / ink — primary text and headings */
+  --color-resolution:   #1E2A4A;  /* deepened navy (was #2C4577, more enterprise) */
+  --color-resolution-2: #2C4577;  /* original mid-navy, used for accents */
+  --color-ship-cove:    #6B7A99;  /* muted blue-gray (was #8495B2, slightly darker for contrast) */
+  --color-charcoal:     #1A1F2E;  /* near-black for headings */
+  --color-matterhorn:   #3F4654;  /* body text */
+
+  /* New primary CTA — deep teal */
+  --color-teal:         #0E7C7B;  /* deep teal — primary CTA */
+  --color-teal-dark:    #0A5E5D;
+  --color-teal-soft:    #E6F2F1;
+  --color-teal-bright:  #14A38B;  /* health-vertical accent / brighter hover */
+
+  /* Secondary accents */
+  --color-malibu:       #5BA8D4;  /* slightly deeper sky blue (was #64BCE1) */
+  --color-orange:       #E55A2B;  /* slightly deepened orange — auto accent (was #F46036, less Home Depot) */
+  --color-error:        #C02B0A;
+  --color-success:      #0E7C7B;
+  --color-warning:      #D99720;
 
   /* ---- Semantic aliases ---- */
   --color-bg:           var(--color-white);
   --color-bg-alt:       var(--color-alice);
+  --color-bg-surface:   var(--color-snow);
   --color-text:         var(--color-matterhorn);
   --color-text-strong:  var(--color-charcoal);
   --color-text-muted:   var(--color-ship-cove);
   --color-heading:      var(--color-resolution);
-  --color-link:         var(--color-resolution);
-  --color-link-hover:   var(--color-malibu);
-  --color-cta:          var(--color-orange);
+  --color-link:         var(--color-teal);
+  --color-link-hover:   var(--color-teal-dark);
+  --color-cta:          var(--color-teal);
+  --color-cta-secondary: var(--color-orange);
   --color-border:       var(--color-gainsboro);
+  --color-border-soft:  rgba(0,0,0,0.06);
 
   /* ---- Section accent (default = orange/QuoteYeti) ----
      Verticals override these via [data-section="<slug>"]            */
@@ -39,24 +61,44 @@
   --section-text-on-accent: var(--color-white);
 
   /* ---- Typography ----
-     Stacks ordered so that whichever provider is loaded wins:
-     - With Typekit:  sofia-pro / plantin / proxima-nova render first
-     - With Google:   Mona Sans / Source Serif 4 / Inter render first
-     - With neither (offline / blocked):  system font fallbacks kick in
-     This lets us flip PUBLIC_FONT_PROVIDER at build time without touching
-     any other CSS. */
-  --font-display: "sofia-pro", "Mona Sans", "Source Sans 3", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
-  --font-serif:   "plantin", "Source Serif 4", "Source Serif Pro", Georgia, "Times New Roman", serif;
-  --font-body:    "proxima-nova", "Inter", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+     Three families with stable semantic roles:
 
-  /* ---- Type scale ---- */
-  --fs-h1:   3.25rem;
-  --fs-h2:   2.75rem;
-  --fs-h3:   2.25rem;
-  --fs-h4:   1.75rem;
-  --fs-h5:   1.25rem;
-  --fs-h6:   1rem;
-  --fs-body: 18px;
+     --font-display: clean modern grotesque used for headings, nav, UI.
+                     Previously sofia-pro; upgraded to Inter Tight for a more
+                     refined editorial feel. (Inter Tight is the tighter, more
+                     editorial sibling of Inter — better tracking at large sizes.)
+
+     --font-serif:   editorial serif used for H1 emphasis spans, pull-quotes,
+                     and the `.highlight` / `.serif-italic` accents. Unchanged.
+
+     --font-body:    body copy and long-form prose. Same Inter Tight family
+                     so display + body share metrics for tighter vertical
+                     rhythm. (MoneyGeek uses Untitled Sans for both —
+                     same idea.)
+
+     Font files are loaded by src/components/Fonts.astro. */
+  --font-display: "Inter Tight", "sofia-pro", "Mona Sans", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-serif:   "Source Serif 4", "plantin", "Source Serif Pro", Georgia, "Times New Roman", serif;
+  --font-body:    "Inter Tight", "Inter", "proxima-nova", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-sans:    var(--font-display);
+  --font-mono:    ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+
+  /* ---- Type scale ----
+     Tighter tracking + slightly smaller sizes than the v1 scale.
+     Editorial publishers (NYT, MoneyGeek, Bankrate) all live in this range. */
+  --fs-h1:   clamp(2.25rem, 4.5vw, 3rem);     /* was 3.25rem fixed — fluid down */
+  --fs-h2:   clamp(1.75rem, 3.2vw, 2.25rem);
+  --fs-h3:   1.5rem;
+  --fs-h4:   1.25rem;
+  --fs-h5:   1.0625rem;
+  --fs-h6:   0.8125rem;
+  --fs-body: 17px;   /* was 18px — closer to MoneyGeek/Bankrate */
+  --fs-small: 14px;
+  --fs-eyebrow: 11px;
+  --lh-tight: 1.1;
+  --lh-snug:  1.3;
+  --lh-body:  1.65;
+  --lh-loose: 1.75;
 
   /* ---- Spacing ---- */
   --space-1:  0.25rem;
@@ -76,21 +118,41 @@
   --space-24: 6rem;
   --space-32: 8rem;
 
+  /* ---- Section rhythm ----
+     Section vertical padding is generous by default — more than doubled
+     vs the old 3rem standard. Use --section-py for normal sections,
+     --section-py-lg for hero/finale sections that should feel spacious. */
+  --section-py:     clamp(3.5rem, 7vw, 6rem);
+  --section-py-lg:  clamp(5rem, 10vw, 9rem);
+  --section-py-sm:  clamp(2.5rem, 5vw, 4rem);
+
   /* ---- Layout ---- */
   --container-max: 1240px;
   --container-pad: var(--space-6);
   --header-height: 72px;
 
   /* ---- Effects ---- */
-  --radius-sm: 4px;
-  --radius:    8px;
-  --radius-lg: 12px;
+  --radius-xs: 4px;
+  --radius-sm: 6px;
+  --radius:    10px;
+  --radius-lg: 14px;
   --radius-xl: 20px;
-  --shadow-sm: 0 1px 4px rgba(0,0,0,0.08);
-  --shadow:    0 4px 16px rgba(44,69,119,0.12);
-  --shadow-lg: 0 16px 40px rgba(44,69,119,0.16);
+  --radius-pill: 100px;
 
-  --transition: 0.2s ease;
+  /* Soft, layered shadows. Use --shadow-card for cards/panels,
+     --shadow-pop for hover states, --shadow-modal for overlays. */
+  --shadow-xs:    0 1px 2px rgba(15, 23, 42, 0.04);
+  --shadow-sm:    0 1px 3px rgba(15, 23, 42, 0.05), 0 1px 2px rgba(15, 23, 42, 0.04);
+  --shadow-card:  0 2px 6px rgba(15, 23, 42, 0.04), 0 1px 2px rgba(15, 23, 42, 0.04);
+  --shadow-pop:   0 8px 24px rgba(15, 23, 42, 0.08), 0 2px 6px rgba(15, 23, 42, 0.04);
+  --shadow-modal: 0 24px 48px rgba(15, 23, 42, 0.18), 0 4px 12px rgba(15, 23, 42, 0.08);
+  /* Legacy aliases retained for back-compat */
+  --shadow:    var(--shadow-card);
+  --shadow-lg: var(--shadow-modal);
+
+  --transition:      180ms cubic-bezier(0.16, 1, 0.3, 1);
+  --transition-fast: 120ms cubic-bezier(0.16, 1, 0.3, 1);
+  --transition-slow: 320ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 /* ---- Vertical accent overrides ---- */
@@ -110,33 +172,47 @@
 *, *::before, *::after { box-sizing: border-box; }
 html, body { margin: 0; padding: 0; min-height: 100vh; }
 
-body {
-  font-family: var(--font-body);
-  font-size: var(--fs-body);
-  color: var(--color-text);
-  background: var(--color-bg);
-  line-height: 1.5;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
 h1, .h1, h2, .h2, h3, .h3, h4, .h4, h5, .h5, h6, .h6 {
   color: var(--color-heading);
   font-family: var(--font-display);
   font-weight: 600;
-  line-height: 1.1;
+  line-height: var(--lh-tight);
+  letter-spacing: -0.02em;
   margin: 0 0 var(--space-5);
 }
-h1, .h1 { font-size: var(--fs-h1); margin-bottom: var(--space-8); }
-h2, .h2 { font-size: var(--fs-h2); }
-h3, .h3 { font-size: var(--fs-h3); }
+h1, .h1 {
+  font-size: var(--fs-h1);
+  letter-spacing: -0.03em;
+  margin-bottom: var(--space-6);
+  font-weight: 600;
+}
+h2, .h2 {
+  font-size: var(--fs-h2);
+  letter-spacing: -0.025em;
+}
+h3, .h3 {
+  font-size: var(--fs-h3);
+  letter-spacing: -0.018em;
+}
 h4, .h4 { font-size: var(--fs-h4); }
 h5, .h5 { font-size: var(--fs-h5); }
 h6, .h6 {
   font-size: var(--fs-h6);
   text-transform: uppercase;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.12em;
+  font-weight: 700;
   color: var(--color-text-muted);
+}
+
+body {
+  font-family: var(--font-body);
+  font-size: var(--fs-body);
+  color: var(--color-text);
+  background: var(--color-bg);
+  line-height: var(--lh-body);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-feature-settings: "ss01", "cv11";  /* Inter Tight refinements */
 }
 
 .highlight {
@@ -302,4 +378,242 @@ a:hover { color: var(--color-link-hover); }
 .autolink:hover {
   color: var(--color-resolution);
   text-decoration-style: solid;
+}
+
+/* ================================================================
+   Reusable component primitives — Phase 3 upgrade
+   Cards, accordion drawers, author capsule, feature blocks.
+   ================================================================ */
+
+/* ---- Card system ----
+   .card        baseline white surface, subtle border + shadow
+   .card--hover lifts on hover (clickable feel)
+   .card--flat  no border, no shadow (use on tinted backgrounds)
+   .card--tinted use the section tint as background */
+.card {
+  background: var(--color-white);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-6);
+  box-shadow: var(--shadow-card);
+  transition: transform var(--transition), box-shadow var(--transition), border-color var(--transition);
+}
+.card--hover { cursor: pointer; }
+.card--hover:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-pop);
+  border-color: var(--section-accent, var(--color-malibu));
+}
+.card--flat { border: 0; box-shadow: none; }
+.card--tinted { background: var(--section-accent-soft); border: 0; }
+.card__title {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 1.0625rem;
+  letter-spacing: -0.01em;
+  color: var(--color-resolution);
+  margin: 0 0 var(--space-2);
+}
+.card__body {
+  font-size: 0.9375rem;
+  line-height: var(--lh-body);
+  color: var(--color-text);
+  margin: 0;
+}
+
+/* ---- Accordion drawer ----
+   Use for FAQs, "what we evaluated", and any long-form SEO text
+   that doesn't need to be visible on first paint. */
+.drawer {
+  border-top: 1px solid var(--color-border);
+}
+.drawer:last-child { border-bottom: 1px solid var(--color-border); }
+.drawer > summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding: var(--space-5) 0;
+  cursor: pointer;
+  list-style: none;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 1.0625rem;
+  line-height: 1.4;
+  color: var(--color-resolution);
+  letter-spacing: -0.005em;
+  transition: color var(--transition);
+}
+.drawer > summary::-webkit-details-marker { display: none; }
+.drawer > summary:hover { color: var(--color-teal); }
+.drawer__icon {
+  flex-shrink: 0;
+  width: 28px; height: 28px;
+  display: inline-flex; align-items: center; justify-content: center;
+  border-radius: 100px;
+  background: var(--color-alice);
+  color: var(--color-resolution);
+  transition: background var(--transition), transform var(--transition), color var(--transition);
+}
+.drawer[open] .drawer__icon {
+  background: var(--color-teal);
+  color: var(--color-white);
+  transform: rotate(45deg);
+}
+.drawer__body {
+  padding: 0 0 var(--space-6);
+  font-size: 0.9375rem;
+  line-height: var(--lh-loose);
+  color: var(--color-text);
+  max-width: 720px;
+}
+.drawer__body p { margin: 0 0 var(--space-4); }
+.drawer__body p:last-child { margin-bottom: 0; }
+.drawer__body a { color: var(--color-teal); text-decoration: underline; text-underline-offset: 3px; }
+
+/* ---- Feature block ----
+   Icon + heading + sub used for pros/cons or "what we evaluated" lists.
+   Replaces flat bullet points. */
+.featurelist {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: var(--space-4);
+}
+.featurelist__item {
+  display: flex;
+  gap: var(--space-3);
+  align-items: flex-start;
+  padding: var(--space-4);
+  background: var(--color-snow);
+  border-radius: var(--radius);
+  border: 1px solid var(--color-border);
+}
+.featurelist__icon {
+  flex-shrink: 0;
+  width: 32px; height: 32px;
+  display: inline-flex; align-items: center; justify-content: center;
+  border-radius: 8px;
+  background: var(--section-accent-soft);
+  color: var(--section-accent);
+}
+.featurelist__icon--pos { background: var(--color-teal-soft); color: var(--color-teal); }
+.featurelist__icon--neg { background: rgba(192, 43, 10, 0.08); color: var(--color-error); }
+.featurelist__title {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 0.9375rem;
+  color: var(--color-resolution);
+  line-height: 1.35;
+  margin: 0 0 2px;
+}
+.featurelist__body {
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  color: var(--color-text-muted);
+  margin: 0;
+}
+
+/* ---- Author capsule ----
+   Bottom-of-article author block — fuller treatment than the inline
+   byline at the top. Photo + role + credentials + last-updated. */
+.authorcapsule {
+  display: grid;
+  grid-template-columns: 56px 1fr;
+  gap: var(--space-5);
+  align-items: start;
+  padding: var(--space-6);
+  background: var(--color-snow);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  margin-block: var(--space-10) var(--space-8);
+}
+.authorcapsule__avatar {
+  width: 56px; height: 56px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: var(--color-alice);
+  flex-shrink: 0;
+}
+.authorcapsule__avatar img { width: 100%; height: 100%; object-fit: cover; }
+.authorcapsule__head {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-2) var(--space-3);
+  flex-wrap: wrap;
+  margin: 0 0 var(--space-2);
+}
+.authorcapsule__name {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 1rem;
+  letter-spacing: -0.01em;
+  color: var(--color-resolution);
+}
+.authorcapsule__role {
+  font-size: 0.8125rem;
+  color: var(--color-text-muted);
+  font-weight: 500;
+}
+.authorcapsule__cred {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--color-teal);
+  padding: 2px 8px;
+  background: var(--color-teal-soft);
+  border-radius: 100px;
+}
+.authorcapsule__bio {
+  font-size: 0.9375rem;
+  line-height: 1.55;
+  color: var(--color-text);
+  margin: 0 0 var(--space-3);
+}
+.authorcapsule__meta {
+  display: flex; flex-wrap: wrap; gap: var(--space-4);
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+}
+.authorcapsule__meta a {
+  color: var(--color-teal);
+  text-decoration: none;
+}
+.authorcapsule__meta a:hover { text-decoration: underline; }
+
+@media (max-width: 600px) {
+  .authorcapsule {
+    grid-template-columns: 1fr;
+    text-align: left;
+  }
+  .authorcapsule__avatar { width: 48px; height: 48px; }
+}
+
+/* ---- Trust badges row ---- */
+.trust-badges {
+  display: flex;
+  align-items: center;
+  gap: var(--space-6);
+  flex-wrap: wrap;
+  padding-block: var(--space-4);
+}
+.trust-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-family: var(--font-display);
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--color-text-muted);
+  letter-spacing: 0.005em;
+}
+.trust-badge svg, .trust-badge i {
+  color: var(--color-resolution);
+  flex-shrink: 0;
 }
