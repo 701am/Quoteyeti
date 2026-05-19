@@ -53,6 +53,33 @@ const cols = footer.columns.slice(0, 3);
     </div>
   </section>
 
+  <!-- ============== Mega-footer: per-vertical sitemap ============== -->
+  <section class="footer-verticals">
+    <div class="container">
+      <p class="footer-verticals__eyebrow">Browse by category</p>
+      <div class="footer-verticals__grid">
+        {VERTICAL_LIST.map((v) => (
+          <div class="footer-vertical" style={`--v-accent: ${v.accent};`}>
+            <a href={v.path} class="footer-vertical__head">
+              <img src={v.icon} alt="" width="20" height="20" loading="lazy" />
+              <span>{v.short}</span>
+            </a>
+            <ul class="footer-vertical__links">
+              <li><a href={`${v.path}reviews/`}>Carrier reviews</a></li>
+              <li><a href={`${v.path}best/`}>Best of {new Date().getFullYear()}</a></li>
+              {["auto","home","life","business"].includes(v.key) && <li><a href={`${v.path}cheapest/`}>Cheapest</a></li>}
+              {["auto","home","life","business"].includes(v.key) && <li><a href={`${v.path}by-state/`}>By state</a></li>}
+              {v.key === "auto" && <li><a href="/auto/brands/">Brand &amp; model rates</a></li>}
+              {v.key === "auto" && <li><a href="/auto/glossary/">Glossary</a></li>}
+              <li><a href={`${v.path}guides/`}>Guides</a></li>
+              <li><a href={`${v.path}compare/`}>Compare carriers</a></li>
+            </ul>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
   <!-- ============== Main footer (dark) ============== -->
   <section class="footer-main">
     <div class="container footer-main__inner">
@@ -247,6 +274,69 @@ const cols = footer.columns.slice(0, 3);
   }
   .footer-newsletter-form__legal a { color: var(--color-text-muted); border-bottom: 1px solid var(--color-border); text-decoration: none; }
   .footer-newsletter-form__legal a:hover { color: var(--color-malibu); border-bottom-color: var(--color-malibu); }
+
+  /* ============================================
+     Mega-footer: per-vertical sitemap row
+  ============================================ */
+  .footer-verticals {
+    background: var(--color-alice);
+    padding-block: clamp(3rem, 6vw, 5rem);
+    border-top: 1px solid var(--color-border);
+  }
+  .footer-verticals__eyebrow {
+    font-family: var(--font-display);
+    font-size: 0.6875rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.18em;
+    color: var(--color-text-muted);
+    margin: 0 0 var(--space-8);
+  }
+  .footer-verticals__grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: var(--space-8) var(--space-6);
+  }
+  .footer-vertical {
+    min-width: 0;
+  }
+  .footer-vertical__head {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-family: var(--font-display);
+    font-weight: 700; font-size: 0.9375rem;
+    color: var(--color-resolution);
+    text-decoration: none;
+    padding-bottom: var(--space-3);
+    margin-bottom: var(--space-3);
+    border-bottom: 2px solid var(--v-accent);
+    transition: color var(--transition);
+  }
+  .footer-vertical__head:hover { color: var(--v-accent); }
+  .footer-vertical__links {
+    list-style: none; margin: 0; padding: 0;
+    display: flex; flex-direction: column;
+    gap: 4px;
+  }
+  .footer-vertical__links a {
+    display: inline-block;
+    font-family: var(--font-display);
+    font-size: 0.8125rem; font-weight: 500;
+    color: var(--color-text);
+    text-decoration: none;
+    padding: 3px 0;
+    transition: color var(--transition);
+  }
+  .footer-vertical__links a:hover { color: var(--v-accent); }
+
+  @media (max-width: 880px) {
+    .footer-verticals__grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  @media (max-width: 480px) {
+    .footer-verticals__grid {
+      grid-template-columns: 1fr;
+      gap: var(--space-6);
+    }
+  }
 
   /* ============================================
      Main footer — dark navy, full width
