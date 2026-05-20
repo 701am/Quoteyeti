@@ -40,7 +40,7 @@ const reviewSchema = baseEntry.extend({
   takeaways: z.array(z.string()).default([]),
 
   // Ratings
-  overallScore: z.number().min(0).max(5),
+  overallScore: z.number().min(0).max(5).optional(),
   overallRank: z.number().optional(),
   ratings: z.array(z.object({
     category: z.string(),

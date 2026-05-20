@@ -40,7 +40,7 @@ export const DEFAULT_FOOTER: SectionFooter = {
     body: "We compare auto, home, life, business, health, renters, pet, and travel insurance — in one place.",
     ctaLabel: "Get started",
     ctaHref: "/auto/quotes/",
-    illustration: "/assets/images/yeti-hero.svg",
+    illustration: "/assets/images/bob-the-yeti-head.png",
   },
   columns: [
     {
@@ -138,7 +138,7 @@ export const SECTION_FOOTERS: Record<VerticalKey, SectionFooter> = {
       heading: "See what your home really costs to insure.",
       ctaLabel: "See home rates",
       ctaHref: "/home-insurance/quotes/",
-      illustration: "/assets/images/yeti-hero.svg",
+      illustration: "/assets/images/bob-the-yeti-head.png",
     },
     columns: [
       {
@@ -176,7 +176,7 @@ export const SECTION_FOOTERS: Record<VerticalKey, SectionFooter> = {
       heading: "Term, whole, or universal — find the right fit.",
       ctaLabel: "See life rates",
       ctaHref: "/life-insurance/quotes/",
-      illustration: "/assets/images/yeti-hero.svg",
+      illustration: "/assets/images/bob-the-yeti-head.png",
     },
     columns: [
       {
@@ -214,7 +214,7 @@ export const SECTION_FOOTERS: Record<VerticalKey, SectionFooter> = {
       heading: "Get coverage that scales with your business.",
       ctaLabel: "See business rates",
       ctaHref: "/business-insurance/quotes/",
-      illustration: "/assets/images/yeti-hero.svg",
+      illustration: "/assets/images/bob-the-yeti-head.png",
     },
     columns: [
       {
@@ -251,7 +251,7 @@ export const SECTION_FOOTERS: Record<VerticalKey, SectionFooter> = {
       heading: "Find a plan that matches your needs and budget.",
       ctaLabel: "Compare health plans",
       ctaHref: "/health-insurance/quotes/",
-      illustration: "/assets/images/yeti-hero.svg",
+      illustration: "/assets/images/bob-the-yeti-head.png",
     },
     columns: [
       {
@@ -286,7 +286,7 @@ export const SECTION_FOOTERS: Record<VerticalKey, SectionFooter> = {
       heading: "Cover your stuff for less than a streaming subscription.",
       ctaLabel: "See renters rates",
       ctaHref: "/renters-insurance/quotes/",
-      illustration: "/assets/images/yeti-hero.svg",
+      illustration: "/assets/images/bob-the-yeti-head.png",
     },
     columns: [
       {
@@ -320,7 +320,7 @@ export const SECTION_FOOTERS: Record<VerticalKey, SectionFooter> = {
       heading: "Compare pet plans without the upsell.",
       ctaLabel: "See pet rates",
       ctaHref: "/pet-insurance/quotes/",
-      illustration: "/assets/images/yeti-hero.svg",
+      illustration: "/assets/images/bob-the-yeti-head.png",
     },
     columns: [
       {
@@ -354,7 +354,7 @@ export const SECTION_FOOTERS: Record<VerticalKey, SectionFooter> = {
       heading: "Don't let one canceled flight wreck the trip.",
       ctaLabel: "See travel rates",
       ctaHref: "/travel-insurance/quotes/",
-      illustration: "/assets/images/yeti-hero.svg",
+      illustration: "/assets/images/bob-the-yeti-head.png",
     },
     columns: [
       {

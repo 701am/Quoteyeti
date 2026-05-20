@@ -20,6 +20,9 @@ interface ReviewProps {
     founded?: number;
     headline: string;
     updated: string;
+    website?: string;
+    phone?: string;
+    headquarters?: string;
     author?: { name: string; bio: string };
     editor?: { name: string };
   };
@@ -27,7 +30,7 @@ interface ReviewProps {
   takeaways: string[];
 
   ratings: {
-    overall: number;
+    overall?: number;
     rank?: number;
     breakdown: { category: string; score: number; rank?: number }[];
   };
@@ -86,7 +89,7 @@ const remainingTakeaways = takeaways.slice(1);
   ]}
   review={{
     carrierName: carrier.name,
-    score: ratings.overall,
+    score: ratings.overall ?? 0,
     publishDate: carrier.updated,
     modifiedDate: carrier.updated,
     authorName: carrier.author?.name,
@@ -108,11 +111,24 @@ const remainingTakeaways = takeaways.slice(1);
       </nav>
 
       <div class="review-hero__head">
-        {carrier.logo && (
-          <div class="review-hero__logo">
-            <img src={carrier.logo} alt={`${carrier.name} logo`} />
-          </div>
-        )}
+        <div class="review-hero__logo">
+          {carrier.logo ? (
+            <>
+              <img
+                src={carrier.logo}
+                alt={`${carrier.name} logo`}
+                onerror="this.style.display='none';this.nextElementSibling.style.display='flex';"
+              />
+              <div class="review-hero__monogram" style="display:none;" aria-hidden="true">
+                <span>{carrier.name.split(/\s+/).slice(0, 2).map(w => w[0]).join("").toUpperCase()}</span>
+              </div>
+            </>
+          ) : (
+            <div class="review-hero__monogram" aria-hidden="true">
+              <span>{carrier.name.split(/\s+/).slice(0, 2).map(w => w[0]).join("").toUpperCase()}</span>
+            </div>
+          )}
+        </div>
         <div class="review-hero__title">
           <div class="review-hero__meta">
             <DataRefreshPill label="Last reviewed" value={carrier.updated} />
@@ -133,6 +149,40 @@ const remainingTakeaways = takeaways.slice(1);
             {carrier.name} <span class="serif-italic">{vertical.label}</span> Review
           </h1>
           <p class="review-hero__positioning">{carrier.headline}</p>
+
+          {/* Company facts strip — shows website, founded year, headquarters, phone when present */}
+          {(carrier.website || carrier.founded || carrier.headquarters || carrier.phone) && (
+            <dl class="review-hero__facts">
+              {carrier.founded && (
+                <div class="review-hero__fact">
+                  <dt>Founded</dt>
+                  <dd>{carrier.founded}</dd>
+                </div>
+              )}
+              {carrier.headquarters && (
+                <div class="review-hero__fact">
+                  <dt>Headquarters</dt>
+                  <dd>{carrier.headquarters}</dd>
+                </div>
+              )}
+              {carrier.website && (
+                <div class="review-hero__fact">
+                  <dt>Website</dt>
+                  <dd>
+                    <a href={carrier.website} target="_blank" rel="noopener nofollow">
+                      {carrier.website.replace(/^https?:\/\//, "").replace(/\/$/, "")}
+                    </a>
+                  </dd>
+                </div>
+              )}
+              {carrier.phone && (
+                <div class="review-hero__fact">
+                  <dt>Phone</dt>
+                  <dd><a href={`tel:${carrier.phone.replace(/[^\d+]/g, "")}`}>{carrier.phone}</a></dd>
+                </div>
+              )}
+            </dl>
+          )}
         </div>
       </div>
     </div>
@@ -247,69 +297,85 @@ const remainingTakeaways = takeaways.slice(1);
         />
 
         <!-- ===== RATINGS (bar chart) ===== -->
-        <section id="ratings" class="reveal">
-          <h2>{carrier.name} <span class="serif-italic">ratings</span></h2>
-          <div class="ratings-overview">
-            <div class="ratings-overview__score">
-              <ScoreGauge
-                score={ratings.overall}
-                max={5}
-                size="xl"
-                label="Overall score"
-                rank={ratings.rank ? `National rank · #${ratings.rank}` : undefined}
-                tone="default"
-              />
-            </div>
+        {ratings.overall !== undefined ? (
+          <section id="ratings" class="reveal">
+            <h2>{carrier.name} <span class="serif-italic">ratings</span></h2>
+            <div class="ratings-overview">
+              <div class="ratings-overview__score">
+                <ScoreGauge
+                  score={ratings.overall}
+                  max={5}
+                  size="xl"
+                  label="Overall score"
+                  rank={ratings.rank ? `National rank · #${ratings.rank}` : undefined}
+                  tone="default"
+                />
+              </div>
 
-            <div class="ratings-breakdown">
-              {ratings.breakdown.length >= 3 ? (
-                <>
-                  <RadarChart
-                    axes={ratings.breakdown.map((b) => ({ label: b.category, score: b.score, max: 5 }))}
-                    size={280}
-                    tone="default"
-                  />
-                  {ratings.breakdown.some(b => b.rank) && (
-                    <ul class="ratings-ranks">
-                      {ratings.breakdown.filter(b => b.rank).map(b => (
-                        <li>
-                          <span class="ratings-ranks__cat">{b.category}</span>
-                          <span class="ratings-ranks__sep" aria-hidden="true">·</span>
-                          <span class="ratings-ranks__rank">National rank #{b.rank}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-                </>
-              ) : (
-                <div class="ratings-bars">
-                  {ratings.breakdown.map((b) => {
-                    const pct = Math.min(100, Math.max(0, (b.score / 5) * 100));
-                    return (
-                      <div class="rating-bar">
-                        <div class="rating-bar__head">
-                          <span class="rating-bar__category">{b.category}</span>
-                          <span class="rating-bar__score">{b.score.toFixed(2)}<span class="rating-bar__max">/5</span></span>
+              <div class="ratings-breakdown">
+                {ratings.breakdown.length >= 3 ? (
+                  <>
+                    <RadarChart
+                      axes={ratings.breakdown.map((b) => ({ label: b.category, score: b.score, max: 5 }))}
+                      size={280}
+                      tone="default"
+                    />
+                    {ratings.breakdown.some(b => b.rank) && (
+                      <ul class="ratings-ranks">
+                        {ratings.breakdown.filter(b => b.rank).map(b => (
+                          <li>
+                            <span class="ratings-ranks__cat">{b.category}</span>
+                            <span class="ratings-ranks__sep" aria-hidden="true">·</span>
+                            <span class="ratings-ranks__rank">National rank #{b.rank}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </>
+                ) : (
+                  <div class="ratings-bars">
+                    {ratings.breakdown.map((b) => {
+                      const pct = Math.min(100, Math.max(0, (b.score / 5) * 100));
+                      return (
+                        <div class="rating-bar">
+                          <div class="rating-bar__head">
+                            <span class="rating-bar__category">{b.category}</span>
+                            <span class="rating-bar__score">{b.score.toFixed(2)}<span class="rating-bar__max">/5</span></span>
+                          </div>
+                          <div class="rating-bar__track" role="img" aria-label={`${b.category}: ${b.score} out of 5`}>
+                            <div class="rating-bar__fill" style={`--bar-pct: ${pct}%;`}></div>
+                            <span class="rating-bar__tick" style="left: 20%"></span>
+                            <span class="rating-bar__tick" style="left: 40%"></span>
+                            <span class="rating-bar__tick" style="left: 60%"></span>
+                            <span class="rating-bar__tick" style="left: 80%"></span>
+                          </div>
+                          {b.rank && <p class="rating-bar__rank">National rank #{b.rank}</p>}
                         </div>
-                        <div class="rating-bar__track" role="img" aria-label={`${b.category}: ${b.score} out of 5`}>
-                          <div class="rating-bar__fill" style={`--bar-pct: ${pct}%;`}></div>
-                          <span class="rating-bar__tick" style="left: 20%"></span>
-                          <span class="rating-bar__tick" style="left: 40%"></span>
-                          <span class="rating-bar__tick" style="left: 60%"></span>
-                          <span class="rating-bar__tick" style="left: 80%"></span>
-                        </div>
-                        {b.rank && <p class="rating-bar__rank">National rank #{b.rank}</p>}
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
             </div>
-          </div>
-        </section>
+          </section>
+        ) : (
+          <section id="ratings" class="reveal stub-notice">
+            <h2>{carrier.name} <span class="serif-italic">ratings</span></h2>
+            <div class="stub-notice__body">
+              <p class="stub-notice__eyebrow">Scoring in progress</p>
+              <p class="stub-notice__lede">
+                We're still in the field on {carrier.name}. Their carrier reference page is here so you have what we have — verified company facts, our initial analysis, and the strengths and weaknesses we've identified — but their full editorial score, ranking, and cost benchmarking aren't ready yet. We don't post scores we haven't earned.
+              </p>
+              <p class="stub-notice__followup">
+                If you're comparing carriers right now, our <a href={`${vertical.path}best/`}>full {vertical.short.toLowerCase()} rankings</a> covers the carriers we've scored.
+              </p>
+            </div>
+          </section>
+        )}
 
         <!-- ===== COST ===== -->
-        <section id="cost" class="reveal">
+        {cost.summary && (
+          <section id="cost" class="reveal">
           <h2>How much does {carrier.name} <span class="serif-italic">cost?</span></h2>
           <p class="prose">{cost.summary}</p>
 
@@ -410,6 +476,7 @@ const remainingTakeaways = takeaways.slice(1);
             </>
           )}
         </section>
+        )}
 
         <!-- ===== EDITORIAL PULL-QUOTE ===== -->
         {ratings.rank && (
@@ -419,6 +486,7 @@ const remainingTakeaways = takeaways.slice(1);
         )}
 
         <!-- ===== CUSTOMER EXPERIENCE ===== -->
+        {customerExperience.summary && (
         <section id="customer-experience" class="reveal">
           <h2>{carrier.name} <span class="serif-italic">reputation</span></h2>
           <p class="prose">{customerExperience.summary}</p>
@@ -450,11 +518,13 @@ const remainingTakeaways = takeaways.slice(1);
             </div>
           </div>
         </section>
+        )}
 
         <!-- Section break: footprint divider before independent ratings -->
         <FootprintDivider width="medium" />
 
         <!-- ===== INDUSTRY RATINGS ===== -->
+        {industryRatings.length > 0 && (
         <section id="industry-ratings" class="reveal">
           <h2><span class="serif-italic">Independent</span> industry ratings</h2>
           <p class="prose">Independent ratings from major financial-strength and customer-satisfaction agencies:</p>
@@ -501,6 +571,7 @@ const remainingTakeaways = takeaways.slice(1);
             </tbody>
           </table>
         </section>
+        )}
 
         <!-- ===== DISCOUNTS ===== -->
         {discounts && discounts.length > 0 && (
@@ -529,6 +600,7 @@ const remainingTakeaways = takeaways.slice(1);
         )}
 
         <!-- ===== COVERAGE ===== -->
+        {coverage.summary && coverage.addOns.length > 0 && (
         <section id="coverage" class="reveal">
           <h2>{carrier.name} <span class="serif-italic">coverage</span> options</h2>
           <p class="prose">{coverage.summary}</p>
@@ -551,6 +623,7 @@ const remainingTakeaways = takeaways.slice(1);
             </tbody>
           </table>
         </section>
+        )}
 
         <!-- Section break: footprint divider before pros & cons -->
         <FootprintDivider width="medium" />
@@ -608,6 +681,7 @@ const remainingTakeaways = takeaways.slice(1);
         </section>
 
         <!-- ===== FAQ ===== -->
+        {faqs.length > 0 && (
         <section id="faq" class="review-faq reveal">
           <h2>Frequently asked <span class="serif-italic">questions</span></h2>
           {faqs.map((faq) => (
@@ -626,8 +700,10 @@ const remainingTakeaways = takeaways.slice(1);
             </details>
           ))}
         </section>
+        )}
 
         <!-- ===== METHODOLOGY ===== -->
+        {methodology.intro && methodology.factors.length > 0 && (
         <section id="methodology" class="methodology reveal">
           <h2>How we <span class="serif-italic">rated</span> {carrier.name}</h2>
           <p class="prose">{methodology.intro}</p>
@@ -650,6 +726,7 @@ const remainingTakeaways = takeaways.slice(1);
             />
           )}
         </section>
+        )}
 
         <!-- ===== RELATED RESEARCH ===== -->
         <aside class="related-research" aria-label="Related research">
@@ -739,8 +816,135 @@ const remainingTakeaways = takeaways.slice(1);
       padding: var(--space-3);
       box-shadow: 0 4px 16px rgba(0,0,0,0.06), 0 1px 3px rgba(0,0,0,0.05);
       display: flex; align-items: center; justify-content: center;
+      position: relative;
     }
     .review-hero__logo img { max-width: 100%; max-height: 100%; object-fit: contain; }
+
+    /* Monogram fallback — shown when carrier logo hasn't been downloaded yet.
+       The serif italic gives it editorial register, not "missing asset" feel. */
+    .review-hero__monogram {
+      width: 100%; height: 100%;
+      display: flex; align-items: center; justify-content: center;
+      background: linear-gradient(135deg, var(--section-accent-soft, var(--color-alice)) 0%, var(--color-white) 100%);
+      border-radius: calc(var(--radius) - 4px);
+      position: relative;
+      overflow: hidden;
+    }
+    .review-hero__monogram::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background-image: radial-gradient(circle at 30% 20%, rgba(0,0,0,0.04) 0%, transparent 50%);
+      pointer-events: none;
+    }
+    .review-hero__monogram span {
+      font-family: var(--font-serif);
+      font-style: italic;
+      font-weight: 500;
+      font-size: 2rem;
+      color: var(--section-accent, var(--color-resolution));
+      letter-spacing: -0.04em;
+      line-height: 1;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Company facts strip — tasteful dl below positioning text, never shouts */
+    .review-hero__facts {
+      margin: var(--space-6) 0 0;
+      padding: var(--space-4) 0 0;
+      border-top: 1px solid var(--color-border);
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-6) var(--space-8);
+    }
+    .review-hero__fact {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      min-width: 0;
+    }
+    .review-hero__fact dt {
+      font-family: var(--font-display);
+      font-size: 0.6875rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      color: var(--color-text-muted);
+      margin: 0;
+    }
+    .review-hero__fact dd {
+      font-family: var(--font-display);
+      font-size: 0.9375rem;
+      font-weight: 600;
+      color: var(--color-resolution);
+      margin: 0;
+      letter-spacing: -0.005em;
+    }
+    .review-hero__fact dd a {
+      color: var(--color-resolution);
+      text-decoration: none;
+      border-bottom: 1px solid transparent;
+      transition: border-color var(--transition);
+    }
+    .review-hero__fact dd a:hover {
+      border-bottom-color: var(--section-accent, var(--color-resolution));
+    }
+    @media (max-width: 600px) {
+      .review-hero__facts {
+        gap: var(--space-3) var(--space-5);
+      }
+    }
+
+    /* Stub-notice: replaces the Ratings block when carrier scoring isn't finalized.
+       Frames absence as a deliberate editorial choice, not missing data. */
+    .stub-notice {
+      padding: var(--space-9) var(--space-8);
+      background: var(--color-alice);
+      border: 1px solid var(--color-border);
+      border-left: 4px solid var(--section-accent, var(--color-ship-cove));
+      border-radius: var(--radius);
+      margin-block: var(--space-6);
+    }
+    .stub-notice h2 {
+      margin: 0 0 var(--space-6);
+    }
+    .stub-notice__body {
+      max-width: 60ch;
+    }
+    .stub-notice__eyebrow {
+      font-family: var(--font-display);
+      font-size: 0.6875rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      color: var(--section-accent, var(--color-ship-cove));
+      margin: 0 0 var(--space-3);
+    }
+    .stub-notice__lede {
+      font-family: var(--font-display);
+      font-size: 1.0625rem;
+      line-height: 1.6;
+      color: var(--color-text-strong);
+      margin: 0 0 var(--space-4);
+    }
+    .stub-notice__followup {
+      font-family: var(--font-display);
+      font-size: 0.9375rem;
+      line-height: 1.55;
+      color: var(--color-text-muted);
+      margin: 0;
+    }
+    .stub-notice__followup a {
+      color: var(--color-resolution);
+      font-weight: 600;
+      text-decoration: none;
+      border-bottom: 1px solid var(--section-accent, var(--color-ship-cove));
+      transition: color var(--transition);
+    }
+    .stub-notice__followup a:hover {
+      color: var(--section-accent, var(--color-ship-cove));
+    }
 
     .eyebrow {
       display: inline-flex; align-items: center; gap: var(--space-2);

@@ -3,9 +3,11 @@ title: "Liberty Mutual Car Insurance Review"
 description: "Liberty Mutual car insurance review for 2026. Rates, customer experience, claims, coverage, pros, cons, and how it stacks up against competitors."
 
 company: "Liberty Mutual"
-companyLogo: "/assets/images/icons/auto.svg"
+companyLogo: "/assets/images/carriers/liberty-mutual.png"
 foundedYear: 1912
 websiteUrl: "https://www.libertymutual.com"
+phoneNumber: "844-266-4213"
+address: "175 Berkeley Street, Boston, MA 02116"
 
 positioning: "Liberty Mutual is a major national carrier with a 'pay only for what you need' marketing pitch and broad coverage customization. Below, QuoteYeti's editorial team breaks down where Liberty actually delivers value and where it consistently underperforms — using rate data, complaint indices, and direct comparisons."
 

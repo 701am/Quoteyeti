@@ -3,9 +3,11 @@ title: "USAA Car Insurance Review"
 description: "USAA car insurance review for 2026. Rates, customer experience, claims, coverage, pros, cons, and how it stacks up against competitors."
 
 company: "USAA"
-companyLogo: "/assets/images/icons/auto.svg"
+companyLogo: "/assets/images/carriers/usaa.png"
 foundedYear: 1922
 websiteUrl: "https://www.usaa.com"
+phoneNumber: "800-531-8722"
+address: "9800 Fredericksburg Road San Antonio, TX 78288"
 
 positioning: "USAA is the top-rated auto insurance for qualifying military members and their families, with industry-leading customer satisfaction and the lowest rates for most profiles. Below, QuoteYeti's editorial team breaks down where USAA actually wins for drivers and where it falls behind — using real ratings, real pricing, and direct comparisons."
 

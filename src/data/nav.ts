@@ -86,7 +86,7 @@ export const NAV: NavEntry[] = [
       heading: "See your real rate, not a marketing average",
       body: "Drop your ZIP. We pull live rates for your area from the carriers we cover — the way QuoteYeti has always worked.",
       cta: { label: "See auto rates", href: "/auto/quotes/" },
-      image: "/assets/images/yeti-hero.svg",
+      image: "/assets/images/bob-the-yeti-head.png",
     }),
   },
   {
@@ -97,7 +97,7 @@ export const NAV: NavEntry[] = [
       heading: "Protect what matters most",
       body: "Compare home insurance rates from the carriers that actually cover your area.",
       cta: { label: "See home rates", href: "/home-insurance/quotes/" },
-      image: "/assets/images/yeti-hero.svg",
+      image: "/assets/images/bob-the-yeti-head.png",
     }),
   },
   {
@@ -108,7 +108,7 @@ export const NAV: NavEntry[] = [
       heading: "Coverage for the people who count on you",
       body: "Term, whole, and universal life — compare rates without the sales call.",
       cta: { label: "See life rates", href: "/life-insurance/quotes/" },
-      image: "/assets/images/yeti-hero.svg",
+      image: "/assets/images/bob-the-yeti-head.png",
     }),
   },
   {
@@ -119,7 +119,7 @@ export const NAV: NavEntry[] = [
       heading: "Insurance for the work you do",
       body: "General liability, workers' comp, professional indemnity — coverage tailored to your business.",
       cta: { label: "See business rates", href: "/business-insurance/quotes/" },
-      image: "/assets/images/yeti-hero.svg",
+      image: "/assets/images/bob-the-yeti-head.png",
     }),
   },
   {

@@ -3,9 +3,11 @@ title: "Nationwide Car Insurance Review"
 description: "Nationwide car insurance review for 2026. Rates, customer experience, claims, coverage, pros, cons, and how it stacks up against competitors."
 
 company: "Nationwide"
-companyLogo: "/assets/images/icons/auto.svg"
+companyLogo: "/assets/images/carriers/nationwide.png"
 foundedYear: 1925
 websiteUrl: "https://www.nationwide.com"
+phoneNumber: "877-669-6877"
+address: "One Nationwide Plaza, Columbus, OH 43215"
 
 positioning: "Nationwide is a strong bundling-focused auto insurance with vanishing deductibles and personalized claims service. Below, QuoteYeti's editorial team breaks down where Nationwide actually wins for drivers and where it falls behind — using real ratings, real pricing, and direct comparisons."
 

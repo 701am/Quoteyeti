@@ -3,9 +3,11 @@ title: "Allstate Car Insurance Review"
 description: "Allstate car insurance review for 2026. Rates, customer experience, claims, coverage, pros, cons, and how it stacks up against competitors."
 
 company: "Allstate"
-companyLogo: "/assets/images/icons/auto.svg"
+companyLogo: "/assets/images/carriers/allstate.png"
 foundedYear: 1931
 websiteUrl: "https://www.allstate.com"
+phoneNumber: "847-402-5000"
+address: "2775 Sanders Road, Northbrook, IL 60062"
 
 positioning: "Allstate is a comprehensive auto coverage with strong agent support, Drivewise rewards, and accident-forgiveness options. Below, QuoteYeti's editorial team breaks down where Allstate actually wins for drivers and where it falls behind — using real ratings, real pricing, and direct comparisons."
 

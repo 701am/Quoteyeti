@@ -3,9 +3,11 @@ title: "State Farm Car Insurance Review"
 description: "State Farm car insurance review for 2026. Rates, customer experience, claims, coverage, pros, cons, and how it stacks up against competitors."
 
 company: "State Farm"
-companyLogo: "/assets/images/icons/auto.svg"
+companyLogo: "/assets/images/carriers/state-farm.png"
 foundedYear: 1922
 websiteUrl: "https://www.statefarm.com"
+phoneNumber: "800-782-8332"
+address: "One State Farm Plaza, Bloomington, IL 61710"
 
 positioning: "State Farm is the largest auto insurer in the US with the strongest local agent network and top-tier customer satisfaction. Below, QuoteYeti's editorial team breaks down where State Farm actually wins for drivers and where it falls behind — using real ratings, real pricing, and direct comparisons."
 

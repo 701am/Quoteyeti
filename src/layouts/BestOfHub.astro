@@ -333,7 +333,15 @@ function financialLabel(rating: string | undefined): string {
                 <span class="carrier-panel__rank" aria-hidden="true">No. {c.rank}</span>
                 <div class="carrier-panel__logo" aria-hidden="true">
                   {c.logoUrl ? (
-                    <img src={c.logoUrl} alt="" loading="lazy" />
+                    <>
+                      <img
+                        src={c.logoUrl}
+                        alt=""
+                        loading="lazy"
+                        onerror="this.style.display='none';this.nextElementSibling.style.display='inline-flex';"
+                      />
+                      <span class="carrier-panel__monogram" style="display:none;">{initials}</span>
+                    </>
                   ) : (
                     <span class="carrier-panel__monogram">{initials}</span>
                   )}

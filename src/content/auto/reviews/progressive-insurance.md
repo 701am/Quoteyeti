@@ -3,9 +3,11 @@ title: "Progressive Car Insurance Review"
 description: "Progressive car insurance review for 2026. Rates, customer experience, claims, coverage, pros, cons, and how it stacks up against competitors."
 
 company: "Progressive"
-companyLogo: "/assets/images/icons/auto.svg"
+companyLogo: "/assets/images/carriers/progressive.png"
 foundedYear: 1937
 websiteUrl: "https://www.progressive.com"
+phoneNumber: "866-407-4844"
+address: "6300 Wilson Mills Road, Mayfield Village, Ohio 44143"
 
 positioning: "Progressive is the fifth-best car insurance overall with strong telematics savings and pioneering comparison-rate quoting. Below, QuoteYeti's editorial team breaks down where Progressive actually wins for drivers and where it falls behind — using real ratings, real pricing, and direct comparisons."
 

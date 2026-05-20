@@ -94,7 +94,9 @@ for (const v of VERTICAL_LIST) {
   verticalData[v.key] = {
     key: v.key,
     reviews,
-    comparisons: buildComparePairs(reviews),
+    // Compare pages only exist for scored carriers — match the filter in
+    // /[vertical]/compare/[slug].astro getStaticPaths.
+    comparisons: buildComparePairs(reviews.filter((r: any) => typeof r.data.overallScore === "number")),
     guides,
     locations,
     brandFamilyCount: brandFamilies.size,

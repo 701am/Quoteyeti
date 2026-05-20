@@ -8,9 +8,9 @@ import { VERTICAL_LIST } from "~/data/verticals";
     <div class="four-oh-four__topo" aria-hidden="true"></div>
 
     <div class="container four-oh-four__inner">
-      <div class="four-oh-four__art" aria-hidden="true">
-        <img src="/assets/images/yeti-hero.svg" alt="" />
-        <div class="four-oh-four__number"><span>4</span><em>0</em><span>4</span></div>
+      <div class="four-oh-four__art">
+        <img src="/assets/images/bob-the-yeti.png" alt="Bob the Yeti, looking pleased with himself and giving two thumbs up despite the wrong turn" />
+        <div class="four-oh-four__number" aria-hidden="true"><span>4</span><em>0</em><span>4</span></div>
       </div>
 
       <p class="four-oh-four__eyebrow">Off the trail</p>
@@ -64,12 +64,14 @@ import { VERTICAL_LIST } from "~/data/verticals";
 
     .four-oh-four__art {
       position: relative;
-      max-width: 280px;
+      max-width: 420px;
       margin: 0 auto var(--space-6);
     }
     .four-oh-four__art img {
       width: 100%;
-      filter: drop-shadow(0 8px 24px rgba(44, 69, 119, 0.12));
+      height: auto;
+      filter: drop-shadow(0 12px 28px rgba(44, 69, 119, 0.15))
+              drop-shadow(0 3px 6px rgba(44, 69, 119, 0.08));
     }
     .four-oh-four__number {
       position: absolute;
@@ -162,7 +164,7 @@ import { VERTICAL_LIST } from "~/data/verticals";
     }
 
     @media (max-width: 600px) {
-      .four-oh-four__art { max-width: 200px; }
+      .four-oh-four__art { max-width: 300px; }
       .four-oh-four__number { font-size: 4.5rem; }
     }
   </style>

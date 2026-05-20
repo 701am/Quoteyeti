@@ -30,8 +30,11 @@ export async function getStaticPaths() {
 
 const { vertical, reviews } = Astro.props as { vertical: any; reviews: any[] };
 
+// Stubs (no overallScore) can't be meaningfully compared — exclude them.
+const scoredReviews = reviews.filter((r) => typeof r.data.overallScore === "number");
+
 // Sort by rank then score
-const sorted = [...reviews].sort((a, b) => {
+const sorted = [...scoredReviews].sort((a, b) => {
   const ra = a.data.overallRank ?? 99;
   const rb = b.data.overallRank ?? 99;
   if (ra !== rb) return ra - rb;

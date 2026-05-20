@@ -165,7 +165,10 @@ interface VerticalSection {
 
 const sections: VerticalSection[] = VERTICAL_LIST.map((v) => {
   const r = reviews[v.key] ?? [];
-  const cmp = r.length >= 2 ? buildComparePaths(r) : [];
+  // Compare pages only exist for scored carriers — mirrors the filter in
+  // /[vertical]/compare/[slug].astro so the sitemap only lists URLs that built.
+  const scoredR = r.filter((x: any) => typeof x.data.overallScore === "number");
+  const cmp = scoredR.length >= 2 ? buildComparePaths(scoredR) : [];
   const g = guides[v.key] ?? [];
   const loc = locations[v.key] ?? [];
   const isAuto = v.key === "auto";

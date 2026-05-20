@@ -28,6 +28,8 @@ export async function getStaticPaths() {
     } catch {
       continue;
     }
+    // Stubs (no overallScore) can't be meaningfully compared — exclude them.
+    reviews = reviews.filter((r) => typeof r.data.overallScore === "number");
     if (reviews.length < 2) continue;
 
     // Sort by overall score, top first (some have overallRank, prefer that)

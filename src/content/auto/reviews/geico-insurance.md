@@ -3,9 +3,11 @@ title: "GEICO Car Insurance Review"
 description: "GEICO car insurance review for 2026. Rates, customer experience, claims, coverage, pros, cons, and how it stacks up against competitors."
 
 company: "GEICO"
-companyLogo: "/assets/images/icons/auto.svg"
+companyLogo: "/assets/images/carriers/geico.png"
 foundedYear: 1936
 websiteUrl: "https://www.geico.com"
+phoneNumber: "800-841-2964"
+address: "1 Geico Boulevard, Fredericksburg, VA 22406"
 
 positioning: "GEICO is the fourth-best car insurance company nationally with affordable rates and strong digital tools. Below, QuoteYeti's editorial team breaks down where GEICO actually wins for drivers and where it falls behind — using real ratings, real pricing, and direct comparisons."
 

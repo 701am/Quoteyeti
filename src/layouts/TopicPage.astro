@@ -124,7 +124,7 @@ const effectivePublished = publishDate ?? effectiveUpdated;
           <div class="topic__cta">
             <div class="topic__cta-stage">
               <img
-                src="/assets/images/yeti-hero.svg"
+                src="/assets/images/bob-the-yeti-head.png"
                 alt=""
                 class="topic__cta-yeti"
                 aria-hidden="true"
@@ -293,20 +293,21 @@ const effectivePublished = publishDate ?? effectiveUpdated;
     .topic__cta-stage {
       position: relative;
       isolation: isolate;
-      padding-top: 80px;
+      padding-top: 100px;
       max-width: 540px;
       margin: 0 auto;
     }
     .topic__cta-yeti {
       position: absolute;
-      top: -20px;
+      top: -30px;
       left: 50%;
       transform: translateX(-50%);
-      width: 200px;
+      width: 280px;
       height: auto;
       z-index: 1;
       pointer-events: none;
-      filter: drop-shadow(0 8px 16px rgba(44, 69, 119, 0.25));
+      filter: drop-shadow(0 12px 24px rgba(44, 69, 119, 0.25))
+              drop-shadow(0 3px 6px rgba(44, 69, 119, 0.10));
     }
     .topic__cta-wrap { position: relative; z-index: 2; }
     .topic__cta-wrap :global(.zipcta--picker) {
