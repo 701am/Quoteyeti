@@ -14,7 +14,6 @@
  */
 import BaseLayout from "~/layouts/BaseLayout.astro";
 import ContentByline from "~/components/ContentByline.astro";
-import ZipForm from "~/components/ZipForm.astro";
 import { getCollection } from "astro:content";
 import { VERTICAL_LIST, VERTICALS, type VerticalKey } from "~/data/verticals";
 
@@ -40,6 +39,18 @@ export async function getStaticPaths() {
       return (b.data.overallScore ?? 0) - (a.data.overallScore ?? 0);
     });
 
+    // Roster of all scored carriers in this vertical — the picker uses this to
+    // let visitors swap/add carriers. Lightweight: id + name + score + whether
+    // the carrier is eligible for 3-way combos (only top 8 triples are built).
+    const tripleEligibleIds = new Set(reviews.slice(0, Math.min(8, reviews.length)).map((r: any) => r.id));
+    const roster = reviews.map((r: any) => ({
+      id: r.id,
+      name: r.data.company,
+      score: r.data.overallScore ?? null,
+      rank: r.data.overallRank ?? null,
+      triple: tripleEligibleIds.has(r.id),
+    }));
+
     // All unordered pairs — slug order is alphabetical so URLs are canonical
     for (let i = 0; i < reviews.length; i++) {
       for (let j = i + 1; j < reviews.length; j++) {
@@ -50,34 +61,27 @@ export async function getStaticPaths() {
         const ordered = [reviews[i], reviews[j]]; // already rank-sorted from above
         allPaths.push({
           params: { vertical: v.slug, slug: compareSlug },
-          props: { vertical: v, carriers: ordered },
+          props: { vertical: v, carriers: ordered, roster },
         });
       }
     }
 
-    // Triples only involving top 3 carriers
-    const topThree = reviews.slice(0, 3);
-    if (topThree.length === 3) {
-      const [a, b, c] = topThree;
-      const slugs = [a.id, b.id, c.id].sort();
-      allPaths.push({
-        params: { vertical: v.slug, slug: slugs.join("-vs-") },
-        props: { vertical: v, carriers: [a, b, c] },
-      });
-    }
-
-    // Top-1 + top-2 + tail combos (covers realistic "best vs second vs niche")
-    if (reviews.length >= 4) {
-      const top = reviews[0];
-      const second = reviews[1];
-      const tail = reviews.slice(2, Math.min(reviews.length, 6));
-      for (const c of tail) {
-        if (c.id === second.id) continue;
-        const slugs = [top.id, second.id, c.id].sort();
-        allPaths.push({
-          params: { vertical: v.slug, slug: slugs.join("-vs-") },
-          props: { vertical: v, carriers: [top, second, c] },
-        });
+    // Triples: all combinations among the top 8 ranked carriers. This covers
+    // the realistic "compare the leaders" and "best three" searches without
+    // exploding the build (C(8,3) = 56 per vertical, vs C(56,3) = 27k for auto).
+    const topForTriples = reviews.slice(0, Math.min(8, reviews.length));
+    if (topForTriples.length >= 3) {
+      for (let i = 0; i < topForTriples.length; i++) {
+        for (let j = i + 1; j < topForTriples.length; j++) {
+          for (let k = j + 1; k < topForTriples.length; k++) {
+            const triple = [topForTriples[i], topForTriples[j], topForTriples[k]];
+            const slugs = triple.map((t) => t.id).sort();
+            allPaths.push({
+              params: { vertical: v.slug, slug: slugs.join("-vs-") },
+              props: { vertical: v, carriers: triple, roster },
+            });
+          }
+        }
       }
     }
   }
@@ -85,8 +89,9 @@ export async function getStaticPaths() {
   return allPaths;
 }
 
-const { vertical, carriers } = Astro.props as { vertical: any; carriers: any[] };
+const { vertical, carriers, roster } = Astro.props as { vertical: any; carriers: any[]; roster: any[] };
 const v = VERTICALS[vertical.key as VerticalKey];
+const currentIds = carriers.map((c) => c.id);
 
 // Title: "GEICO vs State Farm Car Insurance Comparison (2026)"
 const carrierNames = carriers.map((c) => c.data.company);
@@ -175,17 +180,36 @@ const allHaveAvgMonthly = carriers.every((c) => c.data.avgMonthly);
           ))}
         </h1>
         <p class="compare-hero__lede">
-          Side-by-side comparison of {titleNames} {v.short.toLowerCase()} insurance — ratings, cost, coverage, customer experience, pros, cons.
+          Side-by-side comparison of {titleNames} {v.short.toLowerCase()} insurance — ratings, cost, coverage, customer experience, pros, cons. No sales pitch, just the research.
         </p>
 
-        <div class="compare-hero__cta">
-          <ZipForm
-            variant="band"
-            vertical={v.key}
-            eyebrow="Compare your actual rate"
-            heading={`See what ${carrierNames.length > 2 ? "these carriers" : "each one"} charges for your profile`}
-            lede="Drop your ZIP. We'll pull live rates from these carriers and others."
-          />
+        <div class="compare-hero__reviews">
+          <span class="compare-hero__reviews-label">Read the full reviews:</span>
+          {carriers.map((c) => (
+            <a class="compare-hero__review-link" href={`${v.path}reviews/${c.id}/`}>{c.data.company} →</a>
+          ))}
+        </div>
+
+        <!-- Interactive picker: swap or add carriers, navigate to the matching page -->
+        <div
+          class="compare-picker"
+          data-compare-picker
+          data-vertical-path={v.path}
+          data-current={JSON.stringify(currentIds)}
+          data-roster={JSON.stringify(roster)}
+        >
+          <div class="compare-picker__head">
+            <span class="compare-picker__title">Compare different carriers</span>
+            <span class="compare-picker__hint">Pick 2 or 3 to build a new comparison</span>
+          </div>
+          <div class="compare-picker__chips" data-picker-chips></div>
+          <div class="compare-picker__actions">
+            <button type="button" class="compare-picker__go" data-picker-go disabled>
+              Compare these
+              <svg width="14" height="12" viewBox="0 0 14 12" fill="none" aria-hidden="true"><path d="M8 1l5 5-5 5M1 6h12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+            <span class="compare-picker__count" data-picker-count></span>
+          </div>
         </div>
       </div>
     </header>
@@ -441,7 +465,11 @@ const allHaveAvgMonthly = carriers.every((c) => c.data.avgMonthly);
           {carriers.map((c) => (
             <div class="compare-bottomline__card">
               <h3>{c.data.company}</h3>
-              {c.data.bottomLine && <p>{c.data.bottomLine}</p>}
+              {c.data.bottomLine && (
+                /<[a-z][\s\S]*>/i.test(c.data.bottomLine)
+                  ? <div class="compare-bottomline__prose" set:html={c.data.bottomLine} />
+                  : <p>{c.data.bottomLine}</p>
+              )}
               <a href={`${v.path}reviews/${c.id}/`} class="compare-bottomline__cta">
                 Read the full {c.data.company} review
                 <svg width="14" height="12" viewBox="0 0 14 12" fill="none" aria-hidden="true">
@@ -454,14 +482,19 @@ const allHaveAvgMonthly = carriers.every((c) => c.data.avgMonthly);
       </div>
     </section>
 
-    <!-- ============== Final CTA ============== -->
+    <!-- ============== Closing note (no CTA — research page) ============== -->
     <section class="compare-finalcta">
       <div class="container container--narrow">
-        <p class="eyebrow">Your real rate</p>
-        <h2>The only number that matters is <span class="serif-italic">your</span> rate.</h2>
-        <p class="compare-finalcta__lede">Rate charts are useful research, but your actual quote depends on your ZIP, your record, and your vehicle. Drop your ZIP — we'll pull live rates from these carriers and others we cover.</p>
-        <div class="compare-finalcta__cta">
-          <ZipForm variant="band" vertical={v.key} heading="See your personalized rate" lede="From the carriers shown above and others we cover." />
+        <p class="eyebrow">Before you decide</p>
+        <h2>Rankings are a starting point — <span class="serif-italic">your</span> profile decides the rest.</h2>
+        <p class="compare-finalcta__lede">These scores reflect our editorial research across cost, coverage, and customer experience. The right carrier for you still depends on your record, location, and vehicle, so read the full reviews before you commit.</p>
+        <div class="compare-finalcta__reviews">
+          {carriers.map((c) => (
+            <a class="compare-finalcta__review-link" href={`${v.path}reviews/${c.id}/`}>
+              Read the {c.data.company} review
+              <svg width="14" height="12" viewBox="0 0 14 12" fill="none" aria-hidden="true"><path d="M8 1l5 5-5 5M1 6h12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </a>
+          ))}
         </div>
       </div>
     </section>
@@ -594,6 +627,9 @@ const allHaveAvgMonthly = carriers.every((c) => c.data.avgMonthly);
     .compare-bottomline__card { padding: var(--space-6); background: var(--color-alice); border-radius: 14px; }
     .compare-bottomline__card h3 { font-family: var(--font-display); font-weight: 700; font-size: 1.25rem; margin: 0 0 var(--space-3); color: var(--color-resolution); }
     .compare-bottomline__card p { font-size: 0.9375rem; line-height: 1.6; color: var(--color-text); margin: 0 0 var(--space-5); }
+    .compare-bottomline__prose { margin: 0 0 var(--space-5); }
+    .compare-bottomline__prose p { font-size: 0.9375rem; line-height: 1.6; color: var(--color-text); margin: 0 0 var(--space-3); }
+    .compare-bottomline__prose p:last-child { margin-bottom: 0; }
     .compare-bottomline__cta { display: inline-flex; align-items: center; gap: 6px; font-family: var(--font-display); font-weight: 700; font-size: 0.875rem; color: var(--c-accent); text-decoration: none; }
     .compare-bottomline__cta:hover { text-decoration: underline; text-underline-offset: 3px; }
     .compare-bottomline__cta svg { transition: transform 0.2s; }
@@ -603,7 +639,18 @@ const allHaveAvgMonthly = carriers.every((c) => c.data.avgMonthly);
     .compare-finalcta { padding-block: var(--space-16); background: var(--color-alice); text-align: center; }
     .compare-finalcta h2 { font-size: clamp(2rem, 4vw, 2.75rem); letter-spacing: -0.025em; line-height: 1.1; margin: 0 0 var(--space-5); color: var(--color-resolution); }
     .compare-finalcta__lede { font-size: 1.0625rem; line-height: 1.6; color: var(--color-text); margin: 0 auto var(--space-8); max-width: 600px; }
-    .compare-finalcta__cta { max-width: 640px; margin: 0 auto; }
+    .compare-finalcta__reviews { display: flex; flex-wrap: wrap; gap: var(--space-3); justify-content: center; }
+    .compare-finalcta__review-link {
+      display: inline-flex; align-items: center; gap: 7px;
+      font-family: var(--font-display); font-weight: 700; font-size: 0.9375rem;
+      color: var(--color-resolution); background: var(--color-white);
+      border: 1px solid var(--color-border); border-radius: 100px;
+      padding: 10px 20px; text-decoration: none;
+      transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s;
+    }
+    .compare-finalcta__review-link:hover { border-color: var(--c-accent, var(--color-malibu)); transform: translateY(-2px); box-shadow: var(--shadow-sm); }
+    .compare-finalcta__review-link svg { transition: transform 0.2s; }
+    .compare-finalcta__review-link:hover svg { transform: translateX(3px); }
 
     @media (max-width: 880px) {
       .compare-proscons--2, .compare-proscons--3,
@@ -614,5 +661,113 @@ const allHaveAvgMonthly = carriers.every((c) => c.data.avgMonthly);
       .compare-table__label { width: 120px; font-size: 0.8125rem; padding: var(--space-3); }
       .compare-table__cell { font-size: 0.875rem; padding: var(--space-3); }
     }
+
+    /* ===== Hero "read the reviews" links (replaces the hero ZipForm) ===== */
+    .compare-hero__reviews {
+      display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2) var(--space-4);
+      margin-top: var(--space-5);
+    }
+    .compare-hero__reviews-label { font-size: 0.875rem; font-weight: 600; color: var(--color-text-muted); }
+    .compare-hero__review-link {
+      font-family: var(--font-display); font-size: 0.9rem; font-weight: 600;
+      color: var(--c-accent, var(--color-malibu)); text-decoration: none;
+      border-bottom: 1px solid transparent; transition: border-color 0.15s ease;
+    }
+    .compare-hero__review-link:hover { border-bottom-color: currentColor; }
+
+    /* ===== Interactive carrier picker ===== */
+    .compare-picker {
+      margin-top: var(--space-8); padding: var(--space-5) var(--space-6);
+      background: var(--color-white); border: 1px solid var(--color-border);
+      border-radius: var(--radius-lg, 14px); box-shadow: var(--shadow-card);
+    }
+    .compare-picker__head { display: flex; align-items: baseline; justify-content: space-between; gap: var(--space-3); flex-wrap: wrap; margin-bottom: var(--space-4); }
+    .compare-picker__title { font-family: var(--font-display); font-weight: 700; font-size: 1rem; color: var(--color-heading, var(--color-resolution)); }
+    .compare-picker__hint { font-size: 0.8125rem; color: var(--color-text-muted); }
+    .compare-picker__chips { display: flex; flex-wrap: wrap; gap: var(--space-2); margin-bottom: var(--space-4); }
+    .compare-picker__chip {
+      font-family: var(--font-display); font-size: 0.875rem; font-weight: 600;
+      padding: 7px 14px; border-radius: 100px; cursor: pointer;
+      border: 1.5px solid var(--color-border); background: var(--color-snow, #FAFAF7);
+      color: var(--color-text); transition: all 0.15s ease; display: inline-flex; align-items: center; gap: 6px;
+    }
+    .compare-picker__chip:hover { border-color: var(--c-accent, var(--color-malibu)); }
+    .compare-picker__chip.is-selected {
+      background: var(--c-accent, var(--color-resolution)); border-color: var(--c-accent, var(--color-resolution));
+      color: #fff;
+    }
+    .compare-picker__chip.is-selected::before { content: "✓"; font-size: 0.8em; }
+    .compare-picker__chip:disabled { opacity: 0.4; cursor: not-allowed; }
+    .compare-picker__actions { display: flex; align-items: center; gap: var(--space-4); }
+    .compare-picker__go {
+      display: inline-flex; align-items: center; gap: 8px; cursor: pointer;
+      font-family: var(--font-display); font-weight: 700; font-size: 0.9rem;
+      padding: 10px 22px; border-radius: 100px; border: 0;
+      background: var(--c-accent, var(--color-resolution)); color: #fff;
+      transition: transform 0.15s ease, opacity 0.15s ease;
+    }
+    .compare-picker__go:hover:not(:disabled) { transform: translateY(-1px); }
+    .compare-picker__go:disabled { opacity: 0.45; cursor: not-allowed; }
+    .compare-picker__count { font-size: 0.8125rem; color: var(--color-text-muted); }
   </style>
 </BaseLayout>
+
+<script>
+  // Interactive carrier picker: lets visitors pick 2-3 carriers and navigate
+  // to the matching pre-built compare page. URLs are canonical (slugs sorted
+  // alphabetically, joined with "-vs-") so they always match getStaticPaths.
+  const picker = document.querySelector("[data-compare-picker]");
+  if (picker) {
+    const basePath = picker.getAttribute("data-vertical-path");
+    const roster = JSON.parse(picker.getAttribute("data-roster") || "[]");
+    const current = JSON.parse(picker.getAttribute("data-current") || "[]");
+    const chipsWrap = picker.querySelector("[data-picker-chips]");
+    const goBtn = picker.querySelector("[data-picker-go]");
+    const countEl = picker.querySelector("[data-picker-count]");
+
+    let selected = new Set(current);
+    const MAX = 3;
+
+    const canonicalSlug = (ids) => [...ids].sort().join("-vs-");
+
+    function render() {
+      chipsWrap.innerHTML = "";
+      const allSelectedTripleOk = [...selected].every((id) => {
+        const r = roster.find((x) => x.id === id);
+        return r && r.triple;
+      });
+      roster.forEach((c) => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "compare-picker__chip" + (selected.has(c.id) ? " is-selected" : "");
+        btn.textContent = c.name;
+        if (!selected.has(c.id)) {
+          const wouldBeThird = selected.size === 2;
+          const blocksTriple = wouldBeThird && (!allSelectedTripleOk || !c.triple);
+          if (selected.size >= MAX || blocksTriple) btn.disabled = true;
+        }
+        btn.addEventListener("click", () => {
+          if (selected.has(c.id)) selected.delete(c.id);
+          else if (selected.size < MAX) selected.add(c.id);
+          render();
+        });
+        chipsWrap.appendChild(btn);
+      });
+
+      const n = selected.size;
+      const isCurrent = canonicalSlug([...selected]) === canonicalSlug(current);
+      goBtn.disabled = !(n >= 2 && n <= MAX && !isCurrent);
+      countEl.textContent =
+        n < 2 ? "Pick at least 2" :
+        isCurrent ? "That's this page" :
+        `${n} selected`;
+    }
+
+    goBtn.addEventListener("click", () => {
+      if (selected.size < 2) return;
+      window.location.href = `${basePath}compare/${canonicalSlug([...selected])}/`;
+    });
+
+    render();
+  }
+</script>

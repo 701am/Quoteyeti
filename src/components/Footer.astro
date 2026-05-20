@@ -40,6 +40,7 @@ interface VerticalFooterData {
   locations: any[];
   brandFamilyCount: number;
   brandPageTotal: number;
+  brandPills: { label: string; slug: string }[];
   glossaryCount: number;
   faqCount: number;
 }
@@ -93,6 +94,17 @@ for (const v of VERTICAL_LIST) {
     brandFamilies.add(key);
   }
 
+  // Parent-brand pages = single-token slugs (no "-model" / "-insurance-rates"
+  // suffix). These are the real /auto/brands/<slug>/ landing pages, so the
+  // footer pills link to actual pages instead of all dumping on the index.
+  const brandPills = brands
+    .filter((b: any) => /^[a-z0-9]+$/.test(b.id))
+    .map((b: any) => ({
+      label: (b.data?.brand ?? b.id).toString().replace(/\b\w/g, (c: string) => c.toUpperCase()),
+      slug: b.id,
+    }))
+    .sort((a: any, b: any) => a.label.localeCompare(b.label));
+
   // Real carriers only — aggregators/non-carriers don't count for the
   // "N reviewed · M in directory" math, even though they live in the same collection.
   const realCarriers = reviews.filter((r: any) =>
@@ -113,6 +125,7 @@ for (const v of VERTICAL_LIST) {
     locations,
     brandFamilyCount: brandFamilies.size,
     brandPageTotal: brands.length,
+    brandPills,
     glossaryCount: glossary.length,
     faqCount: faqs.length,
   };
@@ -381,23 +394,12 @@ const bestOfTeasers = VERTICAL_LIST.map((v) => ({
                     <a class="footer-block__more" href="/auto/brands/">Browse all brands →</a>
                   </div>
                   <div class="footer-pills">
-                    <a class="footer-pill" href="/auto/brands/">Acura</a>
-                    <a class="footer-pill" href="/auto/brands/">Audi</a>
-                    <a class="footer-pill" href="/auto/brands/">BMW</a>
-                    <a class="footer-pill" href="/auto/brands/">Chevrolet</a>
-                    <a class="footer-pill" href="/auto/brands/">Ford</a>
-                    <a class="footer-pill" href="/auto/brands/">Honda</a>
-                    <a class="footer-pill" href="/auto/brands/">Hyundai</a>
-                    <a class="footer-pill" href="/auto/brands/">Jeep</a>
-                    <a class="footer-pill" href="/auto/brands/">Lexus</a>
-                    <a class="footer-pill" href="/auto/brands/">Mazda</a>
-                    <a class="footer-pill" href="/auto/brands/">Mercedes-Benz</a>
-                    <a class="footer-pill" href="/auto/brands/">Nissan</a>
-                    <a class="footer-pill" href="/auto/brands/">Subaru</a>
-                    <a class="footer-pill" href="/auto/brands/">Tesla</a>
-                    <a class="footer-pill" href="/auto/brands/">Toyota</a>
-                    <a class="footer-pill" href="/auto/brands/">Volkswagen</a>
-                    <a class="footer-pill footer-pill--more" href="/auto/brands/">+{d.brandFamilyCount - 16} more brands →</a>
+                    {d.brandPills.slice(0, 16).map((pill) => (
+                      <a class="footer-pill" href={`/auto/brands/${pill.slug}/`}>{pill.label}</a>
+                    ))}
+                    {d.brandPills.length > 16 && (
+                      <a class="footer-pill footer-pill--more" href="/auto/brands/">+{d.brandPills.length - 16} more brands →</a>
+                    )}
                   </div>
                 </div>
               )}
