@@ -19,10 +19,13 @@ let totalScoredReviews = 0;
 
 for (const v of VERTICAL_LIST) {
   const r = await safeCollection(`${v.key}-reviews`);
-  reviewCounts[v.key] = r.length;
-  const scoredThis = r.filter((x: any) => typeof x.data.overallScore === "number").length;
+  const realCarriers = r.filter((x: any) =>
+    !x.data.entityType || x.data.entityType === "carrier"
+  );
+  reviewCounts[v.key] = realCarriers.length;
+  const scoredThis = realCarriers.filter((x: any) => typeof x.data.overallScore === "number").length;
   scoredReviewCounts[v.key] = scoredThis;
-  totalReviews += r.length;
+  totalReviews += realCarriers.length;
   totalScoredReviews += scoredThis;
   if (v.key !== "auto") {
     const g = await safeCollection(v.key);

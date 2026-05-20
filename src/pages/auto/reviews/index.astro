@@ -12,7 +12,8 @@ reviews.sort((a, b) => (b.data.overallScore ?? 0) - (a.data.overallScore ?? 0));
 
 const total = reviews.length;
 const scoredCount = reviews.filter((r) => typeof r.data.overallScore === "number").length;
-const pendingCount = total - scoredCount;
+const aggregatorCount = reviews.filter((r) => r.data.entityType === "aggregator" || r.data.entityType === "non-carrier").length;
+const pendingCount = total - scoredCount - aggregatorCount;
 
 // "Best for" snippet — first takeaway truncated, falls back to positioning.
 function bestFor(r: any): string {
@@ -46,14 +47,22 @@ function bestFor(r: any): string {
         <img src={v.icon} alt="" width="18" height="18" />
         {v.label}
       </p>
-      {pendingCount > 0 ? (
+      {pendingCount > 0 || aggregatorCount > 0 ? (
         <>
           <h1>
             <span class="serif-italic">{scoredCount}</span> reviewed.
-            <span class="page-hero__h1-sub">{pendingCount} more in the directory.</span>
+            <span class="page-hero__h1-sub">{
+              [
+                pendingCount > 0 && `${pendingCount} more in the directory`,
+                aggregatorCount > 0 && `${aggregatorCount} comparison ${aggregatorCount === 1 ? "platform" : "platforms"} flagged`,
+              ].filter(Boolean).join(", ") + "."
+            }</span>
           </h1>
           <p class="page-hero__lede">
-            Our editorial team has scored {scoredCount} {v.short.toLowerCase()} insurance carriers across customer experience, coverage breadth, and affordability. The other {pendingCount} carriers are in the directory below — verified company facts and our initial analysis, with full scoring still in progress. We don't post scores we haven't earned.
+            Our editorial team has scored {scoredCount} {v.short.toLowerCase()} insurance carriers across customer experience, coverage breadth, and affordability.
+            {pendingCount > 0 && ` The other ${pendingCount} carriers are in the directory below — verified company facts and our initial analysis, with full scoring still in progress.`}
+            {aggregatorCount > 0 && ` We've also flagged ${aggregatorCount} comparison platforms and non-carrier entities that were miscategorized in our source data.`}
+            {" "}We don't post scores we haven't earned.
           </p>
         </>
       ) : (
@@ -86,10 +95,14 @@ function bestFor(r: any): string {
       </div>
     </div>
     <p class="reviews-toolbar__count">
-      {pendingCount > 0 ? (
+      {pendingCount > 0 || aggregatorCount > 0 ? (
         <>
-          Showing <strong id="reviews-visible-count">{total}</strong> of {total} {total === 1 ? "carrier" : "carriers"}
-          <span class="reviews-toolbar__breakdown"> · {scoredCount} reviewed, {pendingCount} in directory</span>
+          Showing <strong id="reviews-visible-count">{total}</strong> of {total} {total === 1 ? "entry" : "entries"}
+          <span class="reviews-toolbar__breakdown">
+            {' '}· {scoredCount} reviewed
+            {pendingCount > 0 && `, ${pendingCount} in directory`}
+            {aggregatorCount > 0 && `, ${aggregatorCount} flagged as ${aggregatorCount === 1 ? "non-carrier" : "non-carriers"}`}
+          </span>
         </>
       ) : (
         <>Showing <strong id="reviews-visible-count">{total}</strong> of {total} {total === 1 ? "carrier" : "carriers"}</>
@@ -132,16 +145,27 @@ function bestFor(r: any): string {
                     )}
                   </div>
                   <div class="review-card__score">
-                    <div class="review-card__score-num">
-                      {score > 0 ? score.toFixed(2) : "—"}
-                    </div>
-                    {score > 0 ? (
-                      <div class="review-card__score-of">/5.00</div>
+                    {entry.data.entityType === "aggregator" || entry.data.entityType === "non-carrier" ? (
+                      <>
+                        <div class="review-card__score-num review-card__score-num--small">N/A</div>
+                        <div class="review-card__score-pending review-card__score-pending--alt">
+                          {entry.data.entityType === "aggregator" ? "Aggregator" : "Not a carrier"}
+                        </div>
+                      </>
                     ) : (
-                      <div class="review-card__score-pending">Pending</div>
-                    )}
-                    {entry.data.overallRank && (
-                      <div class="review-card__rank">#{entry.data.overallRank}</div>
+                      <>
+                        <div class="review-card__score-num">
+                          {score > 0 ? score.toFixed(2) : "—"}
+                        </div>
+                        {score > 0 ? (
+                          <div class="review-card__score-of">/5.00</div>
+                        ) : (
+                          <div class="review-card__score-pending">Pending</div>
+                        )}
+                        {entry.data.overallRank && (
+                          <div class="review-card__rank">#{entry.data.overallRank}</div>
+                        )}
+                      </>
                     )}
                   </div>
                 </div>
@@ -231,6 +255,14 @@ function bestFor(r: any): string {
       border: 1px solid var(--color-border);
       border-radius: var(--radius-pill);
       white-space: nowrap;
+    }
+    .review-card__score-pending--alt {
+      color: var(--color-ship-cove);
+      border-color: var(--color-ship-cove);
+    }
+    .review-card__score-num--small {
+      font-size: 1rem;
+      color: var(--color-text-muted);
     }
     .review-card__rank { font-family: var(--font-display); font-size: 0.6875rem; font-weight: 700; color: var(--color-resolution); background: var(--color-alice); padding: 2px 8px; border-radius: 100px; margin-top: 4px; }
     .review-card__bestfor { font-size: 0.875rem; line-height: 1.5; color: var(--color-text-strong); margin: 0; flex: 1; }

@@ -1,0 +1,87 @@
+---
+import BaseLayout from "~/layouts/BaseLayout.astro";
+---
+
+<BaseLayout
+  title="Application received — QuoteYeti Partner Network"
+  description="We received your partnership application. The QuoteYeti partner team will review your territory and volume targets and respond within one business day."
+  noindex={true}
+  breadcrumbs={[
+    { name: "Home", url: "/" },
+    { name: "Partner Network", url: "/partner-network/" },
+    { name: "Thanks", url: "/partner-network/thanks/" },
+  ]}
+>
+  <section class="thanks">
+    <div class="container--narrow">
+      <div class="thanks__inner">
+        <div class="thanks__icon" aria-hidden="true">
+          <svg width="56" height="56" viewBox="0 0 24 24" fill="none">
+            <circle cx="12" cy="12" r="11" fill="#14A38B"/>
+            <path d="M7 12.5l3 3 7-7" stroke="#FFFFFF" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <p class="eyebrow">Application received</p>
+        <h1>You're in the <span class="serif-italic">queue</span>.</h1>
+        <p class="thanks__lede">
+          Our partner team will review your licensed states, product lines, and volume target — then reach out within one business day to confirm your territory and walk through next steps.
+        </p>
+
+        <div class="thanks__next">
+          <h2>What happens next</h2>
+          <ol class="thanks__steps">
+            <li><strong>License verification.</strong> We confirm your active licenses in the states you listed.</li>
+            <li><strong>Territory review.</strong> We map your requested territory against current consumer demand.</li>
+            <li><strong>Volume calibration.</strong> We set a starting weekly target you can scale or pause anytime.</li>
+            <li><strong>First conversations.</strong> Once you're live, appointments start landing on your calendar.</li>
+          </ol>
+        </div>
+
+        <p class="thanks__cta-line">
+          Have a question before we call? <a href="/contact/">Reach the partner team</a>.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <style>
+    .container--narrow { max-width: 720px; margin: 0 auto; padding: 0 var(--space-4); }
+    .thanks { padding-block: var(--space-16) var(--space-20); background: linear-gradient(180deg, var(--color-alice) 0%, var(--color-white) 100%); min-height: 60vh; }
+    .thanks__inner { text-align: center; }
+    .thanks__icon { display: inline-flex; margin-bottom: var(--space-6); }
+    .serif-italic { font-family: var(--font-serif, "Plantin", Georgia, serif); font-style: italic; font-weight: 500; color: var(--color-malibu); }
+    .eyebrow { display: inline-block; font-family: var(--font-display); font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.16em; color: #14A38B; margin: 0 0 var(--space-3); }
+    .thanks h1 { font-size: clamp(2.25rem, 4.5vw, 3.5rem); letter-spacing: -0.03em; line-height: 1.05; margin: 0 0 var(--space-5); color: var(--color-resolution); }
+    .thanks__lede { font-size: 1.125rem; color: var(--color-text-strong); line-height: 1.6; margin: 0 0 var(--space-10); max-width: 52ch; margin-inline: auto; }
+
+    .thanks__next { padding-top: var(--space-8); border-top: 1px solid var(--color-border); text-align: left; max-width: 540px; margin: 0 auto var(--space-8); }
+    .thanks__next h2 { font-family: var(--font-display); font-weight: 700; font-size: 1.125rem; letter-spacing: -0.015em; color: var(--color-resolution); margin: 0 0 var(--space-5); text-align: center; }
+    .thanks__steps { list-style: none; padding: 0; margin: 0; counter-reset: tstep; display: flex; flex-direction: column; gap: var(--space-4); }
+    .thanks__steps li {
+      counter-increment: tstep;
+      position: relative;
+      padding-left: var(--space-10);
+      font-family: var(--font-display);
+      font-size: 1rem;
+      line-height: 1.55;
+      color: var(--color-text);
+    }
+    .thanks__steps li::before {
+      content: counter(tstep);
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 26px; height: 26px;
+      display: inline-flex; align-items: center; justify-content: center;
+      background: var(--color-orange);
+      color: var(--color-white);
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 0.8125rem;
+      border-radius: 50%;
+    }
+    .thanks__steps strong { color: var(--color-resolution); font-weight: 700; }
+    .thanks__cta-line { font-family: var(--font-display); font-size: 1rem; color: var(--color-text-muted); margin: 0; }
+    .thanks__cta-line a { color: var(--color-resolution); font-weight: 600; }
+  </style>
+</BaseLayout>

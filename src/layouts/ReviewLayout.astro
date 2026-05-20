@@ -25,6 +25,11 @@ interface ReviewProps {
     headquarters?: string;
     author?: { name: string; bio: string };
     editor?: { name: string };
+    entityType?: "carrier" | "aggregator" | "non-carrier";
+    aggregatorBannerLede?: string;
+    aggregatorBannerExplain?: string;
+    referenceNotes?: string[];
+    quickFacts?: { label: string; value: string }[];
   };
 
   takeaways: string[];
@@ -187,6 +192,36 @@ const remainingTakeaways = takeaways.slice(1);
       </div>
     </div>
   </section>
+
+  {/* ===== AGGREGATOR/NON-CARRIER BANNER ===== */}
+  {/* Renders only for entries miscategorized as carriers (comparison sites,
+       lead-gen platforms, credit bureaus, etc). Editorially honest framing
+       that redirects readers to actual carrier reviews. */}
+  {carrier.entityType && carrier.entityType !== "carrier" && (
+    <section class="aggregator-banner" data-entity-type={carrier.entityType}>
+      <div class="container">
+        <div class="aggregator-banner__inner">
+          <div class="aggregator-banner__tag">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+              <path d="M7 1v6m0 3v.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              <circle cx="7" cy="7" r="6" stroke="currentColor" stroke-width="1.5" fill="none"/>
+            </svg>
+            <span>{carrier.entityType === "aggregator" ? "Comparison platform" : "Not a carrier"}</span>
+          </div>
+          <p class="aggregator-banner__lede">{carrier.aggregatorBannerLede}</p>
+          {carrier.aggregatorBannerExplain && (
+            <p class="aggregator-banner__explain">{carrier.aggregatorBannerExplain}</p>
+          )}
+          <a href={`${vertical.path}reviews/`} class="aggregator-banner__cta">
+            <span>See the {vertical.short.toLowerCase()} carriers we've actually reviewed</span>
+            <svg width="14" height="12" viewBox="0 0 14 12" fill="none" aria-hidden="true">
+              <path d="M8 1l5 5-5 5M1 6h12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </a>
+        </div>
+      </div>
+    </section>
+  )}
 
   <!-- BRIDGING CTA CARD — matches the Best Of treatment. Overlaps hero
        bottom edge, navy CTA button, accent top bar, deep shadow lift. -->
@@ -358,6 +393,11 @@ const remainingTakeaways = takeaways.slice(1);
               </div>
             </div>
           </section>
+        ) : carrier.entityType === "aggregator" || carrier.entityType === "non-carrier" ? (
+          /* Aggregators and non-carriers don't get a ratings section at all —
+             the aggregator-banner above the bridge-card already explains
+             what the entity is and redirects readers to real carriers. */
+          null
         ) : (
           <section id="ratings" class="reveal stub-notice">
             <h2>{carrier.name} <span class="serif-italic">ratings</span></h2>
@@ -380,6 +420,40 @@ const remainingTakeaways = takeaways.slice(1);
                   If you're comparing carriers right now, our <a href={`${vertical.path}best/`}>full {vertical.short.toLowerCase()} rankings</a> covers the carriers we've scored.
                 </p>
               </div>
+            </div>
+          </section>
+        )}
+
+        {/* ===== QUICK FACTS (stub-mode only — when we have structured facts) ===== */}
+        {carrier.quickFacts && carrier.quickFacts.length > 0 && (
+          <section id="quick-facts" class="reveal quick-facts">
+            <h2>Quick <span class="serif-italic">facts</span></h2>
+            <dl class="quick-facts__grid">
+              {carrier.quickFacts.map((f) => (
+                <div class="quick-facts__row">
+                  <dt class="quick-facts__label">{f.label}</dt>
+                  <dd class="quick-facts__value">{f.value}</dd>
+                </div>
+              ))}
+            </dl>
+          </section>
+        )}
+
+        {/* ===== REFERENCE NOTES (stub-mode only) =====
+             Source-material paragraphs from prior coverage. Framed clearly
+             as reference material, NOT as v2 editorial voice — the eyebrow
+             label and the muted prose styling signal provenance. */}
+        {carrier.referenceNotes && carrier.referenceNotes.length > 0 && (
+          <section id="reference-notes" class="reveal reference-notes">
+            <p class="reference-notes__eyebrow">From our prior coverage</p>
+            <h2>What we've <span class="serif-italic">documented</span> about {carrier.name}</h2>
+            <p class="reference-notes__caveat">
+              These notes are surfaced from QuoteYeti's prior coverage of {carrier.name}. They aren't part of our v2 editorial scoring (which is still in progress) — we're showing them here so you have what we have. Some details may need updating; we'll refresh them when {carrier.name}'s full review is complete.
+            </p>
+            <div class="reference-notes__body">
+              {carrier.referenceNotes.map((p) => (
+                <p>{p}</p>
+              ))}
             </div>
           </section>
         )}
@@ -1000,6 +1074,162 @@ const remainingTakeaways = takeaways.slice(1);
       max-width: 720px;
       line-height: 1.55;
     }
+    /* Aggregator banner — when an entry was miscategorized as a carrier but
+       is actually a comparison platform, lead-gen site, or credit bureau.
+       Editorially honest framing that redirects readers to real carriers.
+       Tone: not alarming or accusatory — just clear about what the entity is. */
+    .aggregator-banner {
+      padding-block: clamp(2.5rem, 5vw, 4rem);
+      background: linear-gradient(180deg, var(--color-alice) 0%, var(--color-white) 100%);
+      border-top: 1px solid var(--color-border);
+      border-bottom: 1px solid var(--color-border);
+    }
+    .aggregator-banner__inner {
+      max-width: 720px;
+      margin-inline: auto;
+      text-align: center;
+      padding-inline: var(--space-6);
+    }
+    .aggregator-banner__tag {
+      display: inline-flex; align-items: center; gap: var(--space-2);
+      padding: var(--space-2) var(--space-4);
+      background: var(--color-white);
+      border: 1px solid var(--color-ship-cove);
+      border-radius: var(--radius-pill);
+      color: var(--color-ship-cove);
+      font-family: var(--font-display);
+      font-size: 0.6875rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      margin-bottom: var(--space-5);
+    }
+    .aggregator-banner[data-entity-type="non-carrier"] .aggregator-banner__tag {
+      border-color: var(--color-text-muted);
+      color: var(--color-text-muted);
+    }
+    .aggregator-banner__lede {
+      font-family: var(--font-display);
+      font-size: clamp(1.25rem, 2vw, 1.5rem);
+      font-weight: 600;
+      color: var(--color-resolution);
+      margin: 0 0 var(--space-4);
+      line-height: 1.3;
+      letter-spacing: -0.015em;
+    }
+    .aggregator-banner__explain {
+      font-family: var(--font-display);
+      font-size: 1rem;
+      line-height: 1.65;
+      color: var(--color-text);
+      margin: 0 0 var(--space-6);
+      max-width: 60ch;
+      margin-inline: auto;
+    }
+    .aggregator-banner__cta {
+      display: inline-flex; align-items: center; gap: var(--space-2);
+      padding: var(--space-3) var(--space-6);
+      background: var(--color-resolution);
+      color: var(--color-white);
+      border-radius: var(--radius-pill);
+      text-decoration: none;
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 0.9375rem;
+      transition: transform var(--transition), box-shadow var(--transition);
+      box-shadow: 0 4px 12px rgba(30, 42, 74, 0.18);
+    }
+    .aggregator-banner__cta:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 16px rgba(30, 42, 74, 0.24);
+    }
+
+    /* Quick-facts — structured (label, value) pairs for stub pages.
+       Companion to reference-notes; renders just below stub-notice. */
+    .quick-facts {
+      padding: var(--space-8) var(--space-8);
+      background: var(--color-white);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius);
+      margin-block: var(--space-6);
+    }
+    .quick-facts h2 {
+      margin: 0 0 var(--space-6);
+    }
+    .quick-facts__grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: var(--space-5);
+      margin: 0;
+      padding: 0;
+    }
+    .quick-facts__row {
+      border-top: 1px solid var(--color-border);
+      padding-top: var(--space-3);
+    }
+    .quick-facts__label {
+      font-family: var(--font-display);
+      font-size: 0.6875rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      color: var(--color-text-muted);
+      margin: 0 0 var(--space-2);
+    }
+    .quick-facts__value {
+      font-family: var(--font-display);
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--color-resolution);
+      margin: 0;
+      word-break: break-word;
+    }
+
+    /* Reference notes — source material from prior coverage.
+       Honest framing: clearly labeled as not-the-v2-editorial-voice,
+       muted prose treatment, clear caveat. */
+    .reference-notes {
+      padding: var(--space-9) var(--space-8);
+      background: var(--color-alice);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius);
+      margin-block: var(--space-6);
+    }
+    .reference-notes__eyebrow {
+      font-family: var(--font-display);
+      font-size: 0.6875rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      color: var(--color-text-muted);
+      margin: 0 0 var(--space-3);
+    }
+    .reference-notes h2 {
+      margin: 0 0 var(--space-5);
+    }
+    .reference-notes__caveat {
+      font-family: var(--font-display);
+      font-size: 0.9375rem;
+      font-style: italic;
+      line-height: 1.6;
+      color: var(--color-text-muted);
+      padding: var(--space-4) var(--space-5);
+      background: var(--color-white);
+      border-left: 3px solid var(--color-ship-cove);
+      border-radius: 0 var(--radius) var(--radius) 0;
+      margin: 0 0 var(--space-6);
+      max-width: 64ch;
+    }
+    .reference-notes__body p {
+      font-family: var(--font-display);
+      font-size: 1rem;
+      line-height: 1.7;
+      color: var(--color-text);
+      margin: 0 0 var(--space-5);
+      max-width: 66ch;
+    }
+    .reference-notes__body p:last-child { margin-bottom: 0; }
+
     /* Bridge card — matches Best Of treatment. Overlaps hero bottom edge,
        navy CTA, section-accent top rule, deep layered shadow. */
     .bridge-card {

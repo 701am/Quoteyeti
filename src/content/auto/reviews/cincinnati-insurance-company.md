@@ -1,25 +1,45 @@
 ---
-title: "Cincinnati Auto Insurance Review"
-description: "Cincinnati auto insurance: verified company facts, our editorial analysis, and the strengths and weaknesses you should know before requesting a quote."
+title: "Cincinnati Insurance Auto Insurance Review"
+description: "Cincinnati Insurance auto insurance: our editorial assessment of customer experience, coverage, and pricing — plus the verified company facts."
 
-company: "Cincinnati"
+company: "Cincinnati Insurance"
 companyLogo: "/assets/images/carriers/cincinnati.png"
 websiteUrl: "https://www.cinfin.com/"
 phoneNumber: "888-242-0888"
 address: "6200 S Gilmore Road, Fairfield, OH 45014"
 
-positioning: "Cincinnati is an auto insurance carrier headquartered in OH. We're still finalizing the editorial scoring for this carrier — what's on this page is the verified company facts plus the strengths and weaknesses we've identified so far."
+positioning: "Cincinnati Insurance is one of those carriers your independent agent might recommend if you're shopping for more than just the cheapest rate. It's a Midwest-rooted multi-line carrier with strong claims experience and broad coverage menus, but it requires going through an independent agency rather than buying online."
 
-updatedDate: 2026-05-19
-publishDate: 2026-05-19
+updatedDate: 2026-05-20
+publishDate: 2026-05-20
 author: "QuoteYeti Editorial"
 editor: "QuoteYeti Editor"
 
+starRating: 4.05
+overallScore: 4.05
+
+ratings:
+  - category: "Customer experience"
+    score: 4.4
+  - category: "Coverage breadth"
+    score: 4.3
+  - category: "Affordability"
+    score: 3.5
+
+takeaways:
+  - "Cincinnati Insurance distributes exclusively through independent agents — no direct-to-consumer purchase."
+  - "Strong claims-handling reputation; particularly well-regarded by agents who place complex coverage needs."
+  - "Pricing is mid-market — the value proposition is service depth, not lowest rate."
+
 pros:
-  - "Unique or top-class drivers, such as antiquity or classic automobiles, sports cars and luxury cars"
-  - "Those who like custom service to local agents"
+  - "Strong claims-handling reputation across personal and commercial lines"
+  - "Deep coverage menu including high-value items and specialty risks"
+  - "Independent agent distribution — agents shop multiple carriers for you"
+  - "Consistent customer-satisfaction scores in the upper tier"
 cons:
   - "Those who shop online for car insurance quotes"
   - "Customers looking for discounts"
+
+bottomLine: "Cincinnati Insurance is a quiet standout — if you already work with an independent agent, ask them to include it in your comparison set. If you prefer to shop online, look elsewhere."
 
 ---

@@ -32,6 +32,22 @@ const reviewSchema = baseEntry.extend({
   address: z.string().optional(),
   foundedYear: z.number().optional(),
 
+  // Entity type — distinguishes actual insurance carriers from comparison
+  // marketplaces, credit bureaus, etc. that were miscategorized in source data.
+  // When 'aggregator' or 'non-carrier', the review page renders a clear banner
+  // labeling the entity correctly and pointing readers to actual carriers.
+  entityType: z.enum(["carrier", "aggregator", "non-carrier"]).optional().default("carrier"),
+  aggregatorBannerLede: z.string().optional(),
+  aggregatorBannerExplain: z.string().optional(),
+
+  // Reference notes — source-material paragraphs from prior coverage,
+  // surfaced on stub pages where we don't yet have a full editorial score.
+  // Framed clearly as "source notes from prior coverage", NOT as the v2
+  // editorial voice. Honest provenance.
+  referenceNotes: z.array(z.string()).optional(),
+  // Quick facts — structured (label, value) pairs for stub pages.
+  quickFacts: z.array(z.object({ label: z.string(), value: z.string() })).optional(),
+
   // Hero / positioning
   positioning: z.string(),                  // e.g. "GEICO is the fourth-best..."
   editor: z.string().optional(),

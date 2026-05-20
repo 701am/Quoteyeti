@@ -34,6 +34,7 @@ interface VerticalFooterData {
   key: VerticalKey;
   reviews: any[];
   scoredReviewsCount: number;
+  aggregatorCount: number;
   comparisons: { slug: string; label: string }[];
   guides: any[];
   locations: any[];
@@ -92,12 +93,19 @@ for (const v of VERTICAL_LIST) {
     brandFamilies.add(key);
   }
 
-  const scored = reviews.filter((r: any) => typeof r.data.overallScore === "number");
+  // Real carriers only — aggregators/non-carriers don't count for the
+  // "N reviewed · M in directory" math, even though they live in the same collection.
+  const realCarriers = reviews.filter((r: any) =>
+    !r.data.entityType || r.data.entityType === "carrier"
+  );
+  const scored = realCarriers.filter((r: any) => typeof r.data.overallScore === "number");
+  const aggregatorCount = reviews.length - realCarriers.length;
 
   verticalData[v.key] = {
     key: v.key,
-    reviews,
+    reviews: realCarriers,
     scoredReviewsCount: scored.length,
+    aggregatorCount,
     // Compare pages only exist for scored carriers — match the filter in
     // /[vertical]/compare/[slug].astro getStaticPaths.
     comparisons: buildComparePairs(scored),
@@ -189,6 +197,7 @@ const bestOfTeasers = VERTICAL_LIST.map((v) => ({
             <a href="/methodology/">Methodology</a>
             <a href="/editorial/">Editorial standards</a>
             <a href="/blog/">The Dispatch</a>
+            <a href="/partner-network/">For agents</a>
             <a href="/contact/">Contact</a>
             <a href="/sitemap/">Sitemap</a>
           </nav>
@@ -271,7 +280,7 @@ const bestOfTeasers = VERTICAL_LIST.map((v) => ({
                       {d.scoredReviewsCount === d.reviews.length
                         ? `${d.reviews.length} carriers`
                         : `${d.scoredReviewsCount} reviewed · ${d.reviews.length - d.scoredReviewsCount} in directory`}
-                       · {d.comparisons.length} comparisons · {d.guides.length} guides{d.locations.length > 0 && ` · ${d.locations.length} states`}{isAuto && ` · ${d.brandPageTotal} brand & model rate pages`}
+                       · {d.comparisons.length} comparisons{d.aggregatorCount > 0 && ` · ${d.aggregatorCount} ${d.aggregatorCount === 1 ? "non-carrier" : "non-carriers"} flagged`} · {d.guides.length} guides{d.locations.length > 0 && ` · ${d.locations.length} states`}{isAuto && ` · ${d.brandPageTotal} brand & model rate pages`}
                     </p>
                   </div>
                 </div>
@@ -440,6 +449,7 @@ const bestOfTeasers = VERTICAL_LIST.map((v) => ({
       <div class="footer-bottom__row">
         <p class="footer-bottom__copy">© {year} QuoteYeti LLC. All rights reserved.</p>
         <nav class="footer-bottom__legal" aria-label="Legal">
+          <a href="/partner-network/">For agents</a>
           <a href="/privacy-policy/">Privacy</a>
           <a href="/terms/">Terms</a>
           <a href="/accessibility/">Accessibility</a>

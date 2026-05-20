@@ -47,9 +47,15 @@ async function safeCollection(name: string) {
 
 // Featured carrier reviews — show top reviews if any exist
 const allReviews = await safeCollection(`${vertical.key}-reviews`);
-const allScoredReviews = allReviews.filter((r: any) => typeof r.data.overallScore === "number");
-const totalReviews = allReviews.length;
+// "Real carriers" excludes aggregators/non-carriers, which are still in the
+// reviews collection but shouldn't be counted as "carriers" for headline math.
+const realCarriers = allReviews.filter((r: any) =>
+  !r.data.entityType || r.data.entityType === "carrier"
+);
+const allScoredReviews = realCarriers.filter((r: any) => typeof r.data.overallScore === "number");
+const totalReviews = realCarriers.length;
 const scoredReviewsCount = allScoredReviews.length;
+const aggregatorCount = allReviews.length - realCarriers.length;
 
 const reviews = [...allReviews]
   .sort((a, b) => {
