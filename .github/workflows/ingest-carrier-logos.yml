@@ -1,0 +1,53 @@
+name: Ingest carrier logos
+
+# One-time (or on-demand) ingestion of carrier logos from the QuoteYeti
+# WordPress media library into the repo. Runs on GitHub's servers, which can
+# reach quoteyeti.com, then commits the downloaded PNGs back to the repo.
+#
+# HOW TO RUN:
+#   GitHub repo → Actions tab → "Ingest carrier logos" → Run workflow.
+#
+# This is manual-only (workflow_dispatch). It does not run on push.
+
+on:
+  workflow_dispatch:
+    inputs:
+      commit:
+        description: "Commit the downloaded logos back to the repo?"
+        type: boolean
+        default: true
+
+permissions:
+  contents: write   # needed so the job can commit logos back to the repo
+
+jobs:
+  ingest:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v4
+
+      - name: Download carrier logos
+        run: |
+          chmod +x scripts/download-carrier-logos.sh
+          bash scripts/download-carrier-logos.sh
+
+      - name: Show what landed
+        run: |
+          echo "Files in public/assets/images/carriers/:"
+          ls -1 public/assets/images/carriers/ | wc -l
+          ls -la public/assets/images/carriers/ | head -20
+
+      - name: Commit logos
+        if: ${{ inputs.commit }}
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add public/assets/images/carriers/
+          if git diff --staged --quiet; then
+            echo "No logo changes to commit."
+          else
+            git commit -m "Ingest carrier logos from WordPress media library"
+            git push
+            echo "Committed and pushed carrier logos."
+          fi
