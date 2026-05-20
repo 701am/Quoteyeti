@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rick Gold Insurance — Final Expense &amp; Life Insurance in Houston, TX</title>
+<meta name="description" content="Rick Gold helps Houston families secure affordable final expense and life insurance — no medical exams, fast approval, compassionate service. Get a free quote today.">
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy: #1B2A4A;
+    --navy-deep: #152238;
+    --navy-line: #2A3F5F;
+    --gold: #C5A55A;
+    --gold-dark: #B08D4A;
+    --sage: #7A9E7E;
+    --cream: #FAF8F5;
+    --cream-warm: #F5EFE0;
+    --line: #E8E4DC;
+    --white: #FFFFFF;
+    --heading: "Fraunces", Georgia, serif;
+    --body: "Inter", system-ui, -apple-system, sans-serif;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body { font-family: var(--body); color: var(--navy); background: var(--white); -webkit-font-smoothing: antialiased; line-height: 1.6; }
+  h1, h2, h3, h4 { font-family: var(--heading); font-weight: 600; line-height: 1.15; }
+  a { text-decoration: none; }
+  img { display: block; max-width: 100%; }
+  .wrap { max-width: 1200px; margin: 0 auto; padding: 0 24px; }
+  .eyebrow { display: inline-block; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.12em; color: var(--gold); margin-bottom: 14px; }
+  .section { padding: 80px 0; }
+  @media (min-width: 1024px) { .section { padding: 100px 0; } }
+
+  /* ---------- DEMO RIBBON ---------- */
+  .demo-ribbon {
+    background: var(--navy-deep); color: rgba(255,255,255,0.92);
+    text-align: center; font-size: 13px; font-weight: 500;
+    padding: 9px 16px; letter-spacing: 0.01em;
+  }
+  .demo-ribbon a { color: var(--gold); font-weight: 600; }
+  .demo-ribbon a:hover { text-decoration: underline; }
+
+  /* ---------- HEADER NAV (improved: solid, always readable) ---------- */
+  .nav {
+    position: sticky; top: 0; z-index: 50;
+    background: rgba(255,255,255,0.92);
+    backdrop-filter: saturate(160%) blur(12px);
+    -webkit-backdrop-filter: saturate(160%) blur(12px);
+    border-bottom: 1px solid var(--line);
+  }
+  .nav__inner { display: flex; align-items: center; justify-content: space-between; height: 70px; }
+  .nav__brand { display: flex; align-items: center; gap: 11px; }
+  .nav__monogram {
+    width: 38px; height: 38px; border-radius: 9px; flex-shrink: 0;
+    background: linear-gradient(135deg, var(--gold) 0%, var(--gold-dark) 100%);
+    color: var(--white); font-family: var(--heading); font-weight: 700;
+    font-size: 17px; display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 2px 8px rgba(197,165,90,0.35);
+  }
+  .nav__brand-text { display: flex; flex-direction: column; line-height: 1.1; }
+  .nav__name { font-family: var(--heading); font-weight: 700; font-size: 19px; color: var(--navy); }
+  .nav__tag { font-size: 10.5px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; color: var(--gold); }
+  .nav__links { display: none; align-items: center; gap: 34px; }
+  .nav__link { font-size: 15px; font-weight: 500; color: var(--navy); transition: color 0.15s; position: relative; }
+  .nav__link::after {
+    content: ""; position: absolute; left: 0; right: 0; bottom: -6px; height: 2px;
+    background: var(--gold); transform: scaleX(0); transform-origin: center; transition: transform 0.2s;
+  }
+  .nav__link:hover { color: var(--gold-dark); }
+  .nav__link:hover::after { transform: scaleX(1); }
+  .nav__cta {
+    display: inline-flex; align-items: center; gap: 7px;
+    background: var(--gold); color: var(--white); padding: 11px 22px;
+    border-radius: 100px; font-size: 14px; font-weight: 600;
+    box-shadow: 0 4px 14px rgba(197,165,90,0.32); transition: transform 0.18s, box-shadow 0.18s, background 0.18s;
+  }
+  .nav__cta:hover { background: var(--gold-dark); transform: translateY(-1px); box-shadow: 0 7px 20px rgba(197,165,90,0.42); }
+  .nav__phone { display: none; font-size: 14px; font-weight: 600; color: var(--navy); }
+  .nav__phone span { color: var(--gold); }
+  .nav__burger { display: flex; flex-direction: column; gap: 5px; background: none; border: 0; cursor: pointer; padding: 8px; }
+  .nav__burger span { width: 24px; height: 2px; background: var(--navy); border-radius: 2px; transition: 0.2s; }
+  .nav__burger.is-open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+  .nav__burger.is-open span:nth-child(2) { opacity: 0; }
+  .nav__burger.is-open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+  .nav__drawer { display: none; flex-direction: column; padding: 10px 24px 22px; border-top: 1px solid var(--line); background: var(--white); }
+  .nav__drawer.is-open { display: flex; }
+  .nav__drawer a { font-size: 16px; font-weight: 500; color: var(--navy); padding: 13px 0; border-bottom: 1px solid var(--line); }
+  .nav__drawer a:last-child { border-bottom: 0; margin-top: 10px; background: var(--gold); color: var(--white); text-align: center; border-radius: 100px; padding: 13px; font-weight: 600; }
+  @media (min-width: 1024px) {
+    .nav__links { display: flex; }
+    .nav__burger { display: none; }
+    .nav__phone { display: block; }
+  }
+
+  /* ---------- BUTTONS ---------- */
+  .btn {
+    display: inline-flex; align-items: center; gap: 9px; font-weight: 600;
+    border-radius: 100px; transition: transform 0.18s, box-shadow 0.18s, background 0.18s, color 0.18s;
+    cursor: pointer; font-size: 16px; padding: 14px 30px; border: 2px solid transparent;
+  }
+  .btn--gold { background: var(--gold); color: var(--white); box-shadow: 0 4px 16px rgba(197,165,90,0.3); }
+  .btn--gold:hover { background: var(--gold-dark); transform: translateY(-2px); box-shadow: 0 9px 26px rgba(197,165,90,0.4); }
+  .btn--outline { border-color: var(--gold); color: var(--gold-dark); background: transparent; }
+  .btn--outline:hover { background: var(--gold); color: var(--white); }
+  .btn .arr { transition: transform 0.18s; }
+  .btn:hover .arr { transform: translateX(4px); }
+
+  /* ---------- HERO ---------- */
+  .hero { padding: 56px 0 0; }
+  .hero__grid { display: flex; flex-direction: column; gap: 36px; align-items: center; }
+  .hero__h1 { font-size: 38px; color: var(--navy); margin-bottom: 20px; }
+  .hero__h1 .u { position: relative; display: inline-block; }
+  .hero__h1 .u::after { content: ""; position: absolute; left: 0; right: 0; bottom: 4px; height: 4px; background: var(--gold); border-radius: 4px; }
+  .hero__sub { font-size: 17px; color: rgba(27,42,74,0.72); margin-bottom: 30px; max-width: 540px; }
+  .hero__actions { display: flex; flex-wrap: wrap; gap: 14px; margin-bottom: 28px; }
+  .hero__trust { display: flex; flex-wrap: wrap; gap: 8px 22px; }
+  .hero__trust span { display: inline-flex; align-items: center; gap: 7px; font-size: 14px; color: var(--sage); font-weight: 500; }
+  .hero__img { width: 100%; border-radius: 18px; overflow: hidden; box-shadow: 0 20px 60px rgba(27,42,74,0.16); }
+  .hero__img img { width: 100%; height: auto; object-fit: cover; }
+  @media (min-width: 1024px) {
+    .hero { padding: 0; }
+    .hero__grid { flex-direction: row; min-height: calc(100vh - 70px); gap: 56px; }
+    .hero__copy { flex: 1 1 55%; }
+    .hero__media { flex: 1 1 45%; }
+    .hero__h1 { font-size: 54px; }
+    .hero__sub { font-size: 18px; }
+  }
+  .hero__stats { border-top: 1px solid var(--line); padding: 44px 0; display: grid; grid-template-columns: repeat(2, 1fr); gap: 28px; }
+  @media (min-width: 1024px) { .hero__stats { grid-template-columns: repeat(4, 1fr); gap: 0; } }
+  .stat { text-align: center; }
+  .stat + .stat { position: relative; }
+  @media (min-width: 1024px) { .hero__stats .stat:not(:last-child) { border-right: 1px solid var(--line); } }
+  .stat__num { display: block; font-family: var(--heading); font-size: 38px; color: var(--gold); line-height: 1.1; }
+  @media (min-width: 1024px) { .stat__num { font-size: 46px; } }
+  .stat__label { font-size: 14px; color: var(--navy); }
+
+  /* ---------- ABOUT ---------- */
+  .about__grid { display: flex; flex-direction: column; gap: 40px; align-items: center; }
+  .about__img { width: 100%; border-radius: 18px; overflow: hidden; box-shadow: 0 16px 48px rgba(27,42,74,0.12); }
+  .about__h2 { font-size: 32px; color: var(--navy); margin-bottom: 22px; }
+  .about p { font-size: 16px; color: rgba(27,42,74,0.72); margin-bottom: 16px; }
+  @media (min-width: 1024px) {
+    .about__grid { flex-direction: row; gap: 64px; }
+    .about__img { flex: 0 0 45%; }
+    .about__text { flex: 0 0 55%; }
+    .about__h2 { font-size: 42px; }
+  }
+
+  /* ---------- SERVICES ---------- */
+  .services__grid { display: flex; flex-direction: column; gap: 48px; }
+  .services__intro-h2 { font-size: 32px; color: var(--navy); margin-bottom: 18px; }
+  .services__intro p { font-size: 17px; color: rgba(27,42,74,0.72); margin-bottom: 28px; }
+  .service { padding-bottom: 36px; border-bottom: 1px solid var(--line); }
+  .service:last-child { border-bottom: 0; padding-bottom: 0; }
+  .service__num { display: block; font-family: var(--heading); font-size: 46px; color: rgba(197,165,90,0.3); line-height: 1; margin-bottom: 10px; }
+  .service__title { font-size: 24px; color: var(--navy); margin-bottom: 12px; }
+  .service__body { font-size: 16px; color: rgba(27,42,74,0.72); margin-bottom: 18px; }
+  .service__features { list-style: none; display: grid; gap: 10px; }
+  .service__features li { display: flex; align-items: flex-start; gap: 10px; font-size: 15px; color: rgba(27,42,74,0.8); }
+  @media (min-width: 1024px) {
+    .services__grid { flex-direction: row; gap: 64px; }
+    .services__intro { flex: 0 0 38%; position: sticky; top: 100px; align-self: flex-start; }
+    .services__list { flex: 0 0 62%; }
+    .services__intro-h2 { font-size: 42px; }
+  }
+  .ico-check { color: var(--sage); flex-shrink: 0; margin-top: 2px; }
+
+  /* ---------- HOW IT WORKS ---------- */
+  .how { background: var(--cream); }
+  .how__head { text-align: center; margin-bottom: 56px; }
+  .how__head h2 { font-size: 32px; color: var(--navy); }
+  @media (min-width: 1024px) { .how__head h2 { font-size: 42px; } }
+  .how__steps { position: relative; display: grid; grid-template-columns: 1fr; gap: 36px; }
+  @media (min-width: 640px) { .how__steps { grid-template-columns: 1fr 1fr; } }
+  @media (min-width: 1024px) { .how__steps { grid-template-columns: repeat(4, 1fr); gap: 24px; } }
+  .how__steps::before {
+    content: ""; display: none; position: absolute; top: 28px; left: 12.5%; right: 12.5%; height: 2px;
+    background: repeating-linear-gradient(90deg, var(--gold) 0 8px, transparent 8px 16px); opacity: 0.45;
+  }
+  @media (min-width: 1024px) { .how__steps::before { display: block; } }
+  .how__step { text-align: center; position: relative; z-index: 1; }
+  .how__num {
+    width: 56px; height: 56px; border-radius: 50%; background: var(--gold); color: var(--white);
+    font-family: var(--heading); font-size: 24px; display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 18px; box-shadow: 0 0 0 6px var(--cream);
+  }
+  .how__step h3 { font-size: 20px; color: var(--navy); margin-bottom: 10px; }
+  .how__step p { font-size: 15px; color: rgba(27,42,74,0.72); }
+
+  /* ---------- WHY CHOOSE ---------- */
+  .why { background: var(--cream); padding-top: 0; }
+  .why__head { text-align: center; margin-bottom: 56px; }
+  .why__head h2 { font-size: 32px; color: var(--navy); }
+  @media (min-width: 1024px) { .why__head h2 { font-size: 42px; } }
+  .why__grid { display: grid; grid-template-columns: 1fr; gap: 24px; }
+  @media (min-width: 768px) { .why__grid { grid-template-columns: repeat(3, 1fr); } }
+  .why__card { background: var(--white); border: 1px solid var(--line); border-radius: 14px; padding: 32px; box-shadow: 0 2px 8px rgba(27,42,74,0.06); transition: transform 0.3s, box-shadow 0.3s; }
+  .why__card:hover { transform: translateY(-4px); box-shadow: 0 8px 24px rgba(27,42,74,0.1); }
+  .why__icon { color: var(--gold); margin-bottom: 18px; }
+  .why__card h3 { font-size: 22px; color: var(--navy); margin-bottom: 12px; }
+  .why__card p { font-size: 16px; color: rgba(27,42,74,0.72); }
+
+  /* ---------- TESTIMONIALS ---------- */
+  .tst { background: var(--cream-warm); }
+  .tst__head { text-align: center; margin-bottom: 56px; }
+  .tst__head h2 { font-size: 32px; color: var(--navy); }
+  @media (min-width: 1024px) { .tst__head h2 { font-size: 42px; } }
+  .tst__grid { display: grid; grid-template-columns: 1fr; gap: 24px; }
+  @media (min-width: 768px) { .tst__grid { grid-template-columns: 1fr 1fr; } }
+  @media (min-width: 1024px) { .tst__grid { grid-template-columns: repeat(3, 1fr); } }
+  .tst__card { background: var(--white); border-radius: 14px; padding: 30px; box-shadow: 0 2px 10px rgba(27,42,74,0.06); }
+  .tst__stars { display: flex; gap: 3px; margin-bottom: 16px; color: var(--gold); }
+  .tst__quote { font-size: 15.5px; color: rgba(27,42,74,0.82); line-height: 1.7; margin-bottom: 18px; }
+  .tst__name { font-family: var(--heading); font-weight: 600; font-size: 16px; color: var(--navy); }
+  .tst__loc { font-size: 13px; color: rgba(27,42,74,0.55); }
+
+  /* ---------- CTA ---------- */
+  .cta { background: var(--navy); text-align: center; }
+  .cta__inner { max-width: 700px; margin: 0 auto; }
+  .cta h2 { font-size: 36px; color: var(--white); margin-bottom: 18px; }
+  @media (min-width: 1024px) { .cta h2 { font-size: 48px; } }
+  .cta p { font-size: 17px; color: rgba(255,255,255,0.8); margin-bottom: 36px; }
+  .cta__phone { font-size: 16px; color: rgba(255,255,255,0.6); margin-top: 24px; }
+  .cta__phone a { color: var(--gold); font-weight: 600; }
+  .cta__phone a:hover { text-decoration: underline; }
+  .cta .btn--gold { background: var(--gold); color: var(--navy); font-weight: 700; padding: 16px 40px; font-size: 18px; }
+
+  /* ---------- FOOTER ---------- */
+  .ft { background: var(--navy-deep); padding: 60px 0 0; }
+  .ft__grid { display: grid; grid-template-columns: 1fr; gap: 40px; margin-bottom: 40px; }
+  @media (min-width: 768px) { .ft__grid { grid-template-columns: repeat(3, 1fr); } }
+  .ft__name { font-family: var(--heading); font-size: 22px; color: var(--gold); margin-bottom: 12px; }
+  .ft p, .ft a { font-size: 14px; }
+  .ft__brand p { color: rgba(255,255,255,0.6); margin-bottom: 14px; }
+  .ft__brand a.tel { display: block; color: var(--gold); font-weight: 600; margin-bottom: 4px; }
+  .ft__brand a.eml { display: block; color: rgba(255,255,255,0.6); }
+  .ft__brand a.eml:hover { color: var(--gold); }
+  .ft h4 { font-size: 14px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--white); margin-bottom: 16px; font-family: var(--body); font-weight: 600; }
+  .ft__links { list-style: none; display: grid; gap: 12px; }
+  .ft__links a { color: rgba(255,255,255,0.7); transition: color 0.15s; }
+  .ft__links a:hover { color: var(--gold); }
+  .ft__areas { color: rgba(255,255,255,0.7); line-height: 1.7; }
+  .ft__lic { color: rgba(255,255,255,0.5); margin-top: 16px; }
+  .ft__bottom { border-top: 1px solid var(--navy-line); padding: 22px 0 28px; display: flex; flex-direction: column; gap: 12px; align-items: center; text-align: center; }
+  @media (min-width: 640px) { .ft__bottom { flex-direction: row; justify-content: space-between; text-align: left; } }
+  .ft__copy { font-size: 13px; color: rgba(255,255,255,0.4); }
+  .ft__powered { font-size: 13px; color: rgba(255,255,255,0.5); }
+  .ft__powered a { color: var(--gold); font-weight: 600; }
+  .ft__powered a:hover { text-decoration: underline; }
+  .ft__legal { display: flex; gap: 14px; align-items: center; }
+  .ft__legal a { font-size: 13px; color: rgba(255,255,255,0.4); }
+  .ft__legal a:hover { color: rgba(255,255,255,0.7); }
+  .ft__legal span { color: rgba(255,255,255,0.2); }
+</style>
+</head>
+<body>
+<!-- Demo ribbon: makes clear this is a sample white-label site -->
+<div class="demo-ribbon">
+  Sample white-label site built by QuoteYeti &nbsp;·&nbsp; <a href="/partner-network/">See how the white-label platform works &rarr;</a>
+</div>
+
+<!-- ===== HEADER NAV ===== -->
+<header class="nav">
+  <div class="wrap nav__inner">
+    <a href="#home" class="nav__brand">
+      <span class="nav__monogram">RG</span>
+      <span class="nav__brand-text">
+        <span class="nav__name">Rick Gold</span>
+        <span class="nav__tag">Insurance</span>
+      </span>
+    </a>
+    <nav class="nav__links" aria-label="Primary">
+      <a href="#about" class="nav__link">About</a>
+      <a href="#services" class="nav__link">Services</a>
+      <a href="#how" class="nav__link">How It Works</a>
+      <a href="#testimonials" class="nav__link">Reviews</a>
+      <a href="tel:7135554653" class="nav__phone">(713) 555-<span>GOLD</span></a>
+      <a href="#contact" class="nav__cta">Get a Free Quote</a>
+    </nav>
+    <button class="nav__burger" aria-label="Toggle menu" aria-expanded="false" data-burger>
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+  <div class="nav__drawer" data-drawer>
+    <a href="#about">About</a>
+    <a href="#services">Services</a>
+    <a href="#how">How It Works</a>
+    <a href="#testimonials">Reviews</a>
+    <a href="#contact">Get a Free Quote</a>
+  </div>
+</header>
+
+<!-- ===== HERO ===== -->
+<section id="home" class="hero">
+  <div class="wrap hero__grid">
+    <div class="hero__copy">
+      <span class="eyebrow">Houston's Trusted Final Expense &amp; Life Insurance Agent</span>
+      <h1 class="hero__h1">Protect Your Family's Future with <span class="u">Confidence</span></h1>
+      <p class="hero__sub">Rick Gold helps Houston families secure affordable final expense and life insurance coverage — no medical exams required, approval guaranteed, and peace of mind delivered.</p>
+      <div class="hero__actions">
+        <a href="#contact" class="btn btn--gold">Get Your Free Quote
+          <svg class="arr" width="18" height="16" viewBox="0 0 18 16" fill="none"><path d="M10 2l6 6-6 6M2 8h14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </a>
+        <a href="#services" class="btn btn--outline">Learn More</a>
+      </div>
+      <div class="hero__trust">
+        <span><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8.5l3.2 3.2L13 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> No Medical Exam Required</span>
+        <span><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8.5l3.2 3.2L13 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> Houston Families Protected</span>
+        <span><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8.5l3.2 3.2L13 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> Same-Day Coverage Available</span>
+      </div>
+    </div>
+    <div class="hero__media">
+      <div class="hero__img"><img src="/partner-network/demo/hero-agent.jpg" alt="Rick Gold, professional insurance agent in Houston" width="864" height="1184"></div>
+    </div>
+  </div>
+  <div class="wrap">
+    <div class="hero__stats">
+      <div class="stat"><span class="stat__num">500+</span><span class="stat__label">Houston Families Protected</span></div>
+      <div class="stat"><span class="stat__num">$50M+</span><span class="stat__label">Coverage Secured</span></div>
+      <div class="stat"><span class="stat__num">15+</span><span class="stat__label">Years of Experience</span></div>
+      <div class="stat"><span class="stat__num">100%</span><span class="stat__label">Commitment to Clients</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== ABOUT ===== -->
+<section id="about" class="section about">
+  <div class="wrap about__grid">
+    <div class="about__img"><img src="/partner-network/demo/rick-gold-portrait.jpg" alt="Rick Gold, Houston insurance agent" width="864" height="1184"></div>
+    <div class="about__text">
+      <span class="eyebrow">Meet Rick Gold</span>
+      <h2 class="about__h2">A Houston Agent Who Puts Families First</h2>
+      <p>Rick Gold has been serving Houston families for over 15 years, specializing in final expense and life insurance solutions. He understands that talking about end-of-life planning isn't easy — which is why he approaches every conversation with compassion, patience, and respect.</p>
+      <p>Licensed in Texas and appointed with the nation's top-rated insurance carriers, Rick has the expertise and relationships to find the right coverage at the right price. He works with clients across Houston, Katy, Sugar Land, The Woodlands, and surrounding areas.</p>
+      <p>When you work with Rick, you're not just getting an insurance policy — you're gaining a trusted advisor for life. He's available for home visits, phone consultations, or virtual meetings, whatever works best for your schedule.</p>
+      <a href="#contact" class="btn btn--outline" style="margin-top:8px">Get to Know Rick
+        <svg class="arr" width="18" height="16" viewBox="0 0 18 16" fill="none"><path d="M10 2l6 6-6 6M2 8h14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ===== SERVICES ===== -->
+<section id="services" class="section services">
+  <div class="wrap services__grid">
+    <div class="services__intro">
+      <span class="eyebrow">What Rick Offers</span>
+      <h2 class="services__intro-h2">Comprehensive Insurance Solutions for Every Stage of Life</h2>
+      <p>From final expense plans that cover funeral costs to whole life policies that build cash value, Rick offers a range of options tailored to your needs and budget.</p>
+      <a href="#contact" class="btn btn--gold">Schedule a Free Consultation
+        <svg class="arr" width="18" height="16" viewBox="0 0 18 16" fill="none"><path d="M10 2l6 6-6 6M2 8h14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </a>
+    </div>
+    <div class="services__list">
+      <div class="service">
+        <span class="service__num">01</span>
+        <h3 class="service__title">Final Expense Insurance</h3>
+        <p class="service__body">Cover funeral, burial, and end-of-life expenses with a policy designed to relieve your family of financial burden. Coverage amounts from $5,000 to $50,000.</p>
+        <ul class="service__features">
+          <li><svg class="ico-check" width="18" height="18" viewBox="0 0 16 16" fill="none"><path d="M3 8.5l3.2 3.2L13 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> Guaranteed acceptance (ages 50-85)</li>
+          <li><svg class="ico-check" width="18" height="18" viewBox="0 0 16 16" fill="none"><path d="M3 8.5l3.2 3.2L13 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> No medical exam required</li>
+          <li><svg class="ico-check" width="18" height="18" viewBox="0 0 16 16" fill="none"><path d="M3 8.5l3.2 3.2L13 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> Fixed premiums that never increase</li>
+          <li><svg class="ico-check" width="18" height="18" viewBox="0 0 16 16" fill="none"><path d="M3 8.5l3.2 3.2L13 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> Benefit never decreases</li>
+        </ul>
+      </div>
+      <div class="service">
+        <span class="service__num">02</span>
+        <h3 class="service__title">Whole Life Insurance</h3>
+        <p class="service__body">Permanent protection that lasts your entire lifetime. Build cash value over time while ensuring your loved ones receive a guaranteed death benefit.</p>
+        <ul class="service__features">
+          <li><svg class="ico-check" width="18" height="18" viewBox="0 0 16 16" fill="none"><path d="M3 8.5l3.2 3.2L13 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> Lifetime coverage protection</li>
+          <li><svg class="ico-check" width="18" height="18" viewBox="0 0 16 16" fill="none"><path d="M3 8.5l3.2 3.2L13 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> Cash value accumulation</li>
+          <li><svg class="ico-check" width="18" height="18" viewBox="0 0 16 16" fill="none"><path d="M3 8.5l3.2 3.2L13 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> Fixed premium payments</li>
+          <li><svg class="ico-check" width="18" height="18" viewBox="0 0 16 16" fill="none"><path d="M3 8.5l3.2 3.2L13 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> Tax-advantaged growth</li>
+        </ul>
+      </div>
+      <div class="service">
+        <span class="service__num">03</span>
+        <h3 class="service__title">Term Life Insurance</h3>
+        <p class="service__body">Affordable coverage for a specific period — ideal for covering mortgages, income replacement, or protecting your family during your working years.</p>
+        <ul class="service__features">
+          <li><svg class="ico-check" width="18" height="18" viewBox="0 0 16 16" fill="none"><path d="M3 8.5l3.2 3.2L13 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> 10, 20, and 30-year terms</li>
+          <li><svg class="ico-check" width="18" height="18" viewBox="0 0 16 16" fill="none"><path d="M3 8.5l3.2 3.2L13 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> Higher coverage amounts</li>
+          <li><svg class="ico-check" width="18" height="18" viewBox="0 0 16 16" fill="none"><path d="M3 8.5l3.2 3.2L13 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> Convertible to permanent policies</li>
+          <li><svg class="ico-check" width="18" height="18" viewBox="0 0 16 16" fill="none"><path d="M3 8.5l3.2 3.2L13 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> Budget-friendly premiums</li>
+        </ul>
+      </div>
+      <div class="service">
+        <span class="service__num">04</span>
+        <h3 class="service__title">Mortgage Protection Insurance</h3>
+        <p class="service__body">Ensure your family can stay in their home if something happens to you. This specialized coverage pays off your remaining mortgage balance.</p>
+        <ul class="service__features">
+          <li><svg class="ico-check" width="18" height="18" viewBox="0 0 16 16" fill="none"><path d="M3 8.5l3.2 3.2L13 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> Pays off mortgage directly</li>
+          <li><svg class="ico-check" width="18" height="18" viewBox="0 0 16 16" fill="none"><path d="M3 8.5l3.2 3.2L13 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> Decreasing benefit option</li>
+          <li><svg class="ico-check" width="18" height="18" viewBox="0 0 16 16" fill="none"><path d="M3 8.5l3.2 3.2L13 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> Can include disability rider</li>
+          <li><svg class="ico-check" width="18" height="18" viewBox="0 0 16 16" fill="none"><path d="M3 8.5l3.2 3.2L13 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> Protects your family's home</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== HOW IT WORKS ===== -->
+<section class="section how">
+  <div class="wrap">
+    <div class="how__head">
+      <span class="eyebrow">Simple Process</span>
+      <h2>Getting Protected Is Easier Than You Think</h2>
+    </div>
+    <div class="how__steps">
+      <div class="how__step"><div class="how__num">1</div><h3>Free Consultation</h3><p>Call or schedule a time that works for you. Rick will discuss your needs, answer questions, and explain your options with zero pressure.</p></div>
+      <div class="how__step"><div class="how__num">2</div><h3>Compare Options</h3><p>Rick shops top-rated insurance carriers to find you the best rates and coverage. You'll see side-by-side comparisons tailored to your budget.</p></div>
+      <div class="how__step"><div class="how__num">3</div><h3>Easy Application</h3><p>Rick handles all the paperwork for you. Most applications take just 15-20 minutes, and many require no medical exam or health questions.</p></div>
+      <div class="how__step"><div class="how__num">4</div><h3>Coverage Active</h3><p>Your coverage goes into effect — often the same day. Rick provides your policy documents and remains your agent for life, always just a phone call away.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== WHY CHOOSE ===== -->
+<section class="section why">
+  <div class="wrap">
+    <div class="why__head">
+      <span class="eyebrow">Why Houston Families Trust Rick</span>
+      <h2>Honest Guidance, Real Protection, Lasting Peace of Mind</h2>
+    </div>
+    <div class="why__grid">
+      <div class="why__card">
+        <svg class="why__icon" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2l8 3v6c0 5-3.5 8.5-8 11-4.5-2.5-8-6-8-11V5l8-3z" stroke-linejoin="round"/><path d="M9 12l2 2 4-4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <h3>No Medical Exams Required</h3>
+        <p>Most final expense policies require no health questions or medical exams. Get approved quickly and protect your family without the hassle.</p>
+      </div>
+      <div class="why__card">
+        <svg class="why__icon" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <h3>Fast, Same-Day Coverage</h3>
+        <p>In many cases, your coverage starts the same day you apply. Rick works directly with top-rated carriers to get you protected fast.</p>
+      </div>
+      <div class="why__card">
+        <svg class="why__icon" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 21s-7-4.5-7-9.5A3.5 3.5 0 0 1 12 8a3.5 3.5 0 0 1 7 3.5C19 16.5 12 21 12 21z" stroke-linejoin="round"/></svg>
+        <h3>Personalized, Compassionate Service</h3>
+        <p>Rick takes time to understand your family's needs and budget. No pressure, no jargon — just honest advice from someone who truly cares.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== TESTIMONIALS ===== -->
+<section id="testimonials" class="section tst">
+  <div class="wrap">
+    <div class="tst__head">
+      <span class="eyebrow">Client Stories</span>
+      <h2>What Houston Families Are Saying</h2>
+    </div>
+    <div class="tst__grid">
+      <div class="tst__card"><div class="tst__stars">★★★★★</div><p class="tst__quote">"Rick made the entire process so easy. He came to my home, explained everything in plain English, and my final expense policy was approved the same day. I finally have peace of mind."</p><div class="tst__name">Margaret T.</div><div class="tst__loc">Houston, TX</div></div>
+      <div class="tst__card"><div class="tst__stars">★★★★★</div><p class="tst__quote">"After my husband passed, I was worried about leaving debt for my kids. Rick found me an affordable whole life policy that fits my budget perfectly. He's a true professional."</p><div class="tst__name">Linda R.</div><div class="tst__loc">Katy, TX</div></div>
+      <div class="tst__card"><div class="tst__stars">★★★★★</div><p class="tst__quote">"I didn't think I could get life insurance at my age with my health issues. Rick found a guaranteed issue policy with no questions asked. My family is now protected."</p><div class="tst__name">Robert K.</div><div class="tst__loc">Sugar Land, TX</div></div>
+      <div class="tst__card"><div class="tst__stars">★★★★★</div><p class="tst__quote">"Rick is not pushy like other insurance agents I've dealt with. He genuinely cares about finding the right solution for your family. Highly recommend him to anyone in Houston."</p><div class="tst__name">Denise M.</div><div class="tst__loc">Pasadena, TX</div></div>
+      <div class="tst__card"><div class="tst__stars">★★★★★</div><p class="tst__quote">"We needed mortgage protection quickly for our new home purchase. Rick worked after hours to make sure everything was in place before closing. Exceptional service!"</p><div class="tst__name">James &amp; Sarah L.</div><div class="tst__loc">The Woodlands, TX</div></div>
+      <div class="tst__card"><div class="tst__stars">★★★★★</div><p class="tst__quote">"I've worked with Rick for over 5 years. He checks in regularly, keeps me updated on my policy, and has become like family. Trustworthy, reliable, and always available."</p><div class="tst__name">Carlos V.</div><div class="tst__loc">Pearland, TX</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== CTA ===== -->
+<section id="contact" class="section cta">
+  <div class="wrap cta__inner">
+    <h2>Ready to Protect Your Family's Future?</h2>
+    <p>Get your free, no-obligation quote today. Rick will answer all your questions and help you find the perfect coverage for your family.</p>
+    <a href="tel:7135554653" class="btn btn--gold">Get Your Free Quote
+      <svg class="arr" width="20" height="18" viewBox="0 0 18 16" fill="none"><path d="M10 2l6 6-6 6M2 8h14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </a>
+    <p class="cta__phone">Or call Rick directly at <a href="tel:7135554653">(713) 555-GOLD</a></p>
+  </div>
+</section>
+
+<!-- ===== FOOTER ===== -->
+<footer class="ft">
+  <div class="wrap">
+    <div class="ft__grid">
+      <div class="ft__brand">
+        <span class="ft__name">Rick Gold</span>
+        <p>Final Expense &amp; Life Insurance — Houston, TX</p>
+        <a class="tel" href="tel:7135554653">(713) 555-GOLD</a>
+        <a class="eml" href="mailto:rick@rickgoldinsurance.com">rick@rickgoldinsurance.com</a>
+      </div>
+      <div>
+        <h4>Quick Links</h4>
+        <ul class="ft__links">
+          <li><a href="#home">Home</a></li>
+          <li><a href="#about">About Rick</a></li>
+          <li><a href="#services">Services</a></li>
+          <li><a href="#testimonials">Testimonials</a></li>
+          <li><a href="#contact">Get a Quote</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Service Areas</h4>
+        <p class="ft__areas">Houston, Katy, Sugar Land, The Woodlands, Pasadena, Pearland, Baytown, Spring</p>
+        <p class="ft__lic">Licensed in Texas</p>
+      </div>
+    </div>
+    <div class="ft__bottom">
+      <p class="ft__copy">&copy; 2026 Rick Gold Insurance. All Rights Reserved.</p>
+      <p class="ft__powered">Powered by <a href="https://www.quoteyeti.com">QuoteYeti</a></p>
+      <div class="ft__legal">
+        <a href="#">Privacy Policy</a><span>·</span>
+        <a href="#">Terms of Service</a><span>·</span>
+        <a href="#">Disclaimer</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // Mobile nav toggle
+  var burger = document.querySelector("[data-burger]");
+  var drawer = document.querySelector("[data-drawer]");
+  if (burger && drawer) {
+    burger.addEventListener("click", function () {
+      var open = drawer.classList.toggle("is-open");
+      burger.classList.toggle("is-open", open);
+      burger.setAttribute("aria-expanded", String(open));
+    });
+    drawer.querySelectorAll("a").forEach(function (a) {
+      a.addEventListener("click", function () {
+        drawer.classList.remove("is-open");
+        burger.classList.remove("is-open");
+        burger.setAttribute("aria-expanded", "false");
+      });
+    });
+  }
+</script>
+</body>
+</html>

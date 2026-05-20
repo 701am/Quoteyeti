@@ -380,6 +380,16 @@ const whiteLabel = {
             </li>
           ))}
         </ul>
+
+        <a class="pn-wl__demo" href="/partner-network/demo/" target="_blank" rel="noopener">
+          <span class="pn-wl__demo-shot">
+            <img src="/partner-network/demo/demo-preview.png" alt="Sample white-label agent site built by QuoteYeti for a Houston insurance agent" width="1280" height="860" loading="lazy" />
+          </span>
+          <span class="pn-wl__demo-label">
+            <strong>See a real sample we built &rarr;</strong>
+            A complete white-label agent site — branding, services, testimonials, the works. Opens in a new tab.
+          </span>
+        </a>
       </div>
 
       <aside class="pn-wl__card">
@@ -974,6 +984,23 @@ const whiteLabel = {
     .pn-wl__terms li span { color: var(--color-text-muted); }
     .pn-wl__terms li strong { color: var(--color-resolution); font-weight: 700; }
     .pn-wl__card-foot { font-size: 0.78rem; color: var(--color-text-muted); line-height: 1.5; margin: var(--space-4) 0 0; text-align: center; }
+    /* live-sample preview link */
+    .pn-wl__demo {
+      display: grid; grid-template-columns: auto 1fr; gap: var(--space-5); align-items: center;
+      margin-top: var(--space-8); padding: var(--space-4);
+      background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.12);
+      border-radius: var(--radius); text-decoration: none;
+      transition: background 0.18s ease, border-color 0.18s ease, transform 0.18s ease;
+    }
+    .pn-wl__demo:hover { background: rgba(255,255,255,0.08); border-color: var(--color-gold, var(--color-orange)); transform: translateY(-2px); }
+    .pn-wl__demo-shot {
+      flex-shrink: 0; width: 168px; border-radius: var(--radius-sm); overflow: hidden;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.15); display: block;
+    }
+    .pn-wl__demo-shot img { width: 100%; height: auto; display: block; }
+    .pn-wl__demo-label { font-size: 0.88rem; color: rgba(255,255,255,0.7); line-height: 1.5; }
+    .pn-wl__demo-label strong { display: block; color: var(--color-white); font-family: var(--font-display); font-weight: 700; font-size: 1rem; margin-bottom: var(--space-1); }
+    @media (max-width: 560px) { .pn-wl__demo { grid-template-columns: 1fr; } .pn-wl__demo-shot { width: 100%; } }
 
     /* ---------- APPLY close line ---------- */
     .pn-apply__close { font-family: var(--font-display); font-weight: 700; font-size: 1.15rem; color: var(--color-white); margin: var(--space-2) 0 var(--space-4); }
