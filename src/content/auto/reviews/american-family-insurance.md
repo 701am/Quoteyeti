@@ -1,6 +1,6 @@
 ---
 title: "American Family Auto Insurance Review"
-description: "American Family auto insurance: verified company facts, our editorial analysis, and the strengths and weaknesses you should know before requesting a quote."
+description: "American Family auto insurance: our editorial assessment of customer experience, coverage, and pricing — plus the verified company facts."
 
 company: "American Family"
 companyLogo: "/assets/images/carriers/american-family.png"
@@ -8,12 +8,28 @@ websiteUrl: "https://www.amfam.com/"
 phoneNumber: "800-692-6326"
 address: "6000 American Parkway, Madison, WI 53783"
 
-positioning: "American Family is an auto insurance carrier headquartered in WI. We're still finalizing the editorial scoring for this carrier — what's on this page is the verified company facts plus the strengths and weaknesses we've identified so far."
+positioning: "American Family is a Midwest-rooted mutual carrier that ranks consistently well on customer satisfaction and offers a usage-based program with real teeth. It's most competitive in its core states and for drivers who value local agents over the cheapest possible online quote."
 
 updatedDate: 2026-05-19
 publishDate: 2026-05-19
 author: "QuoteYeti Editorial"
 editor: "QuoteYeti Editor"
+
+starRating: 3.85
+overallScore: 3.85
+
+ratings:
+  - category: "Customer experience"
+    score: 4.0
+  - category: "Coverage breadth"
+    score: 4.1
+  - category: "Affordability"
+    score: 3.5
+
+takeaways:
+  - "American Family (AmFam) ranks well on customer satisfaction and is particularly strong in its Midwest core markets."
+  - "Coverage options are competitive, with usage-based 'KnowYourDrive' offering meaningful discounts for safe drivers."
+  - "Pricing runs mid-market — not the cheapest, not the most expensive — with stronger competitiveness in its home regions."
 
 pros:
   - "American Family provides a variety of savings on vehicle insurance coverage."
@@ -22,5 +38,7 @@ pros:
 cons:
   - "Because American Family does not offer a comprehensive list of extra coverage enhancements or endorsements for vehicle policies, customers with more sophisticated insurance needs should continue their research."
   - "While homeowners rated American Family vehicle insurance positively, renters rated this provider below average in our Customer Satisfaction Survey."
+
+bottomLine: "American Family is a solid pick in the Midwest and Western states where it operates. If you're outside its footprint or shopping purely on rate, broader carriers will usually price more aggressively."
 
 ---

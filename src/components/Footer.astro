@@ -33,6 +33,7 @@ async function safeCollection(name: string) {
 interface VerticalFooterData {
   key: VerticalKey;
   reviews: any[];
+  scoredReviewsCount: number;
   comparisons: { slug: string; label: string }[];
   guides: any[];
   locations: any[];
@@ -91,12 +92,15 @@ for (const v of VERTICAL_LIST) {
     brandFamilies.add(key);
   }
 
+  const scored = reviews.filter((r: any) => typeof r.data.overallScore === "number");
+
   verticalData[v.key] = {
     key: v.key,
     reviews,
+    scoredReviewsCount: scored.length,
     // Compare pages only exist for scored carriers — match the filter in
     // /[vertical]/compare/[slug].astro getStaticPaths.
-    comparisons: buildComparePairs(reviews.filter((r: any) => typeof r.data.overallScore === "number")),
+    comparisons: buildComparePairs(scored),
     guides,
     locations,
     brandFamilyCount: brandFamilies.size,
@@ -263,7 +267,12 @@ const bestOfTeasers = VERTICAL_LIST.map((v) => ({
                   </span>
                   <div>
                     <h2 class="footer-panel__h2">{v.label} insurance</h2>
-                    <p class="footer-panel__sub">{d.reviews.length} carriers · {d.comparisons.length} comparisons · {d.guides.length} guides{d.locations.length > 0 && ` · ${d.locations.length} states`}{isAuto && ` · ${d.brandPageTotal} brand & model rate pages`}</p>
+                    <p class="footer-panel__sub">
+                      {d.scoredReviewsCount === d.reviews.length
+                        ? `${d.reviews.length} carriers`
+                        : `${d.scoredReviewsCount} reviewed · ${d.reviews.length - d.scoredReviewsCount} in directory`}
+                       · {d.comparisons.length} comparisons · {d.guides.length} guides{d.locations.length > 0 && ` · ${d.locations.length} states`}{isAuto && ` · ${d.brandPageTotal} brand & model rate pages`}
+                    </p>
                   </div>
                 </div>
                 <a href={v.path} class="footer-panel__hub">

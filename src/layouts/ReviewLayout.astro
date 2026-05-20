@@ -361,14 +361,25 @@ const remainingTakeaways = takeaways.slice(1);
         ) : (
           <section id="ratings" class="reveal stub-notice">
             <h2>{carrier.name} <span class="serif-italic">ratings</span></h2>
-            <div class="stub-notice__body">
-              <p class="stub-notice__eyebrow">Scoring in progress</p>
-              <p class="stub-notice__lede">
-                We're still in the field on {carrier.name}. Their carrier reference page is here so you have what we have — verified company facts, our initial analysis, and the strengths and weaknesses we've identified — but their full editorial score, ranking, and cost benchmarking aren't ready yet. We don't post scores we haven't earned.
-              </p>
-              <p class="stub-notice__followup">
-                If you're comparing carriers right now, our <a href={`${vertical.path}best/`}>full {vertical.short.toLowerCase()} rankings</a> covers the carriers we've scored.
-              </p>
+            <div class="stub-notice__inner">
+              <div class="stub-notice__gauge">
+                <ScoreGauge
+                  score={0}
+                  max={5}
+                  size="xl"
+                  label="Editorial score"
+                  pending={true}
+                />
+              </div>
+              <div class="stub-notice__body">
+                <p class="stub-notice__eyebrow">Scoring in progress</p>
+                <p class="stub-notice__lede">
+                  We're still in the field on {carrier.name}. Their carrier reference page is here so you have what we have — verified company facts, our initial analysis, and the strengths and weaknesses we've identified — but their full editorial score, ranking, and cost benchmarking aren't ready yet. We don't post scores we haven't earned.
+                </p>
+                <p class="stub-notice__followup">
+                  If you're comparing carriers right now, our <a href={`${vertical.path}best/`}>full {vertical.short.toLowerCase()} rankings</a> covers the carriers we've scored.
+                </p>
+              </div>
             </div>
           </section>
         )}
@@ -909,8 +920,26 @@ const remainingTakeaways = takeaways.slice(1);
     .stub-notice h2 {
       margin: 0 0 var(--space-6);
     }
+    .stub-notice__inner {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: var(--space-8);
+      align-items: start;
+    }
+    .stub-notice__gauge {
+      flex-shrink: 0;
+    }
     .stub-notice__body {
       max-width: 60ch;
+    }
+    @media (max-width: 720px) {
+      .stub-notice__inner {
+        grid-template-columns: 1fr;
+        gap: var(--space-6);
+      }
+      .stub-notice__gauge {
+        justify-self: center;
+      }
     }
     .stub-notice__eyebrow {
       font-family: var(--font-display);

@@ -12,13 +12,18 @@ async function safeCollection(name: string) {
 }
 
 const reviewCounts: Record<string, number> = {};
+const scoredReviewCounts: Record<string, number> = {};
 const guideCounts: Record<string, number> = {};
 let totalReviews = 0, totalGuides = 0, totalLocations = 0;
+let totalScoredReviews = 0;
 
 for (const v of VERTICAL_LIST) {
   const r = await safeCollection(`${v.key}-reviews`);
   reviewCounts[v.key] = r.length;
+  const scoredThis = r.filter((x: any) => typeof x.data.overallScore === "number").length;
+  scoredReviewCounts[v.key] = scoredThis;
   totalReviews += r.length;
+  totalScoredReviews += scoredThis;
   if (v.key !== "auto") {
     const g = await safeCollection(v.key);
     guideCounts[v.key] = g.length;
@@ -137,7 +142,7 @@ const faqs = [
           <div class="hstat__label">Insurance verticals covered</div>
         </div>
         <div class="hstat">
-          <div class="hstat__num">{totalReviews}</div>
+          <div class="hstat__num">{totalScoredReviews}</div>
           <div class="hstat__label">Independent carrier reviews</div>
         </div>
         <div class="hstat">
@@ -175,7 +180,7 @@ const faqs = [
               <p class="vcard__desc">{v.description}</p>
             </div>
             <div class="vcard__meta">
-              {reviewCounts[v.key] > 0 && <span class="vcard__meta-item">{reviewCounts[v.key]} reviews</span>}
+              {scoredReviewCounts[v.key] > 0 && <span class="vcard__meta-item">{scoredReviewCounts[v.key]} reviews</span>}
               {guideCounts[v.key] > 0 && <span class="vcard__meta-item">{guideCounts[v.key]} guides</span>}
             </div>
             <span class="vcard__cta">

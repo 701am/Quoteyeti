@@ -11,6 +11,8 @@ const reviews = await getCollection("auto-reviews", ({ data }) => !data.draft);
 reviews.sort((a, b) => (b.data.overallScore ?? 0) - (a.data.overallScore ?? 0));
 
 const total = reviews.length;
+const scoredCount = reviews.filter((r) => typeof r.data.overallScore === "number").length;
+const pendingCount = total - scoredCount;
 
 // "Best for" snippet — first takeaway truncated, falls back to positioning.
 function bestFor(r: any): string {
@@ -22,7 +24,8 @@ function bestFor(r: any): string {
 ---
 
 <BaseLayout
-  title={`${v.label} Company Reviews — All ${total} Carriers`}
+  title={`${v.label} Insurance Carriers — ${scoredCount} Reviewed${pendingCount > 0 ? `, ${pendingCount} in Directory` : ""}`}
+  description={`Independent reviews of ${scoredCount} ${v.short.toLowerCase()} insurance carriers, plus a directory of ${pendingCount > 0 ? pendingCount + " more " : ""}carriers we're still scoring.`}
   description={`Independent reviews of ${total} ${v.short.toLowerCase()} insurance carriers — overall ratings, pros and cons, costs.`}
   breadcrumbs={[
     { name: "Home", url: "/" },
@@ -43,10 +46,24 @@ function bestFor(r: any): string {
         <img src={v.icon} alt="" width="18" height="18" />
         {v.label}
       </p>
-      <h1>All <span class="serif-italic">{total}</span> carriers, reviewed.</h1>
-      <p class="page-hero__lede">
-        Independent reviews of every major {v.short.toLowerCase()} insurance carrier — overall scores, ratings breakdown, pros and cons, what each one's best for.
-      </p>
+      {pendingCount > 0 ? (
+        <>
+          <h1>
+            <span class="serif-italic">{scoredCount}</span> reviewed.
+            <span class="page-hero__h1-sub">{pendingCount} more in the directory.</span>
+          </h1>
+          <p class="page-hero__lede">
+            Our editorial team has scored {scoredCount} {v.short.toLowerCase()} insurance carriers across customer experience, coverage breadth, and affordability. The other {pendingCount} carriers are in the directory below — verified company facts and our initial analysis, with full scoring still in progress. We don't post scores we haven't earned.
+          </p>
+        </>
+      ) : (
+        <>
+          <h1>All <span class="serif-italic">{total}</span> carriers, reviewed.</h1>
+          <p class="page-hero__lede">
+            Independent reviews of every major {v.short.toLowerCase()} insurance carrier — overall scores, ratings breakdown, pros and cons, what each one's best for.
+          </p>
+        </>
+      )}
     </div>
   </section>
 
@@ -69,7 +86,14 @@ function bestFor(r: any): string {
       </div>
     </div>
     <p class="reviews-toolbar__count">
-      Showing <strong id="reviews-visible-count">{total}</strong> of {total} {total === 1 ? "carrier" : "carriers"}
+      {pendingCount > 0 ? (
+        <>
+          Showing <strong id="reviews-visible-count">{total}</strong> of {total} {total === 1 ? "carrier" : "carriers"}
+          <span class="reviews-toolbar__breakdown"> · {scoredCount} reviewed, {pendingCount} in directory</span>
+        </>
+      ) : (
+        <>Showing <strong id="reviews-visible-count">{total}</strong> of {total} {total === 1 ? "carrier" : "carriers"}</>
+      )}
     </p>
   </section>
 
@@ -111,7 +135,11 @@ function bestFor(r: any): string {
                     <div class="review-card__score-num">
                       {score > 0 ? score.toFixed(2) : "—"}
                     </div>
-                    <div class="review-card__score-of">/5.00</div>
+                    {score > 0 ? (
+                      <div class="review-card__score-of">/5.00</div>
+                    ) : (
+                      <div class="review-card__score-pending">Pending</div>
+                    )}
                     {entry.data.overallRank && (
                       <div class="review-card__rank">#{entry.data.overallRank}</div>
                     )}
@@ -144,6 +172,15 @@ function bestFor(r: any): string {
     .eyebrow { display: inline-flex; align-items: center; gap: var(--space-2); font-family: var(--font-display); font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.14em; color: var(--section-accent); background: var(--color-white); padding: 4px 12px; border-radius: 100px; margin: 0 0 var(--space-3); }
     .page-hero { padding-block: var(--space-14) var(--space-10); background: var(--section-accent-soft); border-bottom: 1px solid var(--color-border); }
     .page-hero h1 { font-size: clamp(2rem, 4vw, 3rem); letter-spacing: -0.025em; line-height: 1.1; margin: 0 0 var(--space-4); color: var(--color-resolution); }
+    .page-hero__h1-sub {
+      display: block;
+      font-family: var(--font-display);
+      font-weight: 500;
+      font-size: 0.6em;
+      color: var(--color-text-muted);
+      letter-spacing: -0.015em;
+      margin-top: var(--space-2);
+    }
     .page-hero__lede { font-size: 1.0625rem; color: var(--color-text-strong); line-height: 1.55; max-width: 720px; margin: 0; }
 
     .reviews-toolbar { position: sticky; top: var(--header-height, 72px); z-index: 20; background: rgba(255,255,255,0.92); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); padding-block: var(--space-4); border-bottom: 1px solid var(--color-border); }
@@ -162,6 +199,7 @@ function bestFor(r: any): string {
 
     .reviews-toolbar__count { font-size: 0.8125rem; color: var(--color-text-muted); margin: var(--space-3) 0 0; }
     .reviews-toolbar__count strong { color: var(--color-resolution); font-weight: 700; }
+    .reviews-toolbar__breakdown { color: var(--color-text-muted); }
 
     .reviews-index { padding-block: var(--space-8) var(--space-20); }
     .reviews-empty { text-align: center; color: var(--color-text-muted); padding-block: var(--space-12); }
@@ -181,6 +219,19 @@ function bestFor(r: any): string {
     .review-card__score { flex-shrink: 0; text-align: right; display: inline-flex; flex-direction: column; align-items: flex-end; gap: 0; }
     .review-card__score-num { font-family: var(--font-display); font-weight: 800; font-size: 1.5rem; line-height: 1; color: var(--section-accent); letter-spacing: -0.02em; }
     .review-card__score-of { font-family: var(--font-display); font-size: 0.6875rem; color: var(--color-text-muted); margin-top: 2px; }
+    .review-card__score-pending {
+      font-family: var(--font-display);
+      font-size: 0.625rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--color-text-muted);
+      margin-top: 4px;
+      padding: 2px 8px;
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-pill);
+      white-space: nowrap;
+    }
     .review-card__rank { font-family: var(--font-display); font-size: 0.6875rem; font-weight: 700; color: var(--color-resolution); background: var(--color-alice); padding: 2px 8px; border-radius: 100px; margin-top: 4px; }
     .review-card__bestfor { font-size: 0.875rem; line-height: 1.5; color: var(--color-text-strong); margin: 0; flex: 1; }
     .review-card__cta { display: inline-flex; align-items: center; gap: 6px; font-family: var(--font-display); font-size: 0.8125rem; font-weight: 700; color: var(--section-accent); margin-top: auto; }

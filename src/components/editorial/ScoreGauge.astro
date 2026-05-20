@@ -28,6 +28,7 @@ interface Props {
   label?: string;
   rank?: string;
   tone?: "default" | "accent" | "auto";
+  pending?: boolean;
 }
 
 const {
@@ -37,6 +38,7 @@ const {
   label,
   rank,
   tone = "default",
+  pending = false,
 } = Astro.props;
 
 // Geometry — viewBox is 100×100 for easy math; we scale via CSS width/height
@@ -53,15 +55,17 @@ if (tone === "auto") {
   else if (pct < 0.8) arcColor = "var(--color-warning)";
   else                arcColor = "var(--color-teal)";
 }
+// Pending overrides — gauge becomes a neutral placeholder ring
+if (pending) arcColor = "var(--color-ship-cove)";
 
-const display = score.toFixed(2);
+const display = pending ? "—" : score.toFixed(2);
 const sizePx = { sm: 54, md: 88, lg: 128, xl: 180 }[size];
 const scoreFontSize = { sm: 14, md: 22, lg: 30, xl: 40 }[size];
 const subFontSize = { sm: 8, md: 9, lg: 10, xl: 11 }[size];
 const strokeWidth = { sm: 6, md: 7, lg: 8, xl: 9 }[size];
 ---
 
-<div class={`score-gauge score-gauge--${size}`} style={`--gauge-size: ${sizePx}px; --gauge-arc: ${arcColor}; --gauge-score-fs: ${scoreFontSize}px; --gauge-sub-fs: ${subFontSize}px;`}>
+<div class={`score-gauge score-gauge--${size}${pending ? ' score-gauge--pending' : ''}`} style={`--gauge-size: ${sizePx}px; --gauge-arc: ${arcColor}; --gauge-score-fs: ${scoreFontSize}px; --gauge-sub-fs: ${subFontSize}px;`}>
   <div class="score-gauge__ring">
     <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
       {/* Background track */}
@@ -70,23 +74,26 @@ const strokeWidth = { sm: 6, md: 7, lg: 8, xl: 9 }[size];
         fill="none"
         stroke="var(--color-gainsboro)"
         stroke-width={strokeWidth}
+        stroke-dasharray={pending ? "4 6" : undefined}
       />
-      {/* Score arc — rotated -90 to start at 12 o'clock */}
-      <circle
-        cx="50" cy="50" r={RADIUS}
-        fill="none"
-        stroke="var(--gauge-arc)"
-        stroke-width={strokeWidth}
-        stroke-linecap="round"
-        stroke-dasharray={CIRC}
-        stroke-dashoffset={dashOffset}
-        transform="rotate(-90 50 50)"
-      />
+      {/* Score arc — rotated -90 to start at 12 o'clock. Hidden when pending. */}
+      {!pending && (
+        <circle
+          cx="50" cy="50" r={RADIUS}
+          fill="none"
+          stroke="var(--gauge-arc)"
+          stroke-width={strokeWidth}
+          stroke-linecap="round"
+          stroke-dasharray={CIRC}
+          stroke-dashoffset={dashOffset}
+          transform="rotate(-90 50 50)"
+        />
+      )}
     </svg>
-    <div class="score-gauge__center" role="img" aria-label={`Score ${display} out of ${max}`}>
+    <div class="score-gauge__center" role="img" aria-label={pending ? `Score pending` : `Score ${display} out of ${max}`}>
       <div class="score-gauge__score">{display}</div>
       {size !== "sm" && (
-        <div class="score-gauge__outof">out of {max}</div>
+        <div class="score-gauge__outof">{pending ? "Pending" : `out of ${max}`}</div>
       )}
     </div>
   </div>
@@ -147,6 +154,25 @@ const strokeWidth = { sm: 6, md: 7, lg: 8, xl: 9 }[size];
     line-height: 1;
     margin-top: 2px;
     text-transform: lowercase;
+  }
+
+  /* Pending variant — gauge is a neutral placeholder.
+     Used on stub carrier review pages where scoring isn't finalized. */
+  .score-gauge--pending .score-gauge__score {
+    color: var(--color-text-muted);
+    font-style: italic;
+    font-family: var(--font-serif);
+    font-weight: 400;
+  }
+  .score-gauge--pending .score-gauge__outof {
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    font-weight: 700;
+    font-size: calc(var(--gauge-sub-fs) * 0.9);
+    color: var(--color-ship-cove);
+  }
+  .score-gauge--pending .score-gauge__ring svg {
+    animation: none;
   }
 
   .score-gauge__caption {

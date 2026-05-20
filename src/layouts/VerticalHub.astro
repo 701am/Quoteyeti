@@ -46,7 +46,12 @@ async function safeCollection(name: string) {
 }
 
 // Featured carrier reviews — show top reviews if any exist
-const reviews = (await safeCollection(`${vertical.key}-reviews`))
+const allReviews = await safeCollection(`${vertical.key}-reviews`);
+const allScoredReviews = allReviews.filter((r: any) => typeof r.data.overallScore === "number");
+const totalReviews = allReviews.length;
+const scoredReviewsCount = allScoredReviews.length;
+
+const reviews = [...allReviews]
   .sort((a, b) => {
     // Sort by overallRank if available, else by company name
     const aR = a.data.overallRank ?? 999;
@@ -247,12 +252,25 @@ const featuredPosts = relatedPosts.length >= 3
             <div>
               <p class="eyebrow">Carriers we've reviewed</p>
               <h2>
-                The {reviews.length}+ carriers
-              <span class="serif-italic">competing</span>
-              for your business
-            </h2>
-            <p class="vreviews__lede">Independent reviews of the major {vertical.short.toLowerCase()} insurance carriers — ratings, pros, cons, and where they actually win vs. where they don't.</p>
-          </div>
+                {scoredReviewsCount > 0 && scoredReviewsCount < totalReviews ? (
+                  <>
+                    <span class="serif-italic">{scoredReviewsCount}</span> scored carriers,
+                    {' '}{totalReviews - scoredReviewsCount} more in the directory
+                  </>
+                ) : (
+                  <>
+                    The {totalReviews}+ carriers
+                    <span class="serif-italic">competing</span>
+                    for your business
+                  </>
+                )}
+              </h2>
+              <p class="vreviews__lede">
+                {scoredReviewsCount < totalReviews
+                  ? `Editorial reviews of the ${scoredReviewsCount} ${vertical.short.toLowerCase()} carriers we've scored — plus a directory of ${totalReviews - scoredReviewsCount} more we're still in the field on.`
+                  : `Independent reviews of the major ${vertical.short.toLowerCase()} insurance carriers — ratings, pros, cons, and where they actually win vs. where they don't.`}
+              </p>
+            </div>
           <div class="vreviews__view-all-group">
             <a href={`${vertical.path}compare/`} class="vreviews__view-all vreviews__view-all--secondary">
               Compare carriers
