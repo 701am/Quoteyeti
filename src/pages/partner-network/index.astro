@@ -1,241 +1,237 @@
 ---
-import BaseLayout from "~/layouts/BaseLayout.astro";
+import PlatformLayout from "~/layouts/PlatformLayout.astro";
 
 /**
- * QuoteYeti Partner Network — B2B conversion landing page.
- *
- * Sells confirmed appointments and live consumer conversations to licensed
- * insurance agents and agencies. This is the *agent-facing* sales page —
- * distinct from /partners/ (the consumer-facing transparency disclosure).
- *
- * Aesthetic per blueprint: brutal-minimal. Navy + single orange accent.
- * Massive type. No stock photos, no insurance imagery, no motion.
- * Two CTAs only: Apply (primary form) and Book a Call (secondary text link).
+ * QuoteYeti Partner Network — B2B self-serve lead platform.
+ * Redesigned to feel like a product you buy from, not a brochure you read.
+ * Consumer megamenu (nav.ts) is untouched. No fabricated testimonials.
  */
 
-// Pricing data — kept in arrays so the tables stay maintainable
-const appointmentPricing = [
-  { product: "Auto Insurance Consultation", single: "$20", pack100: "$1,800", pack500: "$8,200" },
-  { product: "Home Insurance Review", single: "$22", pack100: "$1,980", pack500: "$9,020" },
-  { product: "Life Insurance Needs Analysis", single: "$24", pack100: "$2,160", pack500: "$9,840" },
-  { product: "Medicare / Health Plan Guidance", single: "$24", pack100: "$2,160", pack500: "$9,840" },
+const PRODUCTS = {
+  appointment: {
+    label: "Confirmed appointment",
+    blurb: "A scheduled slot with a consumer who asked to speak with an agent.",
+    lines: [
+      { id: "auto",     name: "Auto insurance consultation",     single: 20 },
+      { id: "home",     name: "Home insurance review",           single: 22 },
+      { id: "life",     name: "Life insurance needs analysis",   single: 24 },
+      { id: "medicare", name: "Medicare / health plan guidance", single: 24 },
+    ],
+  },
+  live: {
+    label: "Live conversation",
+    blurb: "A warm transfer — your phone rings with the consumer already engaged.",
+    lines: [
+      { id: "auto",     name: "Auto insurance consultation",     single: 42 },
+      { id: "home",     name: "Home insurance review",           single: 45 },
+      { id: "life",     name: "Life insurance needs analysis",   single: 48 },
+      { id: "medicare", name: "Medicare / health plan guidance", single: 48 },
+    ],
+  },
+};
+
+const PACKS = [
+  { id: "single", label: "Single",   qty: 1,   discount: 0 },
+  { id: "p100",   label: "100-pack", qty: 100, discount: 0.10 },
+  { id: "p500",   label: "500-pack", qty: 500, discount: 0.18 },
 ];
 
-const conversationPricing = [
-  { product: "Auto Insurance Consultation", single: "$42", pack100: "$3,780", pack500: "$17,220" },
-  { product: "Home Insurance Review", single: "$45", pack100: "$4,050", pack500: "$18,450" },
-  { product: "Life Insurance Needs Analysis", single: "$48", pack100: "$4,320", pack500: "$19,680" },
-  { product: "Medicare / Health Plan Guidance", single: "$48", pack100: "$4,320", pack500: "$19,680" },
+const pricingData = JSON.stringify({ products: PRODUCTS, packs: PACKS });
+
+const steps = [
+  { num: "01", title: "Define your territory", body: "State, county, metro, product lines, risk appetite. You set the boundaries — we don't send conversations you can't write." },
+  { num: "02", title: "Set your weekly target", body: "3 a week, 10, 30. Choose the density that matches your capacity. Pause and resume anytime." },
+  { num: "03", title: "Receive your calendar", body: "Appointments arrive with full consumer context. Live conversations ring your phone with the consumer already engaged." },
+  { num: "04", title: "Convert or credit", body: "Close the policy, or tell us why it didn't qualify. We schedule the replacement or return the credit. Your call." },
 ];
 
 const guaranteeRows = [
-  { trigger: "Wrong number, disconnected line", action: "Replace it" },
-  { trigger: "Consumer was not shopping for insurance", action: "Replace it" },
-  { trigger: "Appointment no-show without notice", action: "Replace it" },
-  { trigger: "Live call drops before 3 minutes", action: "Replace it" },
-  { trigger: "Missing or invalid consent documentation", action: "Replace it" },
-];
-
-const steps = [
-  { num: "01", title: "Define your territory", body: "State. County. Metro. Product lines. Risk appetite. You set the boundaries. We don't send you conversations you can't write." },
-  { num: "02", title: "Set your weekly target", body: "3 appointments per week. 10. 30. You choose the density that matches your capacity. Pause anytime. Resume anytime." },
-  { num: "03", title: "Receive your calendar", body: "Confirmed appointments arrive with full consumer context — what they're comparing, what they need, when they're available. Live conversations ring your phone with the consumer already engaged." },
-  { num: "04", title: "Convert or credit", body: "Close the policy. Or tell us why the appointment didn't qualify. We schedule the replacement or return the credit. Your choice." },
+  { trigger: "Wrong number or disconnected line", action: "Replaced" },
+  { trigger: "Consumer wasn't shopping for insurance", action: "Replaced" },
+  { trigger: "Appointment no-show without notice", action: "Replaced" },
+  { trigger: "Live call drops before 3 minutes", action: "Replaced" },
+  { trigger: "Missing or invalid consent documentation", action: "Replaced" },
 ];
 
 const audience = [
-  { title: "Solo producers", body: "Who want calendar density without building a marketing operation." },
-  { title: "Agency principals", body: "Scaling headcount and needing predictable pipeline per producer." },
-  { title: "Call center operators", body: "Who measure success in conversations per hour, not leads per dollar." },
+  { tag: "Solo", title: "Solo producers", body: "Calendar density without building a marketing operation." },
+  { tag: "Agency", title: "Agency principals", body: "Predictable pipeline per producer as you scale headcount." },
+  { tag: "Center", title: "Call center operators", body: "Success measured in conversations per hour, not leads per dollar." },
+];
+
+const commitments = [
+  { num: "01", title: "You pay only for conversations that happen.", body: "Every guarantee scenario is replaced or credited — no window, no cap. If it doesn't occur, it isn't billed." },
+  { num: "02", title: "We don't oversell a territory.", body: "We cap partners per area so the consumers you reach haven't already been called five times today." },
+  { num: "03", title: "Consent is documented on every contact.", body: "Every consumer opted into an insurance conversation. Missing or invalid consent means the contact is replaced." },
+  { num: "04", title: "No contracts on self-serve.", body: "Buy what you need, scale when your numbers prove it, pause anytime. We earn the next order by delivering on the last." },
 ];
 ---
 
-<BaseLayout
+<PlatformLayout
   title="QuoteYeti Partner Network — Confirmed Insurance Appointments & Live Transfers"
-  description="Wake up to confirmed appointments and live consumer conversations with people who requested an insurance conversation. You quote and close — finding, qualifying, and scheduling is ours. Pay only for conversations that happen."
+  description="Buy confirmed insurance appointments and live consumer transfers. Self-serve, no contracts, pay only for conversations that happen."
   breadcrumbs={[
     { name: "Home", url: "/" },
     { name: "Partner Network", url: "/partner-network/" },
   ]}
 >
-  <!--
-    Netlify Forms detection placeholder. The real interactive form is below;
-    this hidden static duplicate lets Netlify register the form at build time.
-  -->
   <form name="partner-application" data-netlify="true" netlify-honeypot="bot-field" hidden>
-    <input type="text" name="name" />
-    <input type="email" name="email" />
-    <input type="tel" name="phone" />
-    <input type="text" name="agency" />
-    <input type="text" name="license-states" />
-    <input type="text" name="product-lines" />
-    <input type="text" name="weekly-target" />
-    <textarea name="message"></textarea>
+    <input type="text" name="name" /><input type="email" name="email" />
+    <input type="tel" name="phone" /><input type="text" name="agency" />
+    <input type="text" name="license-states" /><input type="text" name="product-lines" />
+    <input type="text" name="weekly-target" /><textarea name="message"></textarea>
   </form>
 
   <!-- ===================== HERO ===================== -->
   <section class="pn-hero">
-    <div class="pn-container">
-      <p class="pn-hero__eyebrow">QuoteYeti Partner Network</p>
-      <h1 class="pn-hero__h1">
-        Your calendar. Filled.
-        <span class="pn-serif">Every morning.</span>
-      </h1>
-      <p class="pn-hero__lede">
-        Wake up to 3, 5, 10 confirmed appointments with consumers who requested an insurance conversation yesterday. Not someday. Not "interested." Requested. Verified. Scheduled.
-      </p>
-      <p class="pn-hero__line">
-        You quote. You advise. You close. Everything before that — finding them, qualifying them, getting them to show up — is ours.
-      </p>
-      <div class="pn-hero__actions">
-        <a href="#apply" class="pn-btn pn-btn--primary">
-          <span>Apply for partnership</span>
-          <svg width="16" height="14" viewBox="0 0 16 14" fill="none" aria-hidden="true">
-            <path d="M9 1l6 6-6 6M1 7h14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-        </a>
-        <a href="#how" class="pn-btn pn-btn--text">See how it works</a>
+    <div class="pn-wrap pn-hero__grid">
+      <div class="pn-hero__copy">
+        <span class="pn-badge">
+          <span class="pn-badge__dot" aria-hidden="true"></span>
+          Self-serve · No contracts · Pay per conversation
+        </span>
+        <h1 class="pn-hero__h1">Your calendar, filled with people who asked to talk.</h1>
+        <p class="pn-hero__lede">
+          Buy confirmed appointments and live transfers from consumers who requested an insurance conversation. You quote and close — finding, qualifying, and scheduling is ours.
+        </p>
+        <div class="pn-hero__actions">
+          <a href="#pricing" class="pn-btn pn-btn--primary">
+            <span>See pricing</span>
+            <svg width="16" height="14" viewBox="0 0 16 14" fill="none" aria-hidden="true"><path d="M9 1l6 6-6 6M1 7h14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </a>
+          <a href="#apply" class="pn-btn pn-btn--ghost">Apply for access</a>
+        </div>
+        <ul class="pn-hero__trust">
+          <li>License-verified partners only</li>
+          <li>Territory caps enforced</li>
+          <li>Documented consent on every lead</li>
+        </ul>
       </div>
+
+      <aside class="pn-preview" aria-label="Example partner dashboard">
+        <div class="pn-preview__bar">
+          <span class="pn-preview__dot"></span><span class="pn-preview__dot"></span><span class="pn-preview__dot"></span>
+          <span class="pn-preview__title">Today · Houston metro</span>
+        </div>
+        <div class="pn-preview__body">
+          <div class="pn-preview__stat">
+            <span class="pn-preview__num">7</span>
+            <span class="pn-preview__label">confirmed appointments</span>
+          </div>
+          <ul class="pn-preview__feed">
+            <li><span class="pn-preview__time">9:00a</span> Auto · clean record <span class="pn-preview__tag">confirmed</span></li>
+            <li><span class="pn-preview__time">10:30a</span> Home · new purchase <span class="pn-preview__tag">confirmed</span></li>
+            <li><span class="pn-preview__time">1:15p</span> Medicare · turning 65 <span class="pn-preview__tag pn-preview__tag--live">live now</span></li>
+            <li><span class="pn-preview__time">3:00p</span> Auto · multi-vehicle <span class="pn-preview__tag">confirmed</span></li>
+          </ul>
+          <p class="pn-preview__foot">Illustrative dashboard — not live data.</p>
+        </div>
+      </aside>
     </div>
   </section>
 
-  <!-- ===================== PROBLEM ===================== -->
-  <section class="pn-section pn-problem">
-    <div class="pn-container pn-narrow">
-      <h2 class="pn-h2">Most agencies spend 60% of the week on work that produces no revenue.</h2>
-      <ul class="pn-problem__list">
-        <li>Chasing cold lists</li>
-        <li>Leaving voicemails that never get returned</li>
-        <li>Sitting through no-shows</li>
-        <li>Arguing with lead vendors about "quality"</li>
-      </ul>
-      <p class="pn-problem__resolve">
-        We eliminate all of it. You receive only conversations that have already started. Your job begins where the hard part ends.
-      </p>
+  <!-- ===================== STAT STRIP ===================== -->
+  <section class="pn-stats">
+    <div class="pn-wrap pn-stats__grid">
+      <div class="pn-stat"><span class="pn-stat__num">3 min</span><span class="pn-stat__label">minimum billable live call</span></div>
+      <div class="pn-stat"><span class="pn-stat__num">$0</span><span class="pn-stat__label">paid for conversations that don't happen</span></div>
+      <div class="pn-stat"><span class="pn-stat__num">No</span><span class="pn-stat__label">contracts on self-serve</span></div>
+      <div class="pn-stat"><span class="pn-stat__num">100%</span><span class="pn-stat__label">consent-documented contacts</span></div>
     </div>
   </section>
 
   <!-- ===================== WHAT YOU BUY ===================== -->
-  <section class="pn-section pn-buy">
-    <div class="pn-container">
-      <h2 class="pn-h2 pn-h2--center">What you actually buy</h2>
-      <div class="pn-buy__grid">
-        <div class="pn-buy__col">
-          <h3 class="pn-buy__title">Confirmed appointments</h3>
-          <dl class="pn-buy__dl">
-            <dt>What you receive</dt>
-            <dd>A time slot on your calendar. A consumer profile. A person who asked to speak with an agent today.</dd>
-            <dt>What's guaranteed</dt>
-            <dd>They confirmed the time. They verified their contact. They stated their need.</dd>
-            <dt>What you do</dt>
-            <dd>Show up prepared. Quote. Close.</dd>
-            <dt>Best for</dt>
-            <dd>Producers who prepare, consult, and build trust.</dd>
-          </dl>
-        </div>
-        <div class="pn-buy__col pn-buy__col--accent">
-          <h3 class="pn-buy__title">Live conversations</h3>
-          <dl class="pn-buy__dl">
-            <dt>What you receive</dt>
-            <dd>Your phone rings. A consumer who just finished comparing options is on the line, expecting you.</dd>
-            <dt>What's guaranteed</dt>
-            <dd>3+ minutes of live dialogue. If they hang up early, it doesn't count.</dd>
-            <dt>What you do</dt>
-            <dd>Listen. Qualify. Close.</dd>
-            <dt>Best for</dt>
-            <dd>Producers who think fast and convert on rapport.</dd>
-          </dl>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ===================== PRICING ===================== -->
-  <section class="pn-section pn-pricing" id="pricing">
-    <div class="pn-container">
-      <h2 class="pn-h2 pn-h2--center">Pricing</h2>
-
-      <div class="pn-pricing__block">
-        <h3 class="pn-pricing__label">Confirmed appointments</h3>
-        <div class="pn-table-wrap">
-          <table class="pn-table">
-            <thead>
-              <tr>
-                <th scope="col">Outcome</th>
-                <th scope="col">Single</th>
-                <th scope="col" class="pn-table__emph">100-Pack</th>
-                <th scope="col" class="pn-table__emph">500-Pack</th>
-              </tr>
-            </thead>
-            <tbody>
-              {appointmentPricing.map((row) => (
-                <tr>
-                  <td>{row.product}</td>
-                  <td>{row.single}</td>
-                  <td class="pn-table__emph">{row.pack100}</td>
-                  <td class="pn-table__emph">{row.pack500}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      <div class="pn-pricing__block">
-        <h3 class="pn-pricing__label">Live conversations</h3>
-        <div class="pn-table-wrap">
-          <table class="pn-table">
-            <thead>
-              <tr>
-                <th scope="col">Outcome</th>
-                <th scope="col">Single</th>
-                <th scope="col" class="pn-table__emph">100-Pack</th>
-                <th scope="col" class="pn-table__emph">500-Pack</th>
-              </tr>
-            </thead>
-            <tbody>
-              {conversationPricing.map((row) => (
-                <tr>
-                  <td>{row.product}</td>
-                  <td>{row.single}</td>
-                  <td class="pn-table__emph">{row.pack100}</td>
-                  <td class="pn-table__emph">{row.pack500}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      <p class="pn-pricing__note">
-        Buy what you need. Scale when your numbers prove it. No minimums. No contracts on self-serve.
-      </p>
-    </div>
-  </section>
-
-  <!-- ===================== GUARANTEE ===================== -->
-  <section class="pn-section pn-guarantee">
-    <div class="pn-container pn-narrow">
-      <p class="pn-guarantee__eyebrow">The QuoteYeti guarantee</p>
-      <h2 class="pn-h2">You pay only for conversations that actually happen.</h2>
-      <dl class="pn-guarantee__list">
-        {guaranteeRows.map((row) => (
-          <div class="pn-guarantee__row">
-            <dt>{row.trigger}</dt>
-            <dd>{row.action}</dd>
+  <section class="pn-section" id="products">
+    <div class="pn-wrap">
+      <header class="pn-section__head">
+        <p class="pn-eyebrow">Two products</p>
+        <h2 class="pn-h2">Pick the one that matches how you close.</h2>
+      </header>
+      <div class="pn-buy">
+        <article class="pn-buy__card">
+          <div class="pn-buy__head">
+            <h3 class="pn-buy__title">Confirmed appointments</h3>
+            <span class="pn-buy__from">from $20</span>
           </div>
-        ))}
-      </dl>
-      <p class="pn-guarantee__close">
-        No cap. No window. No argument. If the conversation doesn't occur, you don't pay.
-      </p>
+          <p class="pn-buy__blurb">A time slot on your calendar with a consumer who asked to speak with an agent today.</p>
+          <ul class="pn-buy__list">
+            <li><strong>You receive</strong> a scheduled slot, a consumer profile, and verified contact.</li>
+            <li><strong>Guaranteed</strong> they confirmed the time and stated their need.</li>
+            <li><strong>You do</strong> show up prepared, quote, close.</li>
+            <li><strong>Best for</strong> producers who prepare, consult, and build trust.</li>
+          </ul>
+        </article>
+        <article class="pn-buy__card pn-buy__card--accent">
+          <div class="pn-buy__head">
+            <h3 class="pn-buy__title">Live conversations</h3>
+            <span class="pn-buy__from">from $42</span>
+          </div>
+          <p class="pn-buy__blurb">Your phone rings. A consumer who just finished comparing options is on the line, expecting you.</p>
+          <ul class="pn-buy__list">
+            <li><strong>You receive</strong> a warm transfer, consumer already engaged.</li>
+            <li><strong>Guaranteed</strong> 3+ minutes of live dialogue, or it doesn't count.</li>
+            <li><strong>You do</strong> listen, qualify, close.</li>
+            <li><strong>Best for</strong> producers who think fast and convert on rapport.</li>
+          </ul>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== PRICING CONFIGURATOR (the self-serve core) ===================== -->
+  <section class="pn-section pn-pricing" id="pricing">
+    <div class="pn-wrap">
+      <header class="pn-section__head pn-section__head--center">
+        <p class="pn-eyebrow">Pricing</p>
+        <h2 class="pn-h2">Build your order. See the price instantly.</h2>
+        <p class="pn-section__sub">Buy what you need. Scale when your numbers prove it. No minimums.</p>
+      </header>
+
+      <div class="pn-config" data-pricing={pricingData}>
+        <div class="pn-config__controls">
+          <div class="pn-config__group">
+            <span class="pn-config__legend">Product type</span>
+            <div class="pn-toggle" role="radiogroup" aria-label="Product type">
+              <button class="pn-toggle__btn is-active" data-product="appointment" role="radio" aria-checked="true">Confirmed appointments</button>
+              <button class="pn-toggle__btn" data-product="live" role="radio" aria-checked="false">Live conversations</button>
+            </div>
+          </div>
+
+          <div class="pn-config__group">
+            <span class="pn-config__legend">Insurance line</span>
+            <div class="pn-pills" role="radiogroup" aria-label="Insurance line" data-line-pills></div>
+          </div>
+
+          <div class="pn-config__group">
+            <span class="pn-config__legend">Volume</span>
+            <div class="pn-toggle" role="radiogroup" aria-label="Volume" data-pack-pills></div>
+          </div>
+        </div>
+
+        <div class="pn-config__summary" aria-live="polite">
+          <p class="pn-config__sumlabel" data-sum-label>Confirmed appointment · Auto · Single</p>
+          <div class="pn-config__price">
+            <span class="pn-config__amount" data-sum-total>$20</span>
+            <span class="pn-config__per" data-sum-per>per appointment</span>
+          </div>
+          <p class="pn-config__detail" data-sum-detail>1 appointment · $20 each</p>
+          <a href="#apply" class="pn-btn pn-btn--primary pn-btn--full">
+            <span>Apply to buy this</span>
+            <svg width="16" height="14" viewBox="0 0 16 14" fill="none" aria-hidden="true"><path d="M9 1l6 6-6 6M1 7h14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </a>
+          <p class="pn-config__fineprint">Self-serve checkout opens after license verification.</p>
+        </div>
+      </div>
     </div>
   </section>
 
   <!-- ===================== HOW IT WORKS ===================== -->
   <section class="pn-section pn-how" id="how">
-    <div class="pn-container">
-      <h2 class="pn-h2 pn-h2--center">How it works</h2>
+    <div class="pn-wrap">
+      <header class="pn-section__head pn-section__head--center">
+        <p class="pn-eyebrow">How it works</p>
+        <h2 class="pn-h2">Four steps, then your calendar fills.</h2>
+      </header>
       <ol class="pn-how__steps">
         {steps.map((step) => (
           <li class="pn-how__step">
@@ -248,94 +244,84 @@ const audience = [
     </div>
   </section>
 
+  <!-- ===================== GUARANTEE ===================== -->
+  <section class="pn-section pn-guarantee" id="guarantee">
+    <div class="pn-wrap pn-guarantee__grid">
+      <div class="pn-guarantee__intro">
+        <p class="pn-eyebrow pn-eyebrow--light">The guarantee</p>
+        <h2 class="pn-h2 pn-h2--light">You pay only for conversations that actually happen.</h2>
+        <p class="pn-guarantee__close">No cap. No window. No argument. If the conversation doesn't occur, you don't pay.</p>
+      </div>
+      <dl class="pn-guarantee__list">
+        {guaranteeRows.map((row) => (
+          <div class="pn-guarantee__row">
+            <dt>{row.trigger}</dt>
+            <dd>{row.action}</dd>
+          </div>
+        ))}
+      </dl>
+    </div>
+  </section>
+
   <!-- ===================== WHO FOR ===================== -->
-  <section class="pn-section pn-who">
-    <div class="pn-container">
-      <h2 class="pn-h2 pn-h2--center">Who this is for</h2>
-      <div class="pn-who__grid">
+  <section class="pn-section" id="who">
+    <div class="pn-wrap">
+      <header class="pn-section__head pn-section__head--center">
+        <p class="pn-eyebrow">Who it's for</p>
+        <h2 class="pn-h2">Built for producers who'd rather be closing.</h2>
+      </header>
+      <div class="pn-who">
         {audience.map((a) => (
-          <div class="pn-who__card">
+          <article class="pn-who__card">
+            <span class="pn-who__tag">{a.tag}</span>
             <h3 class="pn-who__title">{a.title}</h3>
             <p class="pn-who__body">{a.body}</p>
-          </div>
+          </article>
         ))}
       </div>
       <p class="pn-who__close">
-        We verify licenses. We monitor show rates. We terminate partners who waste consumer time. This is a performance relationship, not a vendor transaction.
+        We verify licenses. We monitor show rates. We terminate partners who waste consumer time. <strong>A performance relationship, not a vendor transaction.</strong>
       </p>
     </div>
   </section>
 
-  <!-- ===================== COMMITMENTS ===================== -->
-  <!--
-    NOTE: This section deliberately does NOT contain customer testimonials.
-    QuoteYeti's editorial standard is no invented claims and no fabricated
-    statistics — that standard applies to the sales pages too. When real,
-    attributable partner results exist (with permission to publish), they
-    belong here. Until then, we make our commitments explicit rather than
-    inventing social proof. To add real testimonials later, restore a
-    `.pn-proof__quote <figure>` block per the styles still defined below.
-  -->
-  <section class="pn-section pn-proof">
-    <div class="pn-container pn-narrow">
-      <p class="pn-proof__eyebrow">What we commit to</p>
-      <h2 class="pn-h2">No vanity metrics. Just terms we'll put in writing.</h2>
-      <p class="pn-proof__lede">
-        We're a new network, and we'd rather earn your trust with guarantees we honor than with testimonials you can't verify. Here's what every partnership is built on:
-      </p>
-      <ul class="pn-commitments">
-        <li class="pn-commitment">
-          <span class="pn-commitment__num">01</span>
-          <div>
-            <h3 class="pn-commitment__title">You pay only for conversations that happen.</h3>
-            <p class="pn-commitment__body">Every scenario in our guarantee above is replaced or credited, no window and no cap. If the conversation doesn't occur, it's not billed.</p>
-          </div>
-        </li>
-        <li class="pn-commitment">
-          <span class="pn-commitment__num">02</span>
-          <div>
-            <h3 class="pn-commitment__title">We don't oversell a territory.</h3>
-            <p class="pn-commitment__body">We cap how many partners we route to in any given area so the consumers you speak with haven't already been called five times today.</p>
-          </div>
-        </li>
-        <li class="pn-commitment">
-          <span class="pn-commitment__num">03</span>
-          <div>
-            <h3 class="pn-commitment__title">Consent is documented on every contact.</h3>
-            <p class="pn-commitment__body">Every consumer we route to you opted in to an insurance conversation. If consent documentation is missing or invalid, the contact is replaced.</p>
-          </div>
-        </li>
-        <li class="pn-commitment">
-          <span class="pn-commitment__num">04</span>
-          <div>
-            <h3 class="pn-commitment__title">No contracts on self-serve.</h3>
-            <p class="pn-commitment__body">Buy what you need, scale when your own numbers prove it out, pause anytime. We earn the next order by delivering on the last one.</p>
-          </div>
-        </li>
-      </ul>
+  <!-- ===================== COMMITMENTS (no fabricated testimonials) ===================== -->
+  <section class="pn-section pn-commit">
+    <div class="pn-wrap">
+      <header class="pn-section__head">
+        <p class="pn-eyebrow">What we commit to</p>
+        <h2 class="pn-h2">No vanity metrics. Terms we'll put in writing.</h2>
+        <p class="pn-section__sub">We're a new network. We'd rather earn trust with guarantees we honor than testimonials you can't verify.</p>
+      </header>
+      <div class="pn-commit__grid">
+        {commitments.map((c) => (
+          <article class="pn-commit__card">
+            <span class="pn-commit__num">{c.num}</span>
+            <h3 class="pn-commit__title">{c.title}</h3>
+            <p class="pn-commit__body">{c.body}</p>
+          </article>
+        ))}
+      </div>
     </div>
   </section>
 
-  <!-- ===================== APPLY / FINAL CTA ===================== -->
+  <!-- ===================== APPLY ===================== -->
   <section class="pn-section pn-apply" id="apply">
-    <div class="pn-container pn-narrow">
-      <h2 class="pn-h2 pn-h2--center">Stop prospecting. Start quoting.</h2>
-      <p class="pn-apply__lede">
-        Your next appointment is already scheduled. The only question is whether it's on your calendar or your competitor's.
-      </p>
+    <div class="pn-wrap pn-apply__grid">
+      <div class="pn-apply__copy">
+        <h2 class="pn-h2 pn-h2--light">Stop prospecting. Start quoting.</h2>
+        <p class="pn-apply__lede">Your next appointment is already scheduled. The only question is whose calendar it's on.</p>
+        <ul class="pn-apply__checklist">
+          <li>License verification within 1 business day</li>
+          <li>No contract, no minimum, pause anytime</li>
+          <li>Pay only for conversations that happen</li>
+        </ul>
+        <p class="pn-apply__alt">Prefer to talk first? <a href="/contact/">Book a 10-minute call</a> to review territory and volume.</p>
+      </div>
 
-      <form
-        class="pn-form"
-        name="partner-application"
-        method="POST"
-        data-netlify="true"
-        data-netlify-honeypot="bot-field"
-        action="/partner-network/thanks/"
-      >
+      <form class="pn-form" name="partner-application" method="POST" data-netlify="true" data-netlify-honeypot="bot-field" action="/partner-network/thanks/">
         <input type="hidden" name="form-name" value="partner-application" />
-        <p class="pn-form__hp" hidden>
-          <label>Don't fill this out: <input name="bot-field" /></label>
-        </p>
+        <p class="pn-form__hp" hidden><label>Don't fill this out: <input name="bot-field" /></label></p>
 
         <div class="pn-form__row">
           <div class="pn-field">
@@ -343,11 +329,10 @@ const audience = [
             <input id="pn-name" type="text" name="name" required autocomplete="name" />
           </div>
           <div class="pn-field">
-            <label for="pn-agency">Agency / business name</label>
+            <label for="pn-agency">Agency / business</label>
             <input id="pn-agency" type="text" name="agency" autocomplete="organization" />
           </div>
         </div>
-
         <div class="pn-form__row">
           <div class="pn-field">
             <label for="pn-email">Email</label>
@@ -358,7 +343,6 @@ const audience = [
             <input id="pn-phone" type="tel" name="phone" required autocomplete="tel" />
           </div>
         </div>
-
         <div class="pn-form__row">
           <div class="pn-field">
             <label for="pn-states">Licensed states</label>
@@ -369,7 +353,6 @@ const audience = [
             <input id="pn-lines" type="text" name="product-lines" placeholder="e.g. Auto, Home, Medicare" />
           </div>
         </div>
-
         <div class="pn-field">
           <label for="pn-target">Weekly volume target</label>
           <select id="pn-target" name="weekly-target">
@@ -380,601 +363,354 @@ const audience = [
             <option value="30+">30+ per week (team)</option>
           </select>
         </div>
-
-        <div class="pn-field">
-          <label for="pn-message">Anything else? <span class="pn-field__optional">(optional)</span></label>
-          <textarea id="pn-message" name="message" rows="3" placeholder="Territory specifics, current volume, questions…"></textarea>
-        </div>
-
         <button type="submit" class="pn-btn pn-btn--primary pn-btn--full">
           <span>Apply for partnership</span>
-          <svg width="16" height="14" viewBox="0 0 16 14" fill="none" aria-hidden="true">
-            <path d="M9 1l6 6-6 6M1 7h14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
+          <svg width="16" height="14" viewBox="0 0 16 14" fill="none" aria-hidden="true"><path d="M9 1l6 6-6 6M1 7h14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </button>
-
-        <p class="pn-form__alt">
-          Prefer to talk first? <a href="/contact/">Book a 10-minute call</a> to review your territory and volume targets.
-        </p>
+        <p class="pn-form__legal">By applying you agree we may verify your license and contact you about partnership. No consumer data is shared until verification completes.</p>
       </form>
-
-      <p class="pn-apply__tag">QuoteYeti Partner Network. Conversations delivered. Revenue yours.</p>
     </div>
   </section>
 
+  <script>
+    // Interactive pricing configurator — vanilla, no deps.
+    const root = document.querySelector(".pn-config");
+    if (root) {
+      const data = JSON.parse(root.getAttribute("data-pricing"));
+      const state = { product: "appointment", line: "auto", pack: "single" };
+
+      const linePills = root.querySelector("[data-line-pills]");
+      const packPills = root.querySelector("[data-pack-pills]");
+      const sumLabel = root.querySelector("[data-sum-label]");
+      const sumTotal = root.querySelector("[data-sum-total]");
+      const sumPer = root.querySelector("[data-sum-per]");
+      const sumDetail = root.querySelector("[data-sum-detail]");
+      const fmt = (n) => "$" + Math.round(n).toLocaleString("en-US");
+
+      function renderLinePills() {
+        const lines = data.products[state.product].lines;
+        linePills.innerHTML = "";
+        lines.forEach((ln) => {
+          const b = document.createElement("button");
+          b.className = "pn-pill" + (ln.id === state.line ? " is-active" : "");
+          b.setAttribute("role", "radio");
+          b.setAttribute("aria-checked", String(ln.id === state.line));
+          b.textContent = ln.name.replace(/ (insurance|plan).*/i, "").replace(/ consultation| review| needs analysis| guidance/i, "");
+          b.dataset.line = ln.id;
+          b.addEventListener("click", () => { state.line = ln.id; renderLinePills(); update(); });
+          linePills.appendChild(b);
+        });
+      }
+
+      function renderPackPills() {
+        packPills.innerHTML = "";
+        data.packs.forEach((pk) => {
+          const b = document.createElement("button");
+          b.className = "pn-toggle__btn" + (pk.id === state.pack ? " is-active" : "");
+          b.setAttribute("role", "radio");
+          b.setAttribute("aria-checked", String(pk.id === state.pack));
+          b.innerHTML = pk.label + (pk.discount > 0 ? `<span class="pn-toggle__save">save ${Math.round(pk.discount*100)}%</span>` : "");
+          b.dataset.pack = pk.id;
+          b.addEventListener("click", () => { state.pack = pk.id; renderPackPills(); update(); });
+          packPills.appendChild(b);
+        });
+      }
+
+      function update() {
+        const prod = data.products[state.product];
+        const line = prod.lines.find((l) => l.id === state.line) || prod.lines[0];
+        const pack = data.packs.find((p) => p.id === state.pack);
+        const unit = line.single * (1 - pack.discount);
+        const total = unit * pack.qty;
+        const noun = state.product === "appointment" ? "appointment" : "live conversation";
+
+        if (pack.qty === 1) {
+          sumTotal.textContent = fmt(unit);
+          sumPer.textContent = "per " + noun;
+          sumDetail.textContent = `1 ${noun} · ${fmt(unit)} each`;
+        } else {
+          sumTotal.textContent = fmt(total);
+          sumPer.textContent = `${pack.qty}-pack`;
+          sumDetail.textContent = `${pack.qty} × ${fmt(unit)} each · ${Math.round(pack.discount*100)}% volume discount applied`;
+        }
+        sumLabel.textContent = `${prod.label} · ${line.name.split(" ")[0]} · ${pack.label}`;
+      }
+
+      root.querySelectorAll("[data-product]").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          state.product = btn.dataset.product;
+          root.querySelectorAll("[data-product]").forEach((b) => {
+            const on = b === btn;
+            b.classList.toggle("is-active", on);
+            b.setAttribute("aria-checked", String(on));
+          });
+          renderLinePills();
+          update();
+        });
+      });
+
+      renderLinePills();
+      renderPackPills();
+      update();
+    }
+  </script>
+
   <style>
     /* ============================================================
-       QuoteYeti Partner Network — brutal-minimal B2B landing.
-       Navy dominant, single orange accent, massive confident type,
-       no imagery, no motion. Reading sections capped at 720px.
+       Partner Network — self-serve platform aesthetic.
+       Warm-cream surfaces, navy structure, single orange accent.
        ============================================================ */
-
-    .pn-container {
-      max-width: 1080px;
-      margin-inline: auto;
-      padding-inline: var(--space-6);
+    .pn-wrap { max-width: 1180px; margin-inline: auto; padding-inline: var(--space-6); }
+    .pn-section { padding-block: clamp(3.5rem, 7vw, 6rem); }
+    .pn-section__head { margin-bottom: var(--space-10); max-width: 640px; }
+    .pn-section__head--center { margin-inline: auto; text-align: center; }
+    .pn-section__sub { font-size: 1.05rem; color: var(--color-text-muted); margin-top: var(--space-3); line-height: 1.6; }
+    .pn-eyebrow {
+      font-family: var(--font-display); font-size: 0.72rem; font-weight: 700;
+      letter-spacing: 0.16em; text-transform: uppercase; color: var(--color-orange);
+      margin: 0 0 var(--space-3);
     }
-    .pn-narrow { max-width: 720px; }
-
-    .pn-section { padding-block: clamp(3.5rem, 8vw, 6.5rem); }
-
+    .pn-eyebrow--light { color: var(--color-malibu); }
     .pn-h2 {
-      font-family: var(--font-display);
-      font-size: clamp(1.75rem, 4vw, 2.75rem);
-      font-weight: 700;
-      letter-spacing: -0.025em;
-      line-height: 1.12;
-      color: var(--color-resolution);
-      margin: 0 0 var(--space-8);
-      max-width: 20ch;
+      font-family: var(--font-display); font-weight: 800;
+      font-size: clamp(1.7rem, 3.4vw, 2.5rem); line-height: 1.1;
+      letter-spacing: -0.02em; color: var(--color-resolution); margin: 0;
     }
-    .pn-h2--center {
-      margin-inline: auto;
-      text-align: center;
-      max-width: 24ch;
+    .pn-h2--light { color: var(--color-white); }
+
+    /* Buttons */
+    .pn-btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: var(--space-2);
+      font-family: var(--font-display); font-weight: 700; font-size: 0.95rem;
+      padding: var(--space-3) var(--space-6); border-radius: var(--radius-pill);
+      text-decoration: none; cursor: pointer; border: 1.5px solid transparent;
+      transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
     }
-    .pn-serif {
-      font-family: var(--font-serif);
-      font-style: italic;
-      font-weight: 400;
-    }
+    .pn-btn--primary { background: var(--color-orange); color: var(--color-white); box-shadow: var(--shadow-pop); }
+    .pn-btn--primary:hover { transform: translateY(-2px); box-shadow: 0 12px 28px rgba(229,90,43,0.32); }
+    .pn-btn--ghost { background: transparent; color: var(--color-resolution); border-color: var(--color-border); }
+    .pn-btn--ghost:hover { border-color: var(--color-resolution); background: var(--color-white); }
+    .pn-btn--full { width: 100%; }
 
     /* ---------- HERO ---------- */
     .pn-hero {
-      background: var(--color-resolution);
-      color: var(--color-white);
-      padding-block: clamp(4.5rem, 12vw, 9rem);
-      position: relative;
-      overflow: hidden;
+      background:
+        radial-gradient(ellipse 70% 90% at 85% 10%, rgba(229,90,43,0.06), transparent 55%),
+        linear-gradient(180deg, var(--color-alice) 0%, var(--color-snow) 100%);
+      padding-block: clamp(3rem, 7vw, 5.5rem);
     }
-    .pn-hero::before {
-      /* faint topographic grain so it isn't a flat navy slab */
-      content: "";
-      position: absolute; inset: 0;
-      background-image: radial-gradient(circle at 1px 1px, rgba(255,255,255,0.04) 1px, transparent 0);
-      background-size: 22px 22px;
-      pointer-events: none;
+    .pn-hero__grid {
+      display: grid; grid-template-columns: 1.05fr 0.95fr;
+      gap: clamp(2rem, 5vw, 4rem); align-items: center;
     }
-    .pn-hero__eyebrow {
-      position: relative;
-      font-family: var(--font-display);
-      font-size: 0.8125rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.18em;
-      color: var(--color-orange);
-      margin: 0 0 var(--space-6);
+    .pn-badge {
+      display: inline-flex; align-items: center; gap: var(--space-2);
+      font-family: var(--font-display); font-size: 0.78rem; font-weight: 600;
+      color: var(--color-resolution); background: var(--color-white);
+      border: 1px solid var(--color-border); border-radius: var(--radius-pill);
+      padding: var(--space-2) var(--space-4); margin-bottom: var(--space-5);
+      box-shadow: var(--shadow-xs);
     }
+    .pn-badge__dot { width: 7px; height: 7px; border-radius: 50%; background: var(--color-success); box-shadow: 0 0 0 3px rgba(14,124,123,0.18); }
     .pn-hero__h1 {
-      position: relative;
-      font-family: var(--font-display);
-      font-size: clamp(2.75rem, 8vw, 5rem);
-      font-weight: 800;
-      letter-spacing: -0.035em;
-      line-height: 0.98;
-      margin: 0 0 var(--space-8);
-      color: var(--color-white);
+      font-family: var(--font-display); font-weight: 800;
+      font-size: clamp(2.2rem, 5vw, 3.4rem); line-height: 1.05;
+      letter-spacing: -0.03em; color: var(--color-resolution);
+      margin: 0 0 var(--space-5); max-width: 16ch;
     }
-    .pn-hero__h1 .pn-serif { color: var(--color-malibu); display: block; }
-    .pn-hero__lede {
-      position: relative;
-      font-family: var(--font-display);
-      font-size: clamp(1.125rem, 2vw, 1.4375rem);
-      line-height: 1.5;
-      color: rgba(255,255,255,0.92);
-      max-width: 40ch;
-      margin: 0 0 var(--space-6);
+    .pn-hero__lede { font-size: clamp(1.05rem, 1.6vw, 1.2rem); line-height: 1.6; color: var(--color-text); max-width: 48ch; margin: 0 0 var(--space-7); }
+    .pn-hero__actions { display: flex; gap: var(--space-3); flex-wrap: wrap; margin-bottom: var(--space-8); }
+    .pn-hero__trust { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: var(--space-2) var(--space-5); }
+    .pn-hero__trust li {
+      position: relative; padding-left: var(--space-5);
+      font-size: 0.85rem; color: var(--color-text-muted); font-family: var(--font-display); font-weight: 500;
     }
-    .pn-hero__line {
-      position: relative;
-      font-family: var(--font-display);
-      font-size: clamp(1rem, 1.5vw, 1.1875rem);
-      line-height: 1.6;
-      color: rgba(255,255,255,0.66);
-      max-width: 46ch;
-      margin: 0 0 var(--space-10);
-    }
-    .pn-hero__actions {
-      position: relative;
-      display: flex;
-      align-items: center;
-      gap: var(--space-6);
-      flex-wrap: wrap;
+    .pn-hero__trust li::before {
+      content: ""; position: absolute; left: 0; top: 50%; transform: translateY(-50%);
+      width: 14px; height: 14px;
+      background: var(--color-success);
+      -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M3 8.5l3.2 3.2L13 5' stroke='black' stroke-width='2.2' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/contain no-repeat;
+              mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M3 8.5l3.2 3.2L13 5' stroke='black' stroke-width='2.2' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/contain no-repeat;
     }
 
-    /* ---------- BUTTONS ---------- */
-    .pn-btn {
-      display: inline-flex;
-      align-items: center;
-      gap: var(--space-3);
-      font-family: var(--font-display);
-      font-weight: 700;
-      font-size: 1.0625rem;
-      text-decoration: none;
-      border: none;
-      cursor: pointer;
-      transition: transform var(--transition), box-shadow var(--transition), background var(--transition);
+    /* dashboard preview */
+    .pn-preview {
+      background: var(--color-resolution); border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-modal); overflow: hidden;
+      border: 1px solid rgba(255,255,255,0.08);
     }
-    .pn-btn svg { transition: transform var(--transition); }
-    .pn-btn--primary {
-      background: var(--color-orange);
-      color: var(--color-white);
-      padding: var(--space-4) var(--space-8);
-      border-radius: var(--radius-pill);
-      box-shadow: 0 6px 16px rgba(229, 90, 43, 0.28);
+    .pn-preview__bar {
+      display: flex; align-items: center; gap: var(--space-2);
+      padding: var(--space-3) var(--space-4); background: rgba(255,255,255,0.04);
+      border-bottom: 1px solid rgba(255,255,255,0.08);
     }
-    .pn-btn--primary:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 10px 24px rgba(229, 90, 43, 0.36);
+    .pn-preview__dot { width: 9px; height: 9px; border-radius: 50%; background: rgba(255,255,255,0.22); }
+    .pn-preview__title { margin-left: var(--space-3); font-family: var(--font-display); font-size: 0.78rem; color: rgba(255,255,255,0.55); }
+    .pn-preview__body { padding: var(--space-6); }
+    .pn-preview__stat { display: flex; align-items: baseline; gap: var(--space-3); margin-bottom: var(--space-5); }
+    .pn-preview__num { font-family: var(--font-display); font-weight: 800; font-size: 2.6rem; color: var(--color-white); line-height: 1; }
+    .pn-preview__label { font-size: 0.85rem; color: rgba(255,255,255,0.6); }
+    .pn-preview__feed { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--space-2); }
+    .pn-preview__feed li {
+      display: flex; align-items: center; gap: var(--space-3);
+      font-size: 0.85rem; color: rgba(255,255,255,0.82);
+      padding: var(--space-3); background: rgba(255,255,255,0.04); border-radius: var(--radius-sm);
     }
-    .pn-btn--primary:hover svg { transform: translateX(4px); }
-    .pn-btn--text {
-      color: var(--color-white);
-      font-weight: 600;
-      border-bottom: 1px solid rgba(255,255,255,0.4);
-      padding-bottom: 2px;
+    .pn-preview__time { font-family: var(--font-mono); font-size: 0.72rem; color: rgba(255,255,255,0.5); flex-shrink: 0; width: 42px; }
+    .pn-preview__tag {
+      margin-left: auto; font-size: 0.66rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em;
+      color: var(--color-malibu); background: rgba(91,168,212,0.14); padding: 2px 8px; border-radius: var(--radius-pill);
     }
-    .pn-btn--text:hover { border-bottom-color: var(--color-malibu); color: var(--color-malibu); }
-    .pn-btn--full { width: 100%; justify-content: center; padding-block: var(--space-5); font-size: 1.125rem; }
+    .pn-preview__tag--live { color: #ffb27a; background: rgba(229,90,43,0.18); }
+    .pn-preview__foot { margin: var(--space-4) 0 0; font-size: 0.7rem; color: rgba(255,255,255,0.35); font-style: italic; }
 
-    /* ---------- PROBLEM ---------- */
-    .pn-problem { background: var(--color-white); }
-    .pn-problem__list {
-      list-style: none;
-      margin: 0 0 var(--space-8);
-      padding: 0;
-      display: grid;
-      gap: var(--space-3);
-    }
-    .pn-problem__list li {
-      font-family: var(--font-display);
-      font-size: 1.125rem;
-      color: var(--color-text-strong);
-      padding-left: var(--space-6);
-      position: relative;
-      line-height: 1.5;
-    }
-    .pn-problem__list li::before {
-      content: "—";
-      position: absolute;
-      left: 0;
-      color: var(--color-orange);
-      font-weight: 700;
-    }
-    .pn-problem__resolve {
-      font-family: var(--font-display);
-      font-size: clamp(1.1875rem, 2vw, 1.5rem);
-      font-weight: 600;
-      line-height: 1.4;
-      color: var(--color-resolution);
-      margin: 0;
-      max-width: 46ch;
-    }
+    /* ---------- STAT STRIP ---------- */
+    .pn-stats { background: var(--color-resolution); }
+    .pn-stats__grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--space-6); padding-block: var(--space-10); }
+    .pn-stat { text-align: center; }
+    .pn-stat__num { display: block; font-family: var(--font-display); font-weight: 800; font-size: clamp(1.4rem, 2.6vw, 2rem); color: var(--color-white); letter-spacing: -0.02em; }
+    .pn-stat__label { display: block; font-size: 0.82rem; color: rgba(255,255,255,0.6); margin-top: var(--space-2); line-height: 1.4; }
 
     /* ---------- WHAT YOU BUY ---------- */
-    .pn-buy { background: var(--color-alice); }
-    .pn-buy__grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: var(--space-6);
+    .pn-buy { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-6); }
+    .pn-buy__card {
+      background: var(--color-white); border: 1px solid var(--color-border);
+      border-radius: var(--radius-lg); padding: var(--space-8);
+      box-shadow: var(--shadow-card);
     }
-    .pn-buy__col {
-      background: var(--color-white);
-      border: 1px solid var(--color-border);
-      border-radius: var(--radius-lg);
-      padding: var(--space-9) var(--space-8);
-    }
-    .pn-buy__col--accent {
-      border-color: var(--color-resolution);
-      border-width: 2px;
-      box-shadow: 0 12px 32px -12px rgba(30, 42, 74, 0.18);
-    }
-    .pn-buy__title {
-      font-family: var(--font-display);
-      font-size: 1.375rem;
-      font-weight: 700;
-      color: var(--color-resolution);
-      margin: 0 0 var(--space-6);
-      letter-spacing: -0.01em;
-    }
-    .pn-buy__dl { margin: 0; }
-    .pn-buy__dl dt {
-      font-family: var(--font-display);
-      font-size: 0.6875rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.14em;
-      color: var(--color-orange);
-      margin-bottom: var(--space-2);
-    }
-    .pn-buy__dl dd {
-      margin: 0 0 var(--space-5);
-      font-family: var(--font-display);
-      font-size: 1rem;
-      line-height: 1.55;
-      color: var(--color-text);
-    }
-    .pn-buy__dl dd:last-child { margin-bottom: 0; }
+    .pn-buy__card--accent { border-color: var(--color-orange); box-shadow: 0 8px 28px rgba(229,90,43,0.12); }
+    .pn-buy__head { display: flex; align-items: baseline; justify-content: space-between; gap: var(--space-3); margin-bottom: var(--space-4); }
+    .pn-buy__title { font-family: var(--font-display); font-weight: 800; font-size: 1.35rem; color: var(--color-resolution); margin: 0; }
+    .pn-buy__from { font-family: var(--font-display); font-weight: 700; font-size: 0.85rem; color: var(--color-orange); white-space: nowrap; }
+    .pn-buy__blurb { font-size: 0.98rem; color: var(--color-text-muted); margin: 0 0 var(--space-5); line-height: 1.55; }
+    .pn-buy__list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--space-3); }
+    .pn-buy__list li { font-size: 0.95rem; color: var(--color-text); line-height: 1.5; padding-top: var(--space-3); border-top: 1px solid var(--color-border-soft); }
+    .pn-buy__list strong { color: var(--color-resolution); font-weight: 700; }
 
-    /* ---------- PRICING ---------- */
-    .pn-pricing { background: var(--color-white); }
-    .pn-pricing__block { margin-bottom: var(--space-12); }
-    .pn-pricing__block:last-of-type { margin-bottom: var(--space-8); }
-    .pn-pricing__label {
-      font-family: var(--font-display);
-      font-size: 0.75rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.16em;
-      color: var(--color-ship-cove);
-      margin: 0 0 var(--space-5);
-      padding-bottom: var(--space-3);
-      border-bottom: 2px solid var(--color-resolution);
+    /* ---------- PRICING CONFIGURATOR ---------- */
+    .pn-pricing { background: var(--color-alice); }
+    .pn-config {
+      display: grid; grid-template-columns: 1.3fr 1fr; gap: var(--space-8);
+      background: var(--color-white); border: 1px solid var(--color-border);
+      border-radius: var(--radius-lg); padding: clamp(1.5rem, 3vw, 2.5rem);
+      box-shadow: var(--shadow-pop); max-width: 980px; margin-inline: auto;
     }
-    .pn-table-wrap { overflow-x: auto; }
-    .pn-table {
-      width: 100%;
-      border-collapse: collapse;
-      font-family: var(--font-display);
+    .pn-config__group { margin-bottom: var(--space-7); }
+    .pn-config__group:last-child { margin-bottom: 0; }
+    .pn-config__legend {
+      display: block; font-family: var(--font-display); font-size: 0.72rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.12em; color: var(--color-text-muted);
+      margin-bottom: var(--space-3);
     }
-    .pn-table th, .pn-table td {
-      text-align: left;
-      padding: var(--space-4) var(--space-5);
-      border-bottom: 1px solid var(--color-border);
-      white-space: nowrap;
+    .pn-toggle { display: inline-flex; flex-wrap: wrap; gap: var(--space-2); background: var(--color-alice); padding: 4px; border-radius: var(--radius); }
+    .pn-toggle__btn {
+      font-family: var(--font-display); font-weight: 600; font-size: 0.9rem;
+      padding: var(--space-3) var(--space-5); border: 0; border-radius: var(--radius-sm);
+      background: transparent; color: var(--color-text-muted); cursor: pointer;
+      transition: all 0.15s ease; display: inline-flex; align-items: center; gap: var(--space-2);
     }
-    .pn-table th {
-      font-size: 0.75rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
-      color: var(--color-text-muted);
+    .pn-toggle__btn.is-active { background: var(--color-white); color: var(--color-resolution); box-shadow: var(--shadow-xs); }
+    .pn-toggle__save { font-size: 0.65rem; font-weight: 700; color: var(--color-orange); background: rgba(229,90,43,0.1); padding: 1px 6px; border-radius: var(--radius-pill); }
+    .pn-pills { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+    .pn-pill {
+      font-family: var(--font-display); font-weight: 600; font-size: 0.88rem;
+      padding: var(--space-2) var(--space-4); border-radius: var(--radius-pill);
+      border: 1.5px solid var(--color-border); background: var(--color-white);
+      color: var(--color-text); cursor: pointer; transition: all 0.15s ease;
     }
-    .pn-table td {
-      font-size: 1rem;
-      color: var(--color-text-strong);
+    .pn-pill.is-active { border-color: var(--color-resolution); background: var(--color-resolution); color: var(--color-white); }
+    .pn-config__summary {
+      background: var(--color-resolution); border-radius: var(--radius); padding: var(--space-7);
+      display: flex; flex-direction: column; color: var(--color-white);
     }
-    .pn-table td:first-child { font-weight: 600; color: var(--color-resolution); }
-    .pn-table th:not(:first-child), .pn-table td:not(:first-child) { text-align: right; }
-    .pn-table__emph { color: var(--color-orange) !important; font-weight: 700 !important; }
-    .pn-pricing__note {
-      font-family: var(--font-display);
-      font-size: 1rem;
-      color: var(--color-text-muted);
-      margin: 0;
-      text-align: center;
-    }
+    .pn-config__sumlabel { font-family: var(--font-display); font-size: 0.8rem; color: rgba(255,255,255,0.6); margin: 0 0 var(--space-4); }
+    .pn-config__price { display: flex; align-items: baseline; gap: var(--space-3); margin-bottom: var(--space-2); }
+    .pn-config__amount { font-family: var(--font-display); font-weight: 800; font-size: clamp(2.4rem, 5vw, 3rem); line-height: 1; letter-spacing: -0.03em; }
+    .pn-config__per { font-size: 0.85rem; color: rgba(255,255,255,0.6); }
+    .pn-config__detail { font-size: 0.82rem; color: rgba(255,255,255,0.7); margin: 0 0 var(--space-6); line-height: 1.5; min-height: 2.4em; }
+    .pn-config__fineprint { font-size: 0.72rem; color: rgba(255,255,255,0.45); margin: var(--space-3) 0 0; text-align: center; }
+    .pn-config__summary .pn-btn--primary { margin-top: auto; }
+
+    /* ---------- HOW IT WORKS ---------- */
+    .pn-how__steps { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--space-6); counter-reset: none; }
+    .pn-how__step { background: var(--color-white); border: 1px solid var(--color-border); border-radius: var(--radius-lg); padding: var(--space-7); box-shadow: var(--shadow-card); }
+    .pn-how__num { font-family: var(--font-display); font-weight: 800; font-size: 2rem; color: var(--color-orange); line-height: 1; display: block; margin-bottom: var(--space-4); }
+    .pn-how__title { font-family: var(--font-display); font-weight: 700; font-size: 1.1rem; color: var(--color-resolution); margin: 0 0 var(--space-2); }
+    .pn-how__body { font-size: 0.92rem; color: var(--color-text-muted); line-height: 1.55; margin: 0; }
 
     /* ---------- GUARANTEE ---------- */
     .pn-guarantee { background: var(--color-resolution); color: var(--color-white); }
-    .pn-guarantee .pn-h2 { color: var(--color-white); }
-    .pn-guarantee__eyebrow {
-      font-family: var(--font-display);
-      font-size: 0.75rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.16em;
-      color: var(--color-orange);
-      margin: 0 0 var(--space-5);
-    }
-    .pn-guarantee__list { margin: 0 0 var(--space-8); }
-    .pn-guarantee__row {
-      display: flex;
-      justify-content: space-between;
-      align-items: baseline;
-      gap: var(--space-6);
-      padding: var(--space-4) 0;
-      border-bottom: 1px solid rgba(255,255,255,0.14);
-    }
-    .pn-guarantee__row dt {
-      font-family: var(--font-display);
-      font-size: 1.0625rem;
-      color: rgba(255,255,255,0.85);
-      margin: 0;
-    }
+    .pn-guarantee__grid { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(2rem, 5vw, 4rem); align-items: start; }
+    .pn-guarantee__close { font-size: 1.05rem; color: rgba(255,255,255,0.75); line-height: 1.55; margin: var(--space-6) 0 0; max-width: 36ch; }
+    .pn-guarantee__list { margin: 0; }
+    .pn-guarantee__row { display: flex; align-items: center; justify-content: space-between; gap: var(--space-4); padding: var(--space-4) 0; border-bottom: 1px solid rgba(255,255,255,0.1); }
+    .pn-guarantee__row dt { font-size: 0.98rem; color: rgba(255,255,255,0.82); margin: 0; }
     .pn-guarantee__row dd {
-      font-family: var(--font-display);
-      font-size: 1rem;
-      font-weight: 700;
-      color: var(--color-malibu);
-      margin: 0;
-      white-space: nowrap;
-    }
-    .pn-guarantee__close {
-      font-family: var(--font-display);
-      font-size: clamp(1.125rem, 2vw, 1.375rem);
-      font-weight: 600;
-      line-height: 1.4;
-      color: var(--color-white);
-      margin: 0;
-    }
-
-    /* ---------- HOW IT WORKS ---------- */
-    .pn-how { background: var(--color-alice); }
-    .pn-how__steps {
-      list-style: none;
-      margin: 0;
-      padding: 0;
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: var(--space-6);
-      counter-reset: none;
-    }
-    .pn-how__step {
-      background: var(--color-white);
-      border: 1px solid var(--color-border);
-      border-radius: var(--radius-lg);
-      padding: var(--space-8) var(--space-6);
-    }
-    .pn-how__num {
-      font-family: var(--font-serif);
-      font-style: italic;
-      font-size: 2.25rem;
-      font-weight: 400;
-      color: var(--color-orange);
-      line-height: 1;
-      display: block;
-      margin-bottom: var(--space-5);
-    }
-    .pn-how__title {
-      font-family: var(--font-display);
-      font-size: 1.125rem;
-      font-weight: 700;
-      color: var(--color-resolution);
-      margin: 0 0 var(--space-3);
-      letter-spacing: -0.01em;
-    }
-    .pn-how__body {
-      font-family: var(--font-display);
-      font-size: 0.9375rem;
-      line-height: 1.55;
-      color: var(--color-text);
-      margin: 0;
+      margin: 0; flex-shrink: 0; font-family: var(--font-display); font-weight: 700; font-size: 0.78rem;
+      text-transform: uppercase; letter-spacing: 0.06em; color: var(--color-success);
+      background: rgba(14,124,123,0.18); padding: var(--space-1) var(--space-3); border-radius: var(--radius-pill);
     }
 
     /* ---------- WHO FOR ---------- */
-    .pn-who { background: var(--color-white); }
-    .pn-who__grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: var(--space-6);
-      margin-bottom: var(--space-10);
+    .pn-who { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-6); margin-bottom: var(--space-8); }
+    .pn-who__card { background: var(--color-white); border: 1px solid var(--color-border); border-radius: var(--radius-lg); padding: var(--space-7); box-shadow: var(--shadow-card); }
+    .pn-who__tag {
+      display: inline-block; font-family: var(--font-display); font-weight: 700; font-size: 0.68rem;
+      text-transform: uppercase; letter-spacing: 0.1em; color: var(--color-orange);
+      background: rgba(229,90,43,0.1); padding: 3px 10px; border-radius: var(--radius-pill); margin-bottom: var(--space-4);
     }
-    .pn-who__card {
-      padding: var(--space-7) var(--space-6);
-      border-left: 3px solid var(--color-orange);
-      background: var(--color-alice);
-      border-radius: 0 var(--radius) var(--radius) 0;
-    }
-    .pn-who__title {
-      font-family: var(--font-display);
-      font-size: 1.1875rem;
-      font-weight: 700;
-      color: var(--color-resolution);
-      margin: 0 0 var(--space-3);
-    }
-    .pn-who__body {
-      font-family: var(--font-display);
-      font-size: 1rem;
-      line-height: 1.55;
-      color: var(--color-text);
-      margin: 0;
-    }
-    .pn-who__close {
-      font-family: var(--font-display);
-      font-size: 1.0625rem;
-      line-height: 1.55;
-      color: var(--color-text-muted);
-      max-width: 60ch;
-      margin: 0 auto;
-      text-align: center;
-    }
+    .pn-who__title { font-family: var(--font-display); font-weight: 700; font-size: 1.15rem; color: var(--color-resolution); margin: 0 0 var(--space-2); }
+    .pn-who__body { font-size: 0.95rem; color: var(--color-text-muted); line-height: 1.55; margin: 0; }
+    .pn-who__close { text-align: center; font-size: 1.05rem; color: var(--color-text); max-width: 60ch; margin-inline: auto; line-height: 1.6; }
+    .pn-who__close strong { color: var(--color-resolution); font-weight: 700; }
 
-    /* ---------- PROOF / COMMITMENTS ---------- */
-    .pn-proof { background: var(--color-alice); }
-    .pn-proof__eyebrow {
-      font-family: var(--font-display);
-      font-size: 0.75rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.16em;
-      color: var(--color-orange);
-      margin: 0 0 var(--space-4);
-    }
-    .pn-proof__lede {
-      font-family: var(--font-display);
-      font-size: clamp(1.0625rem, 1.6vw, 1.1875rem);
-      line-height: 1.6;
-      color: var(--color-matterhorn);
-      max-width: 62ch;
-      margin: var(--space-5) 0 var(--space-10);
-    }
-    .pn-commitments {
-      list-style: none;
-      margin: 0;
-      padding: 0;
-      display: grid;
-      gap: var(--space-8);
-    }
-    .pn-commitment {
-      display: grid;
-      grid-template-columns: auto 1fr;
-      gap: var(--space-6);
-      align-items: start;
-      padding-top: var(--space-6);
-      border-top: 1px solid var(--color-gainsboro);
-    }
-    .pn-commitment__num {
-      font-family: var(--font-serif);
-      font-style: italic;
-      font-size: 2rem;
-      line-height: 1;
-      color: var(--color-orange);
-    }
-    .pn-commitment__title {
-      font-family: var(--font-display);
-      font-size: clamp(1.125rem, 1.8vw, 1.375rem);
-      font-weight: 700;
-      color: var(--color-resolution);
-      margin: 0 0 var(--space-2);
-      letter-spacing: -0.01em;
-      line-height: 1.25;
-    }
-    .pn-commitment__body {
-      font-family: var(--font-display);
-      font-size: 1rem;
-      line-height: 1.6;
-      color: var(--color-matterhorn);
-      margin: 0;
-      max-width: 60ch;
-    }
-    @media (max-width: 600px) {
-      .pn-commitment { grid-template-columns: 1fr; gap: var(--space-3); }
-    }
+    /* ---------- COMMITMENTS ---------- */
+    .pn-commit { background: var(--color-alice); }
+    .pn-commit__grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-6); }
+    .pn-commit__card { background: var(--color-white); border: 1px solid var(--color-border); border-radius: var(--radius-lg); padding: var(--space-7); display: grid; grid-template-columns: auto 1fr; gap: var(--space-4); align-items: start; box-shadow: var(--shadow-card); }
+    .pn-commit__num { font-family: var(--font-display); font-weight: 800; font-size: 1.1rem; color: var(--color-white); background: var(--color-resolution); width: 2.2rem; height: 2.2rem; border-radius: var(--radius-sm); display: inline-flex; align-items: center; justify-content: center; }
+    .pn-commit__title { font-family: var(--font-display); font-weight: 700; font-size: 1.05rem; color: var(--color-resolution); margin: 0 0 var(--space-2); line-height: 1.3; }
+    .pn-commit__body { font-size: 0.92rem; color: var(--color-text-muted); line-height: 1.55; margin: 0; }
 
-    /* Testimonial styles — retained for when real, attributable partner
-       results exist. Not currently rendered (see COMMITMENTS section note). */
-    .pn-proof__quote {
-      margin: 0 0 var(--space-10);
-      padding: 0;
-    }
-    .pn-proof__quote:last-child { margin-bottom: 0; }
-    .pn-proof__quote blockquote {
-      font-family: var(--font-serif);
-      font-style: italic;
-      font-size: clamp(1.25rem, 2.4vw, 1.625rem);
-      line-height: 1.45;
-      color: var(--color-resolution);
-      margin: 0 0 var(--space-4);
-      position: relative;
-      padding-left: var(--space-8);
-    }
-    .pn-proof__quote blockquote::before {
-      content: "\201C";
-      position: absolute;
-      left: -0.1em;
-      top: -0.2em;
-      font-family: var(--font-serif);
-      font-size: 3.5rem;
-      color: var(--color-orange);
-      line-height: 1;
-    }
-    .pn-proof__quote figcaption {
-      font-family: var(--font-display);
-      font-size: 0.9375rem;
-      font-weight: 600;
-      color: var(--color-ship-cove);
-      padding-left: var(--space-8);
-    }
-
-    /* ---------- APPLY / FINAL CTA ---------- */
+    /* ---------- APPLY ---------- */
     .pn-apply { background: var(--color-resolution); color: var(--color-white); }
-    .pn-apply .pn-h2 { color: var(--color-white); }
-    .pn-apply__lede {
-      font-family: var(--font-display);
-      font-size: clamp(1.0625rem, 2vw, 1.25rem);
-      line-height: 1.5;
-      color: rgba(255,255,255,0.82);
-      text-align: center;
-      max-width: 44ch;
-      margin: 0 auto var(--space-10);
+    .pn-apply__grid { display: grid; grid-template-columns: 1fr 1.1fr; gap: clamp(2rem, 5vw, 4rem); align-items: center; }
+    .pn-apply__lede { font-size: 1.1rem; color: rgba(255,255,255,0.78); line-height: 1.6; margin: var(--space-4) 0 var(--space-6); max-width: 40ch; }
+    .pn-apply__checklist { list-style: none; margin: 0 0 var(--space-6); padding: 0; display: flex; flex-direction: column; gap: var(--space-3); }
+    .pn-apply__checklist li { position: relative; padding-left: var(--space-7); font-size: 0.98rem; color: rgba(255,255,255,0.88); }
+    .pn-apply__checklist li::before {
+      content: ""; position: absolute; left: 0; top: 2px; width: 18px; height: 18px;
+      background: var(--color-orange);
+      -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M3 8.5l3.2 3.2L13 5' stroke='black' stroke-width='2.2' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/contain no-repeat;
+              mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M3 8.5l3.2 3.2L13 5' stroke='black' stroke-width='2.2' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/contain no-repeat;
     }
-
-    .pn-form {
-      background: var(--color-white);
-      border-radius: var(--radius-lg);
-      padding: clamp(1.75rem, 4vw, 2.75rem);
-      box-shadow: 0 24px 60px -20px rgba(0,0,0,0.5);
+    .pn-apply__alt { font-size: 0.9rem; color: rgba(255,255,255,0.6); margin: 0; }
+    .pn-apply__alt a { color: var(--color-malibu); }
+    .pn-form { background: var(--color-white); border-radius: var(--radius-lg); padding: clamp(1.5rem, 3vw, 2.25rem); box-shadow: var(--shadow-modal); }
+    .pn-form__row { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-4); }
+    .pn-field { margin-bottom: var(--space-4); display: flex; flex-direction: column; }
+    .pn-field label { font-family: var(--font-display); font-size: 0.82rem; font-weight: 600; color: var(--color-resolution); margin-bottom: var(--space-2); }
+    .pn-field input, .pn-field select, .pn-field textarea {
+      font-family: var(--font-body); font-size: 0.95rem; color: var(--color-text);
+      padding: var(--space-3) var(--space-4); border: 1.5px solid var(--color-border);
+      border-radius: var(--radius-sm); background: var(--color-snow); transition: border-color 0.15s ease;
     }
-    .pn-form__hp { position: absolute; left: -9999px; }
-    .pn-form__row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: var(--space-5);
-    }
-    .pn-field { margin-bottom: var(--space-5); }
-    .pn-field label {
-      display: block;
-      font-family: var(--font-display);
-      font-size: 0.8125rem;
-      font-weight: 700;
-      color: var(--color-resolution);
-      margin-bottom: var(--space-2);
-      letter-spacing: 0.01em;
-    }
-    .pn-field__optional { color: var(--color-text-muted); font-weight: 400; text-transform: none; }
-    .pn-field input,
-    .pn-field select,
-    .pn-field textarea {
-      width: 100%;
-      font-family: var(--font-display);
-      font-size: 1rem;
-      color: var(--color-text-strong);
-      background: var(--color-alice);
-      border: 1px solid var(--color-border);
-      border-radius: var(--radius-sm);
-      padding: var(--space-3) var(--space-4);
-      transition: border-color var(--transition), box-shadow var(--transition);
-    }
-    .pn-field input:focus,
-    .pn-field select:focus,
-    .pn-field textarea:focus {
-      outline: none;
-      border-color: var(--color-resolution);
-      box-shadow: 0 0 0 3px rgba(30, 42, 74, 0.12);
-      background: var(--color-white);
-    }
-    .pn-field textarea { resize: vertical; }
-    .pn-form .pn-btn--full { margin-top: var(--space-3); }
-    .pn-form__alt {
-      font-family: var(--font-display);
-      font-size: 0.9375rem;
-      color: var(--color-text-muted);
-      text-align: center;
-      margin: var(--space-5) 0 0;
-    }
-    .pn-form__alt a { color: var(--color-resolution); font-weight: 600; }
-    .pn-apply__tag {
-      font-family: var(--font-display);
-      font-size: 0.8125rem;
-      text-transform: uppercase;
-      letter-spacing: 0.14em;
-      color: rgba(255,255,255,0.5);
-      text-align: center;
-      margin: var(--space-10) 0 0;
-    }
+    .pn-field input:focus, .pn-field select:focus, .pn-field textarea:focus { outline: none; border-color: var(--color-orange); background: var(--color-white); }
+    .pn-form__legal { font-size: 0.74rem; color: var(--color-text-muted); line-height: 1.5; margin: var(--space-4) 0 0; }
 
     /* ---------- RESPONSIVE ---------- */
-    @media (max-width: 860px) {
-      .pn-buy__grid { grid-template-columns: 1fr; }
-      .pn-how__steps { grid-template-columns: 1fr 1fr; }
-      .pn-who__grid { grid-template-columns: 1fr; }
+    @media (max-width: 900px) {
+      .pn-hero__grid, .pn-guarantee__grid, .pn-apply__grid { grid-template-columns: 1fr; }
+      .pn-preview { order: -1; }
+      .pn-config { grid-template-columns: 1fr; }
+      .pn-buy, .pn-commit__grid { grid-template-columns: 1fr; }
+      .pn-how__steps, .pn-stats__grid { grid-template-columns: 1fr 1fr; }
+      .pn-who { grid-template-columns: 1fr; }
     }
     @media (max-width: 560px) {
-      .pn-how__steps { grid-template-columns: 1fr; }
+      .pn-how__steps, .pn-stats__grid { grid-template-columns: 1fr; }
       .pn-form__row { grid-template-columns: 1fr; gap: 0; }
-      .pn-hero__actions { gap: var(--space-4); }
-      .pn-guarantee__row { flex-direction: column; gap: var(--space-1); align-items: flex-start; }
+      .pn-hero__actions .pn-btn { width: 100%; }
     }
   </style>
-</BaseLayout>
+</PlatformLayout>

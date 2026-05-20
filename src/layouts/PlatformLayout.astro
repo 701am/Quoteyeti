@@ -1,0 +1,250 @@
+---
+/**
+ * PlatformLayout — chrome for the QuoteYeti Partner Network (B2B self-serve).
+ *
+ * Deliberately distinct from the consumer site's BaseLayout:
+ *   - slim dark "platform" header (logo + section anchors + Apply action)
+ *   - muted single-line footer
+ *   - the consumer megamenu (Header.astro / nav.ts) is left completely untouched
+ *
+ * This mirrors how real self-serve platforms separate their product surface
+ * from their marketing site (e.g. dashboard chrome ≠ www chrome).
+ */
+import "~/styles/tokens.css";
+import Fonts from "~/components/Fonts.astro";
+import Seo, { type BreadcrumbItem } from "~/components/Seo.astro";
+
+interface Props {
+  title: string;
+  description?: string;
+  noindex?: boolean;
+  breadcrumbs?: BreadcrumbItem[];
+  /** Anchor links shown in the slim header */
+  navLinks?: { label: string; href: string }[];
+}
+
+const {
+  title,
+  description = "QuoteYeti Partner Network — buy confirmed insurance appointments and live consumer transfers. Self-serve. Pay only for conversations that happen.",
+  noindex = false,
+  breadcrumbs,
+  navLinks = [
+    { label: "How it works", href: "#how" },
+    { label: "Pricing", href: "#pricing" },
+    { label: "Guarantee", href: "#guarantee" },
+  ],
+} = Astro.props;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <Seo
+      title={title}
+      description={description}
+      noindex={noindex}
+      pageType="default"
+      breadcrumbs={breadcrumbs}
+    />
+    <link rel="icon" type="image/svg+xml" href="/assets/images/footprint.svg" />
+    <Fonts />
+    <slot name="head" />
+  </head>
+  <body data-section="default" class="pl-body">
+    <a href="#main" class="skip-link">Skip to content</a>
+
+    <!-- ===== SLIM PLATFORM HEADER ===== -->
+    <header class="pl-header">
+      <div class="pl-header__inner">
+        <a href="/partner-network/" class="pl-brand" aria-label="QuoteYeti Partner Network home">
+          <img src="/assets/images/footprint.svg" alt="" class="pl-brand__mark" width="22" height="22" />
+          <span class="pl-brand__name">QuoteYeti</span>
+          <span class="pl-brand__sep" aria-hidden="true">/</span>
+          <span class="pl-brand__product">Partner Network</span>
+        </a>
+
+        <nav class="pl-nav" aria-label="Partner network sections">
+          {navLinks.map((l) => (
+            <a href={l.href} class="pl-nav__link">{l.label}</a>
+          ))}
+        </nav>
+
+        <div class="pl-header__actions">
+          <a href="/" class="pl-nav__link pl-nav__link--ghost">Consumer site</a>
+          <a href="#apply" class="pl-header__cta">Apply</a>
+        </div>
+
+        <button class="pl-burger" aria-label="Toggle menu" aria-expanded="false" data-pl-burger>
+          <span></span><span></span><span></span>
+        </button>
+      </div>
+      <!-- mobile drawer -->
+      <div class="pl-drawer" data-pl-drawer hidden>
+        {navLinks.map((l) => (
+          <a href={l.href} class="pl-drawer__link">{l.label}</a>
+        ))}
+        <a href="/" class="pl-drawer__link">Consumer site</a>
+        <a href="#apply" class="pl-drawer__link pl-drawer__link--cta">Apply for partnership</a>
+      </div>
+    </header>
+
+    <main id="main">
+      <slot />
+    </main>
+
+    <!-- ===== MUTED FOOTER ===== -->
+    <footer class="pl-footer">
+      <div class="pl-footer__inner">
+        <p class="pl-footer__line">
+          <span class="pl-footer__brand">QuoteYeti Partner Network</span>
+          <span class="pl-footer__dot" aria-hidden="true">·</span>
+          Conversations delivered. Revenue yours.
+        </p>
+        <nav class="pl-footer__nav" aria-label="Footer">
+          <a href="/">Consumer site</a>
+          <a href="/contact/">Contact</a>
+          <a href="/terms/">Terms</a>
+          <a href="/privacy-policy/">Privacy</a>
+        </nav>
+      </div>
+      <p class="pl-footer__legal">
+        QuoteYeti connects licensed agents and agencies with consumers who have requested an insurance conversation. We are not an insurer and do not provide insurance quotes. Partner participation is subject to license verification.
+      </p>
+    </footer>
+
+    <style>
+      .pl-body { background: var(--color-snow); }
+      .skip-link {
+        position: absolute; top: -100px; left: 0;
+        background: var(--color-resolution); color: var(--color-white);
+        padding: var(--space-3) var(--space-5); z-index: 200;
+        transition: top 0.2s ease;
+      }
+      .skip-link:focus { top: 0; }
+
+      /* ---------- HEADER ---------- */
+      .pl-header {
+        position: sticky; top: 0; z-index: 100;
+        background: rgba(20, 27, 48, 0.92);
+        backdrop-filter: saturate(140%) blur(10px);
+        -webkit-backdrop-filter: saturate(140%) blur(10px);
+        border-bottom: 1px solid rgba(255,255,255,0.08);
+      }
+      .pl-header__inner {
+        max-width: 1180px; margin-inline: auto;
+        padding: 0 var(--space-6); height: 60px;
+        display: flex; align-items: center; gap: var(--space-6);
+      }
+      .pl-brand {
+        display: inline-flex; align-items: center; gap: var(--space-2);
+        text-decoration: none; flex-shrink: 0;
+      }
+      .pl-brand__mark { filter: brightness(0) invert(1); opacity: 0.95; }
+      .pl-brand__name {
+        font-family: var(--font-display); font-weight: 800;
+        font-size: 1.05rem; color: var(--color-white); letter-spacing: -0.01em;
+      }
+      .pl-brand__sep { color: rgba(255,255,255,0.3); font-weight: 300; }
+      .pl-brand__product {
+        font-family: var(--font-display); font-weight: 500;
+        font-size: 0.95rem; color: rgba(255,255,255,0.65);
+      }
+      .pl-nav {
+        display: flex; align-items: center; gap: var(--space-6);
+        margin-inline: auto;
+      }
+      .pl-nav__link {
+        font-family: var(--font-display); font-weight: 500; font-size: 0.9rem;
+        color: rgba(255,255,255,0.72); text-decoration: none;
+        transition: color 0.15s ease;
+      }
+      .pl-nav__link:hover { color: var(--color-white); }
+      .pl-header__actions { display: flex; align-items: center; gap: var(--space-5); flex-shrink: 0; }
+      .pl-nav__link--ghost { color: rgba(255,255,255,0.5); font-size: 0.85rem; }
+      .pl-header__cta {
+        font-family: var(--font-display); font-weight: 700; font-size: 0.9rem;
+        color: var(--color-resolution); background: var(--color-white);
+        padding: var(--space-2) var(--space-5); border-radius: var(--radius-pill);
+        text-decoration: none; transition: transform 0.15s ease, background 0.15s ease;
+      }
+      .pl-header__cta:hover { transform: translateY(-1px); background: var(--color-alice); }
+
+      .pl-burger {
+        display: none; flex-direction: column; gap: 4px;
+        background: none; border: 0; cursor: pointer; padding: 8px;
+        margin-left: auto;
+      }
+      .pl-burger span { width: 22px; height: 2px; background: var(--color-white); border-radius: 2px; transition: 0.2s; }
+
+      .pl-drawer {
+        display: flex; flex-direction: column;
+        padding: var(--space-4) var(--space-6) var(--space-6);
+        border-top: 1px solid rgba(255,255,255,0.08);
+        background: var(--color-resolution);
+      }
+      .pl-drawer__link {
+        font-family: var(--font-display); font-weight: 600; font-size: 1rem;
+        color: rgba(255,255,255,0.85); text-decoration: none;
+        padding: var(--space-3) 0; border-bottom: 1px solid rgba(255,255,255,0.06);
+      }
+      .pl-drawer__link--cta { color: var(--color-orange); border-bottom: 0; }
+
+      @media (max-width: 860px) {
+        .pl-nav, .pl-header__actions { display: none; }
+        .pl-burger { display: flex; }
+        .pl-brand__product { display: none; }
+      }
+
+      /* ---------- FOOTER ---------- */
+      .pl-footer {
+        background: var(--color-resolution);
+        color: rgba(255,255,255,0.6);
+        padding: var(--space-10) var(--space-6) var(--space-12);
+        margin-top: var(--space-24);
+      }
+      .pl-footer__inner {
+        max-width: 1180px; margin-inline: auto;
+        display: flex; align-items: center; justify-content: space-between;
+        flex-wrap: wrap; gap: var(--space-4);
+      }
+      .pl-footer__line {
+        font-family: var(--font-display); font-size: 0.9rem; margin: 0;
+      }
+      .pl-footer__brand { color: rgba(255,255,255,0.85); font-weight: 600; }
+      .pl-footer__dot { margin-inline: var(--space-2); opacity: 0.4; }
+      .pl-footer__nav { display: flex; gap: var(--space-5); }
+      .pl-footer__nav a {
+        color: rgba(255,255,255,0.55); text-decoration: none;
+        font-size: 0.85rem; font-family: var(--font-display);
+        transition: color 0.15s ease;
+      }
+      .pl-footer__nav a:hover { color: var(--color-white); }
+      .pl-footer__legal {
+        max-width: 1180px; margin: var(--space-8) auto 0;
+        font-size: 0.75rem; line-height: 1.6; color: rgba(255,255,255,0.38);
+        border-top: 1px solid rgba(255,255,255,0.08); padding-top: var(--space-6);
+      }
+    </style>
+
+    <script>
+      const burger = document.querySelector("[data-pl-burger]");
+      const drawer = document.querySelector("[data-pl-drawer]");
+      if (burger && drawer) {
+        burger.addEventListener("click", () => {
+          const open = drawer.hasAttribute("hidden");
+          if (open) { drawer.removeAttribute("hidden"); }
+          else { drawer.setAttribute("hidden", ""); }
+          burger.setAttribute("aria-expanded", String(open));
+        });
+        drawer.querySelectorAll("a").forEach((a) =>
+          a.addEventListener("click", () => {
+            drawer.setAttribute("hidden", "");
+            burger.setAttribute("aria-expanded", "false");
+          })
+        );
+      }
+    </script>
+  </body>
+</html>
