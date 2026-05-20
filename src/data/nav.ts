@@ -215,7 +215,7 @@ export const NAV: NavEntry[] = [
           title: "Talk to us",
           links: [
             { label: "Contact", href: "/contact/" },
-            { label: "Partner with us", href: "/partners/" },
+            { label: "For Agents", href: "/partner-network/" },
           ],
         },
         {
