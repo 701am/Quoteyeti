@@ -31,12 +31,19 @@ const PRODUCTS = {
 };
 
 const PACKS = [
-  { id: "single", label: "Single",   qty: 1,   discount: 0 },
-  { id: "p100",   label: "100-pack", qty: 100, discount: 0.10 },
-  { id: "p500",   label: "500-pack", qty: 500, discount: 0.18 },
+  { id: "single", label: "Per lead",  qty: 1,   discount: 0 },
+  { id: "p100",   label: "100 leads", qty: 100, discount: 0.10 },
+  { id: "p500",   label: "500 leads", qty: 500, discount: 0.18 },
 ];
 
-const pricingData = JSON.stringify({ products: PRODUCTS, packs: PACKS });
+// Account terms — the self-serve funding model
+const ACCOUNT = {
+  minFunding: 250,
+  newAccountBonus: 10,   // bonus leads on first funding
+  referralBonus: 10,     // free leads per referred agent
+};
+
+const pricingData = JSON.stringify({ products: PRODUCTS, packs: PACKS, account: ACCOUNT });
 
 const steps = [
   { num: "01", title: "Define your territory", body: "State, county, metro, product lines, risk appetite. You set the boundaries — we don't send conversations you can't write." },
@@ -133,10 +140,10 @@ const commitments = [
   <!-- ===================== STAT STRIP ===================== -->
   <section class="pn-stats">
     <div class="pn-wrap pn-stats__grid">
-      <div class="pn-stat"><span class="pn-stat__num">3 min</span><span class="pn-stat__label">minimum billable live call</span></div>
+      <div class="pn-stat"><span class="pn-stat__num">$250</span><span class="pn-stat__label">minimum to fund an account</span></div>
+      <div class="pn-stat"><span class="pn-stat__num">+10</span><span class="pn-stat__label">bonus leads on new accounts</span></div>
+      <div class="pn-stat"><span class="pn-stat__num">+10</span><span class="pn-stat__label">free leads per agent you refer</span></div>
       <div class="pn-stat"><span class="pn-stat__num">$0</span><span class="pn-stat__label">paid for conversations that don't happen</span></div>
-      <div class="pn-stat"><span class="pn-stat__num">No</span><span class="pn-stat__label">contracts on self-serve</span></div>
-      <div class="pn-stat"><span class="pn-stat__num">100%</span><span class="pn-stat__label">consent-documented contacts</span></div>
     </div>
   </section>
 
@@ -183,8 +190,8 @@ const commitments = [
     <div class="pn-wrap">
       <header class="pn-section__head pn-section__head--center">
         <p class="pn-eyebrow">Pricing</p>
-        <h2 class="pn-h2">Build your order. See the price instantly.</h2>
-        <p class="pn-section__sub">Buy what you need. Scale when your numbers prove it. No minimums.</p>
+        <h2 class="pn-h2">See your per-lead cost instantly.</h2>
+        <p class="pn-section__sub">Fund your account, then draw down per lead. $250 minimum to start — and your first funding includes 10 bonus leads.</p>
       </header>
 
       <div class="pn-config" data-pricing={pricingData}>
@@ -209,17 +216,39 @@ const commitments = [
         </div>
 
         <div class="pn-config__summary" aria-live="polite">
-          <p class="pn-config__sumlabel" data-sum-label>Confirmed appointment · Auto · Single</p>
+          <p class="pn-config__sumlabel" data-sum-label>Confirmed appointment · Auto · Per lead</p>
           <div class="pn-config__price">
             <span class="pn-config__amount" data-sum-total>$20</span>
-            <span class="pn-config__per" data-sum-per>per appointment</span>
+            <span class="pn-config__per" data-sum-per>per lead</span>
           </div>
-          <p class="pn-config__detail" data-sum-detail>1 appointment · $20 each</p>
+          <p class="pn-config__detail" data-sum-detail>$20 per lead · fund any amount from $250</p>
+          <div class="pn-config__bonus" data-sum-bonus>
+            <span class="pn-config__bonus-icon" aria-hidden="true">★</span>
+            <span>Fund $250 today → get <strong>10 bonus leads</strong> on top, free.</span>
+          </div>
           <a href="#apply" class="pn-btn pn-btn--primary pn-btn--full">
-            <span>Apply to buy this</span>
+            <span>Apply for access</span>
             <svg width="16" height="14" viewBox="0 0 16 14" fill="none" aria-hidden="true"><path d="M9 1l6 6-6 6M1 7h14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
           </a>
-          <p class="pn-config__fineprint">Self-serve checkout opens after license verification.</p>
+          <p class="pn-config__fineprint">$250 minimum funding. Self-serve checkout opens after license verification.</p>
+        </div>
+      </div>
+
+      <!-- bonus / referral callout -->
+      <div class="pn-bonuses">
+        <div class="pn-bonus">
+          <span class="pn-bonus__num">+10</span>
+          <div>
+            <h3 class="pn-bonus__title">New-account bonus</h3>
+            <p class="pn-bonus__body">Fund your account for the first time (minimum $250) and we add 10 leads on the house.</p>
+          </div>
+        </div>
+        <div class="pn-bonus">
+          <span class="pn-bonus__num">+10</span>
+          <div>
+            <h3 class="pn-bonus__title">Refer an agent</h3>
+            <p class="pn-bonus__body">Every agent you refer who funds an account earns you 10 free leads. <span class="pn-bonus__web">Web-exclusive — only available here, not by phone.</span></p>
+          </div>
         </div>
       </div>
     </div>
@@ -297,8 +326,10 @@ const commitments = [
         {commitments.map((c) => (
           <article class="pn-commit__card">
             <span class="pn-commit__num">{c.num}</span>
-            <h3 class="pn-commit__title">{c.title}</h3>
-            <p class="pn-commit__body">{c.body}</p>
+            <div class="pn-commit__text">
+              <h3 class="pn-commit__title">{c.title}</h3>
+              <p class="pn-commit__body">{c.body}</p>
+            </div>
           </article>
         ))}
       </div>
@@ -424,14 +455,14 @@ const commitments = [
         const total = unit * pack.qty;
         const noun = state.product === "appointment" ? "appointment" : "live conversation";
 
+        // Always headline the PER-LEAD price; volume tiers lower it via discount.
+        sumTotal.textContent = fmt(unit);
+        sumPer.textContent = "per lead";
+
         if (pack.qty === 1) {
-          sumTotal.textContent = fmt(unit);
-          sumPer.textContent = "per " + noun;
-          sumDetail.textContent = `1 ${noun} · ${fmt(unit)} each`;
+          sumDetail.textContent = `${fmt(unit)} per ${noun} · fund any amount from $${data.account.minFunding}`;
         } else {
-          sumTotal.textContent = fmt(total);
-          sumPer.textContent = `${pack.qty}-pack`;
-          sumDetail.textContent = `${pack.qty} × ${fmt(unit)} each · ${Math.round(pack.discount*100)}% volume discount applied`;
+          sumDetail.textContent = `${fmt(unit)} per lead at ${pack.qty}+ (${Math.round(pack.discount*100)}% volume discount) · ${fmt(total)} buys ${pack.qty}`;
         }
         sumLabel.textContent = `${prod.label} · ${line.name.split(" ")[0]} · ${pack.label}`;
       }
@@ -630,6 +661,30 @@ const commitments = [
     .pn-config__detail { font-size: 0.82rem; color: rgba(255,255,255,0.7); margin: 0 0 var(--space-6); line-height: 1.5; min-height: 2.4em; }
     .pn-config__fineprint { font-size: 0.72rem; color: rgba(255,255,255,0.45); margin: var(--space-3) 0 0; text-align: center; }
     .pn-config__summary .pn-btn--primary { margin-top: auto; }
+    .pn-config__bonus {
+      display: flex; align-items: center; gap: var(--space-3);
+      background: rgba(229,90,43,0.14); border: 1px solid rgba(229,90,43,0.3);
+      border-radius: var(--radius-sm); padding: var(--space-3) var(--space-4);
+      margin-bottom: var(--space-5); font-size: 0.85rem; color: rgba(255,255,255,0.9); line-height: 1.4;
+    }
+    .pn-config__bonus strong { color: #ffb27a; }
+    .pn-config__bonus-icon { color: var(--color-orange); font-size: 1.1rem; flex-shrink: 0; }
+
+    /* bonus / referral callout cards under the configurator */
+    .pn-bonuses { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-5); max-width: 980px; margin: var(--space-8) auto 0; }
+    .pn-bonus {
+      display: grid; grid-template-columns: auto 1fr; gap: var(--space-4); align-items: start;
+      background: var(--color-white); border: 1px solid var(--color-border);
+      border-left: 3px solid var(--color-orange); border-radius: var(--radius);
+      padding: var(--space-5) var(--space-6); box-shadow: var(--shadow-xs);
+    }
+    .pn-bonus__num {
+      font-family: var(--font-display); font-weight: 800; font-size: 1.3rem;
+      color: var(--color-orange); line-height: 1;
+    }
+    .pn-bonus__title { font-family: var(--font-display); font-weight: 700; font-size: 1rem; color: var(--color-resolution); margin: 0 0 var(--space-1); }
+    .pn-bonus__body { font-size: 0.9rem; color: var(--color-text-muted); line-height: 1.5; margin: 0; }
+    .pn-bonus__web { display: block; margin-top: var(--space-2); font-weight: 600; color: var(--color-teal); font-size: 0.82rem; }
 
     /* ---------- HOW IT WORKS ---------- */
     .pn-how__steps { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--space-6); counter-reset: none; }
@@ -668,6 +723,7 @@ const commitments = [
     .pn-commit { background: var(--color-alice); }
     .pn-commit__grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-6); }
     .pn-commit__card { background: var(--color-white); border: 1px solid var(--color-border); border-radius: var(--radius-lg); padding: var(--space-7); display: grid; grid-template-columns: auto 1fr; gap: var(--space-4); align-items: start; box-shadow: var(--shadow-card); }
+    .pn-commit__text { min-width: 0; }
     .pn-commit__num { font-family: var(--font-display); font-weight: 800; font-size: 1.1rem; color: var(--color-white); background: var(--color-resolution); width: 2.2rem; height: 2.2rem; border-radius: var(--radius-sm); display: inline-flex; align-items: center; justify-content: center; }
     .pn-commit__title { font-family: var(--font-display); font-weight: 700; font-size: 1.05rem; color: var(--color-resolution); margin: 0 0 var(--space-2); line-height: 1.3; }
     .pn-commit__body { font-size: 0.92rem; color: var(--color-text-muted); line-height: 1.55; margin: 0; }
@@ -704,6 +760,7 @@ const commitments = [
       .pn-preview { order: -1; }
       .pn-config { grid-template-columns: 1fr; }
       .pn-buy, .pn-commit__grid { grid-template-columns: 1fr; }
+      .pn-bonuses { grid-template-columns: 1fr; }
       .pn-how__steps, .pn-stats__grid { grid-template-columns: 1fr 1fr; }
       .pn-who { grid-template-columns: 1fr; }
     }

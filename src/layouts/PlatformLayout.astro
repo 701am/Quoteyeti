@@ -176,14 +176,19 @@ const {
         background: none; border: 0; cursor: pointer; padding: 8px;
         margin-left: auto;
       }
-      .pl-burger span { width: 22px; height: 2px; background: var(--color-white); border-radius: 2px; transition: 0.2s; }
+      .pl-burger span { width: 22px; height: 2px; background: var(--color-white); border-radius: 2px; transition: 0.2s; transform-origin: center; }
+      .pl-burger.is-open span:nth-child(1) { transform: translateY(6px) rotate(45deg); }
+      .pl-burger.is-open span:nth-child(2) { opacity: 0; }
+      .pl-burger.is-open span:nth-child(3) { transform: translateY(-6px) rotate(-45deg); }
 
       .pl-drawer {
-        display: flex; flex-direction: column;
+        display: none;
+        flex-direction: column;
         padding: var(--space-4) var(--space-6) var(--space-6);
         border-top: 1px solid rgba(255,255,255,0.08);
         background: var(--color-resolution);
       }
+      .pl-drawer[hidden] { display: none; }
       .pl-drawer__link {
         font-family: var(--font-display); font-weight: 600; font-size: 1rem;
         color: rgba(255,255,255,0.85); text-decoration: none;
@@ -195,6 +200,8 @@ const {
         .pl-nav, .pl-header__actions { display: none; }
         .pl-burger { display: flex; }
         .pl-brand__product { display: none; }
+        /* drawer only exists at mobile widths, and only when opened (not [hidden]) */
+        .pl-drawer:not([hidden]) { display: flex; }
       }
 
       /* ---------- FOOTER ---------- */
@@ -237,11 +244,13 @@ const {
           if (open) { drawer.removeAttribute("hidden"); }
           else { drawer.setAttribute("hidden", ""); }
           burger.setAttribute("aria-expanded", String(open));
+          burger.classList.toggle("is-open", open);
         });
         drawer.querySelectorAll("a").forEach((a) =>
           a.addEventListener("click", () => {
             drawer.setAttribute("hidden", "");
             burger.setAttribute("aria-expanded", "false");
+            burger.classList.remove("is-open");
           })
         );
       }
